@@ -5,6 +5,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ParishCard, type ParishCardData } from '@/features/parishes/ParishCard'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { getParishesList } from '@/lib/payload/queries'
 
 export const revalidate = 600
 
@@ -23,19 +24,19 @@ const VICARIATES = [
   { value: 'diaspora', label: 'Diaspora' },
 ]
 
-// Mock data — replaced by CMS data in Stage 5
-const MOCK_PARISHES: ParishCardData[] = [
-  { slug: 'st-michael-segeneyti', name: 'Cathedral of Saint Michael', vicariate: 'segeneyti', patronSaint: 'Saint Michael the Archangel', city: 'Segeneyti', priestName: 'Tesfay Haile' },
-  { slug: 'st-mary-adi-keyih', name: 'Parish of Saint Mary', vicariate: 'adi-keyih', patronSaint: 'Our Lady of the Assumption', city: 'Adi Keyih', priestName: 'Gebrehiwet Tesfay' },
-  { slug: 'holy-trinity-dekemhare', name: 'Parish of the Holy Trinity', vicariate: 'dekemhare', patronSaint: 'The Holy Trinity', city: 'Dekemhare', priestName: 'Dawit Abraha' },
-  { slug: 'st-george-mendefera', name: 'Parish of Saint George', vicariate: 'mendefera', patronSaint: 'Saint George', city: 'Mendefera', priestName: 'Yohannes Kibrom' },
-  { slug: 'st-joseph-senafe', name: 'Parish of Saint Joseph', vicariate: 'adi-keyih', patronSaint: 'Saint Joseph', city: 'Senafé', priestName: 'Berhane Tewolde' },
-  { slug: 'immaculate-conception-areza', name: 'Parish of the Immaculate Conception', vicariate: 'mendefera', patronSaint: 'Our Lady Immaculate', city: 'Areza' },
-  { slug: 'st-stephen-rome', name: 'St Stephen Mission (Rome)', vicariate: 'diaspora', patronSaint: 'Saint Stephen', city: 'Rome, Italy' },
-  { slug: 'st-frumentius-london', name: "St Frumentius' Parish (London)", vicariate: 'diaspora', patronSaint: 'Saint Frumentius', city: 'London, UK' },
-]
+export default async function ParishesPage() {
+  const parishes = await getParishesList()
 
-export default function ParishesPage() {
+  const cards: ParishCardData[] = parishes.map((p) => ({
+    slug: p.slug,
+    name: p.title,
+    vicariate: p.vicariate ?? 'segeneyti',
+    patronSaint: p.patronSaint,
+    city: p.city,
+    imageUrl: p.image?.url,
+    priestName: p.pastor ?? undefined,
+  }))
+
   return (
     <>
       <PageHeader
@@ -46,7 +47,7 @@ export default function ParishesPage() {
 
       <Section className="bg-white">
         <Container>
-          {/* Vicariate filter */}
+          {/* Vicariate filter (static UI — dynamic filtering in Stage 6) */}
           <div className="flex flex-wrap gap-2 mb-8 border-b border-charcoal-100 pb-4">
             {VICARIATES.map((v) => (
               <button
@@ -66,9 +67,9 @@ export default function ParishesPage() {
           {/* Stats row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
             {[
-              { label: 'Total Parishes', value: '47' },
+              { label: 'Total Parishes', value: String(cards.length || '—') },
               { label: 'Vicariates', value: '5' },
-              { label: 'Priests', value: '62' },
+              { label: 'Priests', value: String(cards.filter((p) => p.priestName).length || '—') },
               { label: 'Countries', value: '18' },
             ].map((stat) => (
               <div key={stat.label} className="rounded-lg bg-parchment-50 border border-parchment-200 p-4 text-center">
@@ -79,14 +80,14 @@ export default function ParishesPage() {
           </div>
 
           {/* Parish grid */}
-          {MOCK_PARISHES.length > 0 ? (
+          {cards.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {MOCK_PARISHES.map((p) => (
+              {cards.map((p) => (
                 <ParishCard key={p.slug} parish={p} />
               ))}
             </div>
           ) : (
-            <EmptyState title="No parishes found" description="Try a different vicariate filter." />
+            <EmptyState title="No parishes found" description="Parish data will appear here once added to the CMS." />
           )}
         </Container>
       </Section>

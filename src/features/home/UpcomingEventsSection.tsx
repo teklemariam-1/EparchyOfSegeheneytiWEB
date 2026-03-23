@@ -1,33 +1,20 @@
 import Link from 'next/link'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
-import { formatDate } from '@/lib/formatters/date'
+import type { EventListItem, HomepageGlobal } from '@/lib/payload/queries'
 
-const MOCK_EVENTS = [
-  {
-    id: '1',
-    title: 'Palm Sunday Procession',
-    startDate: '2026-03-29T07:00:00Z',
-    location: 'Cathedral of Segeneyti',
-    slug: 'palm-sunday-2026',
-  },
-  {
-    id: '2',
-    title: 'Easter Vigil Mass',
-    startDate: '2026-04-04T20:00:00Z',
-    location: 'All Parishes',
-    slug: 'easter-vigil-2026',
-  },
-  {
-    id: '3',
-    title: 'Youth Conference 2026',
-    startDate: '2026-05-10T09:00:00Z',
-    location: 'Segeneyti Youth Center',
-    slug: 'youth-conference-2026',
-  },
-]
+interface Props {
+  config?: HomepageGlobal['upcomingEvents']
+  events: EventListItem[]
+}
 
-export function UpcomingEventsSection() {
+export function UpcomingEventsSection({ config, events }: Props) {
+  if (config?.enabled === false) return null
+
+  const heading = config?.heading ?? 'Upcoming Events'
+
+  if (!events.length) return null
+
   return (
     <Section className="bg-parchment" aria-labelledby="events-section-title">
       <Container>
@@ -40,7 +27,7 @@ export function UpcomingEventsSection() {
               id="events-section-title"
               className="text-3xl md:text-4xl font-serif font-bold text-maroon-900"
             >
-              Upcoming Events
+              {heading}
             </h2>
             <div className="divider-gold mt-3" />
           </div>
@@ -50,14 +37,14 @@ export function UpcomingEventsSection() {
         </div>
 
         <div className="space-y-4">
-          {MOCK_EVENTS.map((event) => {
+          {events.map((event) => {
             const eventDate = new Date(event.startDate)
             const day = eventDate.getDate()
             const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(eventDate)
-            const time = new Intl.DateTimeFormat('en', {
-              hour: 'numeric',
-              minute: '2-digit',
-            }).format(eventDate)
+            const time = event.isAllDay
+              ? 'All Day'
+              : new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-digit' }).format(eventDate)
+            const venue = event.location?.venue ?? event.location?.city ?? ''
 
             return (
               <Link
@@ -83,13 +70,15 @@ export function UpcomingEventsSection() {
                       </svg>
                       {time}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0z" />
-                      </svg>
-                      {event.location}
-                    </span>
+                    {venue && (
+                      <span className="flex items-center gap-1">
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0z" />
+                        </svg>
+                        {venue}
+                      </span>
+                    )}
                   </div>
                 </div>
 

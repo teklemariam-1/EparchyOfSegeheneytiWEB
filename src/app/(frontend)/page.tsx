@@ -5,6 +5,12 @@ import { UpcomingEventsSection } from '@/features/home/UpcomingEventsSection'
 import { BishopMessageSection } from '@/features/home/BishopMessageSection'
 import { QuickLinksSection } from '@/features/home/QuickLinksSection'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
+import {
+  getHomepageGlobal,
+  getNewsList,
+  getUpcomingEvents,
+  getLatestBishopMessage,
+} from '@/lib/payload/queries'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Catholic Eparchy of Segeneyti',
@@ -13,17 +19,27 @@ export const metadata: Metadata = buildMetadata({
   isHome: true,
 })
 
-// Revalidate home page every 5 minutes; Payload afterChange hooks will
-// call revalidateTag('homepage') for immediate cache busting on publish.
 export const revalidate = 300
 
 export default async function HomePage() {
+  // Fetch the homepage global first so we can use its configured limits
+  const homepage = await getHomepageGlobal()
+
+  const newsLimit = homepage.latestNews?.limit ?? 3
+  const eventsLimit = homepage.upcomingEvents?.limit ?? 5
+
+  const [{ docs: news }, events, bishopMessage] = await Promise.all([
+    getNewsList({ limit: newsLimit }),
+    getUpcomingEvents(eventsLimit),
+    getLatestBishopMessage(),
+  ])
+
   return (
     <>
-      <HeroSection />
-      <BishopMessageSection />
-      <LatestNewsSection />
-      <UpcomingEventsSection />
+      <HeroSection hero={homepage.hero} />
+      <BishopMessageSection config={homepage.bishopMessage} message={bishopMessage} />
+      <LatestNewsSection config={homepage.latestNews} news={news} />
+      <UpcomingEventsSection config={homepage.upcomingEvents} events={events} />
       <QuickLinksSection />
     </>
   )

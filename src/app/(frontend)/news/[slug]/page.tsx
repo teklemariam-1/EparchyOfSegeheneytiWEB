@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { formatDate } from '@/lib/formatters/date'
-import { notFound } from 'next/navigation'
-import Link from 'next/link'
+import { RichText } from '@/components/shared/RichText'
+import { getNewsBySlug, getNewsList, getAllNewsSlugs } from '@/lib/payload/queries'
 
 export const revalidate = 300
 
@@ -14,74 +17,39 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-// Mock data — real fetch via Payload in Stage 5
-const MOCK_ARTICLES: Record<
-  string,
-  {
-    title: string
-    category: string
-    publishedAt: string
-    author: string
-    excerpt: string
-    body: string[]
-    relatedSlugs: string[]
-  }
-> = {
-  'bishop-pastoral-letter-2024': {
-    title: 'Bishop Issues Pastoral Letter on Family and Faith',
-    category: 'eparchy',
-    publishedAt: '2024-12-01T08:00:00Z',
-    author: 'Chancery Office',
-    excerpt:
-      'In a heartfelt message to the faithful, the Bishop of Segeneyti reflects on the role of the family as the domestic church.',
-    body: [
-      'In a wide-ranging pastoral letter addressed to the clergy, religious, and lay faithful of the Eparchy of Segeneyti, the Bishop has called for a renewed commitment to building up the family as the domestic church.',
-      'The letter, issued at the beginning of the Ge\'ez liturgical year, draws on the teaching of the Second Vatican Council and recent magisterial documents to emphasise that the home is the primary place of encounter with the living God.',
-      '"Every Christian home is a little church," the Bishop writes. "When parents pray with their children, when forgiveness is practised daily, when the table becomes an altar of encounter — there the Kingdom of God takes root."',
-      'The pastoral letter also outlined concrete proposals: a monthly Family Rosary initiative to be promoted in every parish, the formation of family leadership teams within each Small Christian Community, and a diocesan Family Day to be celebrated on the feast of the Holy Family.',
-    ],
-    relatedSlugs: ['advent-preparations-parishes', 'synod-eritrean-bishops'],
-  },
-}
-
-const RELATED_TITLES: Record<string, string> = {
-  'advent-preparations-parishes': 'Parishes Across the Eparchy Prepare for Advent Season',
-  'synod-eritrean-bishops': "Eritrean Catholic Bishops' Conference Concludes Autumn Synod",
-  'youth-day-segeneyti-2024': 'Diocesan Youth Day 2024 Draws 800 Young Pilgrims',
+export async function generateStaticParams() {
+  return getAllNewsSlugs()
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const article = MOCK_ARTICLES[slug]
+  const article = await getNewsBySlug(slug)
   return buildMetadata({
-    title: article?.title ?? `News — ${slug}`,
-    description: article?.excerpt,
+    title: article?.seo?.title ?? article?.title ?? `News — ${slug}`,
+    description: article?.seo?.description ?? article?.excerpt,
     path: `/news/${slug}`,
   })
 }
 
 export default async function NewsDetailPage({ params }: Props) {
   const { slug } = await params
-  const article = MOCK_ARTICLES[slug]
+  const [article, { docs: related }] = await Promise.all([
+    getNewsBySlug(slug),
+    getNewsList({ limit: 4 }),
+  ])
 
-  // Fallback article for unknown slugs during Stage 4 preview
-  const display = article ?? {
-    title: decodeURIComponent(slug).replace(/-/g, ' '),
-    category: 'eparchy',
-    publishedAt: new Date().toISOString(),
-    author: 'Chancery Office',
-    excerpt: '',
-    body: [
-      'Full article content will be available once this page is connected to the CMS in Stage 5.',
-    ],
-    relatedSlugs: [],
-  }
+  if (!article) notFound()
+
+  const relatedArticles = related.filter((r) => r.slug !== slug).slice(0, 3)
+  const categoryLabel = article.category
+    ? article.category.charAt(0).toUpperCase() + article.category.slice(1)
+    : 'News'
 
   return (
     <>
       <PageHeader
-        title={display.title}
-        breadcrumbs={[{ label: 'News', href: '/news' }, { label: display.title }]}
+        title={article.title}
+        breadcrumbs={[{ label: 'News', href: '/news' }, { label: article.title }]}
       />
 
       <Section className="bg-white">
@@ -91,41 +59,59 @@ export default async function NewsDetailPage({ params }: Props) {
             <article className="lg:col-span-2">
               {/* Meta row */}
               <div className="flex flex-wrap items-center gap-3 mb-6">
-                <Badge variant="maroon">{display.category.charAt(0).toUpperCase() + display.category.slice(1)}</Badge>
-                <time className="text-sm text-charcoal-400" dateTime={display.publishedAt}>
-                  {formatDate(display.publishedAt)}
-                </time>
-                <span className="text-sm text-charcoal-400">·</span>
-                <span className="text-sm text-charcoal-500">By {display.author}</span>
+                <Badge variant="maroon">{categoryLabel}</Badge>
+                {article.publishedAt && (
+                  <time className="text-sm text-charcoal-400" dateTime={article.publishedAt}>
+                    {formatDate(article.publishedAt)}
+                  </time>
+                )}
+                {article.author && (
+                  <>
+                    <span className="text-sm text-charcoal-400">·</span>
+                    <span className="text-sm text-charcoal-500">By {article.author}</span>
+                  </>
+                )}
               </div>
 
-              {/* Image placeholder */}
-              <div className="mb-8 h-64 md:h-80 rounded-xl bg-parchment-100 flex items-center justify-center">
-                <svg
-                  className="h-16 w-16 text-maroon-200"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              {/* Featured image */}
+              {article.featuredImage?.url ? (
+                <div className="mb-8 relative h-64 md:h-80 rounded-xl overflow-hidden">
+                  <Image
+                    src={article.featuredImage.url}
+                    alt={article.featuredImage.alt}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 66vw"
                   />
-                </svg>
-              </div>
+                </div>
+              ) : (
+                <div className="mb-8 h-64 md:h-80 rounded-xl bg-parchment-100 flex items-center justify-center">
+                  <svg className="h-16 w-16 text-maroon-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              )}
 
-              {/* Body */}
-              <div className="prose prose-eparchy max-w-none">
-                {display.excerpt && <p className="lead">{display.excerpt}</p>}
-                {display.body.map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
-              </div>
+              {/* Rich text content */}
+              {article.content ? (
+                <RichText data={article.content} />
+              ) : article.excerpt ? (
+                <div className="prose prose-eparchy max-w-none">
+                  <p className="lead">{article.excerpt}</p>
+                </div>
+              ) : null}
 
-              {/* Share / nav */}
+              {/* Tags */}
+              {article.tags && article.tags.length > 0 && (
+                <div className="mt-8 flex flex-wrap gap-2">
+                  {article.tags.map((tag) => (
+                    <Badge key={tag} variant="neutral">{tag}</Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Back link */}
               <div className="mt-10 flex items-center justify-between border-t border-charcoal-100 pt-6">
                 <Link
                   href="/news"
@@ -139,39 +125,40 @@ export default async function NewsDetailPage({ params }: Props) {
             {/* Sidebar */}
             <aside className="space-y-8">
               {/* Related articles */}
-              {display.relatedSlugs.length > 0 && (
+              {relatedArticles.length > 0 && (
                 <div className="card p-5">
                   <h3 className="font-serif text-base font-semibold text-charcoal-900 mb-4">
                     Related Articles
                   </h3>
                   <ul className="divide-y divide-charcoal-100">
-                    {display.relatedSlugs.map((s) => (
-                      <li key={s} className="py-3">
+                    {relatedArticles.map((r) => (
+                      <li key={r.slug} className="py-3">
                         <Link
-                          href={`/news/${s}`}
+                          href={`/news/${r.slug}`}
                           className="text-sm font-medium text-charcoal-700 hover:text-maroon-700 transition-colors line-clamp-2"
                         >
-                          {RELATED_TITLES[s] ?? s.replace(/-/g, ' ')}
+                          {r.title}
                         </Link>
+                        {r.publishedAt && (
+                          <p className="text-xs text-charcoal-400 mt-1">
+                            {formatDate(r.publishedAt, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </p>
+                        )}
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              {/* Latest news CTA */}
+              {/* Subscribe CTA */}
               <div className="rounded-xl bg-parchment-50 border border-parchment-200 p-5">
                 <h3 className="font-serif text-base font-semibold text-charcoal-900 mb-2">
                   Stay Informed
                 </h3>
                 <p className="text-xs text-charcoal-600 mb-4 leading-relaxed">
-                  Subscribe to the Eparchy newsletter to receive news and pastoral letters
-                  directly in your inbox.
+                  Subscribe to the Eparchy newsletter to receive news and pastoral letters directly in your inbox.
                 </p>
-                <Link
-                  href="/contact"
-                  className="btn-primary w-full text-center block text-sm"
-                >
+                <Link href="/contact" className="btn-primary w-full text-center block text-sm">
                   Subscribe
                 </Link>
               </div>

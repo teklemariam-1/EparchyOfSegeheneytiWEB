@@ -5,6 +5,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { EventCard, type EventCardData } from '@/features/events/EventCard'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { getEventsList } from '@/lib/payload/queries'
 
 export const revalidate = 300
 
@@ -14,75 +15,33 @@ export const metadata: Metadata = buildMetadata({
   path: '/events',
 })
 
-// Mock data — real fetch via Payload in Stage 5
-const UPCOMING: EventCardData[] = [
-  {
-    slug: 'feast-of-st-michael-2025',
-    title: 'Feast of Saint Michael the Archangel',
-    excerpt: 'The patron feast of Segeneyti Cathedral. Solemn Mass, procession, and community celebrations throughout the day.',
-    eventType: 'liturgical',
-    startDate: '2025-01-12T08:00:00Z',
-    location: 'Segeneyti Cathedral',
-  },
-  {
-    slug: 'diocesan-clergy-retreat-2025',
-    title: 'Annual Clergy Retreat',
-    excerpt: 'All eparchial priests are invited to the annual retreat led by a guest retreat master. Registration required.',
-    eventType: 'retreat',
-    startDate: '2025-01-20T07:00:00Z',
-    endDate: '2025-01-24T18:00:00Z',
-    location: 'Comboni House, Asmara',
-  },
-  {
-    slug: 'ordination-diaconate-2025',
-    title: 'Ordination to the Diaconate',
-    excerpt: 'Three seminarians will be ordained deacons by the Bishop of Segeneyti. Family and faithful are warmly invited.',
-    eventType: 'ordination',
-    startDate: '2025-02-08T09:00:00Z',
-    location: 'Segeneyti Cathedral',
-  },
-  {
-    slug: 'lenten-youth-retreat-2025',
-    title: 'Lenten Youth Retreat — "Walk in the Light"',
-    excerpt: 'The annual diocesan youth retreat, open to all young people aged 16–30. Workshops, testimonies, and Eucharistic adoration.',
-    eventType: 'youth',
-    startDate: '2025-03-07T08:00:00Z',
-    endDate: '2025-03-09T17:00:00Z',
-    location: 'Adi Keyih Parish Centre',
-  },
-  {
-    slug: 'pilgrimage-qohaito-2025',
-    title: 'Annual Pilgrimage to Qohaito',
-    excerpt: 'The traditional pilgrimage to the ancient ruins of Qohaito, blending historical reflection and Marian prayer.',
-    eventType: 'pilgrimage',
-    startDate: '2025-04-26T06:00:00Z',
-    location: 'Qohaito, Eritrea',
-  },
-]
+function toCard(ev: Awaited<ReturnType<typeof getEventsList>>['docs'][number], isPast = false): EventCardData {
+  return {
+    slug: ev.slug,
+    title: ev.title,
+    excerpt: ev.excerpt ?? '',
+    eventType: ev.eventType ?? 'community',
+    startDate: ev.startDate,
+    endDate: ev.endDate,
+    location: ev.location?.venue ?? ev.location?.city,
+    imageUrl: ev.featuredImage?.url,
+    isPast,
+  }
+}
 
-const PAST: EventCardData[] = [
-  {
-    slug: 'youth-day-segeneyti-2024',
-    title: 'Diocesan Youth Day 2024',
-    excerpt: 'Over 800 young people gathered in Segeneyti around the theme "Walk in the Light."',
-    eventType: 'youth',
-    startDate: '2024-11-15T08:00:00Z',
-    location: 'Segeneyti',
-    isPast: true,
-  },
-  {
-    slug: 'synod-autumn-2024',
-    title: "Bishops' Conference Autumn Synod",
-    excerpt: 'The Eritrean Catholic Bishops concluded their autumn plenary with a joint communiqué.',
-    eventType: 'diocesan',
-    startDate: '2024-11-04T09:00:00Z',
-    endDate: '2024-11-06T17:00:00Z',
-    location: 'Asmara',
-    isPast: true,
-  },
-]
+export default async function EventsPage() {
+  const [{ docs: upcoming }, { docs: past }] = await Promise.all([
+    getEventsList({ upcoming: true, limit: 12 }),
+    getEventsList({ upcoming: false, limit: 8 }),
+  ])
 
-export default function EventsPage() {
+  const upcomingCards = upcoming.map((ev) => toCard(ev, false))
+  // Past = events with startDate in the past
+  const now = new Date()
+  const pastCards = past
+    .filter((ev) => new Date(ev.startDate) < now)
+    .map((ev) => toCard(ev, true))
+
   return (
     <>
       <PageHeader
@@ -98,14 +57,16 @@ export default function EventsPage() {
             <h2 className="text-xl font-serif font-semibold text-charcoal-900">
               Upcoming Events
             </h2>
-            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-              {UPCOMING.length} scheduled
-            </span>
+            {upcomingCards.length > 0 && (
+              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+                {upcomingCards.length} scheduled
+              </span>
+            )}
           </div>
 
-          {UPCOMING.length > 0 ? (
+          {upcomingCards.length > 0 ? (
             <div className="grid sm:grid-cols-2 gap-4">
-              {UPCOMING.map((ev) => (
+              {upcomingCards.map((ev) => (
                 <EventCard key={ev.slug} event={ev} />
               ))}
             </div>
@@ -119,23 +80,22 @@ export default function EventsPage() {
       </Section>
 
       {/* ── Past ─────────────────────────────────────────────────── */}
-      <Section className="bg-parchment-50">
-        <Container>
-          <h2 className="text-xl font-serif font-semibold text-charcoal-900 mb-6">
-            Past Events
-          </h2>
-
-          {PAST.length > 0 ? (
+      {pastCards.length > 0 && (
+        <Section className="bg-parchment-50">
+          <Container>
+            <h2 className="text-xl font-serif font-semibold text-charcoal-900 mb-6">
+              Past Events
+            </h2>
             <div className="grid sm:grid-cols-2 gap-4">
-              {PAST.map((ev) => (
+              {pastCards.map((ev) => (
                 <EventCard key={ev.slug} event={ev} />
               ))}
             </div>
-          ) : (
-            <EmptyState title="No past events recorded" description="" />
-          )}
-        </Container>
-      </Section>
+          </Container>
+        </Section>
+      )}
     </>
   )
 }
+
+

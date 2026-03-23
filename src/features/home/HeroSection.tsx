@@ -1,24 +1,43 @@
 import Link from 'next/link'
+import Image from 'next/image'
+import type { HomepageGlobal } from '@/lib/payload/queries'
 
-/**
- * Hero section for the home page.
- * Uses static content for Stage 2; will be connected to the Homepage global in Stage 5.
- */
-export function HeroSection() {
+interface Props {
+  hero?: HomepageGlobal['hero']
+}
+
+export function HeroSection({ hero }: Props) {
+  const heading = hero?.heading ?? "Serving God's People"
+  const subheading = hero?.subheading ?? 'in Faith & Community'
+  const ctaPrimary = hero?.ctaPrimary ?? { label: 'Learn About the Eparchy', url: '/about' }
+  const ctaSecondary = hero?.ctaSecondary ?? { label: 'Find a Parish', url: '/parishes' }
+  const bg = hero?.backgroundImage
+
   return (
     <section
       className="relative bg-maroon-900 text-white overflow-hidden"
       aria-label="Welcome banner"
     >
-      {/* Background pattern */}
-      <div
-        className="absolute inset-0 opacity-5 pointer-events-none"
-        aria-hidden="true"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M26 0h8v26H60v8H34v26h-8V34H0v-8h26z'/%3E%3C/g%3E%3C/svg%3E")`,
-          backgroundSize: '60px 60px',
-        }}
-      />
+      {/* Background image (CMS) or pattern fallback */}
+      {bg?.url ? (
+        <Image
+          src={bg.url}
+          alt={bg.alt}
+          fill
+          className="object-cover opacity-30"
+          priority
+          sizes="100vw"
+        />
+      ) : (
+        <div
+          className="absolute inset-0 opacity-5 pointer-events-none"
+          aria-hidden="true"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M26 0h8v26H60v8H34v26h-8V34H0v-8h26z'/%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px',
+          }}
+        />
+      )}
 
       {/* Gold top accent */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600" />
@@ -31,8 +50,10 @@ export function HeroSection() {
           </p>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-tight text-white mb-6">
-            Serving God&apos;s People
-            <span className="block text-gold-300">in Faith &amp; Community</span>
+            {heading}
+            {subheading && (
+              <span className="block text-gold-300">{subheading}</span>
+            )}
           </h1>
 
           <p className="text-lg md:text-xl text-maroon-200 leading-relaxed mb-8 max-w-2xl">
@@ -41,12 +62,16 @@ export function HeroSection() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <Link href="/about" className="btn-gold">
-              Learn About the Eparchy
-            </Link>
-            <Link href="/parishes" className="btn-secondary border-white text-white hover:bg-white/10 hover:text-white">
-              Find a Parish
-            </Link>
+            {ctaPrimary?.url && (
+              <Link href={ctaPrimary.url} className="btn-gold">
+                {ctaPrimary.label ?? 'Learn More'}
+              </Link>
+            )}
+            {ctaSecondary?.url && (
+              <Link href={ctaSecondary.url} className="btn-secondary border-white text-white hover:bg-white/10 hover:text-white">
+                {ctaSecondary.label ?? 'Find a Parish'}
+              </Link>
+            )}
           </div>
         </div>
       </div>
