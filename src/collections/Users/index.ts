@@ -1,30 +1,34 @@
 import type { CollectionConfig } from 'payload'
-import { isPublicRead, isSuperAdmin, isRoleOneOf } from '@/lib/permissions/collectionAccess'
+import { isSuperAdmin, isRoleOneOf } from '@/lib/permissions/collectionAccess'
+import { selfOrAdmin } from '@/lib/permissions/fieldAccess'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   auth: true,
   admin: {
     useAsTitle: 'email',
-    defaultColumns: ['email', 'firstName', 'lastName', 'role'],
+    defaultColumns: ['email', 'firstName', 'lastName', 'role', 'assignedParish'],
     group: 'Administration',
+    description: 'CMS users and their editorial roles.',
   },
   access: {
     read: isRoleOneOf('super-admin', 'chancery-editor'),
     create: isSuperAdmin,
-    update: isRoleOneOf('super-admin', 'chancery-editor'),
+    update: ({ req }) => {
+      const user = req.user as { id: string; role: string } | null
+      if (!user) return false
+      if (user.role === 'super-admin') return true
+      return { id: { equals: user.id } }
+    },
     delete: isSuperAdmin,
   },
   fields: [
     {
-      name: 'firstName',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'lastName',
-      type: 'text',
-      required: true,
+      type: 'row',
+      fields: [
+        { name: 'firstName', type: 'text', required: true },
+        { name: 'lastName', type: 'text', required: true },
+      ],
     },
     {
       name: 'role',
@@ -39,8 +43,10 @@ export const Users: CollectionConfig = {
         { label: 'Catechist Editor', value: 'catechist-editor' },
         { label: 'Media Editor', value: 'media-editor' },
       ],
+      access: { update: selfOrAdmin },
       admin: {
         position: 'sidebar',
+        description: 'Determines which content areas this user can edit.',
       },
     },
     {
@@ -48,10 +54,17 @@ export const Users: CollectionConfig = {
       type: 'relationship',
       relationTo: 'parishes',
       admin: {
-        description: 'Required for parish-editor role — limits edit scope to this parish.',
         position: 'sidebar',
+        description: 'Required for parish-editor role — limits edit scope to this parish.',
         condition: (data) => data?.role === 'parish-editor',
       },
     },
+    {
+      name: 'profilePhoto',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { position: 'sidebar' },
+    },
   ],
+  timestamps: true,
 }
