@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Custom base layer ─────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --color-primary: theme('colors.maroon.800');
+    --color-primary-light: theme('colors.maroon.700');
+    --color-gold: theme('colors.gold.500');
+    --color-bg: theme('colors.parchment.DEFAULT');
+    --color-text: theme('colors.charcoal.800');
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-base leading-relaxed;
+  }
+
+  /* Headings use serif */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+
+  /* Focus ring — accessible and branded */
+  :focus-visible {
+    @apply outline-none ring-2 ring-maroon-700 ring-offset-2;
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: theme('colors.gold.200');
+    color: theme('colors.maroon.900');
+  }
+}
+
+/* ── Reusable component utilities ───────────────────────────────────── */
+@layer components {
+  /* Card base */
+  .card {
+    @apply bg-white rounded-xl shadow-card border border-charcoal-100 overflow-hidden transition-shadow hover:shadow-card-hover;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-maroon-800 px-5 py-2.5
+           text-sm font-semibold text-white shadow-sm
+           hover:bg-maroon-700 active:bg-maroon-900
+           focus-visible:ring-2 focus-visible:ring-maroon-700 focus-visible:ring-offset-2
+           transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary / outline button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-maroon-800 px-5 py-2.5
+           text-sm font-semibold text-maroon-800
+           hover:bg-maroon-50 active:bg-maroon-100
+           focus-visible:ring-2 focus-visible:ring-maroon-700 focus-visible:ring-offset-2
+           transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Ghost / text-link button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+           text-sm font-medium text-maroon-800
+           hover:bg-maroon-50
+           transition-colors duration-150;
+  }
+
+  /* Gold accent button */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 px-5 py-2.5
+           text-sm font-semibold text-charcoal-900 shadow-sm
+           hover:bg-gold-400 active:bg-gold-600
+           transition-colors duration-150;
+  }
+
+  /* Section wrapper with consistent vertical spacing */
+  .section {
+    @apply py-16 md:py-20 lg:py-24;
+  }
+
+  /* Page-level header block */
+  .page-header {
+    @apply bg-maroon-800 text-white py-14 md:py-20;
+  }
+
+  /* Container */
+  .container-narrow {
+    @apply mx-auto max-w-3xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Gold divider accent */
+  .divider-gold {
+    @apply h-1 w-16 rounded-full bg-gradient-to-r from-gold-400 to-gold-600;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-maroon {
+    @apply badge bg-maroon-100 text-maroon-800;
+  }
+
+  .badge-gold {
+    @apply badge bg-gold-100 text-gold-800;
+  }
+
+  .badge-neutral {
+    @apply badge bg-charcoal-100 text-charcoal-700;
+  }
+}
+
+/* ── Ge'ez / Tigrinya font support ──────────────────────────────────── */
+/* When a Ge'ez web font is loaded, apply it to elements with lang="ti" */
+[lang='ti'], .font-geez {
+  font-family: var(--font-geez, 'Noto Serif Ethiopic', Georgia, serif);
+}
+
+/* ── Payload Admin overrides (admin route only) ──────────────────────── */
+/* Minimal — keep Payload admin UI intact */
