@@ -1,0 +1,185 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "aboutEparchy": "About the Eparchy",
+    "bishop": "Bishop",
+    "history": "History",
+    "parishes": "Parishes",
+    "news": "News",
+    "events": "Events",
+    "ministries": "Ministries",
+    "allMinistries": "All Ministries",
+    "youthCouncil": "Youth Council",
+    "catechists": "Catechists",
+    "childrenMinistry": "Children's Ministry",
+    "smallChristianCommunity": "Small Christian Community",
+    "priestsMinistries": "Priests & Ministries",
+    "resources": "Resources",
+    "bishopMessages": "Bishop's Messages",
+    "popeMessages": "Pope Messages",
+    "geezCalendar": "Ge'ez Calendar",
+    "publications": "Publications",
+    "magazines": "Magazines",
+    "archives": "Archives",
+    "media": "Media",
+    "gallery": "Gallery",
+    "videos": "Videos",
+    "contact": "Contact",
+    "search": "Search"
+  },
+  "common": {
+    "readMore": "Read More",
+    "viewAll": "View All",
+    "loading": "Loading…",
+    "noResults": "No results found",
+    "backToTop": "Back to top",
+    "switchToTigrinya": "Switch to ትግርኛ",
+    "switchToEnglish": "Switch to English",
+    "postedOn": "Posted on",
+    "by": "by",
+    "category": "Category",
+    "allCategories": "All Categories",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "download": "Download",
+    "share": "Share",
+    "close": "Close",
+    "open": "Open",
+    "next": "Next",
+    "previous": "Previous",
+    "page": "Page",
+    "of": "of"
+  },
+  "a11y": {
+    "skipToMain": "Skip to main content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mainNavigation": "Main navigation",
+    "mobileNavigation": "Mobile navigation",
+    "logoAlt": "Eparchy of Segeneyti logo",
+    "socialLinks": "Social media links",
+    "breadcrumb": "Breadcrumb"
+  },
+  "home": {
+    "heroTitle": "Catholic Eparchy of Segeneyti",
+    "heroSubtitle": "Serving God's people through faith, community, and mission in Eritrea.",
+    "latestNews": "Latest News",
+    "upcomingEvents": "Upcoming Events",
+    "quickLinks": "Quick Links",
+    "bishopMessage": "A Word from the Bishop"
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "Stay informed with the latest from the Eparchy.",
+    "noNews": "No news articles found.",
+    "filterByCategory": "Filter by category"
+  },
+  "events": {
+    "title": "Events",
+    "subtitle": "Upcoming liturgical celebrations, pastoral gatherings, and community events.",
+    "noEvents": "No events found.",
+    "date": "Date",
+    "location": "Location",
+    "time": "Time",
+    "register": "Register"
+  },
+  "parishes": {
+    "title": "Parishes",
+    "subtitle": "Find a parish community near you within the Eparchy of Segeneyti.",
+    "noParishes": "No parishes found.",
+    "filterByVicariate": "Filter by vicariate",
+    "allVicariates": "All Vicariates",
+    "vicariate": "Vicariate",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "website": "Website",
+    "getDirections": "Get Directions"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with the Eparchy of Segeneyti.",
+    "name": "Your Name",
+    "email": "Email Address",
+    "phone": "Phone (optional)",
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send Message",
+    "sending": "Sending…",
+    "successTitle": "Message Sent!",
+    "successMessage": "Thank you for reaching out. We will get back to you as soon as possible.",
+    "errorTitle": "Failed to Send",
+    "errorMessage": "Something went wrong. Please try again or contact us by phone.",
+    "required": "Required",
+    "nameRequired": "Name is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email address",
+    "subjectRequired": "Subject is required",
+    "messageRequired": "Message is required"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search for news, events, parishes…",
+    "noResults": "No results found for",
+    "results": "results for",
+    "allContent": "All Content",
+    "searchScope": "Search scope"
+  },
+  "media": {
+    "title": "Media",
+    "subtitle": "Photo galleries, videos, and visual resources from across the Eparchy.",
+    "noMedia": "No media found.",
+    "gallery": "Photo Gallery",
+    "videos": "Videos",
+    "viewGallery": "View Gallery"
+  },
+  "publications": {
+    "title": "Publications",
+    "subtitle": "Official documents, magazines, pastoral letters, and archival resources.",
+    "noPublications": "No publications found.",
+    "downloadPDF": "Download PDF",
+    "publishedOn": "Published on"
+  },
+  "ministries": {
+    "title": "Ministries",
+    "subtitle": "Discover the various pastoral services and ministries of the Eparchy.",
+    "noMinistries": "No ministries found.",
+    "learnMore": "Learn More"
+  },
+  "bishopMessages": {
+    "title": "Bishop's Messages",
+    "subtitle": "Pastoral letters, homilies, and public addresses from the Bishop.",
+    "noMessages": "No messages found.",
+    "downloadPDF": "Download PDF"
+  },
+  "calendar": {
+    "title": "Ge'ez Calendar",
+    "subtitle": "The traditional Ge'ez (Ethiopic) liturgical calendar used by the Eparchy of Segeneyti.",
+    "today": "Today",
+    "month": "Month",
+    "year": "Year"
+  },
+  "footer": {
+    "tagline": "Serving God's people through faith, community, and mission since our founding.",
+    "copyright": "All rights reserved.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use",
+    "backToTop": "Back to top"
+  },
+  "about": {
+    "title": "About the Eparchy",
+    "subtitle": "Learn about the history, mission, and structure of the Catholic Eparchy of Segeneyti."
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try refreshing the page.",
+    "retry": "Try Again",
+    "goHome": "Go to Homepage"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "goHome": "Return to Homepage"
+  }
+}

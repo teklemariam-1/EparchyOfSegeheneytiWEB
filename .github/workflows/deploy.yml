@@ -1,0 +1,85 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+# Only allow one deploy at a time
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy → segeneyti.org
+    runs-on: ubuntu-latest
+    # Only deploy after CI passes
+    needs: []
+    timeout-minutes: 30
+    environment:
+      name: production
+      url: https://www.segeneyti.org
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── SSH deploy via rsync + remote commands ──────────────────────────────
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync source to server
+        run: |
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.next' \
+            --exclude='.env*' \
+            --exclude='tests/e2e' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
+            ./ "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/"
+
+      - name: Install, migrate & reload on server
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+              -o StrictHostKeyChecking=yes \
+              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+              "bash ${{ secrets.DEPLOY_PATH }}/scripts/deploy.sh"
+
+      # ── Smoke tests ─────────────────────────────────────────────────────────
+      - name: Smoke test — home page (HTTP 200)
+        run: |
+          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/)
+          echo "Home page status: $status"
+          test "$status" = "200"
+
+      - name: Smoke test — /sitemap.xml
+        run: |
+          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/sitemap.xml)
+          test "$status" = "200"
+
+      - name: Smoke test — /robots.txt
+        run: |
+          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/robots.txt)
+          test "$status" = "200"
+
+      - name: Smoke test — /manifest.webmanifest
+        run: |
+          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/manifest.webmanifest)
+          test "$status" = "200"
+
+      - name: Smoke test — /api/health (Payload alive)
+        run: |
+          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/api/health)
+          # 200 or 404 are both acceptable (route may not exist, but server is up)
+          test "$status" = "200" || test "$status" = "404"

@@ -1,0 +1,185 @@
+{
+  "nav": {
+    "home": "ቤት",
+    "about": "ብዛዕባና",
+    "aboutEparchy": "ብዛዕባ ኤፓርኪ",
+    "bishop": "ጳጳስ",
+    "history": "ታሪኽ",
+    "parishes": "ሰበካት",
+    "news": "ዜናታት",
+    "events": "ኣጋጣሚታት",
+    "ministries": "ኣገልግሎታት",
+    "allMinistries": "ኩሎም ኣገልግሎታት",
+    "youthCouncil": "ምኽሪ መንእሰያት",
+    "catechists": "ካቴኬስታት",
+    "childrenMinistry": "ኣገልጎሎት ሕፃናት",
+    "smallChristianCommunity": "ምሕዝነት ናይ ንኣሽቱ ክርስቲያናት",
+    "priestsMinistries": "ካህናትን ኣገልግሎታትን",
+    "resources": "ሓበሬታ",
+    "bishopMessages": "መልእኽቲ ጳጳስ",
+    "popeMessages": "መልእኽቲ ናይ ጳጳስ ሮም",
+    "geezCalendar": "ዕለታት ግዕዝ",
+    "publications": "ህታሞታት",
+    "magazines": "መፅሔታት",
+    "archives": "ቀዳሞ ዜናዊ",
+    "media": "ሚዲያ",
+    "gallery": "ፎቶ ማሕደር",
+    "videos": "ቪዲዮ",
+    "contact": "ርክብ",
+    "search": "ድለ"
+  },
+  "common": {
+    "readMore": "ዝያዳ ኣንብብ",
+    "viewAll": "ኩሉ ርኣ",
+    "loading": "ይጽዕን ኣሎ…",
+    "noResults": "ዝርከብ ውጽኢት የለን",
+    "backToTop": "ናብ ላዕሊ ተመለስ",
+    "switchToTigrinya": "ናብ ትግርኛ ቀይር",
+    "switchToEnglish": "ናብ እንግሊዝ ቀይር",
+    "postedOn": "ዝተጻሕፈሉ",
+    "by": "ብ",
+    "category": "ምድብ",
+    "allCategories": "ኩሎም ምድባት",
+    "upcoming": "ዝቐርቡ",
+    "past": "ዝሓለፉ",
+    "download": "ኣውርድ",
+    "share": "ሽሮ",
+    "close": "ዕጸው",
+    "open": "ክፈት",
+    "next": "ቀጺሉ",
+    "previous": "ቐዲሙ",
+    "page": "ገጽ",
+    "of": "ካብ"
+  },
+  "a11y": {
+    "skipToMain": "ናብ ቀንዲ ትሕዝቶ ስዓር",
+    "openMenu": "ሜኑ ክፈት",
+    "closeMenu": "ሜኑ ዕጸው",
+    "mainNavigation": "ቀንዲ ናይ ምምሕዳር",
+    "mobileNavigation": "ናይ ሞባይል ምምሕዳር",
+    "logoAlt": "ሎጎ ኤፓርኪ ሰገነይቲ",
+    "socialLinks": "ናይ ማሕበራዊ ሚዲያ መላገቢ",
+    "breadcrumb": "ዓወደ-ርእሲ"
+  },
+  "home": {
+    "heroTitle": "ካቶሊካዊ ኤፓርኪ ሰገነይቲ",
+    "heroSubtitle": "ንሕዝቢ ኣምላኽ ብእምነት፣ ሕብረተሰብን ተልእኾን ኣብ ኤርትራ ኣገልጊሉ።",
+    "latestNews": "ዝቀረቡ ዜናታት",
+    "upcomingEvents": "ዝቀርቡ ኣጋጣሚታት",
+    "quickLinks": "ቅልጡፍ ናይ ምዃን መስርሕ",
+    "bishopMessage": "ቃል ካብ ጳጳስ"
+  },
+  "news": {
+    "title": "ዜናታት",
+    "subtitle": "ዝናዊ ዜናታት ካብ ኤፓርኪ ፍለጥ።",
+    "noNews": "ዝርከብ ዜናዊ ጽሑፍ የለን።",
+    "filterByCategory": "ብምድብ ፈልጦ"
+  },
+  "events": {
+    "title": "ኣጋጣሚታት",
+    "subtitle": "ዝቀርቡ ናይ ሃይማኖት ሥርዓታት፣ ናይ ሰበካ ኣኼባታትን ናይ ሕብረተሰብ ኣጋጣሚታት።",
+    "noEvents": "ዝርከብ ኣጋጣሚ የለን።",
+    "date": "ዕለት",
+    "location": "ቦታ",
+    "time": "ሰዓት",
+    "register": "ምዝገባ"
+  },
+  "parishes": {
+    "title": "ሰበካት",
+    "subtitle": "ኣብ ኤፓርኪ ሰገነይቲ ናብ ዝቐርበካ ሰበካ ቤ/ክርስቲያን ፍለጥ።",
+    "noParishes": "ዝርከብ ሰበካ የለን።",
+    "filterByVicariate": "ብቪካርያ ፈልጦ",
+    "allVicariates": "ኩሎም ቪካርያታት",
+    "vicariate": "ቪካርያ",
+    "address": "ኣድራሻ",
+    "phone": "ተሌፎን",
+    "email": "ኢ-ሜይል",
+    "website": "ዌብ ሳይት",
+    "getDirections": "ኣንፈት ርኸብ"
+  },
+  "contact": {
+    "title": "ርኸቡና",
+    "subtitle": "ምስ ኤፓርኪ ሰገነይቲ ርክብ ግበሩ።",
+    "name": "ስምካ/ስምኪ",
+    "email": "ናይ ኢ-ሜይል ኣድራሻ",
+    "phone": "ተሌፎን (ኣድላዪ ዘይኮነ)",
+    "subject": "ኣርእስቲ",
+    "message": "መልእኽቲ",
+    "send": "መልእኽቲ ሰደድ",
+    "sending": "ይሰዳ ኣሎ…",
+    "successTitle": "መልእኽቲ ተሰዲዱ!",
+    "successMessage": "ስለ ዝረኸብኩሙና ነመስግን። ኣብ ዝቐርብ ክንምልስ ኢና።",
+    "errorTitle": "ምስዳድ ኣይሰለጠን",
+    "errorMessage": "ዘይተጸበናዮ ጸገም ተፈጢሩ። ደጊምካ ፈትን ወይ ብተሌፎን ርኸቡና።",
+    "required": "ዘድሊ",
+    "nameRequired": "ስም ዘድሊ'ዩ",
+    "emailRequired": "ኢ-ሜይል ዘድሊ'ዩ",
+    "emailInvalid": "ቅኑዕ ናይ ኢ-ሜይል ኣድራሻ ምልኣ",
+    "subjectRequired": "ኣርእስቲ ዘድሊ'ዩ",
+    "messageRequired": "መልእኽቲ ዘድሊ'ዩ"
+  },
+  "search": {
+    "title": "ድለ",
+    "placeholder": "ዜናታት፣ ኣጋጣሚታት፣ ሰበካት ድለ…",
+    "noResults": "ዝርከብ ውጽኢት የለን ን",
+    "results": "ውጽኢታት ን",
+    "allContent": "ኩሉ ትሕዝቶ",
+    "searchScope": "ናይ ድሌት ሸፈን"
+  },
+  "media": {
+    "title": "ሚዲያ",
+    "subtitle": "ፎቶ ማሕደርات፣ ቪዲዮታትን ናይ ምስሊ ሓበሬታ ካብ ኤፓርኪ።",
+    "noMedia": "ዝርከብ ሚዲያ የለን።",
+    "gallery": "ፎቶ ማሕደር",
+    "videos": "ቪዲዮ",
+    "viewGallery": "ፎቶ ማሕደር ርኣ"
+  },
+  "publications": {
+    "title": "ህታሞታት",
+    "subtitle": "ናይ ቤ/ክርስቲያን ሰነዳት፣ መፅሔታት፣ ናይ ሰበካ ደብዳቤታትን ቀዳሞ ዜናዊ ሓበሬታ።",
+    "noPublications": "ዝርከብ ህታሞ የለን።",
+    "downloadPDF": "PDF ኣውርድ",
+    "publishedOn": "ዝተሓትመሉ"
+  },
+  "ministries": {
+    "title": "ኣገልግሎታት",
+    "subtitle": "ናይቲ ኤፓርኪ ዝተፈላለዩ ናይ ሰበካ ኣገልግሎታት ፍለጥ።",
+    "noMinistries": "ዝርከብ ኣገልዎሎ የለን።",
+    "learnMore": "ዝያዳ ፍለጥ"
+  },
+  "bishopMessages": {
+    "title": "መልእኽቲ ጳጳስ",
+    "subtitle": "ናይ ሰበካ ደብዳቤታት፣ ምስባካትን ናይ ጳጳስ ናይ ልዝብ ቃልኪዳናት።",
+    "noMessages": "ዝርከብ መልእኽቲ የለን።",
+    "downloadPDF": "PDF ኣውርድ"
+  },
+  "calendar": {
+    "title": "ዕለታት ግዕዝ",
+    "subtitle": "ኤፓርኪ ሰገነይቲ ዝጥቀመሉ ናይ ግዕዝ (ኢትዮጵያዊ) ናይ ሃይማኖት ዕለት ቈጸራ።",
+    "today": "ሎሚ",
+    "month": "ወርሒ",
+    "year": "ዓመት"
+  },
+  "footer": {
+    "tagline": "ካብ ምምስራቱ ጀሚሩ ንሕዝቢ ኣምላኽ ብእምነት፣ ሕብረተሰብን ተልእኾን ኣገልጊሉ።",
+    "copyright": "ኩሎም መሰላት ዓቂቡ።",
+    "privacyPolicy": "ናይ ምስጢር ፖሊሲ",
+    "termsOfUse": "ናይ ጥቕሚ ኩነታት",
+    "backToTop": "ናብ ላዕሊ ተመለስ"
+  },
+  "about": {
+    "title": "ብዛዕባ ኤፓርኪ",
+    "subtitle": "ናይ ካቶሊካዊ ኤፓርኪ ሰገነይቲ ታሪኽ፣ ተልእኾን ቅርጽን ፍለጥ።"
+  },
+  "error": {
+    "title": "ዘይተጸበናዮ ጸገም ኣጋጢሙ",
+    "description": "ዘይተጸበናዮ ጸገም ተፈጢሩ። ገጹ ደጊምካ ጸዒኑ ፈትን።",
+    "retry": "ደጊምካ ፈትን",
+    "goHome": "ናብ መእተዊ ገጽ ኬድ"
+  },
+  "notFound": {
+    "title": "ገጽ ኣይተረኽበን",
+    "description": "እቲ ትደሊ ዘሎኻ ገጽ የለን ወይ ተቐይሩ ኣሎ።",
+    "goHome": "ናብ መእተዊ ገጽ ተመለስ"
+  }
+}

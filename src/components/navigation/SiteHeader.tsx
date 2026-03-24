@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { getLocale } from 'next-intl/server'
 import { MainNav } from './MainNav'
 import { MobileMenu } from './MobileMenu'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import { getHeaderGlobal, getSiteSettings } from '@/lib/payload/queries'
 
 const ANNOUNCEMENT_STYLES = {
@@ -11,7 +13,11 @@ const ANNOUNCEMENT_STYLES = {
 } as const
 
 export async function SiteHeader() {
-  const [header, settings] = await Promise.all([getHeaderGlobal(), getSiteSettings()])
+  const [header, settings, locale] = await Promise.all([
+    getHeaderGlobal(),
+    getSiteSettings(),
+    getLocale(),
+  ])
 
   const logoLight = settings.logoLight?.url
   const announcement = header.announcement
@@ -63,14 +69,8 @@ export async function SiteHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
-            {/* Language switcher placeholder */}
-            <button
-              type="button"
-              className="hidden sm:inline-flex items-center rounded-md px-2.5 py-1.5 text-xs font-medium text-charcoal-600 hover:bg-charcoal-50 transition-colors"
-              aria-label="Switch language"
-            >
-              EN / ትግ
-            </button>
+            {/* Language switcher */}
+            <LanguageSwitcher currentLocale={locale} />
 
             {/* Mobile menu toggle */}
             <MobileMenu />

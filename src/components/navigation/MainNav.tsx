@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 
 interface NavItem {
   label: string
@@ -6,62 +7,67 @@ interface NavItem {
   children?: { label: string; href: string }[]
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', href: '/' },
-  {
-    label: 'About',
-    href: '/about',
-    children: [
-      { label: 'About the Eparchy', href: '/about' },
-      { label: 'Bishop', href: '/about/bishop' },
-      { label: 'History', href: '/about/history' },
-    ],
-  },
-  { label: 'Parishes', href: '/parishes' },
-  { label: 'News', href: '/news' },
-  { label: 'Events', href: '/events' },
-  {
-    label: 'Ministries',
-    href: '/ministries',
-    children: [
-      { label: 'All Ministries', href: '/ministries' },
-      { label: 'Youth Council', href: '/ministries/youth-council' },
-      { label: 'Catechists', href: '/ministries/catechists' },
-      { label: "Children's Ministry", href: '/ministries/children' },
-      { label: 'Small Christian Community', href: '/ministries/small-christian-community' },
-      { label: 'Priests & Ministries', href: '/ministries/priests-and-ministries' },
-    ],
-  },
-  {
-    label: 'Resources',
-    href: '/publications',
-    children: [
-      { label: "Bishop's Messages", href: '/bishop-messages' },
-      { label: 'Pope Messages', href: '/pope-messages' },
-      { label: "Ge'ez Calendar", href: '/geez-calendar' },
-      { label: 'Publications', href: '/publications' },
-      { label: 'Magazines', href: '/publications/magazines' },
-      { label: 'Archives', href: '/publications/archives' },
-    ],
-  },
-  {
-    label: 'Media',
-    href: '/media',
-    children: [
-      { label: 'Gallery', href: '/media/gallery' },
-      { label: 'Videos', href: '/media/videos' },
-    ],
-  },
-  { label: 'Contact', href: '/contact' },
-]
-
 /**
  * Desktop primary navigation.
  * Hover-activated dropdown menus for items with children.
  */
-export function MainNav() {
+export async function MainNav() {
+  const [t, ta] = await Promise.all([
+    getTranslations('nav'),
+    getTranslations('a11y'),
+  ])
+
+  const NAV_ITEMS: NavItem[] = [
+    { label: t('home'), href: '/' },
+    {
+      label: t('about'),
+      href: '/about',
+      children: [
+        { label: t('aboutEparchy'), href: '/about' },
+        { label: t('bishop'), href: '/about/bishop' },
+        { label: t('history'), href: '/about/history' },
+      ],
+    },
+    { label: t('parishes'), href: '/parishes' },
+    { label: t('news'), href: '/news' },
+    { label: t('events'), href: '/events' },
+    {
+      label: t('ministries'),
+      href: '/ministries',
+      children: [
+        { label: t('allMinistries'), href: '/ministries' },
+        { label: t('youthCouncil'), href: '/ministries/youth-council' },
+        { label: t('catechists'), href: '/ministries/catechists' },
+        { label: t('childrenMinistry'), href: '/ministries/children' },
+        { label: t('smallChristianCommunity'), href: '/ministries/small-christian-community' },
+        { label: t('priestsMinistries'), href: '/ministries/priests-and-ministries' },
+      ],
+    },
+    {
+      label: t('resources'),
+      href: '/publications',
+      children: [
+        { label: t('bishopMessages'), href: '/bishop-messages' },
+        { label: t('popeMessages'), href: '/pope-messages' },
+        { label: t('geezCalendar'), href: '/geez-calendar' },
+        { label: t('publications'), href: '/publications' },
+        { label: t('magazines'), href: '/publications/magazines' },
+        { label: t('archives'), href: '/publications/archives' },
+      ],
+    },
+    {
+      label: t('media'),
+      href: '/media',
+      children: [
+        { label: t('gallery'), href: '/media/gallery' },
+        { label: t('videos'), href: '/media/videos' },
+      ],
+    },
+    { label: t('contact'), href: '/contact' },
+  ]
+
   return (
-    <nav className="hidden lg:flex items-center gap-0.5" aria-label="Main navigation">
+    <nav className="hidden lg:flex items-center gap-0.5" aria-label={ta('mainNavigation')}>
       {NAV_ITEMS.map((item) =>
         item.children ? (
           <div key={item.href} className="relative group">

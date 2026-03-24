@@ -1,7 +1,10 @@
 import React from 'react'
 import Script from 'next/script'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
 import { SiteHeader } from '@/components/navigation/SiteHeader'
 import { SiteFooter } from '@/components/navigation/SiteFooter'
+import { SkipNav } from '@/components/shared/SkipNav'
 import { getSiteSettings } from '@/lib/payload/queries'
 
 export default async function FrontendLayout({
@@ -9,12 +12,12 @@ export default async function FrontendLayout({
 }: {
   children: React.ReactNode
 }) {
-  const settings = await getSiteSettings()
+  const [settings, messages] = await Promise.all([getSiteSettings(), getMessages()])
   const ga4Id = settings.analytics?.ga4Id
   const gtmId = settings.analytics?.gtmId
 
   return (
-    <>
+    <NextIntlClientProvider messages={messages}>
       {/* Google Tag Manager — injected only when GTM ID is set in CMS */}
       {gtmId && (
         <Script id="gtm-init" strategy="afterInteractive">
@@ -34,11 +37,12 @@ export default async function FrontendLayout({
         </>
       )}
 
+      <SkipNav />
       <SiteHeader />
       <main id="main-content" className="min-h-screen">
         {children}
       </main>
       <SiteFooter />
-    </>
+    </NextIntlClientProvider>
   )
 }
