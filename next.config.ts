@@ -1,6 +1,7 @@
 import { withPayload } from '@payloadcms/next/withPayload'
 import createNextIntlPlugin from 'next-intl/plugin'
 import { withSentryConfig } from '@sentry/nextjs'
+import withBundleAnalyzer from '@next/bundle-analyzer'
 import type { NextConfig } from 'next'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
@@ -123,7 +124,9 @@ const sentryOptions = {
   automaticVercelMonitors: false,
 }
 
+const withAnalyzer = withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })
+
 export default withSentryConfig(
-  withNextIntl(withPayload(nextConfig)),
+  withNextIntl(withPayload(withAnalyzer(nextConfig))),
   sentryOptions,
 )

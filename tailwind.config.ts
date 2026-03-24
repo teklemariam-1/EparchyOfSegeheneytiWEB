@@ -85,8 +85,8 @@ const config: Config = {
         serif: ['Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
         // Sans for body and UI
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        // Geez script — when web font is loaded
-        geez: ['var(--font-geez)', 'serif'],
+        // Ge'ez script — Noto Serif Ethiopic loaded via next/font
+        geez: ['var(--font-noto-ethiopic)', 'serif'],
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem' }],

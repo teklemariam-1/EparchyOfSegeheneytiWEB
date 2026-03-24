@@ -5,6 +5,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { EventCard, type EventCardData } from '@/features/events/EventCard'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { getLocale } from 'next-intl/server'
 import { getEventsList } from '@/lib/payload/queries'
 
 export const revalidate = 300
@@ -30,9 +31,10 @@ function toCard(ev: Awaited<ReturnType<typeof getEventsList>>['docs'][number], i
 }
 
 export default async function EventsPage() {
+  const locale = await getLocale()
   const [{ docs: upcoming }, { docs: past }] = await Promise.all([
-    getEventsList({ upcoming: true, limit: 12 }),
-    getEventsList({ upcoming: false, limit: 8 }),
+    getEventsList({ upcoming: true, limit: 12, locale }),
+    getEventsList({ upcoming: false, limit: 8, locale }),
   ])
 
   const upcomingCards = upcoming.map((ev) => toCard(ev, false))

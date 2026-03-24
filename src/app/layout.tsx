@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Noto_Serif_Ethiopic } from 'next/font/google'
 import { getLocale } from 'next-intl/server'
 import './globals.css'
 
@@ -7,6 +7,13 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
+})
+
+const notoSerifEthiopic = Noto_Serif_Ethiopic({
+  subsets: ['ethiopic'],
+  variable: '--font-noto-ethiopic',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -43,7 +50,7 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale()
   return (
-    <html lang={locale} className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} className={`${inter.variable} ${notoSerifEthiopic.variable}`} suppressHydrationWarning>
       <body className="bg-parchment text-charcoal-800 antialiased">
         {children}
       </body>

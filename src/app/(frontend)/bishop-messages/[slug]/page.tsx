@@ -7,6 +7,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { RichText } from '@/components/shared/RichText'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
+import { getLocale } from 'next-intl/server'
 import {
   getBishopMessageBySlug,
   getAllBishopMessageSlugs,
@@ -60,7 +61,8 @@ export default async function BishopMessageDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const msg = await getBishopMessageBySlug(slug)
+  const locale = await getLocale()
+  const msg = await getBishopMessageBySlug(slug, locale)
   if (!msg) notFound()
 
   const typeLabel = msg.messageType

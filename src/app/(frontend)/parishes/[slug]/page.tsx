@@ -8,6 +8,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { RichText } from '@/components/shared/RichText'
+import { getLocale } from 'next-intl/server'
 import { getParishBySlug, getAllParishSlugs } from '@/lib/payload/queries'
 
 export const revalidate = 600
@@ -41,7 +42,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ParishDetailPage({ params }: Props) {
   const { slug } = await params
-  const parish = await getParishBySlug(slug)
+  const locale = await getLocale()
+  const parish = await getParishBySlug(slug, locale)
   if (!parish) notFound()
 
   const vicariateLabel = VICARIATE_LABELS[parish.vicariate ?? ''] ?? parish.vicariate ?? ''

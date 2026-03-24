@@ -9,6 +9,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { formatDate } from '@/lib/formatters/date'
 import { RichText } from '@/components/shared/RichText'
+import { getLocale } from 'next-intl/server'
 import { getNewsBySlug, getNewsList, getAllNewsSlugs } from '@/lib/payload/queries'
 
 export const revalidate = 300
@@ -33,9 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function NewsDetailPage({ params }: Props) {
   const { slug } = await params
+  const locale = await getLocale()
   const [article, { docs: related }] = await Promise.all([
-    getNewsBySlug(slug),
-    getNewsList({ limit: 4 }),
+    getNewsBySlug(slug, locale),
+    getNewsList({ limit: 4, locale }),
   ])
 
   if (!article) notFound()

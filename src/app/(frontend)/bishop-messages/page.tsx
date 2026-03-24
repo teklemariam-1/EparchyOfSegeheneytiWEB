@@ -5,6 +5,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { getLocale } from 'next-intl/server'
 import { getBishopMessagesList } from '@/lib/payload/queries'
 
 export const revalidate = 600
@@ -36,7 +37,8 @@ function formatDate(iso?: string) {
 }
 
 export default async function BishopMessagesPage() {
-  const messages = await getBishopMessagesList(50)
+  const locale = await getLocale()
+  const messages = await getBishopMessagesList(50, locale)
 
   const featured = messages.filter((m) => m.isFeatured)
   const rest = messages.filter((m) => !m.isFeatured)

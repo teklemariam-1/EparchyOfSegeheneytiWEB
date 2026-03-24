@@ -117,9 +117,14 @@
 }
 
 /* ── Ge'ez / Tigrinya font support ──────────────────────────────────── */
-/* When a Ge'ez web font is loaded, apply it to elements with lang="ti" */
+/* Noto Serif Ethiopic is loaded via next/font and injected as --font-noto-ethiopic */
+:root {
+  --font-geez: var(--font-noto-ethiopic, 'Noto Serif Ethiopic', Georgia, serif);
+}
+
 [lang='ti'], .font-geez {
-  font-family: var(--font-geez, 'Noto Serif Ethiopic', Georgia, serif);
+  font-family: var(--font-geez);
+  line-height: 1.8; /* Ethiopic script needs more vertical breathing room */
 }
 
 /* ── Payload Admin overrides (admin route only) ──────────────────────── */

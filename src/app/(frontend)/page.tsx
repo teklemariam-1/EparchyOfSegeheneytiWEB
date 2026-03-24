@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getLocale } from 'next-intl/server'
 import { HeroSection } from '@/features/home/HeroSection'
 import { LatestNewsSection } from '@/features/home/LatestNewsSection'
 import { UpcomingEventsSection } from '@/features/home/UpcomingEventsSection'
@@ -22,16 +23,17 @@ export const metadata: Metadata = buildMetadata({
 export const revalidate = 300
 
 export default async function HomePage() {
+  const locale = await getLocale()
   // Fetch the homepage global first so we can use its configured limits
-  const homepage = await getHomepageGlobal()
+  const homepage = await getHomepageGlobal(locale)
 
   const newsLimit = homepage.latestNews?.limit ?? 3
   const eventsLimit = homepage.upcomingEvents?.limit ?? 5
 
   const [{ docs: news }, events, bishopMessage] = await Promise.all([
-    getNewsList({ limit: newsLimit }),
-    getUpcomingEvents(eventsLimit),
-    getLatestBishopMessage(),
+    getNewsList({ limit: newsLimit, locale }),
+    getUpcomingEvents(eventsLimit, locale),
+    getLatestBishopMessage(locale),
   ])
 
   return (

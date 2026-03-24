@@ -57,10 +57,11 @@ export async function getNewsList(opts: {
   limit?: number
   category?: string
   page?: number
+  locale?: string
 } = {}): Promise<{ docs: NewsListItem[]; meta: PaginationMeta }> {
   try {
     const payload = await getPayload()
-    const { limit = 12, category, page = 1 } = opts
+    const { limit = 12, category, page = 1, locale } = opts
     const where: Record<string, unknown> = { _status: { equals: 'published' } }
     if (category && category !== 'all') where.category = { equals: category }
     const result = await payload.find({
@@ -70,6 +71,7 @@ export async function getNewsList(opts: {
       limit,
       page,
       depth: 1,
+      ...(locale ? { locale } : {}),
     } as any)
     const docs: NewsListItem[] = (result.docs as any[]).map((d) => ({
       id: d.id,
@@ -96,7 +98,7 @@ export async function getNewsList(opts: {
   }
 }
 
-export async function getNewsBySlug(slug: string): Promise<NewsDetail | null> {
+export async function getNewsBySlug(slug: string, locale?: string): Promise<NewsDetail | null> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -104,6 +106,7 @@ export async function getNewsBySlug(slug: string): Promise<NewsDetail | null> {
       where: { slug: { equals: slug }, _status: { equals: 'published' } },
       limit: 1,
       depth: 2,
+      ...(locale ? { locale } : {}),
     } as any)
     const d = (result.docs as any[])[0]
     if (!d) return null
@@ -158,7 +161,7 @@ export interface EventDetail extends EventListItem {
   seo?: { title?: string; description?: string }
 }
 
-export async function getUpcomingEvents(limit = 5): Promise<EventListItem[]> {
+export async function getUpcomingEvents(limit = 5, locale?: string): Promise<EventListItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -167,6 +170,7 @@ export async function getUpcomingEvents(limit = 5): Promise<EventListItem[]> {
       sort: 'startDate',
       limit,
       depth: 1,
+      ...(locale ? { locale } : {}),
     } as any)
     return (result.docs as any[]).map(mapEvent)
   } catch {
@@ -178,10 +182,11 @@ export async function getEventsList(opts: {
   limit?: number
   page?: number
   upcoming?: boolean
+  locale?: string
 } = {}): Promise<{ docs: EventListItem[]; meta: PaginationMeta }> {
   try {
     const payload = await getPayload()
-    const { limit = 12, page = 1, upcoming } = opts
+    const { limit = 12, page = 1, upcoming, locale } = opts
     const where: Record<string, unknown> = { _status: { equals: 'published' } }
     if (upcoming) where.startDate = { greater_than: new Date().toISOString() }
     const result = await payload.find({
@@ -191,6 +196,7 @@ export async function getEventsList(opts: {
       limit,
       page,
       depth: 1,
+      ...(locale ? { locale } : {}),
     } as any)
     return {
       docs: (result.docs as any[]).map(mapEvent),
@@ -223,7 +229,7 @@ function mapEvent(d: any): EventListItem {
   }
 }
 
-export async function getEventBySlug(slug: string): Promise<EventDetail | null> {
+export async function getEventBySlug(slug: string, locale?: string): Promise<EventDetail | null> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -231,6 +237,7 @@ export async function getEventBySlug(slug: string): Promise<EventDetail | null> 
       where: { slug: { equals: slug }, _status: { equals: 'published' } },
       limit: 1,
       depth: 2,
+      ...(locale ? { locale } : {}),
     } as any)
     const d = (result.docs as any[])[0]
     if (!d) return null
@@ -276,12 +283,13 @@ export interface ParishDetail extends ParishListItem {
 export async function getParishesList(
   limit = 100,
   vicariate?: string,
+  locale?: string,
 ): Promise<ParishListItem[]> {
   try {
     const payload = await getPayload()
     const where: Record<string, unknown> = {}
     if (vicariate && vicariate !== 'all') where.vicariate = { equals: vicariate }
-    const result = await payload.find({ collection: 'parishes', where, limit, depth: 1 } as any)
+    const result = await payload.find({ collection: 'parishes', where, limit, depth: 1, ...(locale ? { locale } : {}) } as any)
     return (result.docs as any[]).map((d) => ({
       id: d.id,
       slug: d.slug,
@@ -297,7 +305,7 @@ export async function getParishesList(
   }
 }
 
-export async function getParishBySlug(slug: string): Promise<ParishDetail | null> {
+export async function getParishBySlug(slug: string, locale?: string): Promise<ParishDetail | null> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -305,6 +313,7 @@ export async function getParishBySlug(slug: string): Promise<ParishDetail | null
       where: { slug: { equals: slug } },
       limit: 1,
       depth: 2,
+      ...(locale ? { locale } : {}),
     } as any)
     const d = (result.docs as any[])[0]
     if (!d) return null
@@ -640,10 +649,10 @@ export interface HomepageGlobal {
   }
 }
 
-export async function getHomepageGlobal(): Promise<HomepageGlobal> {
+export async function getHomepageGlobal(locale?: string): Promise<HomepageGlobal> {
   try {
     const payload = await getPayload()
-    const data = await payload.findGlobal({ slug: 'homepage' } as any)
+    const data = await payload.findGlobal({ slug: 'homepage', ...(locale ? { locale } : {}) } as any)
     return data as unknown as HomepageGlobal
   } catch {
     return {}
@@ -761,7 +770,7 @@ export interface BishopMessageItem {
   pdfUrl?: string
 }
 
-export async function getLatestBishopMessage(): Promise<BishopMessageItem | null> {
+export async function getLatestBishopMessage(locale?: string): Promise<BishopMessageItem | null> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -770,6 +779,7 @@ export async function getLatestBishopMessage(): Promise<BishopMessageItem | null
       sort: '-publishedAt',
       limit: 1,
       depth: 0,
+      ...(locale ? { locale } : {}),
     } as any)
     const d = (result.docs as any[])[0]
     if (!d) return null
@@ -789,7 +799,7 @@ export async function getLatestBishopMessage(): Promise<BishopMessageItem | null
   }
 }
 
-export async function getBishopMessagesList(limit = 20): Promise<BishopMessageItem[]> {
+export async function getBishopMessagesList(limit = 20, locale?: string): Promise<BishopMessageItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -798,6 +808,7 @@ export async function getBishopMessagesList(limit = 20): Promise<BishopMessageIt
       sort: '-publishedAt',
       limit,
       depth: 1,
+      ...(locale ? { locale } : {}),
     } as any)
     return (result.docs as any[]).map((d) => ({
       id: d.id,
@@ -820,7 +831,7 @@ export interface BishopMessageDetail extends BishopMessageItem {
   seo?: { title?: string; description?: string }
 }
 
-export async function getBishopMessageBySlug(slug: string): Promise<BishopMessageDetail | null> {
+export async function getBishopMessageBySlug(slug: string, locale?: string): Promise<BishopMessageDetail | null> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -828,6 +839,7 @@ export async function getBishopMessageBySlug(slug: string): Promise<BishopMessag
       where: { slug: { equals: slug } },
       limit: 1,
       depth: 2,
+      ...(locale ? { locale } : {}),
     } as any)
     const d = (result.docs as any[])[0]
     if (!d) return null

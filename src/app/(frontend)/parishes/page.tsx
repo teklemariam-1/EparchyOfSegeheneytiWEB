@@ -7,6 +7,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ParishCard, type ParishCardData } from '@/features/parishes/ParishCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { FilterBar } from '@/components/shared/FilterBar'
+import { getLocale } from 'next-intl/server'
 import { getParishesList } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
@@ -32,7 +33,8 @@ export default async function ParishesPage({
   searchParams: Promise<{ vicariate?: string }>
 }) {
   const { vicariate } = await searchParams
-  const parishes = await getParishesList(100, vicariate)
+  const locale = await getLocale()
+  const parishes = await getParishesList(100, vicariate, locale)
 
   const cards: ParishCardData[] = parishes.map((p) => ({
     slug: p.slug,

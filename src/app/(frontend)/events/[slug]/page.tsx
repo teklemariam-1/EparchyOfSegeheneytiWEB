@@ -9,6 +9,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { formatDate, formatDateRange } from '@/lib/formatters/date'
 import { RichText } from '@/components/shared/RichText'
+import { getLocale } from 'next-intl/server'
 import { getEventBySlug, getAllEventSlugs, getEventsList } from '@/lib/payload/queries'
 
 export const revalidate = 300
@@ -33,9 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params
+  const locale = await getLocale()
   const [ev, { docs: upcoming }] = await Promise.all([
-    getEventBySlug(slug),
-    getEventsList({ upcoming: true, limit: 4 }),
+    getEventBySlug(slug, locale),
+    getEventsList({ upcoming: true, limit: 4, locale }),
   ])
 
   if (!ev) notFound()

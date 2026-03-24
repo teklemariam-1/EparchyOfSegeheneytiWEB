@@ -7,6 +7,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { NewsCard, type NewsCardData } from '@/features/news/NewsCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { FilterBar } from '@/components/shared/FilterBar'
+import { getLocale } from 'next-intl/server'
 import { getNewsList } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
@@ -33,8 +34,9 @@ export default async function NewsPage({
 }) {
   const { category, page: pageParam } = await searchParams
   const currentPage = Number(pageParam) || 1
+  const locale = await getLocale()
 
-  const { docs, meta } = await getNewsList({ limit: 12, category, page: currentPage })
+  const { docs, meta } = await getNewsList({ limit: 12, category, page: currentPage, locale })
 
   const cards: NewsCardData[] = docs.map((item) => ({
     slug: item.slug,
