@@ -11,12 +11,22 @@ interface Props {
   news: NewsListItem[]
 }
 
+function EmptyNewsState() {
+  return (
+    <div className="py-16 flex flex-col items-center justify-center text-center">
+      <div className="h-16 w-16 rounded-full bg-maroon-50 flex items-center justify-center mb-4">
+        <span className="text-maroon-300 text-2xl">✝</span>
+      </div>
+      <p className="text-charcoal-400 text-base">No news available at the moment.</p>
+      <p className="text-charcoal-300 text-sm mt-1">Check back soon for updates from the Eparchy.</p>
+    </div>
+  )
+}
+
 export function LatestNewsSection({ config, news }: Props) {
   if (config?.enabled === false) return null
 
   const heading = config?.heading ?? 'Latest News'
-
-  if (!news.length) return null
 
   return (
     <Section className="bg-white" aria-labelledby="news-section-title">
@@ -41,6 +51,9 @@ export function LatestNewsSection({ config, news }: Props) {
         </div>
 
         {/* News grid */}
+        {!news.length ? (
+          <EmptyNewsState />
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {news.map((item) => (
             <article key={item.id} className="card flex flex-col">
@@ -105,6 +118,8 @@ export function LatestNewsSection({ config, news }: Props) {
             All News
           </Link>
         </div>
+        </div>
+        )}
       </Container>
     </Section>
   )

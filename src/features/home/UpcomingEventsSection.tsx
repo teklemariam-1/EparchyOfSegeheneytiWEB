@@ -8,12 +8,24 @@ interface Props {
   events: EventListItem[]
 }
 
+function EmptyEventsState() {
+  return (
+    <div className="py-16 flex flex-col items-center justify-center text-center">
+      <div className="h-16 w-16 rounded-full bg-gold-50 flex items-center justify-center mb-4">
+        <svg className="h-8 w-8 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+        </svg>
+      </div>
+      <p className="text-charcoal-500 text-base">No upcoming events at this time.</p>
+      <p className="text-charcoal-400 text-sm mt-1">All scheduled events will appear here.</p>
+    </div>
+  )
+}
+
 export function UpcomingEventsSection({ config, events }: Props) {
   if (config?.enabled === false) return null
 
   const heading = config?.heading ?? 'Upcoming Events'
-
-  if (!events.length) return null
 
   return (
     <Section className="bg-parchment" aria-labelledby="events-section-title">
@@ -36,6 +48,9 @@ export function UpcomingEventsSection({ config, events }: Props) {
           </Link>
         </div>
 
+        {!events.length ? (
+          <EmptyEventsState />
+        ) : (
         <div className="space-y-4">
           {events.map((event) => {
             const eventDate = new Date(event.startDate)
@@ -101,6 +116,8 @@ export function UpcomingEventsSection({ config, events }: Props) {
             All Events
           </Link>
         </div>
+        </div>
+        )}
       </Container>
     </Section>
   )
