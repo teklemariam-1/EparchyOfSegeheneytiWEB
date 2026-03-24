@@ -1,0 +1,12 @@
+# Self-hosting configs not needed on Vercel
+deploy/
+scripts/
+ecosystem.config.cjs
+lighthouserc.json
+
+# Test files
+tests/
+*.spec.ts
+playwright.config.ts
+vitest.config.ts
+tsconfig.test.json

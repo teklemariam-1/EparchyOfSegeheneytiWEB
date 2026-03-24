@@ -3,6 +3,8 @@ import { importMap } from '../importMap.js'
 import config from '@payload-config'
 import type { Metadata } from 'next'
 
+export const maxDuration = 60
+
 type Args = {
   params: Promise<{
     segments: string[]

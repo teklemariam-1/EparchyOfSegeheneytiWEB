@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "payload generate:types && payload generate:importmap && payload migrate && next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
