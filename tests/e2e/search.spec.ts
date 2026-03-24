@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { checkLayout, checkNoError } from './navigation.spec'
+import { checkLayout, checkNoError, checkSkipNav, checkI18n } from './navigation.spec'
 
 test.describe('Search page (/search)', () => {
   test('returns HTTP 200', async ({ request }) => {
@@ -44,5 +44,15 @@ test.describe('Search page (/search)', () => {
     await page.goto('/search?q=test')
     const scopeButtons = page.locator('[aria-pressed]')
     await expect(scopeButtons.first()).toBeVisible()
+  })
+
+  test('has a skip-nav link to #main-content', async ({ page }) => {
+    await page.goto('/search')
+    await checkSkipNav(page)
+  })
+
+  test('html[lang] is "en" by default and language switcher is present', async ({ page }) => {
+    await page.goto('/search')
+    await checkI18n(page)
   })
 })

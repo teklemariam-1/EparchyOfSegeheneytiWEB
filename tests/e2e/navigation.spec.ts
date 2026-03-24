@@ -16,6 +16,23 @@ export async function checkNoError(page: import('@playwright/test').Page) {
   await expect(page.getByText('Something went wrong')).not.toBeVisible()
 }
 
+/** Asserts that the skip-to-main-content anchor is present in the DOM. */
+export async function checkSkipNav(page: import('@playwright/test').Page) {
+  await expect(page.locator('a[href="#main-content"]')).toBeAttached()
+}
+
+/**
+ * Asserts that:
+ * - `html[lang]` is `'en'` (default locale)
+ * - The language-switcher button is in the DOM
+ */
+export async function checkI18n(page: import('@playwright/test').Page) {
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(
+    page.getByRole('button', { name: /Switch to ትግርኛ/i }),
+  ).toBeAttached()
+}
+
 test.describe('Global — site-wide navigation', () => {
   test('desktop nav renders the Eparchy brand/logo link', async ({ page }) => {
     await page.goto('/')
@@ -65,5 +82,15 @@ test.describe('Global — site-wide navigation', () => {
   test('/manifest.webmanifest responds with 200', async ({ request }) => {
     const res = await request.get('/manifest.webmanifest')
     expect(res.status()).toBe(200)
+  })
+
+  test('home page has a skip-nav link to #main-content', async ({ page }) => {
+    await page.goto('/')
+    await checkSkipNav(page)
+  })
+
+  test('html[lang] defaults to "en" and language switcher is present', async ({ page }) => {
+    await page.goto('/')
+    await checkI18n(page)
   })
 })

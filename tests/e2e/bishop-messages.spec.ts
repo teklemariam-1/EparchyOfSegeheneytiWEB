@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { checkLayout, checkNoError } from './navigation.spec'
+import { checkLayout, checkNoError, checkSkipNav, checkI18n } from './navigation.spec'
 
 test.describe("Bishop's Messages pages", () => {
   test.describe('/bishop-messages list page', () => {
@@ -17,6 +17,14 @@ test.describe("Bishop's Messages pages", () => {
 
     test('has layout (nav + footer)', async ({ page }) => {
       await checkLayout(page)
+    })
+
+    test('has a skip-nav link to #main-content', async ({ page }) => {
+      await checkSkipNav(page)
+    })
+
+    test('html[lang] is "en" by default and language switcher is present', async ({ page }) => {
+      await checkI18n(page)
     })
 
     test("has an h1 related to bishop's messages", async ({ page }) => {

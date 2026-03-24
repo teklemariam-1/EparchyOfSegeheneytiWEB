@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { checkLayout, checkNoError } from './navigation.spec'
+import { checkLayout, checkNoError, checkSkipNav, checkI18n } from './navigation.spec'
 
 test.describe('Home page (/)', () => {
   test.beforeEach(async ({ page }) => {
@@ -23,6 +23,14 @@ test.describe('Home page (/)', () => {
 
   test('has nav and footer (layout)', async ({ page }) => {
     await checkLayout(page)
+  })
+
+  test('has a skip-nav link to #main-content', async ({ page }) => {
+    await checkSkipNav(page)
+  })
+
+  test('html[lang] is "en" by default and language switcher is present', async ({ page }) => {
+    await checkI18n(page)
   })
 
   test('contains a hero section with a heading', async ({ page }) => {
