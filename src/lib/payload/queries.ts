@@ -273,10 +273,15 @@ export interface ParishDetail extends ParishListItem {
   seo?: { title?: string; description?: string }
 }
 
-export async function getParishesList(limit = 100): Promise<ParishListItem[]> {
+export async function getParishesList(
+  limit = 100,
+  vicariate?: string,
+): Promise<ParishListItem[]> {
   try {
     const payload = await getPayload()
-    const result = await payload.find({ collection: 'parishes', limit, depth: 1 } as any)
+    const where: Record<string, unknown> = {}
+    if (vicariate && vicariate !== 'all') where.vicariate = { equals: vicariate }
+    const result = await payload.find({ collection: 'parishes', where, limit, depth: 1 } as any)
     return (result.docs as any[]).map((d) => ({
       id: d.id,
       slug: d.slug,
@@ -782,4 +787,164 @@ export async function getLatestBishopMessage(): Promise<BishopMessageItem | null
   } catch {
     return null
   }
+}
+
+export async function getBishopMessagesList(limit = 20): Promise<BishopMessageItem[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'bishop-messages',
+      where: { _status: { equals: 'published' } },
+      sort: '-publishedAt',
+      limit,
+      depth: 1,
+    } as any)
+    return (result.docs as any[]).map((d) => ({
+      id: d.id,
+      slug: d.slug,
+      title: d.title,
+      messageType: d.messageType,
+      excerpt: d.excerpt,
+      publishedAt: d.publishedAt,
+      isFeatured: d.isFeatured,
+      content: d.body,
+      pdfUrl: d.document?.url ?? null,
+    }))
+  } catch {
+    return []
+  }
+}
+
+export interface BishopMessageDetail extends BishopMessageItem {
+  featuredImage?: CMSImage | null
+  seo?: { title?: string; description?: string }
+}
+
+export async function getBishopMessageBySlug(slug: string): Promise<BishopMessageDetail | null> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'bishop-messages',
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 2,
+    } as any)
+    const d = (result.docs as any[])[0]
+    if (!d) return null
+    return {
+      id: d.id,
+      slug: d.slug,
+      title: d.title,
+      messageType: d.messageType,
+      excerpt: d.excerpt,
+      publishedAt: d.publishedAt,
+      isFeatured: d.isFeatured,
+      content: d.body,
+      pdfUrl: d.document?.url ?? null,
+      featuredImage: imgOf(d.featuredImage),
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function getAllBishopMessageSlugs(): Promise<{ slug: string }[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'bishop-messages',
+      where: { _status: { equals: 'published' } },
+      limit: 1000,
+      depth: 0,
+    } as any)
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+  } catch {
+    return []
+  }
+}
+
+// ─── Global search ─────────────────────────────────────────────────────────────
+
+export interface SearchResult {
+  type: 'news' | 'event' | 'parish' | 'ministry' | 'publication' | 'bishop-message'
+  slug: string
+  title: string
+  excerpt?: string
+  category?: string
+  date?: string
+}
+
+export async function globalSearch(
+  q: string,
+  scope?: string,
+): Promise<SearchResult[]> {
+  if (!q || q.trim().length < 2) return []
+  const payload = await getPayload()
+  const term = q.trim()
+  const results: SearchResult[] = []
+
+  const run = async (
+    collection: string,
+    type: SearchResult['type'],
+    titleFields: string[],
+    extraFields: string[],
+    toResult: (d: any) => SearchResult,
+  ) => {
+    try {
+      const whereOr = [
+        ...titleFields.map((f) => ({ [f]: { like: term } })),
+        ...extraFields.map((f) => ({ [f]: { like: term } })),
+      ]
+      const res = await payload.find({
+        collection,
+        where: {
+          and: [
+            { _status: { equals: 'published' } },
+            { or: whereOr },
+          ],
+        },
+        limit: 10,
+        depth: 0,
+      } as any)
+      ;(res.docs as any[]).forEach((d) => results.push(toResult(d)))
+    } catch {
+      // non-fatal per collection
+    }
+  }
+
+  const all = !scope || scope === 'all'
+
+  if (all || scope === 'news') {
+    await run(
+      'news', 'news', ['title'], ['excerpt'],
+      (d) => ({ type: 'news', slug: d.slug, title: d.title, excerpt: d.excerpt, category: d.category, date: d.publishedAt }),
+    )
+  }
+  if (all || scope === 'events') {
+    await run(
+      'events', 'event', ['title'], ['description', 'location'],
+      (d) => ({ type: 'event', slug: d.slug, title: d.title, excerpt: d.description, date: d.startDate }),
+    )
+  }
+  if (all || scope === 'parishes') {
+    await run(
+      'parishes', 'parish', ['title'], ['city', 'vicariate'],
+      (d) => ({ type: 'parish', slug: d.slug, title: d.title, excerpt: d.city ? `${d.city}` : undefined }),
+    )
+  }
+  if (all || scope === 'ministries') {
+    await run(
+      'ministries', 'ministry', ['title'], [],
+      (d) => ({ type: 'ministry', slug: d.slug, title: d.title }),
+    )
+  }
+  if (all || scope === 'publications') {
+    await run(
+      'publications', 'publication', ['title'], ['excerpt'],
+      (d) => ({ type: 'publication', slug: d.slug, title: d.title, excerpt: d.excerpt }),
+    )
+  }
+
+  return results
 }

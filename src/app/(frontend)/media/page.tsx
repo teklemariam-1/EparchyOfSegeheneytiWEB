@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import Image from 'next/image'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
@@ -6,9 +7,10 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { FilterBar } from '@/components/shared/FilterBar'
 import { getMediaGallery } from '@/lib/payload/queries'
 
-export const revalidate = 600
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Media',
@@ -25,8 +27,14 @@ const CATEGORIES = [
   { value: 'ordination', label: 'Ordinations' },
 ]
 
-export default async function MediaPage() {
-  const { docs: mediaItems } = await getMediaGallery({ limit: 24 })
+export default async function MediaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string; page?: string }>
+}) {
+  const { category, page: pageParam } = await searchParams
+  const currentPage = Number(pageParam) || 1
+  const { docs: mediaItems, meta } = await getMediaGallery({ limit: 24, category, page: currentPage })
 
   return (
     <>
@@ -38,22 +46,9 @@ export default async function MediaPage() {
 
       <Section className="bg-white">
         <Container>
-          {/* Category filter (static UI — dynamic filtering in Stage 6) */}
-          <div className="flex flex-wrap gap-2 mb-8 border-b border-charcoal-100 pb-4">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.value}
-                className={
-                  cat.value === 'all'
-                    ? 'rounded-full bg-maroon-800 px-4 py-1.5 text-sm font-medium text-white'
-                    : 'rounded-full border border-charcoal-200 px-4 py-1.5 text-sm font-medium text-charcoal-600 hover:border-maroon-300 hover:text-maroon-700 transition-colors'
-                }
-                aria-pressed={cat.value === 'all'}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+          <Suspense fallback={<div className="h-12 mb-8" />}>
+            <FilterBar options={CATEGORIES} paramName="category" />
+          </Suspense>
 
           {/* Gallery grid */}
           {mediaItems.length > 0 ? (
@@ -94,6 +89,31 @@ export default async function MediaPage() {
               title="No photos yet"
               description="Photos will appear here once uploaded to the media library in the CMS."
             />
+          )}
+
+          {/* Pagination */}
+          {meta.totalPages > 1 && (
+            <div className="mt-10 flex justify-center gap-2">
+              {meta.hasPrevPage && (
+                <a
+                  href={`/media?${category && category !== 'all' ? `category=${category}&` : ''}page=${meta.page - 1}`}
+                  className="rounded border border-charcoal-200 px-4 py-2 text-sm text-charcoal-500 hover:border-maroon-300 hover:text-maroon-700 transition-colors"
+                >
+                  ← Previous
+                </a>
+              )}
+              <span className="rounded border border-maroon-700 bg-maroon-800 px-4 py-2 text-sm text-white">
+                {meta.page} / {meta.totalPages}
+              </span>
+              {meta.hasNextPage && (
+                <a
+                  href={`/media?${category && category !== 'all' ? `category=${category}&` : ''}page=${meta.page + 1}`}
+                  className="rounded border border-charcoal-200 px-4 py-2 text-sm text-charcoal-500 hover:border-maroon-300 hover:text-maroon-700 transition-colors"
+                >
+                  Next →
+                </a>
+              )}
+            </div>
           )}
         </Container>
       </Section>

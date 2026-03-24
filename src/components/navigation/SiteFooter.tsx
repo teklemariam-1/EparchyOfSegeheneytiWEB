@@ -24,6 +24,7 @@ const DEFAULT_FOOTER_COLUMNS = [
   {
     heading: 'Resources',
     links: [
+      { label: "Bishop's Messages", url: '/bishop-messages' },
       { label: 'Pope Messages', url: '/pope-messages' },
       { label: "Ge'ez Calendar", url: '/geez-calendar' },
       { label: 'Magazines', url: '/publications/magazines' },

@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { NewsCard, type NewsCardData } from '@/features/news/NewsCard'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { FilterBar } from '@/components/shared/FilterBar'
 import { getNewsList } from '@/lib/payload/queries'
 
-export const revalidate = 300
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = buildMetadata({
   title: 'News',
@@ -24,8 +26,15 @@ const CATEGORIES = [
   { value: 'youth', label: 'Youth' },
 ]
 
-export default async function NewsPage() {
-  const { docs, meta } = await getNewsList({ limit: 12 })
+export default async function NewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string; page?: string }>
+}) {
+  const { category, page: pageParam } = await searchParams
+  const currentPage = Number(pageParam) || 1
+
+  const { docs, meta } = await getNewsList({ limit: 12, category, page: currentPage })
 
   const cards: NewsCardData[] = docs.map((item) => ({
     slug: item.slug,
@@ -47,22 +56,9 @@ export default async function NewsPage() {
 
       <Section className="bg-white">
         <Container>
-          {/* Category filter tabs (UI — filtering requires route search params, done in Stage 6) */}
-          <div className="flex flex-wrap gap-2 mb-8 border-b border-charcoal-100 pb-4">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.value}
-                className={
-                  cat.value === 'all'
-                    ? 'rounded-full bg-maroon-800 px-4 py-1.5 text-sm font-medium text-white'
-                    : 'rounded-full border border-charcoal-200 px-4 py-1.5 text-sm font-medium text-charcoal-600 hover:border-maroon-300 hover:text-maroon-700 transition-colors'
-                }
-                aria-pressed={cat.value === 'all'}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+          <Suspense fallback={<div className="h-12 mb-8" />}>
+            <FilterBar options={CATEGORIES} paramName="category" />
+          </Suspense>
 
           {cards.length === 0 ? (
             <EmptyState
@@ -95,7 +91,7 @@ export default async function NewsPage() {
             <div className="mt-10 flex justify-center gap-2">
               {meta.hasPrevPage && (
                 <a
-                  href={`/news?page=${meta.page - 1}`}
+                  href={`/news?${category && category !== 'all' ? `category=${category}&` : ''}page=${meta.page - 1}`}
                   className="rounded border border-charcoal-200 px-4 py-2 text-sm text-charcoal-500 hover:border-maroon-300 hover:text-maroon-700 transition-colors"
                 >
                   ← Previous
@@ -106,7 +102,7 @@ export default async function NewsPage() {
               </span>
               {meta.hasNextPage && (
                 <a
-                  href={`/news?page=${meta.page + 1}`}
+                  href={`/news?${category && category !== 'all' ? `category=${category}&` : ''}page=${meta.page + 1}`}
                   className="rounded border border-charcoal-200 px-4 py-2 text-sm text-charcoal-500 hover:border-maroon-300 hover:text-maroon-700 transition-colors"
                 >
                   Next →

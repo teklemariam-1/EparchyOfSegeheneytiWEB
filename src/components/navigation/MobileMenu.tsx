@@ -13,6 +13,7 @@ const MOBILE_NAV = [
   { label: 'Ministries', href: '/ministries' },
   { label: 'Youth Council', href: '/ministries/youth-council' },
   { label: 'Catechists', href: '/ministries/catechists' },
+  { label: "Bishop's Messages", href: '/bishop-messages' },
   { label: 'Pope Messages', href: '/pope-messages' },
   { label: "Ge'ez Calendar", href: '/geez-calendar' },
   { label: 'Publications', href: '/publications' },

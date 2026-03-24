@@ -36,6 +36,7 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Resources',
     href: '/publications',
     children: [
+      { label: "Bishop's Messages", href: '/bishop-messages' },
       { label: 'Pope Messages', href: '/pope-messages' },
       { label: "Ge'ez Calendar", href: '/geez-calendar' },
       { label: 'Publications', href: '/publications' },

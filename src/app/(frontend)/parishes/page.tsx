@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ParishCard, type ParishCardData } from '@/features/parishes/ParishCard'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { FilterBar } from '@/components/shared/FilterBar'
 import { getParishesList } from '@/lib/payload/queries'
 
-export const revalidate = 600
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Parishes',
@@ -24,8 +26,13 @@ const VICARIATES = [
   { value: 'diaspora', label: 'Diaspora' },
 ]
 
-export default async function ParishesPage() {
-  const parishes = await getParishesList()
+export default async function ParishesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ vicariate?: string }>
+}) {
+  const { vicariate } = await searchParams
+  const parishes = await getParishesList(100, vicariate)
 
   const cards: ParishCardData[] = parishes.map((p) => ({
     slug: p.slug,
@@ -47,22 +54,9 @@ export default async function ParishesPage() {
 
       <Section className="bg-white">
         <Container>
-          {/* Vicariate filter (static UI — dynamic filtering in Stage 6) */}
-          <div className="flex flex-wrap gap-2 mb-8 border-b border-charcoal-100 pb-4">
-            {VICARIATES.map((v) => (
-              <button
-                key={v.value}
-                className={
-                  v.value === 'all'
-                    ? 'rounded-full bg-maroon-800 px-4 py-1.5 text-sm font-medium text-white'
-                    : 'rounded-full border border-charcoal-200 px-4 py-1.5 text-sm font-medium text-charcoal-600 hover:border-maroon-300 hover:text-maroon-700 transition-colors'
-                }
-                aria-pressed={v.value === 'all'}
-              >
-                {v.label}
-              </button>
-            ))}
-          </div>
+          <Suspense fallback={<div className="h-12 mb-8" />}>
+            <FilterBar options={VICARIATES} paramName="vicariate" />
+          </Suspense>
 
           {/* Stats row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
