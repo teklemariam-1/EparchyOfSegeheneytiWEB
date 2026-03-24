@@ -91,6 +91,7 @@ export function MobileMenu() {
         <>
           {/* Backdrop */}
           <div
+            data-testid="mobile-backdrop"
             className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
             onClick={() => setOpen(false)}
             aria-hidden="true"

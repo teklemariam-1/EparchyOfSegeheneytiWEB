@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 
 interface Props {
   error: Error & { digest?: string }
@@ -9,8 +10,7 @@ interface Props {
 
 export default function Error({ error, reset }: Props) {
   useEffect(() => {
-    // Log to an error reporting service in production
-    console.error('[frontend-error]', error)
+    Sentry.captureException(error)
   }, [error])
 
   return (

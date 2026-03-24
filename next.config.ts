@@ -1,5 +1,6 @@
 import { withPayload } from '@payloadcms/next/withPayload'
 import createNextIntlPlugin from 'next-intl/plugin'
+import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
@@ -18,8 +19,8 @@ const CSP = [
   `img-src 'self' data: blob: https://${process.env.S3_HOSTNAME ?? '*'} https://www.google.com https://maps.gstatic.com https://maps.googleapis.com`,
   // Frames: Google Maps embed only
   "frame-src https://www.google.com https://maps.google.com",
-  // XHR/fetch: self + Payload API
-  "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com",
+  // XHR/fetch: self + Payload API + Sentry
+  "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io",
   // Media from S3/R2
   `media-src 'self' https://${process.env.S3_HOSTNAME ?? '*'}`,
   "object-src 'none'",
@@ -106,4 +107,23 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withNextIntl(withPayload(nextConfig))
+const sentryOptions = {
+  // Upload source maps only when SENTRY_AUTH_TOKEN is set (CI/CD)
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+  org: process.env.SENTRY_ORG ?? 'eparchy-segeneyti',
+  project: process.env.SENTRY_PROJECT ?? 'segeneyti-web',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Automatically tree-shake Sentry logger in production
+  disableLogger: true,
+  // Tunnel Sentry requests through /api/monitoring to bypass ad-blockers
+  tunnelRoute: '/api/monitoring',
+  // Hides source maps from the browser bundle
+  hideSourceMaps: true,
+  // Auto-instrument Next.js data fetching
+  automaticVercelMonitors: false,
+}
+
+export default withSentryConfig(
+  withNextIntl(withPayload(nextConfig)),
+  sentryOptions,
+)
