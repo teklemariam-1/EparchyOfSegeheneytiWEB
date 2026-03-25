@@ -7,7 +7,7 @@ import type { NextConfig } from 'next'
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 // ─── Content Security Policy ──────────────────────────────────────────────────
-// Strict CSP; adjust `img-src` and `connect-src` when adding third-party services.
+// Strict CSP for public frontend routes.
 const CSP = [
   "default-src 'self'",
   // Scripts: Next.js inline runtime + Google Analytics (if used)
@@ -30,6 +30,31 @@ const CSP = [
   "frame-ancestors 'none'",
   "upgrade-insecure-requests",
 ].join('; ')
+
+// Relaxed CSP for the Payload admin panel.
+// Payload's admin UI uses blob: URLs for webpack code-splitting and web workers;
+// Vercel injects vercel.live feedback scripts on preview/production deployments.
+const ADMIN_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://vercel.live https://vercel.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://vercel.live",
+  "font-src 'self' data: https://fonts.gstatic.com https://vercel.live",
+  "img-src 'self' data: blob: https://* http://localhost:*",
+  "frame-src 'self' https://vercel.live",
+  // Vercel live feedback uses Pusher websockets
+  "connect-src 'self' blob: wss://ws-us3.pusher.com https://vercel.live https://*.vercel.live https://o0.ingest.sentry.io https://*.ingest.sentry.io",
+  "worker-src blob: 'self'",
+  `media-src 'self' https://${process.env.S3_HOSTNAME ?? '*'}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ')
+
+const adminSecurityHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Content-Security-Policy', value: ADMIN_CSP },
+]
 
 const securityHeaders = [
   // Prevent MIME sniffing
@@ -67,6 +92,11 @@ const nextConfig: NextConfig = {
         // Apply security headers to every route
         source: '/(.*)',
         headers: securityHeaders,
+      },
+      {
+        // Override CSP for Payload admin — needs blob: scripts and vercel.live
+        source: '/admin(.*)',
+        headers: adminSecurityHeaders,
       },
       {
         // Long-lived cache for immutable Next.js static chunks
