@@ -4,10 +4,12 @@ import { NextRequest } from 'next/server'
 
 export const maxDuration = 60
 
-function withErrorBody(handler: (req: NextRequest) => Promise<Response>) {
-  return async (req: NextRequest) => {
+type RouteHandler = (req: NextRequest, ctx: unknown) => Promise<Response>
+
+function withErrorBody(handler: RouteHandler): RouteHandler {
+  return async (req: NextRequest, ctx: unknown) => {
     try {
-      return await handler(req)
+      return await handler(req, ctx)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
       const stack = err instanceof Error ? err.stack : undefined
@@ -17,8 +19,8 @@ function withErrorBody(handler: (req: NextRequest) => Promise<Response>) {
   }
 }
 
-export const GET = withErrorBody(REST_GET(config))
-export const POST = withErrorBody(REST_POST(config))
-export const DELETE = withErrorBody(REST_DELETE(config))
-export const PATCH = withErrorBody(REST_PATCH(config))
-export const PUT = withErrorBody(REST_PUT(config))
+export const GET = withErrorBody(REST_GET(config) as RouteHandler)
+export const POST = withErrorBody(REST_POST(config) as RouteHandler)
+export const DELETE = withErrorBody(REST_DELETE(config) as RouteHandler)
+export const PATCH = withErrorBody(REST_PATCH(config) as RouteHandler)
+export const PUT = withErrorBody(REST_PUT(config) as RouteHandler)
