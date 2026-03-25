@@ -12,7 +12,8 @@ out/
 build/
 
 # Payload CMS generated
-src/app/(payload)/admin/importMap.js
+# importMap.js must be committed — Vercel build cache causes stale maps when gitignored
+# src/app/(payload)/admin/importMap.js
 
 # Environment
 .env.local

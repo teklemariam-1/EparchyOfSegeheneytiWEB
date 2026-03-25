@@ -42,7 +42,7 @@ const ADMIN_CSP = [
   "img-src 'self' data: blob: https://* http://localhost:*",
   "frame-src 'self' https://vercel.live",
   // Vercel live feedback uses Pusher websockets
-  "connect-src 'self' blob: wss://ws-us3.pusher.com https://vercel.live https://*.vercel.live https://o0.ingest.sentry.io https://*.ingest.sentry.io",
+  "connect-src 'self' blob: wss://ws-us3.pusher.com https://vercel.live https://*.vercel.live https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io",
   "worker-src blob: 'self'",
   `media-src 'self' https://${process.env.S3_HOSTNAME ?? '*'}`,
   "object-src 'none'",
