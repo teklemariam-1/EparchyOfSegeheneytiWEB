@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isRoleOneOf, isAnyEditor } from '@/lib/permissions/collectionAccess'
+import { isRoleOneOf, isAnyEditor } from '../../lib/permissions/collectionAccess'
 
 export const Media: CollectionConfig = {
   slug: 'media',

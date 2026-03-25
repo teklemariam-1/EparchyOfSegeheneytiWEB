@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { revalidatePath } from 'next/cache'
-import { isChanceryOrAbove } from '@/lib/permissions/collectionAccess'
+import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',

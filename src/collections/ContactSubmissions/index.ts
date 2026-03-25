@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isChanceryOrAbove, isSuperAdmin } from '@/lib/permissions/collectionAccess'
+import { isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
 
 export const ContactSubmissions: CollectionConfig = {
   slug: 'contact-submissions',

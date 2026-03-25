@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { revalidatePath } from 'next/cache'
-import { isPublicRead, isRoleOneOf, isChanceryOrAbove } from '@/lib/permissions/collectionAccess'
+import { isPublicRead, isRoleOneOf, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const ChildrenPrograms: CollectionConfig = {
   slug: 'children-programs',

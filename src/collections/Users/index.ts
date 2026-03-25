@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
-import { isSuperAdmin, isRoleOneOf } from '@/lib/permissions/collectionAccess'
-import { selfOrAdmin } from '@/lib/permissions/fieldAccess'
+import { isSuperAdmin, isRoleOneOf } from '../../lib/permissions/collectionAccess'
+import { selfOrAdmin } from '../../lib/permissions/fieldAccess'
 
 export const Users: CollectionConfig = {
   slug: 'users',

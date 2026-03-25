@@ -1,5 +1,5 @@
 import type { Access, AccessArgs } from 'payload'
-import type { Role } from '@/lib/constants/roles'
+import type { Role } from '../constants/roles'
 
 type UserWithRole = {
   id: string

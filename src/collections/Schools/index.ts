@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { revalidatePath } from 'next/cache'
-import { isPublicRead, isChanceryOrAbove } from '@/lib/permissions/collectionAccess'
+import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const Schools: CollectionConfig = {
   slug: 'schools',
