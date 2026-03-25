@@ -38,3 +38,5 @@ next-env.d.ts
 
 # Media uploads (local dev)
 public/media/
+.vercel
+.env*.local

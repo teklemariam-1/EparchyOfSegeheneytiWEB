@@ -54,7 +54,8 @@ export function LatestNewsSection({ config, news }: Props) {
         {!news.length ? (
           <EmptyNewsState />
         ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {news.map((item) => (
             <article key={item.id} className="card flex flex-col">
               {/* Featured image or placeholder */}
@@ -113,12 +114,12 @@ export function LatestNewsSection({ config, news }: Props) {
           ))}
         </div>
 
-        <div className="mt-8 text-center sm:hidden">
-          <Link href="/news" className="btn-secondary">
-            All News
-          </Link>
-        </div>
-        </div>
+          <div className="mt-8 text-center sm:hidden">
+            <Link href="/news" className="btn-secondary">
+              All News
+            </Link>
+          </div>
+          </>
         )}
       </Container>
     </Section>

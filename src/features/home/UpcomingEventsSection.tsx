@@ -51,7 +51,8 @@ export function UpcomingEventsSection({ config, events }: Props) {
         {!events.length ? (
           <EmptyEventsState />
         ) : (
-        <div className="space-y-4">
+          <>
+          <div className="space-y-4">
           {events.map((event) => {
             const eventDate = new Date(event.startDate)
             const day = eventDate.getDate()
@@ -111,12 +112,12 @@ export function UpcomingEventsSection({ config, events }: Props) {
           })}
         </div>
 
-        <div className="mt-8 text-center sm:hidden">
-          <Link href="/events" className="btn-secondary">
-            All Events
-          </Link>
-        </div>
-        </div>
+          <div className="mt-8 text-center sm:hidden">
+            <Link href="/events" className="btn-secondary">
+              All Events
+            </Link>
+          </div>
+          </>
         )}
       </Container>
     </Section>
