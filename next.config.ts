@@ -89,12 +89,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Apply security headers to every route
-        source: '/(.*)',
+        // Apply security headers to every route EXCEPT /admin — admin has its
+        // own CSP below. Sending two CSP headers causes browsers to AND-merge
+        // them, which blocks the blob: scripts/workers Payload admin requires.
+        source: '/((?!admin(?:/|$)).*)',
         headers: securityHeaders,
       },
       {
-        // Override CSP for Payload admin — needs blob: scripts and vercel.live
+        // Relaxed CSP for Payload admin — needs blob: scripts, workers, and
+        // vercel.live feedback scripts on Vercel deployments.
         source: '/admin(.*)',
         headers: adminSecurityHeaders,
       },
