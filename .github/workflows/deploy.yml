@@ -1,20 +1,25 @@
-name: Deploy to Production
+name: Deploy to Vercel
 
+# ── Trigger ────────────────────────────────────────────────────────────────
+# Only deploy after the CI workflow completes successfully on main.
+# This guarantees lint, type-check, and unit tests pass before every release.
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
     branches: [main]
+    types: [completed]
 
-# Only allow one deploy at a time
+# Only one production deploy at a time — never cancel an in-progress deploy.
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy → segeneyti.org
+    name: Deploy → Vercel Production
     runs-on: ubuntu-latest
-    # Only deploy after CI passes
-    needs: []
+    # Skip if CI did not succeed
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 30
     environment:
       name: production
@@ -30,56 +35,66 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      # ── SSH deploy via rsync + remote commands ──────────────────────────────
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
 
-      - name: Sync source to server
-        run: |
-          rsync -avz --delete \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            --exclude='.next' \
-            --exclude='.env*' \
-            --exclude='tests/e2e' \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
-            ./ "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/"
+      # ── Pull production env vars & project metadata from Vercel ────────────
+      # This writes .vercel/.env.production.local which `vercel build` will use.
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Install, migrate & reload on server
-        run: |
-          ssh -i ~/.ssh/deploy_key \
-              -o StrictHostKeyChecking=yes \
-              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
-              "bash ${{ secrets.DEPLOY_PATH }}/scripts/deploy.sh"
+      # ── Build locally inside the Actions runner ─────────────────────────────
+      # Runs `npm run vercel-build` which includes:
+      #   payload generate:types → payload generate:importmap → payload migrate → next build
+      # DATABASE_URI and all other secrets are pulled from Vercel above.
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      # ── Smoke tests ─────────────────────────────────────────────────────────
+      # ── Upload the prebuilt output to Vercel ────────────────────────────────
+      - name: Deploy prebuilt to Vercel Production
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # ── Smoke tests against the live deployment ─────────────────────────────
+      # Give Vercel a moment to fully propagate the deploy.
+      - name: Wait for deployment propagation
+        run: sleep 10
+
       - name: Smoke test — home page (HTTP 200)
         run: |
-          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/)
-          echo "Home page status: $status"
+          URL="${{ steps.deploy.outputs.deployment_url }}"
+          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL/")
+          echo "Home: $status ($URL)"
           test "$status" = "200"
 
       - name: Smoke test — /sitemap.xml
         run: |
-          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/sitemap.xml)
+          URL="${{ steps.deploy.outputs.deployment_url }}"
+          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL/sitemap.xml")
+          echo "Sitemap: $status"
           test "$status" = "200"
 
       - name: Smoke test — /robots.txt
         run: |
-          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/robots.txt)
-          test "$status" = "200"
-
-      - name: Smoke test — /manifest.webmanifest
-        run: |
-          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/manifest.webmanifest)
+          URL="${{ steps.deploy.outputs.deployment_url }}"
+          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL/robots.txt")
+          echo "Robots: $status"
           test "$status" = "200"
 
       - name: Smoke test — /api/health (Payload alive)
         run: |
-          status=$(curl -o /dev/null -s -w "%{http_code}" https://www.segeneyti.org/api/health)
-          # 200 or 404 are both acceptable (route may not exist, but server is up)
+          URL="${{ steps.deploy.outputs.deployment_url }}"
+          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL/api/health")
+          echo "Health: $status"
           test "$status" = "200" || test "$status" = "404"

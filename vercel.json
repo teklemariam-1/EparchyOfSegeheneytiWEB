@@ -1,6 +1,12 @@
 {
   "buildCommand": "npm run vercel-build",
+  "installCommand": "npm ci",
   "framework": "nextjs",
   "regions": ["iad1"],
-  "crons": []
+  "crons": [],
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  }
 }
