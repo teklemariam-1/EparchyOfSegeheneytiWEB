@@ -46,6 +46,9 @@ export default async function ParishesPage({
     priestName: p.pastor ?? undefined,
   }))
 
+  const uniqueVicariates = new Set(cards.map((p) => p.vicariate).filter(Boolean)).size
+  const priestCount = cards.filter((p) => p.priestName).length
+
   return (
     <>
       <PageHeader
@@ -61,12 +64,11 @@ export default async function ParishesPage({
           </Suspense>
 
           {/* Stats row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
             {[
-              { label: 'Total Parishes', value: String(cards.length || '—') },
-              { label: 'Vicariates', value: '5' },
-              { label: 'Priests', value: String(cards.filter((p) => p.priestName).length || '—') },
-              { label: 'Countries', value: '18' },
+              { label: 'Total Parishes', value: cards.length ? String(cards.length) : '—' },
+              { label: 'Vicariates', value: uniqueVicariates ? String(uniqueVicariates) : '—' },
+              { label: 'Priests', value: priestCount ? String(priestCount) : '—' },
             ].map((stat) => (
               <div key={stat.label} className="rounded-lg bg-parchment-50 border border-parchment-200 p-4 text-center">
                 <p className="text-2xl font-bold font-serif text-maroon-800">{stat.value}</p>

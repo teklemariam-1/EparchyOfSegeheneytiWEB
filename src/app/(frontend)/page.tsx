@@ -52,7 +52,7 @@ export default async function HomePage() {
       <BishopMessageSection config={homepage.bishopMessage} message={bishopMessage} />
       <LatestNewsSection config={homepage.latestNews} news={news} />
       <UpcomingEventsSection config={homepage.upcomingEvents} events={events} />
-      <QuickLinksSection />
+      <QuickLinksSection config={homepage.quickLinks} />
     </>
   )
 }

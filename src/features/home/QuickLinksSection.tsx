@@ -1,6 +1,11 @@
 import Link from 'next/link'
 import { Container } from '@/components/layout/Container'
 import { Section } from '@/components/layout/Section'
+import type { HomepageGlobal } from '@/lib/payload/queries'
+
+interface Props {
+  config?: HomepageGlobal['quickLinks']
+}
 
 const QUICK_LINKS = [
   {
@@ -65,7 +70,14 @@ const QUICK_LINKS = [
   },
 ]
 
-export function QuickLinksSection() {
+export function QuickLinksSection({ config }: Props) {
+  if (config?.enabled === false) return null
+
+  const heading = config?.heading ?? 'Quick Links'
+
+  // If the CMS has custom links defined, use them; otherwise fall back to built-in links
+  const cmsLinks = config?.links && config.links.length > 0 ? config.links : null
+
   return (
     <Section className="bg-white" aria-labelledby="quick-links-title">
       <Container>
@@ -77,11 +89,38 @@ export function QuickLinksSection() {
             id="quick-links-title"
             className="text-3xl md:text-4xl font-serif font-bold text-maroon-900"
           >
-            Quick Links
+            {heading}
           </h2>
           <div className="divider-gold mt-3 mx-auto" />
         </div>
 
+        {cmsLinks ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {cmsLinks.map((link) => (
+              <Link
+                key={link.url}
+                href={link.url}
+                className="group flex flex-col items-center gap-3 p-5 rounded-xl border border-charcoal-100 bg-white hover:bg-parchment hover:border-maroon-200 transition-all hover:shadow-card text-center"
+              >
+                {link.icon && (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon-50 text-2xl group-hover:bg-maroon-100 transition-colors">
+                    {link.icon}
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm font-semibold text-charcoal-800 group-hover:text-maroon-800 transition-colors leading-snug">
+                    {link.label}
+                  </p>
+                  {link.description && (
+                    <p className="text-xs text-charcoal-400 mt-0.5 leading-snug hidden sm:block">
+                      {link.description}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {QUICK_LINKS.map((link) => (
             <Link
@@ -103,6 +142,7 @@ export function QuickLinksSection() {
             </Link>
           ))}
         </div>
+        )}
       </Container>
     </Section>
   )

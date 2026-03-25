@@ -4,6 +4,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ContactForm } from '@/features/contact/ContactForm'
+import { getSiteSettings } from '@/lib/payload/queries'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Contact',
@@ -11,15 +12,7 @@ export const metadata: Metadata = buildMetadata({
   path: '/contact',
 })
 
-const OFFICES = [
-  {
-    name: 'Chancery Office',
-    role: 'General enquiries, canonical matters, and administrative correspondence.',
-    address: 'P.O. Box 100, Segeneyti, Southern Zoba, Eritrea',
-    phone: '+291-1-000000',
-    email: 'chancery@eparchy.er',
-    hours: 'Monday–Friday, 8:00 AM – 1:00 PM',
-  },
+const STATIC_OFFICES = [
   {
     name: "Bishop's Secretariat",
     role: 'Appointments and correspondence for the Bishop.',
@@ -38,7 +31,23 @@ const OFFICES = [
   },
 ]
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSiteSettings()
+  const contact = settings.contact
+
+  const chancery = {
+    name: 'Chancery Office',
+    role: 'General enquiries, canonical matters, and administrative correspondence.',
+    address: contact?.address
+      ? `${contact.address}${contact.city ? ', ' + contact.city : ''}${contact.country ? ', ' + contact.country : ''}`
+      : 'P.O. Box 100, Segeneyti, Southern Zoba, Eritrea',
+    phone: contact?.phone ?? '+291-1-000000',
+    email: contact?.email ?? 'chancery@segeneyti.org',
+    hours: 'Monday–Friday, 8:00 AM – 1:00 PM',
+  }
+
+  const offices = [chancery, ...STATIC_OFFICES]
+
   return (
     <>
       <PageHeader
@@ -64,7 +73,7 @@ export default function ContactPage() {
                 Office Contacts
               </h2>
 
-              {OFFICES.map((office) => (
+              {offices.map((office) => (
                 <div key={office.name} className="card p-5 space-y-2">
                   <h3 className="font-serif text-base font-semibold text-charcoal-900">{office.name}</h3>
                   <p className="text-xs text-charcoal-500 leading-snug">{office.role}</p>

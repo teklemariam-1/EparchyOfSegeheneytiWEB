@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
+import { getHomepageGlobal } from '@/lib/payload/queries'
 
 export const metadata: Metadata = buildMetadata({
   title: 'About the Eparchy',
@@ -42,7 +44,10 @@ const TIMELINE = [
   { year: '2024', label: 'Pastoral plan', desc: 'A renewed five-year pastoral plan was launched, centred on family ministry and vocations promotion.' },
 ]
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const homepage = await getHomepageGlobal()
+  const bishop = homepage.bishopMessage
+
   return (
     <>
       <PageHeader
@@ -107,34 +112,35 @@ export default function AboutPage() {
       <Section className="bg-white">
         <Container>
           <div className="flex flex-col md:flex-row gap-10 items-start">
-            {/* Photo placeholder */}
+            {/* Photo */}
             <div className="shrink-0 mx-auto md:mx-0">
-              <div className="h-56 w-56 rounded-full bg-maroon-100 flex items-center justify-center ring-4 ring-gold-300">
-                <svg
-                  className="h-24 w-24 text-maroon-300"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              {bishop?.photo?.url ? (
+                <div className="relative h-56 w-56 rounded-full overflow-hidden ring-4 ring-gold-300">
+                  <Image
+                    src={bishop.photo.url}
+                    alt={bishop.photo.alt || bishop?.bishopName || 'Bishop'}
+                    fill
+                    className="object-cover"
+                    sizes="224px"
                   />
-                </svg>
-              </div>
+                </div>
+              ) : (
+                <div className="h-56 w-56 rounded-full bg-maroon-100 flex items-center justify-center ring-4 ring-gold-300">
+                  <svg className="h-24 w-24 text-maroon-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              )}
             </div>
 
             {/* Bio */}
             <div className="flex-1">
               <div className="divider-gold mb-6" />
               <h2 className="text-2xl font-serif font-bold text-charcoal-900 mb-1">
-                Most Rev. Bishop of Segeneyti
+                {bishop?.bishopName ?? 'Most Rev. Bishop of Segeneyti'}
               </h2>
               <p className="text-sm text-maroon-700 font-medium mb-4">
-                Bishop of the Catholic Eparchy of Segeneyti
+                {bishop?.bishopTitle ?? 'Bishop of the Catholic Eparchy of Segeneyti'}
               </p>
               <div className="prose prose-eparchy">
                 <p>
