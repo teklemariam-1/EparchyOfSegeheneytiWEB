@@ -1,20 +1,19 @@
-import type { Metadata } from 'next'
+import { RootLayout } from '@payloadcms/next/layouts'
+import { importMap } from './importMap.js'
+import config from '@payload-config'
 import React from 'react'
-import '@payloadcms/next/css'
 import './custom.css'
 
-export const metadata: Metadata = {
-  title: 'Admin Panel | Eparchy of Segeneyti',
-}
+export { metadata } from '@payloadcms/next/layouts'
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html>
-      <body>{children}</body>
-    </html>
+    <RootLayout config={config} importMap={importMap}>
+      {children}
+    </RootLayout>
   )
 }
