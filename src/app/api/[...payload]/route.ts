@@ -1,10 +1,24 @@
 import { REST_DELETE, REST_GET, REST_PATCH, REST_POST, REST_PUT } from '@payloadcms/next/routes'
 import config from '@payload-config'
+import { NextRequest } from 'next/server'
 
 export const maxDuration = 60
 
-export const GET = REST_GET(config)
-export const POST = REST_POST(config)
-export const DELETE = REST_DELETE(config)
-export const PATCH = REST_PATCH(config)
-export const PUT = REST_PUT(config)
+function withErrorBody(handler: (req: NextRequest) => Promise<Response>) {
+  return async (req: NextRequest) => {
+    try {
+      return await handler(req)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      const stack = err instanceof Error ? err.stack : undefined
+      console.error('[payload-route] uncaught error:', message, stack)
+      return Response.json({ error: message, stack }, { status: 500 })
+    }
+  }
+}
+
+export const GET = withErrorBody(REST_GET(config))
+export const POST = withErrorBody(REST_POST(config))
+export const DELETE = withErrorBody(REST_DELETE(config))
+export const PATCH = withErrorBody(REST_PATCH(config))
+export const PUT = withErrorBody(REST_PUT(config))
