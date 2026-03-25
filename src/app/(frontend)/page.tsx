@@ -24,17 +24,27 @@ export const revalidate = 300
 
 export default async function HomePage() {
   const locale = await getLocale()
-  // Fetch the homepage global first so we can use its configured limits
-  const homepage = await getHomepageGlobal(locale)
 
-  const newsLimit = homepage.latestNews?.limit ?? 3
-  const eventsLimit = homepage.upcomingEvents?.limit ?? 5
+  let homepage: Awaited<ReturnType<typeof getHomepageGlobal>> = {}
+  let news: Awaited<ReturnType<typeof getNewsList>>['docs'] = []
+  let events: Awaited<ReturnType<typeof getUpcomingEvents>> = []
+  let bishopMessage: Awaited<ReturnType<typeof getLatestBishopMessage>> = null
 
-  const [{ docs: news }, events, bishopMessage] = await Promise.all([
-    getNewsList({ limit: newsLimit, locale }),
-    getUpcomingEvents(eventsLimit, locale),
-    getLatestBishopMessage(locale),
-  ])
+  try {
+    homepage = await getHomepageGlobal(locale)
+    const newsLimit = homepage.latestNews?.limit ?? 3
+    const eventsLimit = homepage.upcomingEvents?.limit ?? 5
+    const results = await Promise.all([
+      getNewsList({ limit: newsLimit, locale }),
+      getUpcomingEvents(eventsLimit, locale),
+      getLatestBishopMessage(locale),
+    ])
+    news = results[0].docs
+    events = results[1]
+    bishopMessage = results[2]
+  } catch {
+    // DB unavailable — render full page structure with empty data
+  }
 
   return (
     <>
