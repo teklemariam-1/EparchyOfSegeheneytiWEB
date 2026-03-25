@@ -891,6 +891,7 @@ export async function globalSearch(
   q: string,
   scope?: string,
 ): Promise<SearchResult[]> {
+  try {
   if (!q || q.trim().length < 2) return []
   const payload = await getPayload()
   const term = q.trim()
@@ -959,4 +960,7 @@ export async function globalSearch(
   }
 
   return results
+  } catch {
+    return []
+  }
 }
