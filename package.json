@@ -26,6 +26,7 @@
     "analyze": "cross-env ANALYZE=true npm run build"
   },
   "dependencies": {
+    "@next/swc-win32-x64-msvc": "15.2.9",
     "@payloadcms/db-postgres": "^3.0.0",
     "@payloadcms/next": "^3.0.0",
     "@payloadcms/richtext-lexical": "^3.0.0",
@@ -57,11 +58,11 @@
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.20",
     "cross-env": "^10.1.0",
-    "sass": "^1.77.4",
     "eslint": "^9.0.0",
     "eslint-config-next": "15.2.9",
     "jsdom": "^29.0.1",
     "postcss": "^8.4.49",
+    "sass": "^1.77.4",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",
     "typescript": "^5.7.0",
