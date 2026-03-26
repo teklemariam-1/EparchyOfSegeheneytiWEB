@@ -8,6 +8,7 @@ on:
     workflows: ["CI"]
     branches: [main]
     types: [completed]
+  workflow_dispatch: # Allow manual deploys from the Actions tab
 
 # Only one production deploy at a time — never cancel an in-progress deploy.
 concurrency:
@@ -18,8 +19,8 @@ jobs:
   deploy:
     name: Deploy → Vercel Production
     runs-on: ubuntu-latest
-    # Skip if CI did not succeed
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Skip if CI did not succeed (only applies to workflow_run trigger)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 30
     environment:
       name: production
@@ -75,39 +76,31 @@ jobs:
           # Uncomment to override with direct connection for migrations:
           # DATABASE_URI: ${{ secrets.DATABASE_DIRECT_URL }}
 
-      # ── Build locally inside the Actions runner ─────────────────────────────
-      # Use npm run vercel-build directly for full log visibility.
-      # Output is captured to a file for error reporting.
-      - name: Build
-        id: build
-        run: |
-          set +e
-          npm run vercel-build 2>&1 | tee /tmp/build_output.txt
-          BUILD_EXIT=${PIPESTATUS[0]}
-          if [ $BUILD_EXIT -ne 0 ]; then
-            echo "## Build Failed" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -80 /tmp/build_output.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-          fi
-          exit $BUILD_EXIT
-        env:
-          NODE_ENV: production
-          SENTRY_AUTH_TOKEN: ''
-
       # ── Deploy to Vercel Production ────────────────────────────────────────
-      # vercel deploy --prod uploads the source and lets Vercel build remotely.
-      # Since vercel-build already ran (and .next/ is available), Vercel may
-      # use its cache. This always produces a valid deployment URL.
+      # vercel deploy --prod uploads source to Vercel and triggers a remote
+      # build on Vercel's own infrastructure (where all env vars are available).
+      # We do NOT run 'payload generate:types' or 'next build' locally because:
+      #   - payload generate:types requires a live DB connection (timeouts in CI)
+      #   - payload-types.ts and importMap.js are already committed to the repo
+      #   - Vercel's remote build environment has all required env vars configured
+      # Using --archive=tgz for faster upload; --build-env resets SENTRY to avoid
+      # source-map uploads unless explicitly configured on Vercel.
       - name: Deploy to Vercel Production
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} 2>&1 | grep -E '^https://' | tail -1)
+          set -o pipefail
+          OUTPUT=$(vercel deploy --prod \
+            --archive=tgz \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            2>&1)
+          echo "$OUTPUT"
+          DEPLOYMENT_URL=$(echo "$OUTPUT" | grep -E '^https://' | tail -1)
           echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $DEPLOYMENT_URL"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          SENTRY_AUTH_TOKEN: ''
 
       # ── Smoke tests against the live deployment ─────────────────────────────
       # Give Vercel a moment to fully propagate the deploy.
