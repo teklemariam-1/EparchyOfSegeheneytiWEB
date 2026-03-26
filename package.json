@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "payload generate:types && payload generate:importmap && payload migrate && next build",
+    "vercel-build": "payload generate:types && payload generate:importmap && next build",
     "start": "next start",
     "lint": "cross-env ESLINT_USE_FLAT_CONFIG=false next lint",
     "type-check": "tsc --noEmit",

@@ -38,6 +38,9 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
+      - name: Install dependencies
+        run: npm ci
+
       # ── Pull production env vars & project metadata from Vercel ────────────
       # This writes .vercel/.env.production.local which `vercel build` will use.
       - name: Pull Vercel environment
@@ -46,10 +49,29 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      # ── Load env vars from Vercel pull output ──────────────────────────────
+      # vercel pull writes .vercel/.env.production.local; export vars for next steps
+      - name: Export Vercel environment variables
+        run: |
+          if [ -f .vercel/.env.production.local ]; then
+            grep -v '^#' .vercel/.env.production.local | grep -v '^$' >> $GITHUB_ENV
+          fi
+
+      # ── Run database migrations before the build ───────────────────────────
+      # Runs against the production database using DATABASE_URI from Vercel env.
+      # Payload migrate must use the direct (non-pooled) Neon connection.
+      # If DATABASE_URI is a pooled pgBouncer URL, set DATABASE_DIRECT_URL as a
+      # GitHub secret and override DATABASE_URI here:
+      #   DATABASE_URI: ${{ secrets.DATABASE_DIRECT_URL }}
+      - name: Run database migrations
+        run: npm run migrate
+        env:
+          NODE_ENV: production
+
       # ── Build locally inside the Actions runner ─────────────────────────────
       # Runs `npm run vercel-build` which includes:
-      #   payload generate:types → payload generate:importmap → payload migrate → next build
-      # DATABASE_URI and all other secrets are pulled from Vercel above.
+      #   payload generate:types → payload generate:importmap → next build
+      # DATABASE_URI and all other secrets are available from the env export above.
       - name: Build
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
