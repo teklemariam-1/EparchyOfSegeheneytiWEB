@@ -37,6 +37,7 @@ import { Header } from './globals/Header/index'
 import { Footer } from './globals/Footer/index'
 import { Homepage } from './globals/Homepage/index'
 import { Navigation } from './globals/Navigation/index'
+import { buildEmailAdapter } from './lib/payload/email'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -137,6 +138,8 @@ export default buildConfig({
     supportedLanguages: { en },
     fallbackLanguage: 'en',
   },
+
+  email: buildEmailAdapter,
 
   // ── File storage ──────────────────────────────────────────────────────────────
   plugins: isS3

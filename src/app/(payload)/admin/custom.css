@@ -1,1 +1,8 @@
-/* Minimal admin customizations — don't touch Payload's base styles */
+/*
+ * Admin-only CSS overrides.
+ * This file is imported AFTER @payloadcms/ui/scss/app.scss in layout.tsx
+ * so it can layer on top of Payload's default styles.
+ *
+ * All rules should live inside @layer payload so they participate in
+ * Payload's cascade without accidentally overriding core UI styles.
+ */
