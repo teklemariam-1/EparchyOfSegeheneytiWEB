@@ -77,9 +77,20 @@ jobs:
 
       # ── Build locally inside the Actions runner ─────────────────────────────
       # Use npm run vercel-build directly for full log visibility.
-      # This creates .next/ output which Vercel can deploy from.
+      # Output is captured to a file for error reporting.
       - name: Build
-        run: npm run vercel-build
+        id: build
+        run: |
+          set +e
+          npm run vercel-build 2>&1 | tee /tmp/build_output.txt
+          BUILD_EXIT=${PIPESTATUS[0]}
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "## Build Failed" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -80 /tmp/build_output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          exit $BUILD_EXIT
         env:
           NODE_ENV: production
           SENTRY_AUTH_TOKEN: ''
