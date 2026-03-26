@@ -1,13 +1,28 @@
 // Admin panel logo — displayed in Payload's sidebar
+// Uses inline styles because Tailwind is not loaded on admin routes
 export default function AdminLogo() {
   return (
-    <div className="flex items-center gap-2 py-1">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
-        <span className="text-white text-xs">✝</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0' }}>
+      <div
+        style={{
+          display: 'flex',
+          height: '32px',
+          width: '32px',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.2)',
+        }}
+      >
+        <span style={{ color: '#fff', fontSize: '12px' }}>✝</span>
       </div>
       <div>
-        <p className="text-white text-sm font-bold leading-tight">Eparchy of Segeneyti</p>
-        <p className="text-white/60 text-xs leading-tight">Content Management</p>
+        <p style={{ color: '#fff', fontSize: '14px', fontWeight: 700, lineHeight: 1.25, margin: 0 }}>
+          Eparchy of Segeneyti
+        </p>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', lineHeight: 1.25, margin: 0 }}>
+          Content Management
+        </p>
       </div>
     </div>
   )
