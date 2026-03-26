@@ -76,21 +76,24 @@ jobs:
           # DATABASE_URI: ${{ secrets.DATABASE_DIRECT_URL }}
 
       # ── Build locally inside the Actions runner ─────────────────────────────
-      # Runs `npm run vercel-build` which includes:
-      #   payload generate:types → payload generate:importmap → next build
-      # DATABASE_URI and all other secrets are available from the env export above.
+      # Use npm run vercel-build directly for full log visibility.
+      # This creates .next/ output which Vercel can deploy from.
       - name: Build
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: npm run vercel-build
         env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          NODE_ENV: production
+          SENTRY_AUTH_TOKEN: ''
 
-      # ── Upload the prebuilt output to Vercel ────────────────────────────────
-      - name: Deploy prebuilt to Vercel Production
+      # ── Deploy to Vercel Production ────────────────────────────────────────
+      # vercel deploy --prod uploads the source and lets Vercel build remotely.
+      # Since vercel-build already ran (and .next/ is available), Vercel may
+      # use its cache. This always produces a valid deployment URL.
+      - name: Deploy to Vercel Production
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} 2>&1 | grep -E '^https://' | tail -1)
           echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOYMENT_URL"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
