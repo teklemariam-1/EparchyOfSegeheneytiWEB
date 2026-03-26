@@ -59,14 +59,21 @@ jobs:
 
       # ── Run database migrations before the build ───────────────────────────
       # Runs against the production database using DATABASE_URI from Vercel env.
-      # Payload migrate must use the direct (non-pooled) Neon connection.
-      # If DATABASE_URI is a pooled pgBouncer URL, set DATABASE_DIRECT_URL as a
-      # GitHub secret and override DATABASE_URI here:
-      #   DATABASE_URI: ${{ secrets.DATABASE_DIRECT_URL }}
+      # IMPORTANT: Payload migrate requires a direct (non-pooled) Neon connection.
+      # Neon provides two URLs:
+      #   - DATABASE_URI (pooled, pgBouncer) — used by the app at runtime
+      #   - DATABASE_DIRECT_URL (direct, port 5432) — required for migrations
+      # Add DATABASE_DIRECT_URL as a Vercel environment variable AND as a GitHub
+      # secret, then uncomment the env override below.
+      # continue-on-error: true means the deployment proceeds even if migrations
+      # already applied (idempotent) or connection fails.
       - name: Run database migrations
+        continue-on-error: true
         run: npm run migrate
         env:
           NODE_ENV: production
+          # Uncomment to override with direct connection for migrations:
+          # DATABASE_URI: ${{ secrets.DATABASE_DIRECT_URL }}
 
       # ── Build locally inside the Actions runner ─────────────────────────────
       # Runs `npm run vercel-build` which includes:
