@@ -1,26 +1,7 @@
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
-import { FlatCompat } from '@eslint/eslintrc'
+// eslint-config-next@15.2.x uses @rushstack/eslint-patch which is incompatible
+// with ESLint 9 flat config via FlatCompat. We use the legacy .eslintrc.json
+// format instead. Set ESLINT_USE_FLAT_CONFIG=false to activate it.
+//
+// See .eslintrc.json for rules.
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-})
-
-const config = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
-  {
-    rules: {
-      // Allow explicit `any` with a comment — Payload types sometimes require it
-      '@typescript-eslint/no-explicit-any': 'warn',
-      // Allow unused vars prefixed with _ (common pattern)
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      // Payload admin may use require() in generated importMap
-      '@typescript-eslint/no-require-imports': 'warn',
-    },
-  },
-]
-
-export default config
+export default []
