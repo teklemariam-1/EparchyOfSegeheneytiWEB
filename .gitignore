@@ -41,3 +41,7 @@ next-env.d.ts
 public/media/
 .vercel
 .env*.local
+
+# Build/deploy log artifacts
+build_log*.txt
+scripts/deploy_log.txt
