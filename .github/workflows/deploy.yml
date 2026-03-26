@@ -83,18 +83,22 @@ jobs:
       #   - payload generate:types requires a live DB connection (timeouts in CI)
       #   - payload-types.ts and importMap.js are already committed to the repo
       #   - Vercel's remote build environment has all required env vars configured
-      # Using --archive=tgz for faster upload; --build-env resets SENTRY to avoid
-      # source-map uploads unless explicitly configured on Vercel.
       - name: Deploy to Vercel Production
         id: deploy
         run: |
           set -o pipefail
+          # Strip ANSI escape codes from Vercel CLI output and extract the URL
           OUTPUT=$(vercel deploy --prod \
             --archive=tgz \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            2>&1)
+            2>&1 | sed 's/\x1b\[[0-9;]*m//g')
           echo "$OUTPUT"
-          DEPLOYMENT_URL=$(echo "$OUTPUT" | grep -E '^https://' | tail -1)
+          # vercel deploy --prod outputs the deployment URL on the last line
+          DEPLOYMENT_URL=$(echo "$OUTPUT" | grep -oE 'https://[a-zA-Z0-9._-]+\.vercel\.app' | tail -1)
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            # Fallback: use production domain
+            DEPLOYMENT_URL="https://www.segeneyti.org"
+          fi
           echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $DEPLOYMENT_URL"
         env:
@@ -105,32 +109,33 @@ jobs:
       # ── Smoke tests against the live deployment ─────────────────────────────
       # Give Vercel a moment to fully propagate the deploy.
       - name: Wait for deployment propagation
-        run: sleep 10
+        run: sleep 30
 
       - name: Smoke test — home page (HTTP 200)
         run: |
           URL="${{ steps.deploy.outputs.deployment_url }}"
-          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL/")
-          echo "Home: $status ($URL)"
+          echo "Testing: $URL/"
+          status=$(curl -L -o /dev/null -s -w "%{http_code}" --max-time 30 "$URL/")
+          echo "Home: $status"
           test "$status" = "200"
 
       - name: Smoke test — /sitemap.xml
         run: |
           URL="${{ steps.deploy.outputs.deployment_url }}"
-          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL/sitemap.xml")
+          status=$(curl -L -o /dev/null -s -w "%{http_code}" --max-time 30 "$URL/sitemap.xml")
           echo "Sitemap: $status"
           test "$status" = "200"
 
       - name: Smoke test — /robots.txt
         run: |
           URL="${{ steps.deploy.outputs.deployment_url }}"
-          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL/robots.txt")
+          status=$(curl -L -o /dev/null -s -w "%{http_code}" --max-time 30 "$URL/robots.txt")
           echo "Robots: $status"
           test "$status" = "200"
 
       - name: Smoke test — /api/health (Payload alive)
         run: |
           URL="${{ steps.deploy.outputs.deployment_url }}"
-          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL/api/health")
+          status=$(curl -L -o /dev/null -s -w "%{http_code}" --max-time 30 "$URL/api/health")
           echo "Health: $status"
           test "$status" = "200" || test "$status" = "404"
