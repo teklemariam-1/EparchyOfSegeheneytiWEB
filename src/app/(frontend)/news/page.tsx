@@ -7,7 +7,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { NewsCard, type NewsCardData } from '@/features/news/NewsCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { FilterBar } from '@/components/shared/FilterBar'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getNewsList } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +36,7 @@ export default async function NewsPage({
   const { category, page: pageParam } = await searchParams
   const currentPage = Number(pageParam) || 1
   const locale = await getLocale()
+  const t = await getTranslations('news')
 
   const { docs, meta } = await getNewsList({ limit: 12, category, page: currentPage, locale })
 
@@ -52,9 +53,9 @@ export default async function NewsPage({
   return (
     <>
       <PageHeader
-        title="News"
-        subtitle="Latest announcements, pastoral letters, and updates from the Eparchy."
-        breadcrumbs={[{ label: 'News' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       <Section className="bg-white">

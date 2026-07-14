@@ -5,6 +5,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { getTranslations } from 'next-intl/server'
 import { getMinistriesList } from '@/lib/payload/queries'
 
 export const revalidate = 600
@@ -32,6 +33,7 @@ const DEFAULT_META = { icon: '✝', label: 'Other Ministries', badge: 'neutral' 
 
 export default async function MinistriesPage() {
   const ministries = await getMinistriesList()
+  const t = await getTranslations('ministries')
 
   // Group by ministryType
   const groups = new Map<string, typeof ministries>()
@@ -46,9 +48,9 @@ export default async function MinistriesPage() {
   return (
     <>
       <PageHeader
-        title="Ministries"
-        subtitle="Serving together in every area of Church life — youth, catechesis, liturgy, women, and more."
-        breadcrumbs={[{ label: 'Ministries' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       {/* Intro */}
@@ -68,7 +70,7 @@ export default async function MinistriesPage() {
         groupEntries.map(([type, items], gi) => {
           const meta = TYPE_META[type] ?? DEFAULT_META
           return (
-            <Section key={type} className={gi % 2 === 0 ? 'bg-parchment-50' : 'bg-white'}>
+            <Section key={type} id={type} className={gi % 2 === 0 ? 'bg-parchment-50' : 'bg-white'}>
               <Container>
                 <div className="flex items-start gap-4 mb-8">
                   <span className="text-4xl" aria-hidden="true">{meta.icon}</span>

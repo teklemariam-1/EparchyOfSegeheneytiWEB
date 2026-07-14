@@ -1,10 +1,42 @@
 import type { CollectionConfig } from 'payload'
+import { APIError } from 'payload'
 import { isSuperAdmin, isRoleOneOf } from '../../lib/permissions/collectionAccess'
 import { superAdminOnly, elevatedOnly } from '../../lib/permissions/fieldAccess'
 
+/** Minimum password policy: ≥8 chars with upper, lower, and a number. */
+function assertStrongPassword(password: unknown): void {
+  if (typeof password !== 'string' || password.length === 0) return // not being set/changed
+  const strong =
+    password.length >= 8 &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password)
+  if (!strong) {
+    throw new APIError(
+      'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.',
+      400,
+    )
+  }
+}
+
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true,
+  auth: {
+    // Brute-force protection: lock the account after repeated failures.
+    maxLoginAttempts: 5,
+    lockTime: 15 * 60 * 1000, // 15 minutes
+    tokenExpiration: 2 * 60 * 60, // 2 hours (seconds)
+  },
+  hooks: {
+    // Enforce password complexity server-side — the admin login UI checks this
+    // too, but a direct API call to /api/users would otherwise bypass it.
+    beforeValidate: [
+      ({ data }) => {
+        assertStrongPassword((data as { password?: unknown } | undefined)?.password)
+        return data
+      },
+    ],
+  },
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['email', 'firstName', 'lastName', 'role', 'assignedParish'],

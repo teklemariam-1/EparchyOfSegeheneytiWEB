@@ -6,6 +6,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { GEEZ_MONTHS, GEEZ_MONTH_LABELS, type GeezMonth } from '@/lib/constants/geezMonths'
+import { getTranslations } from 'next-intl/server'
 import { getGeezCalendarEntries } from '@/lib/payload/queries'
 
 export const revalidate = 3600
@@ -63,13 +64,14 @@ export default async function GeezCalendarPage() {
   const currentMonthEntries = byMonth.get(currentMonthKey) ?? []
 
   const hasAnyData = entries.length > 0
+  const t = await getTranslations('calendar')
 
   return (
     <>
       <PageHeader
-        title="ግጻዌ — Ge'ez Calendar"
-        subtitle="Liturgical feasts, fasts, and saints' days in the Ge'ez tradition."
-        breadcrumbs={[{ label: "Ge'ez Calendar" }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       {/* Legend */}

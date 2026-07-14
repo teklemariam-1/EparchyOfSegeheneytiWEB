@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { getFooterGlobal } from '@/lib/payload/queries'
 
 const DEFAULT_FOOTER_COLUMNS = [
@@ -6,19 +7,19 @@ const DEFAULT_FOOTER_COLUMNS = [
     heading: 'About',
     links: [
       { label: 'About the Eparchy', url: '/about' },
-      { label: 'Bishop', url: '/about/bishop' },
-      { label: 'History', url: '/about/history' },
+      { label: 'Bishop', url: '/about#bishop' },
+      { label: 'History', url: '/about#history' },
       { label: 'Contact', url: '/contact' },
     ],
   },
   {
     heading: 'Ministries',
     links: [
-      { label: 'Youth Council', url: '/ministries/youth-council' },
-      { label: 'Catechists', url: '/ministries/catechists' },
-      { label: "Children's Ministry", url: '/ministries/children' },
-      { label: 'Small Christian Community', url: '/ministries/small-christian-community' },
-      { label: 'Priests & Ministries', url: '/ministries' },
+      { label: 'Youth Council', url: '/ministries#youth-council' },
+      { label: 'Catechists', url: '/ministries#catechists' },
+      { label: "Children's Ministry", url: '/ministries#children' },
+      { label: 'Small Christian Community', url: '/ministries#small-christian-community' },
+      { label: 'All Ministries', url: '/ministries' },
     ],
   },
   {
@@ -27,17 +28,15 @@ const DEFAULT_FOOTER_COLUMNS = [
       { label: "Bishop's Messages", url: '/bishop-messages' },
       { label: 'Pope Messages', url: '/pope-messages' },
       { label: "Ge'ez Calendar", url: '/geez-calendar' },
-      { label: 'Magazines', url: '/publications/magazines' },
-      { label: 'Archives', url: '/publications/archives' },
-      { label: 'Schools', url: '/institutions/schools' },
-      { label: 'Clinics', url: '/institutions/clinics' },
+      { label: 'Magazines', url: '/publications#magazines' },
+      { label: 'Archives', url: '/publications#archives' },
+      { label: 'Publications', url: '/publications' },
     ],
   },
   {
     heading: 'Media',
     links: [
-      { label: 'Photo Gallery', url: '/media/gallery' },
-      { label: 'Videos', url: '/media/videos' },
+      { label: 'Photo Gallery', url: '/media' },
       { label: 'News', url: '/news' },
       { label: 'Events', url: '/events' },
       { label: 'Parishes', url: '/parishes' },
@@ -57,6 +56,7 @@ const SOCIAL_ICONS: Record<SocialKey, { label: string; letter: string }> = {
 export async function SiteFooter() {
   const footer = await getFooterGlobal()
   const year = new Date().getFullYear()
+  const t = await getTranslations('footer')
 
   const columns = footer.columns?.length ? footer.columns : DEFAULT_FOOTER_COLUMNS
 
@@ -81,7 +81,7 @@ export async function SiteFooter() {
               </div>
             </div>
             <p className="text-xs text-charcoal-400 leading-relaxed mb-4">
-              Serving God&apos;s people through faith, community, and mission since our founding.
+              {t('tagline')}
             </p>
             {/* Social links */}
             {footer.showSocialLinks !== false && (

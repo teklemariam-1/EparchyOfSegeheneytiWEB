@@ -6,6 +6,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { getTranslations } from 'next-intl/server'
 import { getPublicationsList, getMagazinesList, getArchivesList } from '@/lib/payload/queries'
 
 export const revalidate = 600
@@ -35,13 +36,14 @@ export default async function PublicationsPage() {
   ])
 
   const featured = magazines.find((m) => m.isFeatured) ?? magazines[0] ?? null
+  const t = await getTranslations('publications')
 
   return (
     <>
       <PageHeader
-        title="Publications"
-        subtitle="Magazines, pastoral documents, and historical archives from the Eparchy."
-        breadcrumbs={[{ label: 'Publications' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       {/* Featured magazine */}
@@ -92,7 +94,7 @@ export default async function PublicationsPage() {
       )}
 
       {/* Magazine archive */}
-      <Section className="bg-white">
+      <Section id="magazines" className="bg-white">
         <Container>
           <h2 className="text-xl font-serif font-bold text-charcoal-900 mb-6">Magazine Archive</h2>
           {magazines.length > 0 ? (
@@ -186,7 +188,7 @@ export default async function PublicationsPage() {
       </Section>
 
       {/* Archives */}
-      <Section className="bg-white">
+      <Section id="archives" className="bg-white">
         <Container>
           <h2 className="text-xl font-serif font-bold text-charcoal-900 mb-2">Archives</h2>
           <p className="text-sm text-charcoal-500 mb-6">

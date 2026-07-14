@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
+import { elevatedOnly } from '../../lib/permissions/fieldAccess'
 
 export const ContactSubmissions: CollectionConfig = {
   slug: 'contact-submissions',
@@ -11,7 +12,10 @@ export const ContactSubmissions: CollectionConfig = {
   },
   access: {
     read: isChanceryOrAbove,
-    create: () => true,
+    // No public REST create — the website form submits through a trusted server
+    // action (overrideAccess), so the anonymous /api/contact-submissions POST
+    // vector (spam/DB-flood) is closed entirely. Staff can still create in-admin.
+    create: isChanceryOrAbove,
     update: isChanceryOrAbove,
     delete: isSuperAdmin,
   },
@@ -19,7 +23,9 @@ export const ContactSubmissions: CollectionConfig = {
     beforeChange: [
       ({ data, operation }) => {
         if (operation === 'create') {
+          // Server-controlled fields — never trust client input for these.
           data.submittedAt = new Date().toISOString()
+          data.status = 'new'
         }
         return data
       },
@@ -53,6 +59,8 @@ export const ContactSubmissions: CollectionConfig = {
       type: 'select',
       required: true,
       defaultValue: 'new',
+      // Only staff may set/change status — a public form submission cannot.
+      access: { create: elevatedOnly, update: elevatedOnly },
       options: [
         { label: 'New', value: 'new' },
         { label: 'Read', value: 'read' },
@@ -64,6 +72,8 @@ export const ContactSubmissions: CollectionConfig = {
     {
       name: 'submittedAt',
       type: 'date',
+      // Server-stamped in beforeChange; never writable via the public API.
+      access: { create: elevatedOnly, update: elevatedOnly },
       admin: {
         position: 'sidebar',
         readOnly: true,
@@ -73,6 +83,8 @@ export const ContactSubmissions: CollectionConfig = {
     {
       name: 'adminNotes',
       type: 'textarea',
+      // Internal-only — must not be settable by the public submitter.
+      access: { create: elevatedOnly, update: elevatedOnly, read: elevatedOnly },
       admin: {
         description: 'Internal notes (not visible to submitter).',
       },

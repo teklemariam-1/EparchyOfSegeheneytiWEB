@@ -67,12 +67,13 @@ describe('MainNav', () => {
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
   })
 
-  it('renders top-level direct links: Parishes, News, Events, Contact', async () => {
+  it('renders top-level direct links: Parishes, News, Events, Media, Contact', async () => {
     render(await MainNav())
     const direct = [
       { name: 'Parishes', href: '/parishes' },
       { name: 'News', href: '/news' },
       { name: 'Events', href: '/events' },
+      { name: 'Media', href: '/media' },
       { name: 'Contact', href: '/contact' },
     ]
     direct.forEach(({ name, href }) => {
@@ -80,9 +81,9 @@ describe('MainNav', () => {
     })
   })
 
-  it('renders dropdown trigger buttons for About, Ministries, Resources, Media', async () => {
+  it('renders dropdown trigger buttons for About, Ministries, Resources', async () => {
     render(await MainNav())
-    const dropdowns = ['About', 'Ministries', 'Resources', 'Media']
+    const dropdowns = ['About', 'Ministries', 'Resources']
     dropdowns.forEach((name) => {
       expect(screen.getByRole('button', { name })).toBeInTheDocument()
     })
@@ -96,11 +97,11 @@ describe('MainNav', () => {
     )
     expect(screen.getByRole('link', { name: 'Bishop' })).toHaveAttribute(
       'href',
-      '/about/bishop',
+      '/about#bishop',
     )
     expect(screen.getByRole('link', { name: 'History' })).toHaveAttribute(
       'href',
-      '/about/history',
+      '/about#history',
     )
   })
 
@@ -108,35 +109,27 @@ describe('MainNav', () => {
     render(await MainNav())
     const items = [
       { name: 'All Ministries', href: '/ministries' },
-      { name: 'Youth Council', href: '/ministries/youth-council' },
-      { name: 'Catechists', href: '/ministries/catechists' },
+      { name: 'Youth Council', href: '/ministries#youth-council' },
+      { name: 'Catechists', href: '/ministries#catechists' },
     ]
     items.forEach(({ name, href }) => {
       expect(screen.getByRole('link', { name })).toHaveAttribute('href', href)
     })
   })
 
-  it('renders Resources dropdown with Bishop\'s Messages and Ge\'ez Calendar', async () => {
+  it('renders Resources dropdown with Bishop\'s and Pope Messages and Ge\'ez Calendar', async () => {
     render(await MainNav())
     expect(screen.getByRole('link', { name: "Bishop's Messages" })).toHaveAttribute(
       'href',
       '/bishop-messages',
     )
+    expect(screen.getByRole('link', { name: 'Pope Messages' })).toHaveAttribute(
+      'href',
+      '/pope-messages',
+    )
     expect(screen.getByRole('link', { name: "Ge'ez Calendar" })).toHaveAttribute(
       'href',
       '/geez-calendar',
-    )
-  })
-
-  it('renders Media dropdown with Gallery and Videos links', async () => {
-    render(await MainNav())
-    expect(screen.getByRole('link', { name: 'Gallery' })).toHaveAttribute(
-      'href',
-      '/media/gallery',
-    )
-    expect(screen.getByRole('link', { name: 'Videos' })).toHaveAttribute(
-      'href',
-      '/media/videos',
     )
   })
 })

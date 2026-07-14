@@ -20,8 +20,8 @@ export const PopeMessages: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/publications/pope-messages/${doc.slug}`)
-        revalidatePath('/publications/pope-messages')
+        revalidatePath(`/pope-messages/${doc.slug}`)
+        revalidatePath('/pope-messages')
       },
     ],
   },

@@ -7,7 +7,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ParishCard, type ParishCardData } from '@/features/parishes/ParishCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { FilterBar } from '@/components/shared/FilterBar'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getParishesList } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
@@ -34,6 +34,7 @@ export default async function ParishesPage({
 }) {
   const { vicariate } = await searchParams
   const locale = await getLocale()
+  const t = await getTranslations('parishes')
   const parishes = await getParishesList(100, vicariate, locale)
 
   const cards: ParishCardData[] = parishes.map((p) => ({
@@ -52,9 +53,9 @@ export default async function ParishesPage({
   return (
     <>
       <PageHeader
-        title="Parishes"
-        subtitle="Find a parish community in the Eparchy of Segeneyti — in Eritrea and in the diaspora."
-        breadcrumbs={[{ label: 'Parishes' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       <Section className="bg-white">

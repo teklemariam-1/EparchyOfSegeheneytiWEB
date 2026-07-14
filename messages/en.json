@@ -120,6 +120,7 @@
   },
   "search": {
     "title": "Search",
+    "subtitle": "Find news, events, parishes, publications, and more across the Eparchy.",
     "placeholder": "Search for news, events, parishes…",
     "noResults": "No results found for",
     "results": "results for",
@@ -152,6 +153,11 @@
     "subtitle": "Pastoral letters, homilies, and public addresses from the Bishop.",
     "noMessages": "No messages found.",
     "downloadPDF": "Download PDF"
+  },
+  "popeMessages": {
+    "title": "Messages from the Holy Father",
+    "subtitle": "Encyclicals, apostolic exhortations, and messages from the Successor of Saint Peter.",
+    "noMessages": "No documents yet."
   },
   "calendar": {
     "title": "Ge'ez Calendar",

@@ -5,7 +5,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { EventCard, type EventCardData } from '@/features/events/EventCard'
 import { EmptyState } from '@/components/shared/EmptyState'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getEventsList } from '@/lib/payload/queries'
 
 export const revalidate = 300
@@ -32,6 +32,7 @@ function toCard(ev: Awaited<ReturnType<typeof getEventsList>>['docs'][number], i
 
 export default async function EventsPage() {
   const locale = await getLocale()
+  const t = await getTranslations('events')
   const [{ docs: upcoming }, { docs: past }] = await Promise.all([
     getEventsList({ upcoming: true, limit: 12, locale }),
     getEventsList({ upcoming: false, limit: 8, locale }),
@@ -47,9 +48,9 @@ export default async function EventsPage() {
   return (
     <>
       <PageHeader
-        title="Events"
-        subtitle="Liturgical celebrations, community gatherings, and special occasions across the Eparchy."
-        breadcrumbs={[{ label: 'Events' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       {/* ── Upcoming ─────────────────────────────────────────────── */}

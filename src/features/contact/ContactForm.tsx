@@ -47,6 +47,18 @@ export function ContactForm() {
 
   return (
     <form action={formAction} className="space-y-5" aria-label="Contact form" noValidate>
+      {/* Honeypot — hidden from humans, tempting to bots. Real users leave it empty. */}
+      <div className="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+        <label htmlFor="company">Company (leave this field empty)</label>
+        <input
+          id="company"
+          name="company"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
+
       {/* Error banner */}
       {state.message && !state.ok && (
         <div

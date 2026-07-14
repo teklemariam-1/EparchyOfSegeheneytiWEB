@@ -24,8 +24,8 @@ export async function MainNav() {
       href: '/about',
       children: [
         { label: t('aboutEparchy'), href: '/about' },
-        { label: t('bishop'), href: '/about/bishop' },
-        { label: t('history'), href: '/about/history' },
+        { label: t('bishop'), href: '/about#bishop' },
+        { label: t('history'), href: '/about#history' },
       ],
     },
     { label: t('parishes'), href: '/parishes' },
@@ -36,11 +36,10 @@ export async function MainNav() {
       href: '/ministries',
       children: [
         { label: t('allMinistries'), href: '/ministries' },
-        { label: t('youthCouncil'), href: '/ministries/youth-council' },
-        { label: t('catechists'), href: '/ministries/catechists' },
-        { label: t('childrenMinistry'), href: '/ministries/children' },
-        { label: t('smallChristianCommunity'), href: '/ministries/small-christian-community' },
-        { label: t('priestsMinistries'), href: '/ministries/priests-and-ministries' },
+        { label: t('youthCouncil'), href: '/ministries#youth-council' },
+        { label: t('catechists'), href: '/ministries#catechists' },
+        { label: t('childrenMinistry'), href: '/ministries#children' },
+        { label: t('smallChristianCommunity'), href: '/ministries#small-christian-community' },
       ],
     },
     {
@@ -51,18 +50,11 @@ export async function MainNav() {
         { label: t('popeMessages'), href: '/pope-messages' },
         { label: t('geezCalendar'), href: '/geez-calendar' },
         { label: t('publications'), href: '/publications' },
-        { label: t('magazines'), href: '/publications/magazines' },
-        { label: t('archives'), href: '/publications/archives' },
+        { label: t('magazines'), href: '/publications#magazines' },
+        { label: t('archives'), href: '/publications#archives' },
       ],
     },
-    {
-      label: t('media'),
-      href: '/media',
-      children: [
-        { label: t('gallery'), href: '/media/gallery' },
-        { label: t('videos'), href: '/media/videos' },
-      ],
-    },
+    { label: t('media'), href: '/media' },
     { label: t('contact'), href: '/contact' },
   ]
 

@@ -5,7 +5,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { EmptyState } from '@/components/shared/EmptyState'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getBishopMessagesList } from '@/lib/payload/queries'
 
 export const revalidate = 600
@@ -42,13 +42,14 @@ export default async function BishopMessagesPage() {
 
   const featured = messages.filter((m) => m.isFeatured)
   const rest = messages.filter((m) => !m.isFeatured)
+  const t = await getTranslations('bishopMessages')
 
   return (
     <>
       <PageHeader
-        title="Bishop's Messages"
-        subtitle="Pastoral letters, homilies, and official messages from the Bishop of Segeneyti."
-        breadcrumbs={[{ label: "Bishop's Messages" }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       <Section className="bg-white">

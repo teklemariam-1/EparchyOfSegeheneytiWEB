@@ -8,6 +8,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { FilterBar } from '@/components/shared/FilterBar'
+import { getTranslations } from 'next-intl/server'
 import { getMediaGallery } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
@@ -35,13 +36,14 @@ export default async function MediaPage({
   const { category, page: pageParam } = await searchParams
   const currentPage = Number(pageParam) || 1
   const { docs: mediaItems, meta } = await getMediaGallery({ limit: 24, category, page: currentPage })
+  const t = await getTranslations('media')
 
   return (
     <>
       <PageHeader
-        title="Media"
-        subtitle="Photos and media from liturgical life, pastoral visits, and community events across the Eparchy."
-        breadcrumbs={[{ label: 'Media' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       <Section className="bg-white">

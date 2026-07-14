@@ -5,6 +5,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ContactForm } from '@/features/contact/ContactForm'
 import { getSiteSettings } from '@/lib/payload/queries'
+import { getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Contact',
@@ -34,6 +35,7 @@ const STATIC_OFFICES = [
 export default async function ContactPage() {
   const settings = await getSiteSettings()
   const contact = settings.contact
+  const t = await getTranslations('contact')
 
   const chancery = {
     name: 'Chancery Office',
@@ -51,9 +53,9 @@ export default async function ContactPage() {
   return (
     <>
       <PageHeader
-        title="Contact Us"
-        subtitle="Reach the Chancery, Bishop's secretariat, and Eparchy offices."
-        breadcrumbs={[{ label: 'Contact' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       <Section className="bg-white">

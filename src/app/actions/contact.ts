@@ -14,10 +14,20 @@ function sanitize(value: unknown): string {
   return String(value ?? '').trim()
 }
 
+const SUCCESS_MESSAGE =
+  'Thank you for your message. We will get back to you as soon as possible.'
+
 export async function submitContactForm(
   _prev: ContactFormState,
   formData: FormData,
 ): Promise<ContactFormState> {
+  // Honeypot — a hidden field real users never see. If it's filled, silently
+  // accept (so the bot believes it succeeded) but do not persist anything.
+  const honeypot = sanitize(formData.get('company'))
+  if (honeypot) {
+    return { ok: true, message: SUCCESS_MESSAGE }
+  }
+
   const firstName = sanitize(formData.get('firstName'))
   const lastName = sanitize(formData.get('lastName'))
   const email = sanitize(formData.get('email'))
@@ -61,21 +71,20 @@ export async function submitContactForm(
     const payload = await getPayload()
     await payload.create({
       collection: 'contact-submissions',
+      // Trusted server context: bypass field-level access (which is there to
+      // lock down the *public* REST endpoint). status/submittedAt are set by
+      // the collection's beforeChange hook, not by client input.
+      overrideAccess: true,
       data: {
         name,
         email,
         phone: phone || undefined,
         subject,
         message,
-        status: 'new',
       } as any,
     })
 
-    return {
-      ok: true,
-      message:
-        'Thank you for your message. We will get back to you as soon as possible.',
-    }
+    return { ok: true, message: SUCCESS_MESSAGE }
   } catch (err) {
     console.error('[contact-form] submission error', err)
     return {

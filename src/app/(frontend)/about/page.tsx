@@ -5,6 +5,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { getHomepageGlobal } from '@/lib/payload/queries'
+import { getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
   title: 'About the Eparchy',
@@ -47,13 +48,14 @@ const TIMELINE = [
 export default async function AboutPage() {
   const homepage = await getHomepageGlobal()
   const bishop = homepage.bishopMessage
+  const t = await getTranslations('about')
 
   return (
     <>
       <PageHeader
-        title="About the Eparchy"
-        subtitle="Rooted in faith, united in mission — serving the faithful of Eritrea since 1995."
-        breadcrumbs={[{ label: 'About' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       {/* ── Mission & Overview ─────────────────────────────────────────── */}
@@ -109,7 +111,7 @@ export default async function AboutPage() {
       </Section>
 
       {/* ── Bishop's Profile ────────────────────────────────────────────── */}
-      <Section className="bg-white">
+      <Section id="bishop" className="bg-white">
         <Container>
           <div className="flex flex-col md:flex-row gap-10 items-start">
             {/* Photo */}
@@ -159,7 +161,7 @@ export default async function AboutPage() {
       </Section>
 
       {/* ── Historical timeline ─────────────────────────────────────────── */}
-      <Section className="bg-parchment-50">
+      <Section id="history" className="bg-parchment-50">
         <Container size="narrow">
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-charcoal-900 mb-2">
             Key Milestones

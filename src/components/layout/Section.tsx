@@ -6,6 +6,8 @@ interface SectionProps {
   className?: string
   /** HTML element to render — defaults to <section> */
   as?: 'section' | 'div' | 'article'
+  /** Anchor target id, e.g. for in-page navigation (#bishop, #magazines) */
+  id?: string
   /** Semantic ARIA label for landmark sections */
   'aria-labelledby'?: string
 }

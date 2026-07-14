@@ -878,10 +878,101 @@ export async function getAllBishopMessageSlugs(): Promise<{ slug: string }[]> {
   }
 }
 
+// ─── Pope messages ─────────────────────────────────────────────────────────────
+
+export interface PopeMessageItem {
+  id: string
+  slug: string
+  title: string
+  documentType?: string
+  excerpt?: string
+  publishedAt?: string
+  content?: unknown
+  pdfUrl?: string | null
+  sourceUrl?: string
+}
+
+export async function getPopeMessagesList(limit = 20, locale?: string): Promise<PopeMessageItem[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'pope-messages',
+      where: { _status: { equals: 'published' } },
+      sort: '-publishedAt',
+      limit,
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)
+    return (result.docs as any[]).map((d) => ({
+      id: d.id,
+      slug: d.slug,
+      title: d.title,
+      documentType: d.documentType,
+      excerpt: d.excerpt,
+      publishedAt: d.publishedAt,
+      content: d.body,
+      pdfUrl: d.document?.url ?? null,
+      sourceUrl: d.sourceUrl,
+    }))
+  } catch {
+    return []
+  }
+}
+
+export interface PopeMessageDetail extends PopeMessageItem {
+  featuredImage?: CMSImage | null
+  seo?: { title?: string; description?: string }
+}
+
+export async function getPopeMessageBySlug(slug: string, locale?: string): Promise<PopeMessageDetail | null> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'pope-messages',
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 2,
+      ...(locale ? { locale } : {}),
+    } as any)
+    const d = (result.docs as any[])[0]
+    if (!d) return null
+    return {
+      id: d.id,
+      slug: d.slug,
+      title: d.title,
+      documentType: d.documentType,
+      excerpt: d.excerpt,
+      publishedAt: d.publishedAt,
+      content: d.body,
+      pdfUrl: d.document?.url ?? null,
+      sourceUrl: d.sourceUrl,
+      featuredImage: imgOf(d.featuredImage),
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function getAllPopeMessageSlugs(): Promise<{ slug: string }[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'pope-messages',
+      where: { _status: { equals: 'published' } },
+      limit: 1000,
+      depth: 0,
+    } as any)
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+  } catch {
+    return []
+  }
+}
+
 // ─── Global search ─────────────────────────────────────────────────────────────
 
 export interface SearchResult {
-  type: 'news' | 'event' | 'parish' | 'ministry' | 'publication' | 'bishop-message'
+  type: 'news' | 'event' | 'parish' | 'ministry' | 'publication' | 'bishop-message' | 'pope-message'
   slug: string
   title: string
   excerpt?: string
@@ -905,20 +996,23 @@ export async function globalSearch(
     titleFields: string[],
     extraFields: string[],
     toResult: (d: any) => SearchResult,
+    // Only draft-enabled collections have a `_status` field. Applying the
+    // published filter to a non-draft collection matches nothing, which is why
+    // parishes/ministries/publications previously returned zero results.
+    hasDrafts = false,
   ) => {
     try {
       const whereOr = [
         ...titleFields.map((f) => ({ [f]: { like: term } })),
         ...extraFields.map((f) => ({ [f]: { like: term } })),
       ]
+      const andClauses: any[] = [{ or: whereOr }]
+      if (hasDrafts) {
+        andClauses.unshift({ _status: { equals: 'published' } })
+      }
       const res = await payload.find({
         collection,
-        where: {
-          and: [
-            { _status: { equals: 'published' } },
-            { or: whereOr },
-          ],
-        },
+        where: { and: andClauses },
         limit: 10,
         depth: 0,
       } as any)
@@ -934,12 +1028,28 @@ export async function globalSearch(
     await run(
       'news', 'news', ['title'], ['excerpt'],
       (d) => ({ type: 'news', slug: d.slug, title: d.title, excerpt: d.excerpt, category: d.category, date: d.publishedAt }),
+      true,
     )
   }
   if (all || scope === 'events') {
     await run(
       'events', 'event', ['title'], ['description', 'location'],
       (d) => ({ type: 'event', slug: d.slug, title: d.title, excerpt: d.description, date: d.startDate }),
+      true,
+    )
+  }
+  if (all || scope === 'bishop-messages') {
+    await run(
+      'bishop-messages', 'bishop-message', ['title'], ['excerpt'],
+      (d) => ({ type: 'bishop-message', slug: d.slug, title: d.title, excerpt: d.excerpt, date: d.publishedAt }),
+      true,
+    )
+  }
+  if (all || scope === 'pope-messages') {
+    await run(
+      'pope-messages', 'pope-message', ['title'], ['excerpt'],
+      (d) => ({ type: 'pope-message', slug: d.slug, title: d.title, excerpt: d.excerpt, date: d.publishedAt }),
+      true,
     )
   }
   if (all || scope === 'parishes') {

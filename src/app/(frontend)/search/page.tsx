@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
+import { getTranslations } from 'next-intl/server'
 import { globalSearch, type SearchResult } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
@@ -20,6 +21,8 @@ const SCOPES = [
   { value: 'parishes', label: 'Parishes' },
   { value: 'ministries', label: 'Ministries' },
   { value: 'publications', label: 'Publications' },
+  { value: 'bishop-messages', label: "Bishop's Messages" },
+  { value: 'pope-messages', label: 'Pope Messages' },
 ]
 
 const TYPE_META: Record<SearchResult['type'], { icon: string; label: string; href: (slug: string) => string }> = {
@@ -29,6 +32,7 @@ const TYPE_META: Record<SearchResult['type'], { icon: string; label: string; hre
   ministry: { icon: '🙏', label: 'Ministry', href: (s) => `/ministries/${s}` },
   publication: { icon: '📖', label: 'Publication', href: (s) => `/publications/${s}` },
   'bishop-message': { icon: '✉️', label: "Bishop's Message", href: (s) => `/bishop-messages/${s}` },
+  'pope-message': { icon: '📜', label: 'Pope Message', href: (s) => `/pope-messages/${s}` },
 }
 
 function formatDate(iso?: string) {
@@ -45,13 +49,14 @@ export default async function SearchPage({
   const trimmed = q.trim()
   const results = trimmed.length >= 2 ? await globalSearch(trimmed, scope) : []
   const hasQuery = trimmed.length >= 2
+  const t = await getTranslations('search')
 
   return (
     <>
       <PageHeader
-        title="Search"
-        subtitle="Find news, events, parishes, publications, and more across the Eparchy."
-        breadcrumbs={[{ label: 'Search' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('title') }]}
       />
 
       <Section className="bg-white">
