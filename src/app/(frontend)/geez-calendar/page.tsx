@@ -118,8 +118,8 @@ export default async function GeezCalendarPage() {
               {currentMonthEntries.length > 0 ? (
                 <ul className="space-y-3">
                   {currentMonthEntries.map((entry) => {
-                    const rankMeta = RANK_BADGE[entry.feastRank ?? 'ferial'] ?? RANK_BADGE.ferial
-                    const rankColor = RANK_COLORS[entry.feastRank ?? 'ferial'] ?? DEFAULT_RANK_COLOR
+                    const rankMeta = RANK_BADGE[entry.feastRank ?? 'ordinary'] ?? RANK_BADGE.ordinary
+                    const rankColor = RANK_COLORS[entry.feastRank ?? 'ordinary'] ?? DEFAULT_RANK_COLOR
                     return (
                       <li
                         key={entry.id}

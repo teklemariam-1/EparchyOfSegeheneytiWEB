@@ -23,7 +23,33 @@ export const Archives: CollectionConfig = {
   },
   hooks: {
     afterChange: [
-      ({ doc }) => {
+      async ({ doc, req }) => {
+        // Propagate the archive's access level onto its underlying media files,
+        // so a restricted document cannot be fetched via its direct media URL.
+        try {
+          const level = doc.accessLevel === 'restricted' ? 'restricted' : 'public'
+          const fileIds: string[] = (doc.files ?? [])
+            .map((f: { file?: unknown }) =>
+              f.file && typeof f.file === 'object'
+                ? (f.file as { id: string }).id
+                : (f.file as string | undefined),
+            )
+            .filter((id: string | undefined): id is string => Boolean(id))
+
+          for (const id of fileIds) {
+            await req.payload.update({
+              collection: 'media',
+              id,
+              data: { accessLevel: level },
+              overrideAccess: true,
+            })
+          }
+        } catch (err) {
+          req.payload.logger.error(
+            `Archives access-level propagation failed for "${doc.slug}": ${String(err)}`,
+          )
+        }
+
         revalidatePath(`/archives/${doc.slug}`)
         revalidatePath('/archives')
       },

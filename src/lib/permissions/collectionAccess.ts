@@ -44,6 +44,20 @@ export const isAuthenticated: Access = ({ req }: AccessArgs) => {
 }
 
 /**
+ * Public read for draft-enabled collections.
+ *
+ * Authenticated users (editors) may read everything, including drafts.
+ * Anonymous visitors are constrained to published documents via a where-clause,
+ * so appending `?draft=true` to the REST/GraphQL API cannot expose unpublished
+ * content. Use this instead of `isPublicRead` on any collection with
+ * `versions: { drafts: true }`.
+ */
+export const isPublishedOrAuthenticated: Access = ({ req }: AccessArgs) => {
+  if (req.user) return true
+  return { _status: { equals: 'published' } }
+}
+
+/**
  * Builds an access function that allows a specific set of roles.
  */
 export function isRoleOneOf(...roles: Role[]): Access {

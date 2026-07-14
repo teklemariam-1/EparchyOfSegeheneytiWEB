@@ -38,6 +38,7 @@ import { Footer } from './globals/Footer/index'
 import { Homepage } from './globals/Homepage/index'
 import { Navigation } from './globals/Navigation/index'
 import { buildEmailAdapter, validateEmailConfig } from './lib/payload/email'
+import { env } from './lib/env'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -117,7 +118,7 @@ export default buildConfig({
   // ── Database ──────────────────────────────────────────────────────────────────
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI ?? '',
+      connectionString: env.DATABASE_URI,
     },
   }),
 
@@ -172,7 +173,7 @@ export default buildConfig({
     : [],
 
   // ── Security ──────────────────────────────────────────────────────────────────
-  secret: process.env.PAYLOAD_SECRET ?? '',
+  secret: env.PAYLOAD_SECRET,
   csrf: [
     process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   ],

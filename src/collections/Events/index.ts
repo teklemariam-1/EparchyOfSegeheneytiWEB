@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { revalidatePath } from 'next/cache'
-import { isPublicRead, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -12,7 +12,7 @@ export const Events: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/events/${(doc as any).slug}`,
   },
   access: {
-    read: isPublicRead,
+    read: isPublishedOrAuthenticated,
     create: isOwnParishOrAbove(),
     update: isOwnParishOrAbove(),
     delete: isChanceryOrAbove,

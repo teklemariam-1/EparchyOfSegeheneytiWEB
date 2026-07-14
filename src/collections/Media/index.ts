@@ -27,7 +27,22 @@ export const Media: CollectionConfig = {
     description: 'Images, documents, and other media assets.',
   },
   access: {
-    read: () => true,
+    // Public visitors and non-elevated editors can only read public assets.
+    // Restricted assets (e.g. files attached to restricted archive documents)
+    // are hidden so they cannot be fetched by their direct media URL/API.
+    read: ({ req }) => {
+      const user = req.user as { role?: string } | null
+      if (user && ['super-admin', 'chancery-editor', 'media-editor'].includes(user.role ?? '')) {
+        return true
+      }
+      // Treat null/missing accessLevel as public (safe default for existing assets).
+      return {
+        or: [
+          { accessLevel: { equals: 'public' } },
+          { accessLevel: { exists: false } },
+        ],
+      }
+    },
     create: isAnyEditor,
     update: isAnyEditor,
     delete: isRoleOneOf('super-admin', 'chancery-editor', 'media-editor'),
@@ -66,6 +81,21 @@ export const Media: CollectionConfig = {
       defaultValue: 'general',
       admin: {
         position: 'sidebar',
+      },
+    },
+    {
+      name: 'accessLevel',
+      type: 'select',
+      required: true,
+      defaultValue: 'public',
+      options: [
+        { label: 'Public', value: 'public' },
+        { label: 'Restricted (authenticated only)', value: 'restricted' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description:
+          'Restricted assets are hidden from public visitors. Set automatically for files attached to restricted archive documents.',
       },
     },
   ],

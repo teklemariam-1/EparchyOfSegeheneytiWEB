@@ -303,6 +303,10 @@ export interface Media {
    */
   credit?: string | null;
   category?: ('general' | 'event' | 'parish' | 'clergy' | 'document') | null;
+  /**
+   * Restricted assets are hidden from public visitors. Set automatically for files attached to restricted archive documents.
+   */
+  accessLevel: 'public' | 'restricted';
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1321,6 +1325,7 @@ export interface MediaSelect<T extends boolean = true> {
   caption?: T;
   credit?: T;
   category?: T;
+  accessLevel?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

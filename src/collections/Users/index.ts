@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { isSuperAdmin, isRoleOneOf } from '../../lib/permissions/collectionAccess'
-import { selfOrAdmin } from '../../lib/permissions/fieldAccess'
+import { superAdminOnly, elevatedOnly } from '../../lib/permissions/fieldAccess'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -43,7 +43,9 @@ export const Users: CollectionConfig = {
         { label: 'Catechist Editor', value: 'catechist-editor' },
         { label: 'Media Editor', value: 'media-editor' },
       ],
-      access: { update: selfOrAdmin },
+      // SECURITY: role must never be self-editable — otherwise any editor could
+      // promote themselves to super-admin. Only super-admins may change roles.
+      access: { update: superAdminOnly },
       admin: {
         position: 'sidebar',
         description: 'Determines which content areas this user can edit.',
@@ -53,6 +55,9 @@ export const Users: CollectionConfig = {
       name: 'assignedParish',
       type: 'relationship',
       relationTo: 'parishes',
+      // SECURITY: only elevated roles may (re)assign a user's parish, so a
+      // parish-editor cannot edit their own record to escape their scope.
+      access: { update: elevatedOnly },
       admin: {
         position: 'sidebar',
         description: 'Required for parish-editor role — limits edit scope to this parish.',

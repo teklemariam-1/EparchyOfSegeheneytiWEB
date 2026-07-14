@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { revalidatePath } from 'next/cache'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -12,7 +12,7 @@ export const Pages: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/${(doc as any).slug}`,
   },
   access: {
-    read: isPublicRead,
+    read: isPublishedOrAuthenticated,
     create: isChanceryOrAbove,
     update: isChanceryOrAbove,
     delete: isChanceryOrAbove,

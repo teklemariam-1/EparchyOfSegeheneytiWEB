@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { revalidatePath } from 'next/cache'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const PopeMessages: CollectionConfig = {
   slug: 'pope-messages',
@@ -11,7 +11,7 @@ export const PopeMessages: CollectionConfig = {
     description: 'Papal encyclicals, apostolic exhortations, and messages from the Holy Father.',
   },
   access: {
-    read: isPublicRead,
+    read: isPublishedOrAuthenticated,
     create: isChanceryOrAbove,
     update: isChanceryOrAbove,
     delete: isChanceryOrAbove,
