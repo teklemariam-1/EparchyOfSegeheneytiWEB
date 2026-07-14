@@ -37,12 +37,20 @@ import { Header } from './globals/Header/index'
 import { Footer } from './globals/Footer/index'
 import { Homepage } from './globals/Homepage/index'
 import { Navigation } from './globals/Navigation/index'
-import { buildEmailAdapter } from './lib/payload/email'
+import { buildEmailAdapter, validateEmailConfig } from './lib/payload/email'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 const isS3 = process.env.STORAGE_ADAPTER === 's3'
+
+// Validate email config at startup
+const emailConfig = validateEmailConfig()
+if (emailConfig.warnings.length > 0) {
+  for (const w of emailConfig.warnings) {
+    console.warn(`[payload-email] ⚠ ${w}`)
+  }
+}
 
 export default buildConfig({
   // ── Admin UI ────────────────────────────────────────────────────────────────

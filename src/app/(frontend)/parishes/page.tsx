@@ -23,7 +23,7 @@ const VICARIATES = [
   { value: 'segeneyti', label: 'Segeneyti' },
   { value: 'adi-keyih', label: 'Adi Keyih' },
   { value: 'dekemhare', label: 'Dekemhare' },
-  { value: 'mendefera', label: 'Mendefera' },
+  { value: 'adi-ugri', label: 'Mendefera (Adi Ugri)' },
   { value: 'diaspora', label: 'Diaspora' },
 ]
 

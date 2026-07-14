@@ -81,7 +81,7 @@ export async function getNewsList(opts: {
       category: d.category,
       publishedAt: d.publishedAt,
       featuredImage: imgOf(d.featuredImage),
-      tags: d.tags,
+      tags: Array.isArray(d.tags) ? d.tags.map((t: any) => t?.tag ?? t).filter(Boolean) : [],
     }))
     return {
       docs,
@@ -118,10 +118,10 @@ export async function getNewsBySlug(slug: string, locale?: string): Promise<News
       category: d.category,
       publishedAt: d.publishedAt,
       featuredImage: imgOf(d.featuredImage),
-      tags: d.tags,
-      content: d.content,
-      author: d.author?.name ?? d.author ?? null,
-      seo: d.seo,
+      tags: Array.isArray(d.tags) ? d.tags.map((t: any) => t?.tag ?? t).filter(Boolean) : [],
+      content: d.body,
+      author: d.author?.firstName ? `${d.author.firstName} ${d.author.lastName ?? ''}`.trim() : null,
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
     }
   } catch {
     return null
@@ -222,8 +222,8 @@ function mapEvent(d: any): EventListItem {
     endDate: d.endDate,
     isAllDay: d.isAllDay,
     eventType: d.eventType,
-    location: d.location,
-    parish: d.parish ? { title: d.parish.title, slug: d.parish.slug } : null,
+    location: d.location ? { venue: d.location.name, address: d.location.address } : undefined,
+    parish: d.parish ? { title: d.parish.name ?? d.parish.title, slug: d.parish.slug } : null,
     featuredImage: imgOf(d.featuredImage),
     excerpt: d.excerpt,
   }
@@ -241,7 +241,7 @@ export async function getEventBySlug(slug: string, locale?: string): Promise<Eve
     } as any)
     const d = (result.docs as any[])[0]
     if (!d) return null
-    return { ...mapEvent(d), description: d.description, cost: d.cost, registrationUrl: d.registrationUrl, seo: d.seo }
+    return { ...mapEvent(d), description: d.description, cost: d.cost, registrationUrl: d.registrationUrl, seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined }
   } catch {
     return null
   }
@@ -293,12 +293,12 @@ export async function getParishesList(
     return (result.docs as any[]).map((d) => ({
       id: d.id,
       slug: d.slug,
-      title: d.title,
+      title: d.name ?? d.title,
       vicariate: d.vicariate,
-      patronSaint: d.patronSaint,
-      city: d.city,
-      pastor: d.priest?.name ?? null,
-      image: imgOf(d.featuredImage ?? d.image),
+      patronSaint: d.patron,
+      city: d.region,
+      pastor: d.pastor?.fullName ?? null,
+      image: imgOf(d.featuredImage),
     }))
   } catch {
     return []
@@ -320,19 +320,19 @@ export async function getParishBySlug(slug: string, locale?: string): Promise<Pa
     return {
       id: d.id,
       slug: d.slug,
-      title: d.title,
+      title: d.name ?? d.title,
       vicariate: d.vicariate,
-      patronSaint: d.patronSaint,
-      city: d.city,
-      pastor: d.priest?.name ?? null,
-      image: imgOf(d.featuredImage ?? d.image),
+      patronSaint: d.patron,
+      city: d.region,
+      pastor: d.pastor?.fullName ?? null,
+      image: imgOf(d.featuredImage),
       history: d.history,
       massTimes: d.massTimes ?? [],
-      address: d.address,
-      phone: d.phone,
-      email: d.email,
-      gallery: (d.gallery ?? []).map((g: any) => imgOf(g)).filter(Boolean),
-      seo: d.seo,
+      address: d.contact?.address,
+      phone: d.contact?.phone,
+      email: d.contact?.email,
+      gallery: (d.gallery ?? []).map((g: any) => imgOf(g?.image ?? g)).filter(Boolean),
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
     }
   } catch {
     return null
@@ -370,13 +370,13 @@ export async function getMinistriesList(limit = 100): Promise<MinistryItem[]> {
     return (result.docs as any[]).map((d) => ({
       id: d.id,
       slug: d.slug,
-      title: d.title,
-      ministryType: d.ministryType,
+      title: d.name ?? d.title,
+      ministryType: d.type,
       description: d.description,
-      leader: d.leader?.name ?? d.leaderName ?? null,
-      parish: d.assignedParish ? { title: d.assignedParish.title, slug: d.assignedParish.slug } : null,
-      image: imgOf(d.image),
-      meetingInfo: d.meetingInfo,
+      leader: d.leader?.name ?? null,
+      parish: d.parish ? { title: d.parish.name ?? d.parish.title, slug: d.parish.slug } : null,
+      image: imgOf(d.featuredImage),
+      meetingInfo: d.meetingInfo?.schedule ?? undefined,
     }))
   } catch {
     return []
@@ -424,14 +424,14 @@ export interface ArchiveItem {
 export async function getPublicationsList(limit = 50): Promise<PublicationItem[]> {
   try {
     const payload = await getPayload()
-    const result = await payload.find({ collection: 'publications', limit, depth: 1, sort: '-publishedYear' } as any)
+    const result = await payload.find({ collection: 'publications', limit, depth: 1, sort: '-publishedAt' } as any)
     return (result.docs as any[]).map((d) => ({
       id: d.id,
       slug: d.slug,
       title: d.title,
-      documentType: d.documentType,
+      documentType: d.category,
       language: d.language,
-      publishedYear: d.publishedYear,
+      publishedYear: d.publishedAt ? new Date(d.publishedAt).getFullYear() : undefined,
       pageCount: d.pageCount,
       isFeatured: d.isFeatured,
       coverImage: imgOf(d.coverImage),
@@ -452,11 +452,11 @@ export async function getMagazinesList(limit = 50): Promise<MagazineItem[]> {
       slug: d.slug,
       title: d.title,
       volume: d.volume,
-      issue: d.issue,
+      issue: d.issueNumber,
       year: d.year,
       coverImage: imgOf(d.coverImage),
       isFeatured: d.isFeatured,
-      summary: d.summary,
+      summary: d.description,
     }))
   } catch {
     return []
@@ -471,7 +471,7 @@ export async function getArchivesList(limit = 50): Promise<ArchiveItem[]> {
       id: d.id,
       slug: d.slug,
       title: d.title,
-      accessTier: d.accessTier,
+      accessTier: d.accessLevel,
       year: d.year,
       category: d.category,
       description: d.description,
@@ -500,11 +500,11 @@ export async function getGeezCalendarEntries(month?: string): Promise<GeezCalend
   try {
     const payload = await getPayload()
     const where: Record<string, unknown> = {}
-    if (month) where['geezDate.geezMonth'] = { equals: month }
+    if (month) where['geezDate.month'] = { equals: month }
     const result = await payload.find({
       collection: 'geez-calendar-entries',
       where,
-      sort: 'geezDate.geezDay',
+      sort: 'geezDate.day',
       limit: 365,
       depth: 0,
     } as any)
@@ -512,9 +512,11 @@ export async function getGeezCalendarEntries(month?: string): Promise<GeezCalend
       id: d.id,
       slug: d.slug ?? d.id,
       title: d.title,
-      geezMonth: d.geezDate?.geezMonth,
-      geezDay: d.geezDate?.geezDay,
-      gregorianDate: d.gregorianDate,
+      geezMonth: d.geezDate?.month,
+      geezDay: d.geezDate?.day,
+      gregorianDate: d.gregorianEquivalent?.month && d.gregorianEquivalent?.day
+        ? `${d.gregorianEquivalent.month}/${d.gregorianEquivalent.day}`
+        : undefined,
       feastRank: d.feastRank,
       liturgicalColor: d.liturgicalColor,
       description: d.description,
@@ -547,7 +549,7 @@ export async function getMediaGallery(opts: {
     const payload = await getPayload()
     const { limit = 24, category, page = 1 } = opts
     const where: Record<string, unknown> = {}
-    if (category) where.category = { equals: category }
+    if (category && category !== 'all') where.category = { equals: category }
     const result = await payload.find({
       collection: 'media',
       where,
@@ -613,7 +615,7 @@ export async function getPageBySlug(slug: string): Promise<CMSPage | null> {
       slug: d.slug,
       hero: d.hero,
       content: d.content,
-      seo: d.seo,
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
     }
   } catch {
     return null
@@ -942,14 +944,14 @@ export async function globalSearch(
   }
   if (all || scope === 'parishes') {
     await run(
-      'parishes', 'parish', ['title'], ['city', 'vicariate'],
-      (d) => ({ type: 'parish', slug: d.slug, title: d.title, excerpt: d.city ? `${d.city}` : undefined }),
+      'parishes', 'parish', ['name'], ['region', 'vicariate'],
+      (d) => ({ type: 'parish', slug: d.slug, title: d.name ?? d.title, excerpt: d.region ? `${d.region}` : undefined }),
     )
   }
   if (all || scope === 'ministries') {
     await run(
-      'ministries', 'ministry', ['title'], [],
-      (d) => ({ type: 'ministry', slug: d.slug, title: d.title }),
+      'ministries', 'ministry', ['name'], [],
+      (d) => ({ type: 'ministry', slug: d.slug, title: d.name ?? d.title }),
     )
   }
   if (all || scope === 'publications') {

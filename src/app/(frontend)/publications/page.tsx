@@ -17,10 +17,14 @@ export const metadata: Metadata = buildMetadata({
 })
 
 const TYPE_LABELS: Record<string, string> = {
-  'pastoral-letter': 'Pastoral Letter',
-  'synod-document': 'Synod Document',
-  catechism: 'Catechism',
-  directory: 'Directory',
+  pastoral: 'Pastoral Letter',
+  liturgical: 'Liturgical Guide',
+  educational: 'Catechetical / Educational',
+  youth: 'Youth Resource',
+  social: 'Social Ministry',
+  official: 'Official Documents',
+  prayer: 'Prayer Book',
+  other: 'Other',
 }
 
 export default async function PublicationsPage() {

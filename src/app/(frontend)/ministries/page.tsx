@@ -17,12 +17,16 @@ export const metadata: Metadata = buildMetadata({
 })
 
 const TYPE_META: Record<string, { icon: string; label: string; badge: 'maroon' | 'gold' | 'neutral' | 'green' }> = {
-  youth:         { icon: '🌟', label: 'Youth Ministry',           badge: 'maroon' },
-  catechists:    { icon: '📖', label: 'Catechists',               badge: 'gold' },
-  women:         { icon: '🌺', label: "Catholic Women's League",  badge: 'neutral' },
-  scc:           { icon: '🏘️', label: 'Small Christian Communities', badge: 'green' },
-  liturgy:       { icon: '🎵', label: 'Liturgical Ministry',      badge: 'maroon' },
-  'justice-peace': { icon: '⚖️', label: 'Justice & Peace',        badge: 'neutral' },
+  'youth-council':            { icon: '🌟', label: 'Youth Council',                badge: 'maroon' },
+  catechists:                 { icon: '📖', label: 'Catechists',                    badge: 'gold' },
+  children:                   { icon: '🧒', label: "Children's Ministry",           badge: 'gold' },
+  'small-christian-community': { icon: '🏘️', label: 'Small Christian Communities', badge: 'green' },
+  'lay-apostolate':           { icon: '🕊️', label: 'Lay Apostolate',              badge: 'neutral' },
+  caritas:                    { icon: '❤️', label: 'Caritas / Social',              badge: 'maroon' },
+  'women-league':             { icon: '🌺', label: "Catholic Women's League",       badge: 'neutral' },
+  'men-league':               { icon: '🤝', label: "Men's League",                  badge: 'neutral' },
+  choir:                      { icon: '🎵', label: 'Choir & Liturgical Music',      badge: 'maroon' },
+  other:                      { icon: '✝', label: 'Other Ministries',               badge: 'neutral' },
 }
 const DEFAULT_META = { icon: '✝', label: 'Other Ministries', badge: 'neutral' as const }
 

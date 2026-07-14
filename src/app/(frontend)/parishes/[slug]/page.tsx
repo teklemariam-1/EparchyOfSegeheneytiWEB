@@ -21,7 +21,7 @@ const VICARIATE_LABELS: Record<string, string> = {
   segeneyti: 'Segeneyti',
   'adi-keyih': 'Adi Keyih',
   dekemhare: 'Dekemhare',
-  mendefera: 'Mendefera',
+  'adi-ugri': 'Mendefera (Adi Ugri)',
   diaspora: 'Diaspora',
 }
 

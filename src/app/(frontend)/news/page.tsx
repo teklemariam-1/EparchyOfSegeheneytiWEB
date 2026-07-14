@@ -22,9 +22,10 @@ const CATEGORIES = [
   { value: 'all', label: 'All' },
   { value: 'eparchy', label: 'Eparchy' },
   { value: 'vatican', label: 'Vatican' },
+  { value: 'pastoral', label: 'Pastoral' },
   { value: 'community', label: 'Community' },
+  { value: 'social', label: 'Social Ministry' },
   { value: 'announcement', label: 'Announcements' },
-  { value: 'youth', label: 'Youth' },
 ]
 
 export default async function NewsPage({

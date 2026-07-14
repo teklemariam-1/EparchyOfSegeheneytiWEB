@@ -87,8 +87,8 @@ function makeNewsDoc(overrides = {}) {
     category: 'eparchy',
     publishedAt: '2026-03-01T08:00:00Z',
     featuredImage: makeImage(),
-    tags: ['synod', 'church'],
-    content: null,
+    tags: [{ tag: 'synod' }, { tag: 'church' }],
+    body: null,
     author: null,
     seo: null,
     ...overrides,
@@ -104,7 +104,7 @@ function makeEventDoc(overrides = {}) {
     endDate: '2026-04-05T02:00:00Z',
     isAllDay: false,
     eventType: 'liturgical',
-    location: { venue: 'Cathedral', city: 'Segeneyti' },
+    location: { name: 'Cathedral', address: 'Segeneyti' },
     parish: null,
     featuredImage: null,
     excerpt: 'The great Easter Vigil.',
@@ -120,17 +120,15 @@ function makeParishDoc(overrides = {}) {
   return {
     id: 'p1',
     slug: 'segeneyti-cathedral',
-    title: 'Segeneyti Cathedral',
+    name: 'Segeneyti Cathedral',
     vicariate: 'segeneyti',
-    patronSaint: 'St. Peter and St. Paul',
-    city: 'Segeneyti',
-    priest: { name: 'Fr. Haile Tesfai' },
+    patron: 'St. Peter and St. Paul',
+    region: 'Segeneyti',
+    pastor: { fullName: 'Fr. Haile Tesfai' },
     featuredImage: null,
     history: null,
     massTimes: [{ day: 'Sunday', time: '08:00', language: 'Tigrinya' }],
-    address: 'Main Street',
-    phone: '+291-XXX-XXXX',
-    email: null,
+    contact: { address: 'Main Street', phone: '+291-XXX-XXXX', email: null },
     gallery: [],
     seo: null,
     ...overrides,
@@ -220,7 +218,7 @@ describe('getNewsList', () => {
 
 describe('getNewsBySlug', () => {
   it('returns NewsDetail when the slug is found', async () => {
-    const doc = makeNewsDoc({ author: { name: 'Sr. Miriam' }, content: { root: {} } })
+    const doc = makeNewsDoc({ author: { firstName: 'Sr.', lastName: 'Miriam' }, body: { root: {} } })
     mockFind({ docs: [doc] })
 
     const result = await getNewsBySlug('eparchy-synod-2026')
@@ -229,12 +227,12 @@ describe('getNewsBySlug', () => {
     expect(result?.content).toBeDefined()
   })
 
-  it('resolves author from plain string field when no .name present', async () => {
-    const doc = makeNewsDoc({ author: 'Fr. Tesfai' })
+  it('resolves author to null when author has no firstName', async () => {
+    const doc = makeNewsDoc({ author: {} })
     mockFind({ docs: [doc] })
 
     const result = await getNewsBySlug('eparchy-synod-2026')
-    expect(result?.author).toBe('Fr. Tesfai')
+    expect(result?.author).toBeNull()
   })
 
   it('returns null when the slug is not found', async () => {
@@ -273,7 +271,7 @@ describe('getUpcomingEvents', () => {
     expect(events[0]).toMatchObject({
       slug: 'easter-vigil-2026',
       eventType: 'liturgical',
-      location: { venue: 'Cathedral', city: 'Segeneyti' },
+      location: { venue: 'Cathedral', address: 'Segeneyti' },
     })
   })
 
@@ -420,13 +418,13 @@ describe('getMinistriesList', () => {
     const doc = {
       id: 'm1',
       slug: 'youth-council',
-      title: 'Youth Council',
-      ministryType: 'youth-council',
+      name: 'Youth Council',
+      type: 'youth-council',
       description: null,
       leader: { name: 'Dawit Gebru' },
-      assignedParish: { title: 'Segeneyti Cathedral', slug: 'segeneyti-cathedral' },
-      image: null,
-      meetingInfo: 'Every Sunday after Mass',
+      parish: { name: 'Segeneyti Cathedral', slug: 'segeneyti-cathedral' },
+      featuredImage: null,
+      meetingInfo: { schedule: 'Every Sunday after Mass', venue: 'Hall' },
     }
     mockFind({ docs: [doc] })
 
@@ -482,11 +480,11 @@ describe('getMagazinesList', () => {
       slug: 'dioghet-2026-q1',
       title: 'Dioghet Q1 2026',
       volume: 5,
-      issue: 1,
+      issueNumber: 1,
       year: 2026,
       coverImage: null,
       isFeatured: false,
-      summary: 'First quarterly issue of 2026.',
+      description: 'First quarterly issue of 2026.',
     }
     mockFind({ docs: [doc] })
 

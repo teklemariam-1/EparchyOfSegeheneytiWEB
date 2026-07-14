@@ -20,11 +20,11 @@ export const metadata: Metadata = buildMetadata({
 
 const CATEGORIES = [
   { value: 'all', label: 'All' },
-  { value: 'liturgy', label: 'Liturgy' },
-  { value: 'youth', label: 'Youth' },
-  { value: 'community', label: 'Community' },
-  { value: 'pastoral-visit', label: 'Pastoral Visits' },
-  { value: 'ordination', label: 'Ordinations' },
+  { value: 'general', label: 'General' },
+  { value: 'event', label: 'Events' },
+  { value: 'parish', label: 'Parishes' },
+  { value: 'clergy', label: 'Bishop & Clergy' },
+  { value: 'document', label: 'Documents' },
 ]
 
 export default async function MediaPage({

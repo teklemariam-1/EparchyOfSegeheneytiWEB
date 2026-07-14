@@ -18,27 +18,29 @@ export const metadata: Metadata = buildMetadata({
 })
 
 const RANK_COLORS: Record<string, string> = {
-  solemnity:        'bg-gold-100 border-gold-400 text-gold-900',
-  feast:            'bg-maroon-50 border-maroon-300 text-maroon-900',
+  major:            'bg-gold-100 border-gold-400 text-gold-900',
+  minor:            'bg-maroon-50 border-maroon-300 text-maroon-900',
   memorial:         'bg-charcoal-50 border-charcoal-300 text-charcoal-700',
   'optional-memorial': 'bg-charcoal-50 border-charcoal-200 text-charcoal-600',
-  ferial:           'bg-white border-charcoal-100 text-charcoal-600',
+  fasting:          'bg-violet-50 border-violet-300 text-violet-800',
+  ordinary:         'bg-white border-charcoal-100 text-charcoal-600',
 }
 const DEFAULT_RANK_COLOR = 'bg-white border-charcoal-100 text-charcoal-600'
 
 const RANK_BADGE: Record<string, { label: string; variant: 'maroon' | 'gold' | 'neutral' | 'green' | 'red' }> = {
-  solemnity:        { label: 'Solemnity',        variant: 'gold' },
-  feast:            { label: 'Feast',            variant: 'maroon' },
-  memorial:         { label: 'Memorial',         variant: 'neutral' },
+  major:              { label: 'Major Feast',    variant: 'gold' },
+  minor:              { label: 'Minor Feast',    variant: 'maroon' },
+  memorial:           { label: 'Memorial',       variant: 'neutral' },
   'optional-memorial': { label: 'Opt. Memorial', variant: 'neutral' },
-  ferial:           { label: 'Ferial',           variant: 'neutral' },
+  fasting:            { label: 'Fasting',        variant: 'red' },
+  ordinary:           { label: 'Ordinary',       variant: 'neutral' },
 }
 
 const LITURGICAL_DOT: Record<string, string> = {
   white:  'bg-white border border-charcoal-300',
   red:    'bg-red-500',
   green:  'bg-green-600',
-  violet: 'bg-violet-600',
+  purple: 'bg-violet-600',
   gold:   'bg-gold-500',
   black:  'bg-charcoal-800',
 }

@@ -7,7 +7,7 @@ export const GeezCalendarEntries: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Calendar',
-    defaultColumns: ['title', 'geezMonth', 'geezDay', 'feastRank', 'isFasting'],
+    defaultColumns: ['title', 'geezDate__month', 'geezDate__day', 'feastRank', 'isFasting'],
     description: "Ge'ez liturgical calendar entries — feasts, fasts, and saints' days.",
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/geez-calendar/${(doc as any).slug}`,
   },
