@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const News: CollectionConfig = {
   slug: 'news',
@@ -21,9 +22,9 @@ export const News: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/news/${doc.slug}`)
-        revalidatePath('/news')
-        revalidatePath('/')
+        safeRevalidatePath(`/news/${doc.slug}`)
+        safeRevalidatePath('/news')
+        safeRevalidatePath('/')
       },
     ],
   },
@@ -40,9 +41,10 @@ export const News: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: {
         position: 'sidebar',
-        description: 'Auto-generated from title. Used in the URL.',
+        description: 'Auto-generated from the title if left blank. Used in the URL.',
       },
     },
     {

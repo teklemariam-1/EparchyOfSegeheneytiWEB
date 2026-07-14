@@ -8,10 +8,21 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 // ─── Content Security Policy ──────────────────────────────────────────────────
 // Strict CSP for public frontend routes.
+// `unsafe-eval` is only needed by the Next.js dev runtime; the production client
+// bundle does not eval, so we drop it in production to harden against XSS.
+const isProd = process.env.NODE_ENV === 'production'
+const frontendScriptSrc = [
+  "script-src 'self' 'unsafe-inline'",
+  isProd ? '' : "'unsafe-eval'",
+  'https://www.googletagmanager.com https://www.google.com https://maps.googleapis.com',
+]
+  .filter(Boolean)
+  .join(' ')
+
 const CSP = [
   "default-src 'self'",
   // Scripts: Next.js inline runtime + Google Analytics (if used)
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google.com https://maps.googleapis.com",
+  frontendScriptSrc,
   // Styles: Next.js inlines critical CSS
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // Fonts

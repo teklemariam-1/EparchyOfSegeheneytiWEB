@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const SmallChristianCommunities: CollectionConfig = {
   slug: 'small-christian-communities',
@@ -19,7 +20,7 @@ export const SmallChristianCommunities: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath('/ministries/scc')
+        safeRevalidatePath('/ministries/scc')
       },
     ],
   },
@@ -36,6 +37,7 @@ export const SmallChristianCommunities: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: { position: 'sidebar' },
     },
     {

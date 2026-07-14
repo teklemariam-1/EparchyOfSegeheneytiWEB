@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove, isRoleOneOf } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Ministries: CollectionConfig = {
   slug: 'ministries',
@@ -20,8 +21,8 @@ export const Ministries: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/ministries/${doc.slug}`)
-        revalidatePath('/ministries')
+        safeRevalidatePath(`/ministries/${doc.slug}`)
+        safeRevalidatePath('/ministries')
       },
     ],
   },
@@ -38,6 +39,7 @@ export const Ministries: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: { position: 'sidebar' },
     },
     {

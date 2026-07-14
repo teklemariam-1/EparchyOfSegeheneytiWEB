@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const GeezCalendarEntries: CollectionConfig = {
@@ -7,7 +7,7 @@ export const GeezCalendarEntries: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Calendar',
-    defaultColumns: ['title', 'geezDate__month', 'geezDate__day', 'feastRank', 'isFasting'],
+    defaultColumns: ['title', 'geezDate.month', 'geezDate.day', 'feastRank', 'isFasting'],
     description: "Ge'ez liturgical calendar entries — feasts, fasts, and saints' days.",
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/geez-calendar/${(doc as any).slug}`,
   },
@@ -20,8 +20,8 @@ export const GeezCalendarEntries: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/geez-calendar/${doc.slug}`)
-        revalidatePath('/geez-calendar')
+        safeRevalidatePath(`/geez-calendar/${doc.slug}`)
+        safeRevalidatePath('/geez-calendar')
       },
     ],
   },

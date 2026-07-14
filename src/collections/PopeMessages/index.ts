@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const PopeMessages: CollectionConfig = {
   slug: 'pope-messages',
@@ -20,8 +21,8 @@ export const PopeMessages: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/pope-messages/${doc.slug}`)
-        revalidatePath('/pope-messages')
+        safeRevalidatePath(`/pope-messages/${doc.slug}`)
+        safeRevalidatePath('/pope-messages')
       },
     ],
   },
@@ -38,6 +39,7 @@ export const PopeMessages: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: { position: 'sidebar' },
     },
     {

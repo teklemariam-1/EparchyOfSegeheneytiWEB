@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const BishopMessages: CollectionConfig = {
   slug: 'bishop-messages',
@@ -21,9 +22,9 @@ export const BishopMessages: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/publications/bishop-messages/${doc.slug}`)
-        revalidatePath('/publications/bishop-messages')
-        revalidatePath('/')
+        safeRevalidatePath(`/publications/bishop-messages/${doc.slug}`)
+        safeRevalidatePath('/publications/bishop-messages')
+        safeRevalidatePath('/')
       },
     ],
   },
@@ -40,6 +41,7 @@ export const BishopMessages: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: { position: 'sidebar' },
     },
     {

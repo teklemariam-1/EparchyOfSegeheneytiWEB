@@ -9,6 +9,8 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { formatDate } from '@/lib/formatters/date'
 import { RichText } from '@/components/shared/RichText'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { articleSchema } from '@/lib/seo/structuredData'
 import { getLocale } from 'next-intl/server'
 import { getNewsBySlug, getNewsList, getAllNewsSlugs } from '@/lib/payload/queries'
 
@@ -49,6 +51,17 @@ export default async function NewsDetailPage({ params }: Props) {
 
   return (
     <>
+      {article.publishedAt && (
+        <JsonLd
+          data={articleSchema({
+            title: article.title,
+            description: article.excerpt,
+            imageUrl: article.featuredImage?.url,
+            publishedAt: article.publishedAt,
+            slug,
+          })}
+        />
+      )}
       <PageHeader
         title={article.title}
         breadcrumbs={[{ label: 'News', href: '/news' }, { label: article.title }]}
@@ -130,7 +143,7 @@ export default async function NewsDetailPage({ params }: Props) {
               {relatedArticles.length > 0 && (
                 <div className="card p-5">
                   <h3 className="font-serif text-base font-semibold text-charcoal-900 mb-4">
-                    Related Articles
+                    Latest News
                   </h3>
                   <ul className="divide-y divide-charcoal-100">
                     {relatedArticles.map((r) => (

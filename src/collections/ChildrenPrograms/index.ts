@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublicRead, isRoleOneOf, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const ChildrenPrograms: CollectionConfig = {
   slug: 'children-programs',
@@ -19,7 +20,7 @@ export const ChildrenPrograms: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath('/ministries/children')
+        safeRevalidatePath('/ministries/children')
       },
     ],
   },
@@ -36,6 +37,7 @@ export const ChildrenPrograms: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: { position: 'sidebar' },
     },
     {

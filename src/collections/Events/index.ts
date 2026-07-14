@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -21,9 +22,9 @@ export const Events: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/events/${doc.slug}`)
-        revalidatePath('/events')
-        revalidatePath('/')
+        safeRevalidatePath(`/events/${doc.slug}`)
+        safeRevalidatePath('/events')
+        safeRevalidatePath('/')
       },
     ],
   },
@@ -40,6 +41,7 @@ export const Events: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: { position: 'sidebar' },
     },
     {

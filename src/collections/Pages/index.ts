@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -21,8 +22,8 @@ export const Pages: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/${doc.slug}`)
-        revalidatePath('/', 'layout')
+        safeRevalidatePath(`/${doc.slug}`)
+        safeRevalidatePath('/', 'layout')
       },
     ],
   },
@@ -39,6 +40,7 @@ export const Pages: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: {
         position: 'sidebar',
         description: 'URL path segment (e.g. "about", "history").',

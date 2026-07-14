@@ -9,6 +9,8 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { formatDate, formatDateRange } from '@/lib/formatters/date'
 import { RichText } from '@/components/shared/RichText'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { eventSchema } from '@/lib/seo/structuredData'
 import { getLocale } from 'next-intl/server'
 import { getEventBySlug, getAllEventSlugs, getEventsList } from '@/lib/payload/queries'
 
@@ -52,6 +54,17 @@ export default async function EventDetailPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd
+        data={eventSchema({
+          title: ev.title,
+          description: ev.excerpt,
+          startDate: ev.startDate,
+          endDate: ev.endDate,
+          location: ventue || address || undefined,
+          imageUrl: ev.featuredImage?.url,
+          slug,
+        })}
+      />
       <PageHeader
         title={ev.title}
         breadcrumbs={[{ label: 'Events', href: '/events' }, { label: ev.title }]}

@@ -6,6 +6,7 @@
  */
 
 import { getPayload } from './client'
+import { cachedQuery } from './cache'
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -53,7 +54,7 @@ export interface NewsDetail extends NewsListItem {
   seo?: { title?: string; description?: string }
 }
 
-export async function getNewsList(opts: {
+async function _getNewsList(opts: {
   limit?: number
   category?: string
   page?: number
@@ -97,6 +98,7 @@ export async function getNewsList(opts: {
     return { docs: [], meta: { page: 1, totalDocs: 0, totalPages: 0, hasPrevPage: false, hasNextPage: false } }
   }
 }
+export const getNewsList = cachedQuery(_getNewsList, 'getNewsList', ['news'])
 
 export async function getNewsBySlug(slug: string, locale?: string): Promise<NewsDetail | null> {
   try {
@@ -161,7 +163,7 @@ export interface EventDetail extends EventListItem {
   seo?: { title?: string; description?: string }
 }
 
-export async function getUpcomingEvents(limit = 5, locale?: string): Promise<EventListItem[]> {
+async function _getUpcomingEvents(limit = 5, locale?: string): Promise<EventListItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -177,8 +179,9 @@ export async function getUpcomingEvents(limit = 5, locale?: string): Promise<Eve
     return []
   }
 }
+export const getUpcomingEvents = cachedQuery(_getUpcomingEvents, 'getUpcomingEvents', ['events'])
 
-export async function getEventsList(opts: {
+async function _getEventsList(opts: {
   limit?: number
   page?: number
   upcoming?: boolean
@@ -212,6 +215,7 @@ export async function getEventsList(opts: {
     return { docs: [], meta: { page: 1, totalDocs: 0, totalPages: 0, hasPrevPage: false, hasNextPage: false } }
   }
 }
+export const getEventsList = cachedQuery(_getEventsList, 'getEventsList', ['events'])
 
 function mapEvent(d: any): EventListItem {
   return {
@@ -280,7 +284,7 @@ export interface ParishDetail extends ParishListItem {
   seo?: { title?: string; description?: string }
 }
 
-export async function getParishesList(
+async function _getParishesList(
   limit = 100,
   vicariate?: string,
   locale?: string,
@@ -304,6 +308,7 @@ export async function getParishesList(
     return []
   }
 }
+export const getParishesList = cachedQuery(_getParishesList, 'getParishesList', ['parishes'])
 
 export async function getParishBySlug(slug: string, locale?: string): Promise<ParishDetail | null> {
   try {
@@ -363,7 +368,7 @@ export interface MinistryItem {
   meetingInfo?: string
 }
 
-export async function getMinistriesList(limit = 100): Promise<MinistryItem[]> {
+async function _getMinistriesList(limit = 100): Promise<MinistryItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({ collection: 'ministries', limit, depth: 1 } as any)
@@ -382,6 +387,7 @@ export async function getMinistriesList(limit = 100): Promise<MinistryItem[]> {
     return []
   }
 }
+export const getMinistriesList = cachedQuery(_getMinistriesList, 'getMinistriesList', ['ministries'])
 
 // ─── Publications ─────────────────────────────────────────────────────────────
 
@@ -409,6 +415,7 @@ export interface MagazineItem {
   coverImage?: CMSImage | null
   isFeatured?: boolean
   summary?: string
+  fileUrl?: string | null
 }
 
 export interface ArchiveItem {
@@ -419,9 +426,10 @@ export interface ArchiveItem {
   year?: number
   category?: string
   description?: string
+  fileUrl?: string | null
 }
 
-export async function getPublicationsList(limit = 50): Promise<PublicationItem[]> {
+async function _getPublicationsList(limit = 50): Promise<PublicationItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({ collection: 'publications', limit, depth: 1, sort: '-publishedAt' } as any)
@@ -442,8 +450,9 @@ export async function getPublicationsList(limit = 50): Promise<PublicationItem[]
     return []
   }
 }
+export const getPublicationsList = cachedQuery(_getPublicationsList, 'getPublicationsList', ['publications'])
 
-export async function getMagazinesList(limit = 50): Promise<MagazineItem[]> {
+async function _getMagazinesList(limit = 50): Promise<MagazineItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({ collection: 'magazines', limit, depth: 1, sort: '-year' } as any)
@@ -457,16 +466,18 @@ export async function getMagazinesList(limit = 50): Promise<MagazineItem[]> {
       coverImage: imgOf(d.coverImage),
       isFeatured: d.isFeatured,
       summary: d.description,
+      fileUrl: d.document?.url ?? null,
     }))
   } catch {
     return []
   }
 }
+export const getMagazinesList = cachedQuery(_getMagazinesList, 'getMagazinesList', ['magazines'])
 
-export async function getArchivesList(limit = 50): Promise<ArchiveItem[]> {
+async function _getArchivesList(limit = 50): Promise<ArchiveItem[]> {
   try {
     const payload = await getPayload()
-    const result = await payload.find({ collection: 'archives', limit, depth: 0, sort: '-year' } as any)
+    const result = await payload.find({ collection: 'archives', limit, depth: 1, sort: '-year' } as any)
     return (result.docs as any[]).map((d) => ({
       id: d.id,
       slug: d.slug,
@@ -475,11 +486,14 @@ export async function getArchivesList(limit = 50): Promise<ArchiveItem[]> {
       year: d.year,
       category: d.category,
       description: d.description,
+      // First attached file (public archives only expose a working link).
+      fileUrl: Array.isArray(d.files) && d.files[0]?.file?.url ? d.files[0].file.url : null,
     }))
   } catch {
     return []
   }
 }
+export const getArchivesList = cachedQuery(_getArchivesList, 'getArchivesList', ['archives'])
 
 // ─── Ge'ez Calendar ───────────────────────────────────────────────────────────
 
@@ -496,7 +510,7 @@ export interface GeezCalendarEntry {
   fastingNotes?: string
 }
 
-export async function getGeezCalendarEntries(month?: string): Promise<GeezCalendarEntry[]> {
+async function _getGeezCalendarEntries(month?: string): Promise<GeezCalendarEntry[]> {
   try {
     const payload = await getPayload()
     const where: Record<string, unknown> = {}
@@ -526,6 +540,7 @@ export async function getGeezCalendarEntries(month?: string): Promise<GeezCalend
     return []
   }
 }
+export const getGeezCalendarEntries = cachedQuery(_getGeezCalendarEntries, 'getGeezCalendarEntries', ['geez'])
 
 // ─── Media / Gallery ──────────────────────────────────────────────────────────
 
@@ -540,7 +555,7 @@ export interface MediaItem {
   sizes?: { card?: { url?: string }; thumbnail?: { url?: string } }
 }
 
-export async function getMediaGallery(opts: {
+async function _getMediaGallery(opts: {
   limit?: number
   category?: string
   page?: number
@@ -582,6 +597,7 @@ export async function getMediaGallery(opts: {
     return { docs: [], meta: { page: 1, totalDocs: 0, totalPages: 0, hasPrevPage: false, hasNextPage: false } }
   }
 }
+export const getMediaGallery = cachedQuery(_getMediaGallery, 'getMediaGallery', ['media'])
 
 // ─── Pages (static CMS pages) ─────────────────────────────────────────────────
 
@@ -651,7 +667,7 @@ export interface HomepageGlobal {
   }
 }
 
-export async function getHomepageGlobal(locale?: string): Promise<HomepageGlobal> {
+async function _getHomepageGlobal(locale?: string): Promise<HomepageGlobal> {
   try {
     const payload = await getPayload()
     const data = await payload.findGlobal({ slug: 'homepage', ...(locale ? { locale } : {}) } as any)
@@ -660,6 +676,7 @@ export async function getHomepageGlobal(locale?: string): Promise<HomepageGlobal
     return {}
   }
 }
+export const getHomepageGlobal = cachedQuery(_getHomepageGlobal, 'getHomepageGlobal', ['globals'])
 
 export interface HeaderGlobal {
   announcement?: {
@@ -672,7 +689,7 @@ export interface HeaderGlobal {
   utilityLinks?: Array<{ label: string; url: string }>
 }
 
-export async function getHeaderGlobal(): Promise<HeaderGlobal> {
+async function _getHeaderGlobal(): Promise<HeaderGlobal> {
   try {
     const payload = await getPayload()
     const data = await payload.findGlobal({ slug: 'header' } as any)
@@ -681,6 +698,7 @@ export async function getHeaderGlobal(): Promise<HeaderGlobal> {
     return {}
   }
 }
+export const getHeaderGlobal = cachedQuery(_getHeaderGlobal, 'getHeaderGlobal', ['globals'])
 
 export interface FooterGlobal {
   columns?: Array<{
@@ -698,7 +716,7 @@ export interface FooterGlobal {
   copyrightText?: string
 }
 
-export async function getFooterGlobal(): Promise<FooterGlobal> {
+async function _getFooterGlobal(): Promise<FooterGlobal> {
   try {
     const payload = await getPayload()
     const data = await payload.findGlobal({ slug: 'footer' } as any)
@@ -707,6 +725,7 @@ export async function getFooterGlobal(): Promise<FooterGlobal> {
     return {}
   }
 }
+export const getFooterGlobal = cachedQuery(_getFooterGlobal, 'getFooterGlobal', ['globals'])
 
 export interface NavigationGlobal {
   items?: Array<{
@@ -718,7 +737,7 @@ export interface NavigationGlobal {
   }>
 }
 
-export async function getNavigationGlobal(): Promise<NavigationGlobal> {
+async function _getNavigationGlobal(): Promise<NavigationGlobal> {
   try {
     const payload = await getPayload()
     const data = await payload.findGlobal({ slug: 'navigation' } as any)
@@ -727,6 +746,7 @@ export async function getNavigationGlobal(): Promise<NavigationGlobal> {
     return {}
   }
 }
+export const getNavigationGlobal = cachedQuery(_getNavigationGlobal, 'getNavigationGlobal', ['globals'])
 
 export interface SiteSettingsGlobal {
   siteName?: string
@@ -748,7 +768,7 @@ export interface SiteSettingsGlobal {
   maintenanceMessage?: string
 }
 
-export async function getSiteSettings(): Promise<SiteSettingsGlobal> {
+async function _getSiteSettings(): Promise<SiteSettingsGlobal> {
   try {
     const payload = await getPayload()
     const data = await payload.findGlobal({ slug: 'site-settings' } as any)
@@ -757,6 +777,7 @@ export async function getSiteSettings(): Promise<SiteSettingsGlobal> {
     return {}
   }
 }
+export const getSiteSettings = cachedQuery(_getSiteSettings, 'getSiteSettings', ['globals'])
 
 // ─── Bishop Messages ──────────────────────────────────────────────────────────
 
@@ -772,7 +793,7 @@ export interface BishopMessageItem {
   pdfUrl?: string
 }
 
-export async function getLatestBishopMessage(locale?: string): Promise<BishopMessageItem | null> {
+async function _getLatestBishopMessage(locale?: string): Promise<BishopMessageItem | null> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -793,15 +814,16 @@ export async function getLatestBishopMessage(locale?: string): Promise<BishopMes
       excerpt: d.excerpt,
       publishedAt: d.publishedAt,
       isFeatured: d.isFeatured,
-      content: d.content,
-      pdfUrl: d.pdf?.url ?? null,
+      content: d.body,
+      pdfUrl: d.document?.url ?? null,
     }
   } catch {
     return null
   }
 }
+export const getLatestBishopMessage = cachedQuery(_getLatestBishopMessage, 'getLatestBishopMessage', ['bishop-messages'])
 
-export async function getBishopMessagesList(limit = 20, locale?: string): Promise<BishopMessageItem[]> {
+async function _getBishopMessagesList(limit = 20, locale?: string): Promise<BishopMessageItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -827,6 +849,7 @@ export async function getBishopMessagesList(limit = 20, locale?: string): Promis
     return []
   }
 }
+export const getBishopMessagesList = cachedQuery(_getBishopMessagesList, 'getBishopMessagesList', ['bishop-messages'])
 
 export interface BishopMessageDetail extends BishopMessageItem {
   featuredImage?: CMSImage | null
@@ -892,7 +915,7 @@ export interface PopeMessageItem {
   sourceUrl?: string
 }
 
-export async function getPopeMessagesList(limit = 20, locale?: string): Promise<PopeMessageItem[]> {
+async function _getPopeMessagesList(limit = 20, locale?: string): Promise<PopeMessageItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -918,6 +941,7 @@ export async function getPopeMessagesList(limit = 20, locale?: string): Promise<
     return []
   }
 }
+export const getPopeMessagesList = cachedQuery(_getPopeMessagesList, 'getPopeMessagesList', ['pope-messages'])
 
 export interface PopeMessageDetail extends PopeMessageItem {
   featuredImage?: CMSImage | null

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Parishes: CollectionConfig = {
   slug: 'parishes',
@@ -20,8 +21,8 @@ export const Parishes: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        revalidatePath(`/parishes/${doc.slug}`)
-        revalidatePath('/parishes')
+        safeRevalidatePath(`/parishes/${doc.slug}`)
+        safeRevalidatePath('/parishes')
       },
     ],
   },
@@ -38,6 +39,7 @@ export const Parishes: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: { position: 'sidebar' },
     },
     {

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
+import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Archives: CollectionConfig = {
   slug: 'archives',
@@ -50,8 +51,8 @@ export const Archives: CollectionConfig = {
           )
         }
 
-        revalidatePath(`/archives/${doc.slug}`)
-        revalidatePath('/archives')
+        safeRevalidatePath(`/archives/${doc.slug}`)
+        safeRevalidatePath('/archives')
       },
     ],
   },
@@ -68,6 +69,7 @@ export const Archives: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: { beforeValidate: [slugFieldHook()] },
       admin: { position: 'sidebar' },
     },
     {

@@ -130,9 +130,20 @@ export default async function PublicationsPage() {
                       <p className="text-xs text-charcoal-500 line-clamp-3 flex-1">{mag.summary}</p>
                     )}
                     <div className="mt-3">
-                      <button className="w-full rounded border border-maroon-300 py-1.5 text-xs font-medium text-maroon-700 hover:bg-maroon-50 transition-colors">
-                        Read
-                      </button>
+                      {mag.fileUrl ? (
+                        <a
+                          href={mag.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full rounded border border-maroon-300 py-1.5 text-center text-xs font-medium text-maroon-700 hover:bg-maroon-50 transition-colors"
+                        >
+                          Read
+                        </a>
+                      ) : (
+                        <span className="block w-full rounded border border-charcoal-200 py-1.5 text-center text-xs text-charcoal-400 cursor-not-allowed">
+                          Not available
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -219,13 +230,22 @@ export default async function PublicationsPage() {
                     </div>
                     {arch.description && <p className="text-xs text-charcoal-500">{arch.description}</p>}
                   </div>
-                  {arch.accessTier !== 'restricted' ? (
-                    <button className="shrink-0 rounded border border-maroon-300 px-4 py-1.5 text-xs font-medium text-maroon-700 hover:bg-maroon-50 transition-colors whitespace-nowrap">
+                  {arch.accessTier !== 'restricted' && arch.fileUrl ? (
+                    <a
+                      href={arch.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 rounded border border-maroon-300 px-4 py-1.5 text-xs font-medium text-maroon-700 hover:bg-maroon-50 transition-colors whitespace-nowrap"
+                    >
                       Download
-                    </button>
-                  ) : (
+                    </a>
+                  ) : arch.accessTier === 'restricted' ? (
                     <span className="shrink-0 rounded border border-charcoal-200 px-4 py-1.5 text-xs text-charcoal-400 whitespace-nowrap cursor-not-allowed">
                       Restricted
+                    </span>
+                  ) : (
+                    <span className="shrink-0 rounded border border-charcoal-200 px-4 py-1.5 text-xs text-charcoal-400 whitespace-nowrap cursor-not-allowed">
+                      Not available
                     </span>
                   )}
                 </div>
