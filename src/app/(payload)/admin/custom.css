@@ -399,8 +399,11 @@
 		padding: 0 18px;
 		font: inherit;
 		font-weight: 700;
-		color: #fffaf2;
-		background: linear-gradient(180deg, var(--auth-burgundy-700), var(--auth-burgundy-900));
+		color: #fffaf2 !important;
+		/* Literal colors + !important: Payload resets <button> backgrounds at a
+		   priority that beats layered custom rules, so a var()-based gradient in
+		   @layer payload renders as transparent (invisible white-on-cream button). */
+		background: linear-gradient(180deg, #97283c 0%, #5d1827 100%) !important;
 		box-shadow: 0 16px 32px rgba(93, 24, 39, 0.22);
 		cursor: pointer;
 		transition:
