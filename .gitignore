@@ -45,3 +45,6 @@ public/media/
 # Build/deploy log artifacts
 build_log*.txt
 scripts/deploy_log.txt
+
+# Local media upload staticDir (STORAGE_ADAPTER=local); prod uses S3/R2
+/media/

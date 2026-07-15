@@ -1,5 +1,5 @@
 import type { GlobalConfig } from 'payload'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const Header: GlobalConfig = {
@@ -12,7 +12,7 @@ export const Header: GlobalConfig = {
   hooks: {
     afterChange: [
       () => {
-        revalidatePath('/', 'layout')
+        safeRevalidatePath('/', 'layout')
       },
     ],
   },
