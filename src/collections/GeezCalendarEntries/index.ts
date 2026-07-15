@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { safeRevalidatePath } from '../../lib/payload/revalidate'
+import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 
 export const GeezCalendarEntries: CollectionConfig = {
@@ -20,6 +20,7 @@ export const GeezCalendarEntries: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
+        safeRevalidateTag('geez')
         safeRevalidatePath(`/geez-calendar/${doc.slug}`)
         safeRevalidatePath('/geez-calendar')
       },

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { safeRevalidatePath } from '../../lib/payload/revalidate'
+import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
@@ -21,6 +21,7 @@ export const PopeMessages: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
+        safeRevalidateTag('pope-messages')
         safeRevalidatePath(`/pope-messages/${doc.slug}`)
         safeRevalidatePath('/pope-messages')
       },

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { safeRevalidatePath } from '../../lib/payload/revalidate'
+import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
@@ -21,6 +21,7 @@ export const Parishes: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
+        safeRevalidateTag('parishes')
         safeRevalidatePath(`/parishes/${doc.slug}`)
         safeRevalidatePath('/parishes')
       },

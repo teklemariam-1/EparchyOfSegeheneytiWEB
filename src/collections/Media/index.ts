@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { isRoleOneOf, isAnyEditor } from '../../lib/permissions/collectionAccess'
+import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -46,6 +47,14 @@ export const Media: CollectionConfig = {
     create: isAnyEditor,
     update: isAnyEditor,
     delete: isRoleOneOf('super-admin', 'chancery-editor', 'media-editor'),
+  },
+  hooks: {
+    afterChange: [
+      () => {
+        safeRevalidateTag('media')
+        safeRevalidatePath('/media')
+      },
+    ],
   },
   fields: [
     {

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { safeRevalidatePath } from '../../lib/payload/revalidate'
+import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
@@ -51,6 +51,7 @@ export const Archives: CollectionConfig = {
           )
         }
 
+        safeRevalidateTag('archives')
         safeRevalidatePath(`/archives/${doc.slug}`)
         safeRevalidatePath('/archives')
       },
