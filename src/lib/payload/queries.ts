@@ -748,6 +748,15 @@ async function _getNavigationGlobal(): Promise<NavigationGlobal> {
 }
 export const getNavigationGlobal = cachedQuery(_getNavigationGlobal, 'getNavigationGlobal', ['globals'])
 
+export interface OfficeContact {
+  name: string
+  role?: string
+  address?: string
+  phone?: string
+  email?: string
+  hours?: string
+}
+
 export interface SiteSettingsGlobal {
   siteName?: string
   tagline?: string
@@ -760,6 +769,7 @@ export interface SiteSettingsGlobal {
     phone?: string
     email?: string
   }
+  offices?: OfficeContact[]
   analytics?: {
     ga4Id?: string
     gtmId?: string
@@ -768,16 +778,37 @@ export interface SiteSettingsGlobal {
   maintenanceMessage?: string
 }
 
-async function _getSiteSettings(): Promise<SiteSettingsGlobal> {
+async function _getSiteSettings(locale?: string): Promise<SiteSettingsGlobal> {
   try {
     const payload = await getPayload()
-    const data = await payload.findGlobal({ slug: 'site-settings' } as any)
+    const data = await payload.findGlobal({ slug: 'site-settings', ...(locale ? { locale } : {}) } as any)
     return data as unknown as SiteSettingsGlobal
   } catch {
     return {}
   }
 }
 export const getSiteSettings = cachedQuery(_getSiteSettings, 'getSiteSettings', ['globals'])
+
+// ─── About page global ──────────────────────────────────────────────────────────
+
+export interface AboutPageGlobal {
+  mission?: { heading?: string; intro?: string; body?: string }
+  stats?: Array<{ value: string; label: string }>
+  pillars?: { heading?: string; items?: Array<{ icon?: string; title: string; body?: string }> }
+  timeline?: { heading?: string; items?: Array<{ year: string; label: string; description?: string }> }
+  geez?: { heading?: string; body?: string; ctaLabel?: string }
+}
+
+async function _getAboutPageGlobal(locale?: string): Promise<AboutPageGlobal> {
+  try {
+    const payload = await getPayload()
+    const data = await payload.findGlobal({ slug: 'about-page', ...(locale ? { locale } : {}) } as any)
+    return data as unknown as AboutPageGlobal
+  } catch {
+    return {}
+  }
+}
+export const getAboutPageGlobal = cachedQuery(_getAboutPageGlobal, 'getAboutPageGlobal', ['globals'])
 
 // ─── Bishop Messages ──────────────────────────────────────────────────────────
 

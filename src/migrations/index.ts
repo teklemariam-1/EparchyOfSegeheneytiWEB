@@ -1,5 +1,6 @@
 import * as migration_20260325_080247 from './20260325_080247';
 import * as migration_20260714_170125_media_access_level from './20260714_170125_media_access_level';
+import * as migration_20260715_042907_about_page_content from './20260715_042907_about_page_content';
 
 export const migrations = [
   {
@@ -10,6 +11,11 @@ export const migrations = [
   {
     up: migration_20260714_170125_media_access_level.up,
     down: migration_20260714_170125_media_access_level.down,
-    name: '20260714_170125_media_access_level'
+    name: '20260714_170125_media_access_level',
+  },
+  {
+    up: migration_20260715_042907_about_page_content.up,
+    down: migration_20260715_042907_about_page_content.down,
+    name: '20260715_042907_about_page_content'
   },
 ];

@@ -83,6 +83,22 @@ export const SiteSettings: GlobalConfig = {
       ],
     },
     {
+      name: 'offices',
+      type: 'array',
+      label: 'Office Contacts',
+      admin: {
+        description: 'Additional offices shown on the Contact page (e.g. Bishop\'s Secretariat, Caritas). The Chancery card is derived from Contact Information above.',
+      },
+      fields: [
+        { name: 'name', type: 'text', required: true, localized: true },
+        { name: 'role', type: 'text', localized: true, admin: { description: 'Short description of what this office handles.' } },
+        { name: 'address', type: 'text', localized: true },
+        { name: 'phone', type: 'text' },
+        { name: 'email', type: 'email' },
+        { name: 'hours', type: 'text', localized: true },
+      ],
+    },
+    {
       name: 'socialLinks',
       type: 'group',
       label: 'Social Media',

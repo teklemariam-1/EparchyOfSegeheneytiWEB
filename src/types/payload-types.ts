@@ -127,6 +127,7 @@ export interface Config {
     footer: Footer;
     homepage: Homepage;
     navigation: Navigation;
+    'about-page': AboutPage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -134,6 +135,7 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
     homepage: HomepageSelect<false> | HomepageSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
+    'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
   };
   locale: 'en' | 'ti';
   widgets: {
@@ -458,7 +460,7 @@ export interface News {
   id: number;
   title: string;
   /**
-   * Auto-generated from title. Used in the URL.
+   * Auto-generated from the title if left blank. Used in the URL.
    */
   slug: string;
   status: 'draft' | 'published';
@@ -1982,6 +1984,23 @@ export interface SiteSetting {
      */
     mapEmbedUrl?: string | null;
   };
+  /**
+   * Additional offices shown on the Contact page (e.g. Bishop's Secretariat, Caritas). The Chancery card is derived from Contact Information above.
+   */
+  offices?:
+    | {
+        name: string;
+        /**
+         * Short description of what this office handles.
+         */
+        role?: string | null;
+        address?: string | null;
+        phone?: string | null;
+        email?: string | null;
+        hours?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   socialLinks?: {
     /**
      * Full Facebook page URL.
@@ -2238,6 +2257,80 @@ export interface Navigation {
   createdAt?: string | null;
 }
 /**
+ * Editable content for the public About page (mission, stats, pillars, timeline).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page".
+ */
+export interface AboutPage {
+  id: number;
+  mission?: {
+    /**
+     * e.g. "Our Mission"
+     */
+    heading?: string | null;
+    /**
+     * Opening lead paragraph.
+     */
+    intro?: string | null;
+    /**
+     * Second paragraph.
+     */
+    body?: string | null;
+  };
+  /**
+   * e.g. 47 Parishes, 12 Schools, 6 Clinics.
+   */
+  stats?:
+    | {
+        /**
+         * e.g. "47"
+         */
+        value: string;
+        /**
+         * e.g. "Parishes"
+         */
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  pillars?: {
+    heading?: string | null;
+    items?:
+      | {
+          /**
+           * Emoji or icon.
+           */
+          icon?: string | null;
+          title: string;
+          body?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  timeline?: {
+    heading?: string | null;
+    items?:
+      | {
+          year: string;
+          label: string;
+          description?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  geez?: {
+    heading?: string | null;
+    body?: string | null;
+    /**
+     * Button text linking to the Ge'ez calendar.
+     */
+    ctaLabel?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -2265,6 +2358,17 @@ export interface SiteSettingsSelect<T extends boolean = true> {
               poBox?: T;
             };
         mapEmbedUrl?: T;
+      };
+  offices?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        address?: T;
+        phone?: T;
+        email?: T;
+        hours?: T;
+        id?: T;
       };
   socialLinks?:
     | T
@@ -2450,6 +2554,62 @@ export interface NavigationSelect<T extends boolean = true> {
         url?: T;
         highlight?: T;
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page_select".
+ */
+export interface AboutPageSelect<T extends boolean = true> {
+  mission?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+        body?: T;
+      };
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  pillars?:
+    | T
+    | {
+        heading?: T;
+        items?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              body?: T;
+              id?: T;
+            };
+      };
+  timeline?:
+    | T
+    | {
+        heading?: T;
+        items?:
+          | T
+          | {
+              year?: T;
+              label?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  geez?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        ctaLabel?: T;
       };
   updatedAt?: T;
   createdAt?: T;

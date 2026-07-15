@@ -5,7 +5,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ContactForm } from '@/features/contact/ContactForm'
 import { getSiteSettings } from '@/lib/payload/queries'
-import { getTranslations } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Contact',
@@ -33,7 +33,8 @@ const STATIC_OFFICES = [
 ]
 
 export default async function ContactPage() {
-  const settings = await getSiteSettings()
+  const locale = await getLocale()
+  const settings = await getSiteSettings(locale)
   const contact = settings.contact
   const t = await getTranslations('contact')
 
@@ -48,7 +49,10 @@ export default async function ContactPage() {
     hours: 'Monday–Friday, 8:00 AM – 1:00 PM',
   }
 
-  const offices = [chancery, ...STATIC_OFFICES]
+  // Additional offices come from the CMS; fall back to the built-in list only
+  // when none are configured, so the page is never empty.
+  const additional = settings.offices?.length ? settings.offices : STATIC_OFFICES
+  const offices = [chancery, ...additional]
 
   return (
     <>
@@ -81,30 +85,38 @@ export default async function ContactPage() {
                   <p className="text-xs text-charcoal-500 leading-snug">{office.role}</p>
 
                   <div className="pt-2 space-y-1.5">
-                    <p className="text-xs text-charcoal-600 flex items-start gap-2">
-                      <svg className="h-3.5 w-3.5 text-maroon-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      {office.address}
-                    </p>
-                    <a href={`tel:${office.phone}`} className="text-xs text-maroon-700 hover:underline flex items-center gap-2">
-                      <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                      {office.phone}
-                    </a>
-                    <a href={`mailto:${office.email}`} className="text-xs text-maroon-700 hover:underline flex items-center gap-2 break-all">
-                      <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      {office.email}
-                    </a>
-                    <p className="text-xs text-charcoal-400 flex items-center gap-2">
-                      <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {office.hours}
-                    </p>
+                    {office.address && (
+                      <p className="text-xs text-charcoal-600 flex items-start gap-2">
+                        <svg className="h-3.5 w-3.5 text-maroon-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {office.address}
+                      </p>
+                    )}
+                    {office.phone && (
+                      <a href={`tel:${office.phone}`} className="text-xs text-maroon-700 hover:underline flex items-center gap-2">
+                        <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        {office.phone}
+                      </a>
+                    )}
+                    {office.email && (
+                      <a href={`mailto:${office.email}`} className="text-xs text-maroon-700 hover:underline flex items-center gap-2 break-all">
+                        <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        {office.email}
+                      </a>
+                    )}
+                    {office.hours && (
+                      <p className="text-xs text-charcoal-400 flex items-center gap-2">
+                        <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {office.hours}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}

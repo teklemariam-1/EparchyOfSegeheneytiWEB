@@ -4,8 +4,8 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
-import { getHomepageGlobal } from '@/lib/payload/queries'
-import { getTranslations } from 'next-intl/server'
+import { getHomepageGlobal, getAboutPageGlobal } from '@/lib/payload/queries'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
   title: 'About the Eparchy',
@@ -14,41 +14,68 @@ export const metadata: Metadata = buildMetadata({
   path: '/about',
 })
 
-const PILLARS = [
-  {
-    icon: '✝️',
-    title: 'Faith',
-    body: 'Rooted in the apostolic tradition of the Oriental Catholic Church, we proclaim the Gospel of Jesus Christ in every community we serve.',
-  },
-  {
-    icon: '🕊️',
-    title: 'Service',
-    body: 'Through schools, clinics, and outreach programs, the Eparchy responds to the material and spiritual needs of the poorest in our society.',
-  },
-  {
-    icon: '🌍',
-    title: 'Unity',
-    body: 'We are in full communion with the Holy Father and walk together with the universal Catholic Church while celebrating our distinctive Ge\'ez rite.',
-  },
-  {
-    icon: '📖',
-    title: 'Formation',
-    body: "Catechesis, youth ministry, and adult faith formation build a well-grounded Catholic community prepared for life's challenges.",
-  },
-]
+// ── Fallback content (used when the About Page global has no data) ──────────────
+const DEFAULT_MISSION = {
+  heading: 'Our Mission',
+  intro:
+    "The Catholic Eparchy of Segeneyti is an Oriental Catholic diocese of the Ge'ez rite, in full communion with the Bishop of Rome. Established in 1995, the Eparchy encompasses the southern and central regions of Eritrea, including the vicariates of Segeneyti, Adi Keyih, Dekemhare, and Mendefera, as well as a diaspora pastoral presence across Europe, North America, and the Gulf states.",
+  body:
+    'Our mission is to proclaim the Good News of Jesus Christ, celebrate the sacraments, and build up the Body of Christ through integral human development — caring for the spiritual, educational, and physical well-being of everyone entrusted to our care.',
+}
 
-const TIMELINE = [
-  { year: '1995', label: 'Eparchy established', desc: 'The Holy See erected the Eparchy of Segeneyti, separating it from the Eparchy of Asmara.' },
-  { year: '2003', label: 'First synod', desc: 'The first diocesan synod was held, setting pastoral priorities for the next decade.' },
-  { year: '2010', label: 'New cathedral', desc: 'The Cathedral of Saint Michael in Segeneyti was consecrated, becoming the heart of eparchial life.' },
-  { year: '2018', label: 'Education expansion', desc: 'The Eparchy opened three additional parish schools, now educating over 4 000 students.' },
-  { year: '2024', label: 'Pastoral plan', desc: 'A renewed five-year pastoral plan was launched, centred on family ministry and vocations promotion.' },
-]
+const DEFAULT_PILLARS = {
+  heading: 'Four Pillars of Eparchial Life',
+  items: [
+    { icon: '✝️', title: 'Faith', body: 'Rooted in the apostolic tradition of the Oriental Catholic Church, we proclaim the Gospel of Jesus Christ in every community we serve.' },
+    { icon: '🕊️', title: 'Service', body: 'Through schools, clinics, and outreach programs, the Eparchy responds to the material and spiritual needs of the poorest in our society.' },
+    { icon: '🌍', title: 'Unity', body: "We are in full communion with the Holy Father and walk together with the universal Catholic Church while celebrating our distinctive Ge'ez rite." },
+    { icon: '📖', title: 'Formation', body: "Catechesis, youth ministry, and adult faith formation build a well-grounded Catholic community prepared for life's challenges." },
+  ],
+}
+
+const DEFAULT_TIMELINE = {
+  heading: 'Key Milestones',
+  items: [
+    { year: '1995', label: 'Eparchy established', description: 'The Holy See erected the Eparchy of Segeneyti, separating it from the Eparchy of Asmara.' },
+    { year: '2003', label: 'First synod', description: 'The first diocesan synod was held, setting pastoral priorities for the next decade.' },
+    { year: '2010', label: 'New cathedral', description: 'The Cathedral of Saint Michael in Segeneyti was consecrated, becoming the heart of eparchial life.' },
+    { year: '2018', label: 'Education expansion', description: 'The Eparchy opened three additional parish schools, now educating over 4 000 students.' },
+    { year: '2024', label: 'Pastoral plan', description: 'A renewed five-year pastoral plan was launched, centred on family ministry and vocations promotion.' },
+  ],
+}
+
+const DEFAULT_GEEZ = {
+  heading: 'The Ge\'ez Liturgical Tradition',
+  body:
+    "As an Oriental Catholic Church of the Ge'ez rite, the Eparchy of Segeneyti celebrates the ancient Alexandrian liturgy passed down through the centuries in both Ge'ez and Tigrinya. The Ge'ez calendar, with its 13 months, rich cycle of feasts and fasts, and distinctive liturgical colours, shapes the rhythm of prayer and community life throughout the year.",
+  ctaLabel: 'Explore the Ge\'ez Calendar →',
+}
 
 export default async function AboutPage() {
-  const homepage = await getHomepageGlobal()
+  const locale = await getLocale()
+  const [homepage, about] = await Promise.all([
+    getHomepageGlobal(locale),
+    getAboutPageGlobal(locale),
+  ])
   const bishop = homepage.bishopMessage
   const t = await getTranslations('about')
+
+  // CMS-or-fallback for each section.
+  const mission = {
+    heading: about.mission?.heading || DEFAULT_MISSION.heading,
+    intro: about.mission?.intro || DEFAULT_MISSION.intro,
+    body: about.mission?.body || DEFAULT_MISSION.body,
+  }
+  const stats = about.stats ?? [] // no hardcoded fallback — only render real figures
+  const pillarsHeading = about.pillars?.heading || DEFAULT_PILLARS.heading
+  const pillars = about.pillars?.items?.length ? about.pillars.items : DEFAULT_PILLARS.items
+  const timelineHeading = about.timeline?.heading || DEFAULT_TIMELINE.heading
+  const timeline = about.timeline?.items?.length ? about.timeline.items : DEFAULT_TIMELINE.items
+  const geez = {
+    heading: about.geez?.heading || DEFAULT_GEEZ.heading,
+    body: about.geez?.body || DEFAULT_GEEZ.body,
+    ctaLabel: about.geez?.ctaLabel || DEFAULT_GEEZ.ctaLabel,
+  }
 
   return (
     <>
@@ -62,27 +89,22 @@ export default async function AboutPage() {
       <Section className="bg-white">
         <Container size="narrow">
           <div className="prose prose-eparchy max-w-none">
-            <h2>Our Mission</h2>
-            <p className="lead">
-              The Catholic Eparchy of Segeneyti is an Oriental Catholic diocese of the Ge'ez rite,
-              in full communion with the Bishop of Rome. Established in 1995, the Eparchy encompasses
-              the southern and central regions of Eritrea, including the vicariates of Segeneyti,
-              Adi Keyih, Dekemhare, and Mendefera, as well as a diaspora pastoral presence across
-              Europe, North America, and the Gulf states.
-            </p>
-            <p>
-              Our mission is to proclaim the Good News of Jesus Christ, celebrate the sacraments,
-              and build up the Body of Christ through integral human development — caring for the
-              spiritual, educational, and physical well-being of everyone entrusted to our care.
-            </p>
-            <p>
-              The Eparchy ministers through{' '}
-              <strong>47 parishes</strong>,{' '}
-              <strong>12 schools</strong>,{' '}
-              <strong>6 health clinics</strong>, and numerous youth, catechetical, and community
-              development programmes.
-            </p>
+            <h2>{mission.heading}</h2>
+            <p className="lead">{mission.intro}</p>
+            <p>{mission.body}</p>
           </div>
+
+          {/* Key statistics (only shown when configured in the CMS) */}
+          {stats.length > 0 && (
+            <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {stats.map((s, i) => (
+                <div key={`${s.label}-${i}`} className="card p-5 text-center">
+                  <p className="font-serif text-3xl font-bold text-maroon-800">{s.value}</p>
+                  <p className="text-sm text-charcoal-600 mt-1">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </Container>
       </Section>
 
@@ -91,19 +113,19 @@ export default async function AboutPage() {
         <Container>
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-charcoal-900">
-              Four Pillars of Eparchial Life
+              {pillarsHeading}
             </h2>
             <div className="mt-3 mx-auto h-1 w-14 rounded-full bg-gold-400" />
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PILLARS.map((p) => (
+            {pillars.map((p, i) => (
               <div
-                key={p.title}
+                key={`${p.title}-${i}`}
                 className="card p-6 text-center flex flex-col items-center gap-3"
               >
-                <span className="text-4xl" aria-hidden="true">{p.icon}</span>
+                {p.icon && <span className="text-4xl" aria-hidden="true">{p.icon}</span>}
                 <h3 className="font-serif text-lg font-semibold text-charcoal-900">{p.title}</h3>
-                <p className="text-sm text-charcoal-600 leading-relaxed">{p.body}</p>
+                {p.body && <p className="text-sm text-charcoal-600 leading-relaxed">{p.body}</p>}
               </div>
             ))}
           </div>
@@ -164,13 +186,13 @@ export default async function AboutPage() {
       <Section id="history" className="bg-parchment-50">
         <Container size="narrow">
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-charcoal-900 mb-2">
-            Key Milestones
+            {timelineHeading}
           </h2>
           <div className="mt-3 h-1 w-14 rounded-full bg-gold-400 mb-10" />
 
           <ol className="relative border-l-2 border-maroon-200 space-y-8 pl-6">
-            {TIMELINE.map((item) => (
-              <li key={item.year} className="relative">
+            {timeline.map((item, i) => (
+              <li key={`${item.year}-${i}`} className="relative">
                 {/* Dot */}
                 <span className="absolute -left-[1.35rem] top-1 h-4 w-4 rounded-full bg-maroon-700 border-2 border-white" />
                 <time className="text-xs font-bold uppercase tracking-widest text-maroon-600">
@@ -179,7 +201,7 @@ export default async function AboutPage() {
                 <p className="font-serif text-base font-semibold text-charcoal-900 mt-0.5">
                   {item.label}
                 </p>
-                <p className="text-sm text-charcoal-600 mt-1">{item.desc}</p>
+                {item.description && <p className="text-sm text-charcoal-600 mt-1">{item.description}</p>}
               </li>
             ))}
           </ol>
@@ -190,20 +212,16 @@ export default async function AboutPage() {
       <Section className="bg-maroon-800 text-white">
         <Container size="narrow" className="text-center">
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-4">
-            The Ge'ez Liturgical Tradition
+            {geez.heading}
           </h2>
           <p className="text-maroon-200 leading-relaxed max-w-2xl mx-auto">
-            As an Oriental Catholic Church of the Ge'ez rite, the Eparchy of Segeneyti celebrates
-            the ancient Alexandrian liturgy passed down through the centuries in both Ge'ez and
-            Tigrinya. The Ge'ez calendar, with its 13 months, rich cycle of feasts and fasts, and
-            distinctive liturgical colours, shapes the rhythm of prayer and community life
-            throughout the year.
+            {geez.body}
           </p>
           <a
             href="/geez-calendar"
             className="mt-6 inline-block rounded-md bg-gold-500 px-6 py-2.5 text-sm font-semibold text-charcoal-900 hover:bg-gold-400 transition-colors"
           >
-            Explore the Ge'ez Calendar →
+            {geez.ctaLabel}
           </a>
         </Container>
       </Section>
