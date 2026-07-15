@@ -1,12 +1,13 @@
 /* @payloadcms/next v3 — Root layout for the embedded admin panel.
  *
- * Payload's compiled RootLayout (index.js) does NOT import the global SCSS that
- * defines :root CSS custom-properties (--base, --theme-bg, --color-base-*, etc.).
- * The import declaration only exists in the .d.ts file, which is never executed.
- * We import it here so Next.js / webpack compiles the SCSS and includes the
- * resulting CSS in the admin route's stylesheet bundle.
+ * Payload's compiled RootLayout (index.js) does NOT import its own stylesheet;
+ * the canonical layout must import '@payloadcms/next/css' (the full compiled
+ * admin CSS). Importing only '@payloadcms/ui/scss/app.scss' is NOT enough — it
+ * provides root variables and component base styles, but the layout templates
+ * (.template-default grid, nav sidebar, dashboard groups) ship exclusively in
+ * @payloadcms/next's stylesheet and the admin renders unstyled without them.
  */
-import '@payloadcms/ui/scss/app.scss'
+import '@payloadcms/next/css'
 import './custom.css'
 
 import type React from 'react'
