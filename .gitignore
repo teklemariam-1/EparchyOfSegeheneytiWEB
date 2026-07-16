@@ -48,3 +48,5 @@ scripts/deploy_log.txt
 
 # Local media upload staticDir (STORAGE_ADAPTER=local); prod uses S3/R2
 /media/
+
+.env.prod.pulled

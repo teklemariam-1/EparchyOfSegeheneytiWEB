@@ -28,13 +28,13 @@ const CSP = [
   // Fonts
   "font-src 'self' https://fonts.gstatic.com",
   // Images: self + S3/R2 CDN + Google (maps tiles, GA pixel)
-  `img-src 'self' data: blob: https://${process.env.S3_HOSTNAME ?? '*'} https://www.google.com https://maps.gstatic.com https://maps.googleapis.com`,
+  `img-src 'self' data: blob: https://${process.env.S3_HOSTNAME ?? '*'} https://*.public.blob.vercel-storage.com https://www.google.com https://maps.gstatic.com https://maps.googleapis.com`,
   // Frames: Google Maps embed only
   "frame-src https://www.google.com https://maps.google.com",
   // XHR/fetch: self + Payload API + Sentry
   "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io",
-  // Media from S3/R2
-  `media-src 'self' https://${process.env.S3_HOSTNAME ?? '*'}`,
+  // Media from S3/R2 + Vercel Blob
+  `media-src 'self' https://${process.env.S3_HOSTNAME ?? '*'} https://*.public.blob.vercel-storage.com`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -130,11 +130,17 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    // Allow images from S3/R2 bucket + CMS-hosted media
+    // Allow images from S3/R2 bucket, Vercel Blob, and CMS-hosted media
     remotePatterns: [
       {
         protocol: 'https',
         hostname: process.env.S3_HOSTNAME ?? 'localhost',
+        pathname: '/**',
+      },
+      {
+        // Vercel Blob public URLs: <storeId>.public.blob.vercel-storage.com
+        protocol: 'https',
+        hostname: '**.public.blob.vercel-storage.com',
         pathname: '/**',
       },
       {

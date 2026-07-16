@@ -2,6 +2,7 @@ import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { en } from '@payloadcms/translations/languages/en'
 import sharp from 'sharp'
 import path from 'path'
@@ -44,7 +45,9 @@ import { env } from './lib/env'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-const isS3 = process.env.STORAGE_ADAPTER === 's3'
+const storageAdapter = process.env.STORAGE_ADAPTER
+const isS3 = storageAdapter === 's3'
+const isVercelBlob = storageAdapter === 'vercel-blob' && Boolean(process.env.BLOB_READ_WRITE_TOKEN)
 
 // Validate email config at startup
 const emailConfig = validateEmailConfig()
@@ -153,26 +156,40 @@ export default buildConfig({
   email: buildEmailAdapter,
 
   // ── File storage ──────────────────────────────────────────────────────────────
-  plugins: isS3
-    ? [
-        s3Storage({
-          collections: {
-            media: {
-              prefix: 'media',
+  // Persistent object storage is required in production — Vercel's serverless
+  // filesystem is ephemeral, so STORAGE_ADAPTER=local loses uploads. Prefer
+  // Vercel Blob (STORAGE_ADAPTER=vercel-blob) or S3/R2 (STORAGE_ADAPTER=s3).
+  plugins: [
+    ...(isVercelBlob
+      ? [
+          vercelBlobStorage({
+            enabled: true,
+            collections: { media: true },
+            token: process.env.BLOB_READ_WRITE_TOKEN as string,
+          }),
+        ]
+      : []),
+    ...(isS3
+      ? [
+          s3Storage({
+            collections: {
+              media: {
+                prefix: 'media',
+              },
             },
-          },
-          bucket: process.env.S3_BUCKET ?? '',
-          config: {
-            credentials: {
-              accessKeyId: process.env.S3_ACCESS_KEY_ID ?? '',
-              secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? '',
+            bucket: process.env.S3_BUCKET ?? '',
+            config: {
+              credentials: {
+                accessKeyId: process.env.S3_ACCESS_KEY_ID ?? '',
+                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? '',
+              },
+              region: process.env.S3_REGION ?? 'auto',
+              endpoint: process.env.S3_ENDPOINT,
             },
-            region: process.env.S3_REGION ?? 'auto',
-            endpoint: process.env.S3_ENDPOINT,
-          },
-        }),
-      ]
-    : [],
+          }),
+        ]
+      : []),
+  ],
 
   // ── Security ──────────────────────────────────────────────────────────────────
   secret: env.PAYLOAD_SECRET,
