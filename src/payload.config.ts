@@ -164,7 +164,11 @@ export default buildConfig({
       ? [
           vercelBlobStorage({
             enabled: true,
-            collections: { media: true },
+            // Serve files straight from the Blob CDN instead of proxying through
+            // Payload's /api/media/file route (which 404s and costs a function
+            // invocation per image). The Blob store is public, so its URLs are
+            // publicly reachable regardless of Payload access control.
+            collections: { media: { disablePayloadAccessControl: true } },
             token: process.env.BLOB_READ_WRITE_TOKEN as string,
           }),
         ]
