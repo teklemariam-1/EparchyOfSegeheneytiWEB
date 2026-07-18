@@ -4,7 +4,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ContactForm } from '@/features/contact/ContactForm'
-import { getSiteSettings } from '@/lib/payload/queries'
+import { getSiteSettings, type OfficeContact } from '@/lib/payload/queries'
 import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
@@ -13,21 +13,18 @@ export const metadata: Metadata = buildMetadata({
   path: '/contact',
 })
 
-const STATIC_OFFICES = [
+// Fallback office list used only when none are configured in Site Settings.
+// Deliberately carries no phone/email — real contact details must come from the
+// CMS so the site never publishes an invented number a visitor could dial.
+const STATIC_OFFICES: OfficeContact[] = [
   {
     name: "Bishop's Secretariat",
     role: 'Appointments and correspondence for the Bishop.',
-    address: 'Episcopal House, Segeneyti, Eritrea',
-    phone: '+291-1-000001',
-    email: 'bishop@eparchy.er',
     hours: 'Monday–Friday, 9:00 AM – 12:00 PM',
   },
   {
     name: 'Caritas Office',
     role: 'Development, humanitarian assistance, and social programmes.',
-    email: 'caritas@eparchy.er',
-    phone: '+291-1-000002',
-    address: 'Segeneyti, Eritrea',
     hours: 'Monday–Thursday, 8:00 AM – 2:00 PM',
   },
 ]
@@ -38,15 +35,18 @@ export default async function ContactPage() {
   const contact = settings.contact
   const t = await getTranslations('contact')
 
+  // Never invent contact details: if a value isn't configured in Site Settings
+  // it is simply omitted (each line renders conditionally) rather than showing a
+  // placeholder phone/email a visitor might actually try to use.
   const chancery = {
     name: 'Chancery Office',
     role: 'General enquiries, canonical matters, and administrative correspondence.',
     address: contact?.address
       ? `${contact.address}${contact.city ? ', ' + contact.city : ''}${contact.country ? ', ' + contact.country : ''}`
-      : 'P.O. Box 100, Segeneyti, Southern Zoba, Eritrea',
-    phone: contact?.phone ?? '+291-1-000000',
-    email: contact?.email ?? 'chancery@segeneyti.org',
-    hours: 'Monday–Friday, 8:00 AM – 1:00 PM',
+      : undefined,
+    phone: contact?.phone || undefined,
+    email: contact?.email || undefined,
+    hours: undefined,
   }
 
   // Additional offices come from the CMS; fall back to the built-in list only
