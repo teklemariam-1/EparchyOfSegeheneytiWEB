@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim()
 const SITE_NAME = 'Catholic Eparchy of Segeneyti'
 const SITE_LOGO = `${SITE_URL}/images/logo.png`
 

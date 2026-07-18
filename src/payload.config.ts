@@ -198,7 +198,7 @@ export default buildConfig({
   // ── Security ──────────────────────────────────────────────────────────────────
   secret: env.PAYLOAD_SECRET,
   csrf: [
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+    (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim(),
   ],
 
   // ── TypeScript type output ────────────────────────────────────────────────────
