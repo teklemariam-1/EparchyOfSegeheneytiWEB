@@ -76,6 +76,25 @@ export const Homepage: GlobalConfig = {
         },
         { name: 'sectionHeading', type: 'text', localized: true },
         { name: 'sectionSubtext', type: 'text', localized: true },
+        // Bishop identity — rendered in the About page's bishop profile block.
+        {
+          name: 'photo',
+          type: 'upload',
+          relationTo: 'media',
+          admin: { description: "Portrait of the Bishop, shown on the About page." },
+        },
+        {
+          name: 'bishopName',
+          type: 'text',
+          localized: true,
+          admin: { description: 'e.g. "Most Rev. Abune ..." — shown under the portrait.' },
+        },
+        {
+          name: 'bishopTitle',
+          type: 'text',
+          localized: true,
+          admin: { description: 'e.g. "Bishop of the Catholic Eparchy of Segeneyti".' },
+        },
       ],
     },
     {
