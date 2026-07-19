@@ -51,6 +51,8 @@ export interface NewsListItem {
 export interface NewsDetail extends NewsListItem {
   content?: unknown
   author?: string | null
+  sourceUrl?: string
+  sourceName?: string
   seo?: { title?: string; description?: string }
 }
 
@@ -123,6 +125,8 @@ export async function getNewsBySlug(slug: string, locale?: string): Promise<News
       tags: Array.isArray(d.tags) ? d.tags.map((t: any) => t?.tag ?? t).filter(Boolean) : [],
       content: d.body,
       author: d.author?.firstName ? `${d.author.firstName} ${d.author.lastName ?? ''}`.trim() : null,
+      sourceUrl: d.sourceUrl ?? undefined,
+      sourceName: d.sourceName ?? undefined,
       seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
     }
   } catch {

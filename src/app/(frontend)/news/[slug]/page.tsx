@@ -24,6 +24,15 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
+/** Display label for a source link when no explicit name was given. */
+function hostnameOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const article = await getNewsBySlug(slug)
@@ -116,6 +125,21 @@ export default async function NewsDetailPage({ params }: Props) {
                   <p className="lead">{article.excerpt}</p>
                 </div>
               ) : null}
+
+              {/* Source attribution (optional) */}
+              {article.sourceUrl && (
+                <p className="mt-8 text-sm text-charcoal-500">
+                  Source:{' '}
+                  <a
+                    href={article.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    className="font-medium text-maroon-700 underline underline-offset-2 hover:text-maroon-900 transition-colors"
+                  >
+                    {article.sourceName || hostnameOf(article.sourceUrl)}
+                  </a>
+                </p>
+              )}
 
               {/* Tags */}
               {article.tags && article.tags.length > 0 && (

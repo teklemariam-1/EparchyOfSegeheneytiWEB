@@ -119,6 +119,30 @@ export const News: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
+      name: 'sourceUrl',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Optional. Link to the original article if this news was republished from another outlet (e.g. Vatican News). Shown as an attribution link on the article page.',
+      },
+      validate: (value: unknown) => {
+        if (!value) return true // optional
+        return typeof value === 'string' && /^https?:\/\/.+/i.test(value)
+          ? true
+          : 'Enter a full URL starting with http:// or https://'
+      },
+    },
+    {
+      name: 'sourceName',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Optional label for the source, e.g. "Vatican News". Defaults to the link\'s domain.',
+        condition: (data) => Boolean(data?.sourceUrl),
+      },
+    },
+    {
       name: 'seo',
       type: 'group',
       label: 'SEO',

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import React from 'react'
-import Script from 'next/script'
 import { Inter, Noto_Serif_Ethiopic } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
 import { SiteHeader } from '@/components/navigation/SiteHeader'
 import { SiteFooter } from '@/components/navigation/SiteFooter'
 import { SkipNav } from '@/components/shared/SkipNav'
+import { CookieConsent } from '@/components/shared/CookieConsent'
 import { getSiteSettings } from '@/lib/payload/queries'
 import '../globals.css'
 
@@ -71,24 +71,9 @@ export default async function FrontendLayout({
     >
       <body className="bg-parchment text-charcoal-800 antialiased">
         <NextIntlClientProvider messages={messages}>
-          {/* Google Tag Manager — injected only when GTM ID is set in CMS */}
-          {gtmId && (
-            <Script id="gtm-init" strategy="afterInteractive">
-              {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`}
-            </Script>
-          )}
-          {/* GA4 — injected only when GA4 ID is set in CMS */}
-          {ga4Id && (
-            <>
-              <Script
-                src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`}
-                strategy="afterInteractive"
-              />
-              <Script id="ga4-init" strategy="afterInteractive">
-                {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${ga4Id}');`}
-              </Script>
-            </>
-          )}
+          {/* Cookie consent — also owns the analytics scripts, so GTM/GA4 are
+              only ever injected after the visitor explicitly accepts. */}
+          <CookieConsent ga4Id={ga4Id} gtmId={gtmId} />
 
           <SkipNav />
           <SiteHeader />

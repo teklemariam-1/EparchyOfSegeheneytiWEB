@@ -177,6 +177,13 @@
     "title": "About the Eparchy",
     "subtitle": "Learn about the history, mission, and structure of the Catholic Eparchy of Segeneyti."
   },
+  "cookies": {
+    "title": "Cookies on this site",
+    "message": "We use a small cookie to remember your language choice, which is required for the site to work. With your permission we would also use anonymous analytics cookies to understand which pages are most visited. You can decline and continue using the site normally.",
+    "messageNecessaryOnly": "We use a small cookie to remember your language choice. It is required for the site to work and is not used to track you. You can decline and continue using the site normally.",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
   "error": {
     "title": "Something went wrong",
     "description": "An unexpected error occurred. Please try refreshing the page.",

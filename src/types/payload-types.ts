@@ -494,6 +494,14 @@ export interface News {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Optional. Link to the original article if this news was republished from another outlet (e.g. Vatican News). Shown as an attribution link on the article page.
+   */
+  sourceUrl?: string | null;
+  /**
+   * Optional label for the source, e.g. "Vatican News". Defaults to the link's domain.
+   */
+  sourceName?: string | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -1434,6 +1442,8 @@ export interface NewsSelect<T extends boolean = true> {
         tag?: T;
         id?: T;
       };
+  sourceUrl?: T;
+  sourceName?: T;
   seo?:
     | T
     | {
@@ -2161,6 +2171,18 @@ export interface Homepage {
     featuredMessage?: (number | null) | BishopMessage;
     sectionHeading?: string | null;
     sectionSubtext?: string | null;
+    /**
+     * Portrait of the Bishop, shown on the About page.
+     */
+    photo?: (number | null) | Media;
+    /**
+     * e.g. "Most Rev. Abune ..." — shown under the portrait.
+     */
+    bishopName?: string | null;
+    /**
+     * e.g. "Bishop of the Catholic Eparchy of Segeneyti".
+     */
+    bishopTitle?: string | null;
   };
   latestNews?: {
     enabled?: boolean | null;
@@ -2489,6 +2511,9 @@ export interface HomepageSelect<T extends boolean = true> {
         featuredMessage?: T;
         sectionHeading?: T;
         sectionSubtext?: T;
+        photo?: T;
+        bishopName?: T;
+        bishopTitle?: T;
       };
   latestNews?:
     | T

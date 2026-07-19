@@ -2,6 +2,7 @@ import * as migration_20260325_080247 from './20260325_080247';
 import * as migration_20260714_170125_media_access_level from './20260714_170125_media_access_level';
 import * as migration_20260715_042907_about_page_content from './20260715_042907_about_page_content';
 import * as migration_20260718_164616_bishop_profile_fields from './20260718_164616_bishop_profile_fields';
+import * as migration_20260719_051906_news_source_link from './20260719_051906_news_source_link';
 
 export const migrations = [
   {
@@ -22,6 +23,11 @@ export const migrations = [
   {
     up: migration_20260718_164616_bishop_profile_fields.up,
     down: migration_20260718_164616_bishop_profile_fields.down,
-    name: '20260718_164616_bishop_profile_fields'
+    name: '20260718_164616_bishop_profile_fields',
+  },
+  {
+    up: migration_20260719_051906_news_source_link.up,
+    down: migration_20260719_051906_news_source_link.down,
+    name: '20260719_051906_news_source_link'
   },
 ];
