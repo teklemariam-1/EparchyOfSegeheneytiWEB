@@ -58,16 +58,17 @@ export function ParishCard({ parish, className }: ParishCardProps) {
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-4">
-        <div className="mb-2">
-          <Badge
-            variant={VICARIATE_VARIANTS[parish.vicariate] ?? 'neutral'}
-            size="sm"
-          >
-            {parish.vicariateName
-              ? parish.vicariateName
-              : `${parish.vicariate.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Vicariate`}
-          </Badge>
-        </div>
+        {/* Omitted entirely when the parish has no vicariate, rather than
+            rendering an empty badge. */}
+        {(parish.vicariateName || parish.vicariate) && (
+          <div className="mb-2">
+            <Badge variant={VICARIATE_VARIANTS[parish.vicariate] ?? 'neutral'} size="sm">
+              {parish.vicariateName
+                ? parish.vicariateName
+                : `${parish.vicariate.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Vicariate`}
+            </Badge>
+          </div>
+        )}
 
         <h3 className="font-serif text-base font-semibold text-charcoal-900 leading-snug mb-1 group-hover:text-maroon-700 transition-colors">
           <Link href={`/parishes/${parish.slug}`} className="after:absolute after:inset-0">

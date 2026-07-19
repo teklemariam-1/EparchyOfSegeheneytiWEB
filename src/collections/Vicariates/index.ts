@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { APIError } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 import { slugFieldHook } from '../../lib/payload/slugField'
@@ -26,6 +27,24 @@ export const Vicariates: CollectionConfig = {
     delete: isChanceryOrAbove,
   },
   hooks: {
+    // Deleting a vicariate used to silently orphan its parishes: they kept a
+    // dangling reference, disappeared from every vicariate listing, and showed
+    // no vicariate on their own page. Refuse the delete and say what to fix.
+    beforeDelete: [
+      async ({ req, id }) => {
+        const { totalDocs } = await req.payload.count({
+          collection: 'parishes',
+          where: { vicariate: { equals: id } },
+        })
+        if (totalDocs > 0) {
+          throw new APIError(
+            `This vicariate still has ${totalDocs} parish${totalDocs === 1 ? '' : 'es'} assigned. ` +
+              `Move them to another vicariate first, then delete this one.`,
+            400,
+          )
+        }
+      },
+    ],
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('vicariates')
