@@ -8,17 +8,13 @@ import { Container } from '@/components/layout/Container'
 import { RichText } from '@/components/shared/RichText'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { getLocale } from 'next-intl/server'
-import {
-  getPopeMessageBySlug,
-  getAllPopeMessageSlugs,
-} from '@/lib/payload/queries'
+import { getPopeMessageBySlug } from '@/lib/payload/queries'
 
-export const revalidate = 600
-
-export async function generateStaticParams() {
-  const slugs = await getAllPopeMessageSlugs()
-  return slugs.map((s) => ({ slug: s.slug }))
-}
+// This page resolves the active locale from the NEXT_LOCALE cookie, so it can
+// never be statically generated. Marking it dynamic prevents Next from trying
+// to prerender it on-demand, which failed with DYNAMIC_SERVER_USAGE (500) for
+// any document created after the last deploy.
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({
   params,

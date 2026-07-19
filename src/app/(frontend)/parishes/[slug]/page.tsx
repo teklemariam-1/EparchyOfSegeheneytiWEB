@@ -11,7 +11,11 @@ import { RichText } from '@/components/shared/RichText'
 import { getLocale } from 'next-intl/server'
 import { getParishBySlug, getAllParishSlugs } from '@/lib/payload/queries'
 
-export const revalidate = 600
+// This page resolves the active locale from the NEXT_LOCALE cookie, so it can
+// never be statically generated. Marking it dynamic prevents Next from trying
+// to prerender it on-demand, which failed with DYNAMIC_SERVER_USAGE (500) for
+// any document created after the last deploy.
+export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -23,11 +27,6 @@ const VICARIATE_LABELS: Record<string, string> = {
   dekemhare: 'Dekemhare',
   'adi-ugri': 'Mendefera (Adi Ugri)',
   diaspora: 'Diaspora',
-}
-
-export async function generateStaticParams() {
-  const slugs = await getAllParishSlugs()
-  return slugs
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

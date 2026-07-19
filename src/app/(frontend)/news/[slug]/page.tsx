@@ -12,16 +12,16 @@ import { RichText } from '@/components/shared/RichText'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { articleSchema } from '@/lib/seo/structuredData'
 import { getLocale } from 'next-intl/server'
-import { getNewsBySlug, getNewsList, getAllNewsSlugs } from '@/lib/payload/queries'
+import { getNewsBySlug, getNewsList } from '@/lib/payload/queries'
 
-export const revalidate = 300
+// This page resolves the active locale from the NEXT_LOCALE cookie, so it can
+// never be statically generated. Marking it dynamic prevents Next from trying
+// to prerender it on-demand, which failed with DYNAMIC_SERVER_USAGE (500) for
+// any document created after the last deploy.
+export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ slug: string }>
-}
-
-export async function generateStaticParams() {
-  return getAllNewsSlugs()
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
