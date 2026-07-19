@@ -12,6 +12,7 @@ export function MobileMenu() {
     { label: t('home'), href: '/' },
     { label: t('about'), href: '/about' },
     { label: t('bishop'), href: '/about#bishop' },
+    { label: t('vicariates'), href: '/vicariates' },
     { label: t('parishes'), href: '/parishes' },
     { label: t('news'), href: '/news' },
     { label: t('events'), href: '/events' },

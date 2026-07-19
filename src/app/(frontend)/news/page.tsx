@@ -39,6 +39,7 @@ export default async function NewsPage({
   const t = await getTranslations('news')
 
   const { docs, meta } = await getNewsList({ limit: 12, category, page: currentPage, locale })
+  const isFiltered = Boolean(category && category !== 'all')
 
   const cards: NewsCardData[] = docs.map((item) => ({
     slug: item.slug,
@@ -69,12 +70,21 @@ export default async function NewsPage({
               title="No articles found"
               description="Check back soon for the latest news from the Eparchy."
             />
+          ) : isFiltered ? (
+            /* Filtered by category: show a plain list of every match. Promoting
+               one article to a "Featured" block here made the page look like it
+               was still showing the highlight rather than the filter results. */
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {cards.map((item) => (
+                <NewsCard key={item.slug} news={item} />
+              ))}
+            </div>
           ) : (
             <>
-              {/* Featured article */}
+              {/* Featured article — unfiltered listing only */}
               <div className="mb-8">
                 <p className="text-xs font-semibold uppercase tracking-widest text-maroon-600 mb-3">
-                  Featured
+                  {t('featured')}
                 </p>
                 <NewsCard news={cards[0]!} featured />
               </div>

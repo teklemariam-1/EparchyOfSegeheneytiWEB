@@ -8,7 +8,7 @@ import { ParishCard, type ParishCardData } from '@/features/parishes/ParishCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { FilterBar } from '@/components/shared/FilterBar'
 import { getLocale, getTranslations } from 'next-intl/server'
-import { getParishesList } from '@/lib/payload/queries'
+import { getParishesList, getVicariatesList } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,15 +18,6 @@ export const metadata: Metadata = buildMetadata({
   path: '/parishes',
 })
 
-const VICARIATES = [
-  { value: 'all', label: 'All Vicariates' },
-  { value: 'segeneyti', label: 'Segeneyti' },
-  { value: 'adi-keyih', label: 'Adi Keyih' },
-  { value: 'dekemhare', label: 'Dekemhare' },
-  { value: 'adi-ugri', label: 'Mendefera (Adi Ugri)' },
-  { value: 'diaspora', label: 'Diaspora' },
-]
-
 export default async function ParishesPage({
   searchParams,
 }: {
@@ -35,12 +26,23 @@ export default async function ParishesPage({
   const { vicariate } = await searchParams
   const locale = await getLocale()
   const t = await getTranslations('parishes')
-  const parishes = await getParishesList(100, vicariate, locale)
+  const [parishes, vicariates] = await Promise.all([
+    getParishesList(100, vicariate, locale),
+    getVicariatesList(locale),
+  ])
+
+  // Filter options come from the CMS now, so adding a vicariate in the admin
+  // makes it filterable here without a code change.
+  const VICARIATES = [
+    { value: 'all', label: t('allVicariates') },
+    ...vicariates.map((v) => ({ value: v.slug, label: v.name })),
+  ]
 
   const cards: ParishCardData[] = parishes.map((p) => ({
     slug: p.slug,
     name: p.title,
-    vicariate: p.vicariate ?? 'segeneyti',
+    vicariate: p.vicariate?.slug ?? '',
+    vicariateName: p.vicariate?.name,
     patronSaint: p.patronSaint,
     city: p.city,
     imageUrl: p.image?.url,

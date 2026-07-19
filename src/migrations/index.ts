@@ -5,6 +5,8 @@ import * as migration_20260718_164616_bishop_profile_fields from './20260718_164
 import * as migration_20260719_051906_news_source_link from './20260719_051906_news_source_link';
 import * as migration_20260719_115129_apps_collection from './20260719_115129_apps_collection';
 import * as migration_20260719_125120_news_import_fields from './20260719_125120_news_import_fields';
+import * as migration_20260719_145337_drop_parish_vicariate_enum from './20260719_145337_drop_parish_vicariate_enum';
+import * as migration_20260719_145726_vicariates_collection from './20260719_145726_vicariates_collection';
 
 export const migrations = [
   {
@@ -40,6 +42,16 @@ export const migrations = [
   {
     up: migration_20260719_125120_news_import_fields.up,
     down: migration_20260719_125120_news_import_fields.down,
-    name: '20260719_125120_news_import_fields'
+    name: '20260719_125120_news_import_fields',
+  },
+  {
+    up: migration_20260719_145337_drop_parish_vicariate_enum.up,
+    down: migration_20260719_145337_drop_parish_vicariate_enum.down,
+    name: '20260719_145337_drop_parish_vicariate_enum',
+  },
+  {
+    up: migration_20260719_145726_vicariates_collection.up,
+    down: migration_20260719_145726_vicariates_collection.down,
+    name: '20260719_145726_vicariates_collection'
   },
 ];

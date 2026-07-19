@@ -267,11 +267,26 @@ export async function getAllEventSlugs(): Promise<{ slug: string }[]> {
 
 // ─── Parishes ─────────────────────────────────────────────────────────────────
 
+/** Light reference to the parent vicariate (Eparchy → Vicariate → Parish). */
+export interface VicariateRef {
+  id: string
+  slug: string
+  name: string
+}
+
+/** Normalize a populated vicariate relationship into a light reference. */
+function vicariateRef(v: unknown): VicariateRef | null {
+  if (!v || typeof v !== 'object') return null
+  const d = v as Record<string, any>
+  if (!d.slug) return null
+  return { id: String(d.id), slug: d.slug, name: d.name ?? d.title ?? d.slug }
+}
+
 export interface ParishListItem {
   id: string
   slug: string
   title: string
-  vicariate?: string
+  vicariate?: VicariateRef | null
   patronSaint?: string
   city?: string
   pastor?: string | null
@@ -296,13 +311,14 @@ async function _getParishesList(
   try {
     const payload = await getPayload()
     const where: Record<string, unknown> = {}
-    if (vicariate && vicariate !== 'all') where.vicariate = { equals: vicariate }
+    // vicariate is a relationship now — filter on the related document's slug
+    if (vicariate && vicariate !== 'all') where['vicariate.slug'] = { equals: vicariate }
     const result = await payload.find({ collection: 'parishes', where, limit, depth: 1, ...(locale ? { locale } : {}) } as any)
     return (result.docs as any[]).map((d) => ({
       id: d.id,
       slug: d.slug,
       title: d.name ?? d.title,
-      vicariate: d.vicariate,
+      vicariate: vicariateRef(d.vicariate),
       patronSaint: d.patron,
       city: d.region,
       pastor: d.pastor?.fullName ?? null,
@@ -330,7 +346,7 @@ export async function getParishBySlug(slug: string, locale?: string): Promise<Pa
       id: d.id,
       slug: d.slug,
       title: d.name ?? d.title,
-      vicariate: d.vicariate,
+      vicariate: vicariateRef(d.vicariate),
       patronSaint: d.patron,
       city: d.region,
       pastor: d.pastor?.fullName ?? null,
@@ -1028,6 +1044,106 @@ export async function getAllPopeMessageSlugs(): Promise<{ slug: string }[]> {
   }
 }
 
+// ─── Vicariates ────────────────────────────────────────────────────────────────
+
+export interface VicariateItem {
+  id: string
+  slug: string
+  name: string
+  seat?: string
+  description?: string
+  featuredImage?: CMSImage | null
+  parishCount?: number
+}
+
+export interface VicariateDetail extends VicariateItem {
+  about?: unknown
+  vicar?: string | null
+  contact?: { phone?: string; email?: string; address?: string }
+}
+
+function mapVicariate(d: any): VicariateItem {
+  return {
+    id: String(d.id),
+    slug: d.slug,
+    name: d.name ?? d.title ?? d.slug,
+    seat: d.seat,
+    description: d.description,
+    featuredImage: imgOf(d.featuredImage),
+  }
+}
+
+async function _getVicariatesList(locale?: string): Promise<VicariateItem[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'vicariates',
+      sort: 'order',
+      limit: 100,
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)
+
+    // Count parishes per vicariate so the listing can show "N parishes".
+    const vicariates = (result.docs as any[]).map(mapVicariate)
+    await Promise.all(
+      vicariates.map(async (v) => {
+        try {
+          const c = await payload.count({
+            collection: 'parishes',
+            where: { 'vicariate.slug': { equals: v.slug } },
+          } as any)
+          v.parishCount = c.totalDocs
+        } catch {
+          v.parishCount = 0
+        }
+      }),
+    )
+    return vicariates
+  } catch {
+    return []
+  }
+}
+export const getVicariatesList = cachedQuery(_getVicariatesList, 'getVicariatesList', ['vicariates'])
+
+export async function getVicariateBySlug(
+  slug: string,
+  locale?: string,
+): Promise<VicariateDetail | null> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'vicariates',
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 2,
+      ...(locale ? { locale } : {}),
+    } as any)
+    const d = (result.docs as any[])[0]
+    if (!d) return null
+    return {
+      ...mapVicariate(d),
+      about: d.about,
+      vicar: d.vicar?.fullName ?? null,
+      contact: d.contact
+        ? { phone: d.contact.phone, email: d.contact.email, address: d.contact.address }
+        : undefined,
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function getAllVicariateSlugs(): Promise<{ slug: string }[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({ collection: 'vicariates', limit: 200, depth: 0 } as any)
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+  } catch {
+    return []
+  }
+}
+
 // ─── Apps & downloadable resources ─────────────────────────────────────────────
 
 export interface AppItem {
@@ -1165,7 +1281,7 @@ export async function globalSearch(
   }
   if (all || scope === 'parishes') {
     await run(
-      'parishes', 'parish', ['name'], ['region', 'vicariate'],
+      'parishes', 'parish', ['name'], ['region'],
       (d) => ({ type: 'parish', slug: d.slug, title: d.name ?? d.title, excerpt: d.region ? `${d.region}` : undefined }),
     )
   }

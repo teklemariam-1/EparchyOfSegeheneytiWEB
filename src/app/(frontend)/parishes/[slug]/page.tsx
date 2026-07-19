@@ -21,14 +21,6 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-const VICARIATE_LABELS: Record<string, string> = {
-  segeneyti: 'Segeneyti',
-  'adi-keyih': 'Adi Keyih',
-  dekemhare: 'Dekemhare',
-  'adi-ugri': 'Mendefera (Adi Ugri)',
-  diaspora: 'Diaspora',
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const parish = await getParishBySlug(slug)
@@ -46,7 +38,8 @@ export default async function ParishDetailPage({ params }: Props) {
   const parish = await getParishBySlug(slug, locale)
   if (!parish) notFound()
 
-  const vicariateLabel = VICARIATE_LABELS[parish.vicariate ?? ''] ?? parish.vicariate ?? ''
+  // Name comes from the related vicariate document now.
+  const vicariateLabel = parish.vicariate?.name ?? ''
 
   return (
     <>

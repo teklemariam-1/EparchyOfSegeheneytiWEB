@@ -25,6 +25,7 @@ interface Props {
 }
 
 /** Display label for a source link when no explicit name was given. */
+
 function hostnameOf(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, '')

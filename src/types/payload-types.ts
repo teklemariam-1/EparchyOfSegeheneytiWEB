@@ -72,6 +72,7 @@ export interface Config {
     pages: Page;
     news: News;
     events: Event;
+    vicariates: Vicariate;
     parishes: Parish;
     ministries: Ministry;
     priests: Priest;
@@ -99,6 +100,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
+    vicariates: VicariatesSelect<false> | VicariatesSelect<true>;
     parishes: ParishesSelect<false> | ParishesSelect<true>;
     ministries: MinistriesSelect<false> | MinistriesSelect<true>;
     priests: PriestsSelect<false> | PriestsSelect<true>;
@@ -215,7 +217,10 @@ export interface Parish {
   id: number;
   name: string;
   slug: string;
-  vicariate?: ('segeneyti' | 'adi-keyih' | 'dekemhare' | 'adi-ugri' | 'diaspora') | null;
+  /**
+   * The vicariate this parish belongs to (Eparchy → Vicariate → Parish).
+   */
+  vicariate?: (number | null) | Vicariate;
   region?: string | null;
   featuredImage?: (number | null) | Media;
   /**
@@ -285,6 +290,65 @@ export interface Parish {
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Vicariates of the Eparchy. Each parish belongs to one vicariate.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vicariates".
+ */
+export interface Vicariate {
+  id: number;
+  /**
+   * e.g. "Segeneyti Vicariate"
+   */
+  name: string;
+  slug: string;
+  /**
+   * Principal town or seat of the vicariate.
+   */
+  seat?: string | null;
+  /**
+   * Controls listing order (lowest first).
+   */
+  order?: number | null;
+  /**
+   * Banner image shown on the vicariate card and page.
+   */
+  featuredImage?: (number | null) | Media;
+  /**
+   * Short summary shown on the vicariate listing.
+   */
+  description?: string | null;
+  /**
+   * Longer description shown on the vicariate page.
+   */
+  about?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Priest serving as vicar for this vicariate.
+   */
+  vicar?: (number | null) | Priest;
+  contact?: {
+    phone?: string | null;
+    email?: string | null;
+    address?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -504,6 +568,15 @@ export interface News {
    * Optional label for the source, e.g. "Vatican News". Defaults to the link's domain.
    */
   sourceName?: string | null;
+  /**
+   * Set automatically when an article arrives from an external feed.
+   */
+  isImported?: boolean | null;
+  importedAt?: string | null;
+  /**
+   * Editorial triage for imported items. This does NOT publish the article — use Publish for that. Marking Rejected keeps a record so the item is never re-imported.
+   */
+  reviewStatus?: ('pending' | 'approved' | 'rejected') | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -1252,6 +1325,10 @@ export interface PayloadLockedDocument {
         value: number | Event;
       } | null)
     | ({
+        relationTo: 'vicariates';
+        value: number | Vicariate;
+      } | null)
+    | ({
         relationTo: 'parishes';
         value: number | Parish;
       } | null)
@@ -1498,6 +1575,9 @@ export interface NewsSelect<T extends boolean = true> {
       };
   sourceUrl?: T;
   sourceName?: T;
+  isImported?: T;
+  importedAt?: T;
+  reviewStatus?: T;
   seo?:
     | T
     | {
@@ -1544,6 +1624,29 @@ export interface EventsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vicariates_select".
+ */
+export interface VicariatesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  seat?: T;
+  order?: T;
+  featuredImage?: T;
+  description?: T;
+  about?: T;
+  vicar?: T;
+  contact?:
+    | T
+    | {
+        phone?: T;
+        email?: T;
+        address?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

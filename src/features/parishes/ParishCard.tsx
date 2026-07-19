@@ -14,7 +14,10 @@ const VICARIATE_VARIANTS: Record<string, 'maroon' | 'gold' | 'neutral' | 'green'
 export interface ParishCardData {
   slug: string
   name: string
+  /** Slug of the parent vicariate — drives the badge colour. */
   vicariate: string
+  /** Display name of the vicariate. Falls back to a prettified slug. */
+  vicariateName?: string
   patronSaint?: string
   city?: string
   imageUrl?: string
@@ -60,7 +63,9 @@ export function ParishCard({ parish, className }: ParishCardProps) {
             variant={VICARIATE_VARIANTS[parish.vicariate] ?? 'neutral'}
             size="sm"
           >
-            {parish.vicariate.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Vicariate
+            {parish.vicariateName
+              ? parish.vicariateName
+              : `${parish.vicariate.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Vicariate`}
           </Badge>
         </div>
 

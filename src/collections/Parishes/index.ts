@@ -45,15 +45,13 @@ export const Parishes: CollectionConfig = {
     },
     {
       name: 'vicariate',
-      type: 'select',
-      options: [
-        { label: 'Segeneyti', value: 'segeneyti' },
-        { label: 'Adi Keyih', value: 'adi-keyih' },
-        { label: 'Dekemhare', value: 'dekemhare' },
-        { label: 'Adi Ugri (Mendefera)', value: 'adi-ugri' },
-        { label: 'Diaspora', value: 'diaspora' },
-      ],
-      admin: { position: 'sidebar' },
+      type: 'relationship',
+      relationTo: 'vicariates',
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'The vicariate this parish belongs to (Eparchy → Vicariate → Parish).',
+      },
     },
     {
       name: 'region',

@@ -121,7 +121,8 @@ function makeParishDoc(overrides = {}) {
     id: 'p1',
     slug: 'segeneyti-cathedral',
     name: 'Segeneyti Cathedral',
-    vicariate: 'segeneyti',
+    // vicariate is a relationship now, populated at depth >= 1
+    vicariate: { id: 'v1', slug: 'segeneyti', name: 'Segeneyti Vicariate' },
     patron: 'St. Peter and St. Paul',
     region: 'Segeneyti',
     pastor: { fullName: 'Fr. Haile Tesfai' },
@@ -345,7 +346,7 @@ describe('getParishesList', () => {
     expect(result[0]).toMatchObject({
       slug: 'segeneyti-cathedral',
       pastor: 'Fr. Haile Tesfai',
-      vicariate: 'segeneyti',
+      vicariate: { id: 'v1', slug: 'segeneyti', name: 'Segeneyti Vicariate' },
     })
   })
 
@@ -357,7 +358,8 @@ describe('getParishesList', () => {
 
     expect(findMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ vicariate: { equals: 'adi-keyih' } }),
+        // filters on the related document's slug, not a plain column
+        where: expect.objectContaining({ 'vicariate.slug': { equals: 'adi-keyih' } }),
       }),
     )
   })

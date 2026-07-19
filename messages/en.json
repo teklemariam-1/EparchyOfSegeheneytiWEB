@@ -27,7 +27,8 @@
     "videos": "Videos",
     "contact": "Contact",
     "search": "Search",
-    "apps": "Apps & Downloads"
+    "apps": "Apps & Downloads",
+    "vicariates": "Vicariates"
   },
   "common": {
     "readMore": "Read More",
@@ -75,7 +76,8 @@
     "title": "News",
     "subtitle": "Stay informed with the latest from the Eparchy.",
     "noNews": "No news articles found.",
-    "filterByCategory": "Filter by category"
+    "filterByCategory": "Filter by category",
+    "featured": "Featured"
   },
   "events": {
     "title": "Events",
@@ -252,5 +254,25 @@
     "quickLinks": "Quick Links",
     "administration": "Administration",
     "cmsAdminPanel": "CMS Admin Panel"
+  },
+  "vicariates": {
+    "title": "Vicariates",
+    "subtitle": "The Eparchy is organised into vicariates, each serving a group of parishes.",
+    "structureNote": "The Eparchy of Segeneyti is organised in three levels: the Eparchy, led by the Bishop; the vicariates, each overseeing a district; and the parishes that serve local communities. Select a vicariate to see the parishes that belong to it.",
+    "empty": "No vicariates yet",
+    "emptyDescription": "Vicariates will appear here once added in the CMS.",
+    "seat": "Seat",
+    "parish": "parish",
+    "parishes": "parishes",
+    "viewParishes": "View parishes",
+    "contactHeading": "Vicariate office",
+    "vicar": "Vicar",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "parishesIn": "Parishes in {name}",
+    "noParishes": "No parishes yet",
+    "noParishesDescription": "Parishes assigned to this vicariate will appear here.",
+    "allVicariates": "All vicariates"
   }
 }

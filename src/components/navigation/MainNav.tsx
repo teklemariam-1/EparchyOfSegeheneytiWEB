@@ -28,6 +28,7 @@ export async function MainNav() {
         { label: t('history'), href: '/about#history' },
       ],
     },
+    { label: t('vicariates'), href: '/vicariates' },
     { label: t('parishes'), href: '/parishes' },
     { label: t('news'), href: '/news' },
     { label: t('events'), href: '/events' },

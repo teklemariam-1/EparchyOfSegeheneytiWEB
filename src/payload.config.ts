@@ -20,6 +20,7 @@ import { Events } from './collections/Events/index'
 import { Parishes } from './collections/Parishes/index'
 import { Ministries } from './collections/Ministries/index'
 import { Priests } from './collections/Priests/index'
+import { Vicariates } from './collections/Vicariates/index'
 import { PopeMessages } from './collections/PopeMessages/index'
 import { BishopMessages } from './collections/BishopMessages/index'
 import { Publications } from './collections/Publications/index'
@@ -92,6 +93,7 @@ export default buildConfig({
     Pages,
     News,
     Events,
+    Vicariates,
     Parishes,
     Ministries,
     Priests,
