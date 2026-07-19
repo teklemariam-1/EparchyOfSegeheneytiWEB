@@ -77,7 +77,7 @@ export default async function MinistriesPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h2 className="font-serif text-2xl font-bold text-charcoal-900">{meta.label}</h2>
-                      <Badge variant={meta.badge}>{items.length} active</Badge>
+                      <Badge variant={meta.badge}>{items.length} {t('active')}</Badge>
                     </div>
                   </div>
                 </div>
@@ -134,7 +134,7 @@ export default async function MinistriesPage() {
       {/* CTA */}
       <Section className="bg-maroon-800 text-white">
         <Container size="narrow" className="text-center">
-          <h2 className="text-2xl font-serif font-bold text-white mb-3">Get Involved</h2>
+          <h2 className="text-2xl font-serif font-bold text-white mb-3">{t('getInvolved')}</h2>
           <p className="text-maroon-200 mb-6">
             Interested in joining a ministry or starting one in your parish? Contact the Eparchy office.
           </p>

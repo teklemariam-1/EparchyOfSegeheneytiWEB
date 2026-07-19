@@ -50,7 +50,8 @@
     "next": "Next",
     "previous": "Previous",
     "page": "Page",
-    "of": "of"
+    "of": "of",
+    "downloadPDF": "Download PDF"
   },
   "a11y": {
     "skipToMain": "Skip to main content",
@@ -83,7 +84,8 @@
     "date": "Date",
     "location": "Location",
     "time": "Time",
-    "register": "Register"
+    "register": "Register",
+    "allDay": "All day"
   },
   "parishes": {
     "title": "Parishes",
@@ -96,7 +98,14 @@
     "phone": "Phone",
     "email": "Email",
     "website": "Website",
-    "getDirections": "Get Directions"
+    "getDirections": "Get Directions",
+    "patronSaint": "Patron Saint",
+    "massSchedule": "Mass Schedule",
+    "language": "Language",
+    "history": "History",
+    "photoGallery": "Photo Gallery",
+    "contact": "Contact",
+    "pastor": "Pastor"
   },
   "contact": {
     "title": "Contact Us",
@@ -141,7 +150,11 @@
     "subtitle": "Official documents, magazines, pastoral letters, and archival resources.",
     "noPublications": "No publications found.",
     "downloadPDF": "Download PDF",
-    "publishedOn": "Published on"
+    "publishedOn": "Published on",
+    "latestIssue": "Latest Issue",
+    "magazineArchive": "Magazine Archive",
+    "latest": "Latest",
+    "archivesHeading": "Archives"
   },
   "apps": {
     "title": "Apps & Downloads",
@@ -159,7 +172,9 @@
     "title": "Ministries",
     "subtitle": "Discover the various pastoral services and ministries of the Eparchy.",
     "noMinistries": "No ministries found.",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "getInvolved": "Get Involved",
+    "active": "active"
   },
   "bishopMessages": {
     "title": "Bishop's Messages",
@@ -177,7 +192,11 @@
     "subtitle": "The traditional Ge'ez (Ethiopic) liturgical calendar used by the Eparchy of Segeneyti.",
     "today": "Today",
     "month": "Month",
-    "year": "Year"
+    "year": "Year",
+    "currentMonth": "Current Month",
+    "fasting": "Fasting",
+    "allMonths": "All Months",
+    "noEntries": "No entries recorded"
   },
   "footer": {
     "tagline": "Serving God's people through faith, community, and mission since our founding.",
@@ -225,5 +244,13 @@
     "title": "Page Not Found",
     "description": "The page you are looking for does not exist or has been moved.",
     "goHome": "Return to Homepage"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "displayLanguage": "Display language",
+    "quickLinks": "Quick Links",
+    "administration": "Administration",
+    "cmsAdminPanel": "CMS Admin Panel"
   }
 }

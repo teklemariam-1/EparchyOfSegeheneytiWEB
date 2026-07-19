@@ -11,7 +11,7 @@ import { formatDate, formatDateRange } from '@/lib/formatters/date'
 import { RichText } from '@/components/shared/RichText'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { eventSchema } from '@/lib/seo/structuredData'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getEventBySlug,  getEventsList } from '@/lib/payload/queries'
 
 // This page resolves the active locale from the NEXT_LOCALE cookie, so it can
@@ -37,6 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params
   const locale = await getLocale()
+  const t = await getTranslations('events')
   const [ev, { docs: upcoming }] = await Promise.all([
     getEventBySlug(slug, locale),
     getEventsList({ upcoming: true, limit: 4, locale }),
@@ -103,7 +104,7 @@ export default async function EventDetailPage({ params }: Props) {
                 <div>
                   <div className="flex flex-wrap gap-2 mb-2">
                     <Badge variant="maroon">{typeLabel}</Badge>
-                    {ev.isAllDay && <Badge variant="gold">All day</Badge>}
+                    {ev.isAllDay && <Badge variant="gold">{t('allDay')}</Badge>}
                   </div>
                   <p className="text-sm font-medium text-charcoal-700">
                     📅 {dateLabel}

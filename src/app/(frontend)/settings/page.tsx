@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { Container } from '@/components/layout/Container'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { LanguageSwitcher } from '@/components/navigation/LanguageSwitcher'
@@ -13,6 +13,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default async function SettingsPage() {
   const locale = await getLocale()
+  const t = await getTranslations('settings')
 
   return (
     <>
@@ -29,14 +30,14 @@ export default async function SettingsPage() {
             {/* Language */}
             <div className="bg-white rounded-2xl shadow-card border border-charcoal-100 overflow-hidden">
               <div className="px-6 py-4 border-b border-charcoal-100 bg-maroon-50">
-                <h2 className="text-base font-semibold text-maroon-900 font-serif">Language</h2>
+                <h2 className="text-base font-semibold text-maroon-900 font-serif">{t('language')}</h2>
                 <p className="text-sm text-charcoal-500 mt-0.5">
                   Choose the language used for navigation and interface labels.
                 </p>
               </div>
               <div className="px-6 py-5 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-charcoal-700">Display language</p>
+                  <p className="text-sm font-medium text-charcoal-700">{t('displayLanguage')}</p>
                   <p className="text-xs text-charcoal-400 mt-0.5">
                     Content language is set per article by our editors.
                   </p>
@@ -48,7 +49,7 @@ export default async function SettingsPage() {
             {/* Quick links */}
             <div className="bg-white rounded-2xl shadow-card border border-charcoal-100 overflow-hidden">
               <div className="px-6 py-4 border-b border-charcoal-100 bg-maroon-50">
-                <h2 className="text-base font-semibold text-maroon-900 font-serif">Quick Links</h2>
+                <h2 className="text-base font-semibold text-maroon-900 font-serif">{t('quickLinks')}</h2>
               </div>
               <ul className="divide-y divide-charcoal-100">
                 {[
@@ -86,11 +87,11 @@ export default async function SettingsPage() {
             {/* Admin */}
             <div className="bg-white rounded-2xl shadow-card border border-charcoal-100 overflow-hidden">
               <div className="px-6 py-4 border-b border-charcoal-100 bg-maroon-50">
-                <h2 className="text-base font-semibold text-maroon-900 font-serif">Administration</h2>
+                <h2 className="text-base font-semibold text-maroon-900 font-serif">{t('administration')}</h2>
               </div>
               <div className="px-6 py-5 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-charcoal-700">CMS Admin Panel</p>
+                  <p className="text-sm font-medium text-charcoal-700">{t('cmsAdminPanel')}</p>
                   <p className="text-xs text-charcoal-400 mt-0.5">
                     Manage content, users, and site settings (editors only).
                   </p>

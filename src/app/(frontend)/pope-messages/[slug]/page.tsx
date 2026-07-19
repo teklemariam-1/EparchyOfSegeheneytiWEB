@@ -7,7 +7,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { RichText } from '@/components/shared/RichText'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getPopeMessageBySlug } from '@/lib/payload/queries'
 
 // This page resolves the active locale from the NEXT_LOCALE cookie, so it can
@@ -59,6 +59,7 @@ export default async function PopeMessageDetailPage({
 }) {
   const { slug } = await params
   const locale = await getLocale()
+  const t = await getTranslations('common')
   const msg = await getPopeMessageBySlug(slug, locale)
   if (!msg) notFound()
 
@@ -127,7 +128,7 @@ export default async function PopeMessageDetailPage({
           {msg.pdfUrl && (
             <div className="mt-8 rounded-xl border border-gold-200 bg-gold-50 px-6 py-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-charcoal-900">Download PDF</p>
+                <p className="text-sm font-semibold text-charcoal-900">{t('downloadPDF')}</p>
                 <p className="text-xs text-charcoal-500">Full text of this document as a PDF.</p>
               </div>
               <a

@@ -114,7 +114,7 @@ export default async function GeezCalendarPage() {
                     {GEEZ_MONTH_LABELS[currentMonthKey].ti}
                   </span>
                 </h2>
-                <Badge variant="maroon" size="sm">Current Month</Badge>
+                <Badge variant="maroon" size="sm">{t('currentMonth')}</Badge>
               </div>
 
               {currentMonthEntries.length > 0 ? (
@@ -135,7 +135,7 @@ export default async function GeezCalendarPage() {
                           <div className="flex flex-wrap items-center gap-2 mb-1">
                             <p className="font-semibold text-sm">{entry.title}</p>
                             <Badge variant={rankMeta.variant} size="sm">{rankMeta.label}</Badge>
-                            {entry.fastingNotes && <Badge variant="red" size="sm">Fasting</Badge>}
+                            {entry.fastingNotes && <Badge variant="red" size="sm">{t('fasting')}</Badge>}
                           </div>
                           {entry.liturgicalColor && (
                             <div className="flex items-center gap-1.5">
@@ -160,7 +160,7 @@ export default async function GeezCalendarPage() {
           {/* Full year overview */}
           <Section className="bg-white">
             <Container>
-              <h2 className="text-2xl font-serif font-bold text-charcoal-900 mb-2">All Months</h2>
+              <h2 className="text-2xl font-serif font-bold text-charcoal-900 mb-2">{t('allMonths')}</h2>
               <div className="mt-2 h-1 w-14 rounded-full bg-gold-400 mb-8" />
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -189,7 +189,7 @@ export default async function GeezCalendarPage() {
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-xs text-charcoal-400 italic">No entries recorded</p>
+                        <p className="text-xs text-charcoal-400 italic">{t('noEntries')}</p>
                       )}
                     </div>
                   )

@@ -75,7 +75,7 @@ export default async function PublicationsPage() {
               </div>
               {/* Info */}
               <div className="flex-1 text-center md:text-left">
-                <Badge variant="gold" size="sm">Latest Issue</Badge>
+                <Badge variant="gold" size="sm">{t('latestIssue')}</Badge>
                 <h2 className="mt-2 text-2xl font-serif font-bold text-white">
                   {featured.title}{featured.volume != null && featured.issue != null && ` — Vol. ${featured.volume}, No. ${featured.issue}`}
                 </h2>
@@ -96,7 +96,7 @@ export default async function PublicationsPage() {
       {/* Magazine archive */}
       <Section id="magazines" className="bg-white">
         <Container>
-          <h2 className="text-xl font-serif font-bold text-charcoal-900 mb-6">Magazine Archive</h2>
+          <h2 className="text-xl font-serif font-bold text-charcoal-900 mb-6">{t('magazineArchive')}</h2>
           {magazines.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {magazines.map((mag) => (
@@ -124,7 +124,7 @@ export default async function PublicationsPage() {
                   <div className="p-4 flex flex-col flex-1">
                     <div className="flex items-center justify-between mb-2">
                       {mag.year && <Badge variant="maroon" size="sm">{mag.year}</Badge>}
-                      {mag.isFeatured && <Badge variant="gold" size="sm">Latest</Badge>}
+                      {mag.isFeatured && <Badge variant="gold" size="sm">{t('latest')}</Badge>}
                     </div>
                     {mag.summary && (
                       <p className="text-xs text-charcoal-500 line-clamp-3 flex-1">{mag.summary}</p>
@@ -201,7 +201,7 @@ export default async function PublicationsPage() {
       {/* Archives */}
       <Section id="archives" className="bg-white">
         <Container>
-          <h2 className="text-xl font-serif font-bold text-charcoal-900 mb-2">Archives</h2>
+          <h2 className="text-xl font-serif font-bold text-charcoal-900 mb-2">{t('archivesHeading')}</h2>
           <p className="text-sm text-charcoal-500 mb-6">
             Historical documents of the Eparchy. Restricted items require authorised access.
           </p>

@@ -8,7 +8,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { RichText } from '@/components/shared/RichText'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getParishBySlug, getAllParishSlugs } from '@/lib/payload/queries'
 
 // This page resolves the active locale from the NEXT_LOCALE cookie, so it can
@@ -42,6 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ParishDetailPage({ params }: Props) {
   const { slug } = await params
   const locale = await getLocale()
+  const t = await getTranslations('parishes')
   const parish = await getParishBySlug(slug, locale)
   if (!parish) notFound()
 
@@ -63,7 +64,7 @@ export default async function ParishDetailPage({ params }: Props) {
               {/* Patron saint */}
               {parish.patronSaint && (
                 <div>
-                  <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">Patron Saint</h2>
+                  <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">{t('patronSaint')}</h2>
                   <div className="flex items-start gap-4 rounded-xl bg-parchment-50 border border-parchment-200 p-5">
                     <span className="text-3xl" aria-hidden="true">✝</span>
                     <div>
@@ -92,14 +93,14 @@ export default async function ParishDetailPage({ params }: Props) {
               {/* Mass times */}
               {parish.massTimes && parish.massTimes.length > 0 && (
                 <div>
-                  <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">Mass Schedule</h2>
+                  <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">{t('massSchedule')}</h2>
                   <div className="overflow-hidden rounded-xl border border-charcoal-100">
                     <table className="w-full text-sm">
                       <thead className="bg-maroon-800 text-white">
                         <tr>
                           <th className="text-left px-4 py-3 font-medium">Day</th>
                           <th className="text-left px-4 py-3 font-medium">Time</th>
-                          <th className="text-left px-4 py-3 font-medium">Language</th>
+                          <th className="text-left px-4 py-3 font-medium">{t('language')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-charcoal-100">
@@ -121,7 +122,7 @@ export default async function ParishDetailPage({ params }: Props) {
               {/* History */}
               {parish.history != null ? (
                 <div>
-                  <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">History</h2>
+                  <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">{t('history')}</h2>
                   <RichText data={parish.history} />
                 </div>
               ) : null}
@@ -129,7 +130,7 @@ export default async function ParishDetailPage({ params }: Props) {
               {/* Photo gallery */}
               {parish.gallery && parish.gallery.length > 0 && (
                 <div>
-                  <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">Photo Gallery</h2>
+                  <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">{t('photoGallery')}</h2>
                   <div className="grid grid-cols-3 gap-2">
                     {parish.gallery.map((g, i) => (
                       <div key={i} className="relative aspect-square rounded-lg overflow-hidden">
@@ -151,7 +152,7 @@ export default async function ParishDetailPage({ params }: Props) {
             <aside className="space-y-6">
               {/* Contact */}
               <div className="card p-5 space-y-3">
-                <h3 className="font-serif text-base font-semibold text-charcoal-900">Contact</h3>
+                <h3 className="font-serif text-base font-semibold text-charcoal-900">{t('contact')}</h3>
                 {parish.address && (
                   <p className="text-sm text-charcoal-600 flex items-start gap-2">
                     <svg className="h-4 w-4 mt-0.5 shrink-0 text-maroon-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -185,7 +186,7 @@ export default async function ParishDetailPage({ params }: Props) {
               {/* Pastor */}
               {parish.pastor && (
                 <div className="card p-5">
-                  <h3 className="font-serif text-base font-semibold text-charcoal-900 mb-3">Pastor</h3>
+                  <h3 className="font-serif text-base font-semibold text-charcoal-900 mb-3">{t('pastor')}</h3>
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-maroon-100 flex items-center justify-center shrink-0">
                       <svg className="h-5 w-5 text-maroon-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

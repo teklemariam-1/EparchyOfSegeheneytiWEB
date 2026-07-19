@@ -50,7 +50,8 @@
     "next": "ቀጺሉ",
     "previous": "ቐዲሙ",
     "page": "ገጽ",
-    "of": "ካብ"
+    "of": "ካብ",
+    "downloadPDF": "PDF ኣውርድ"
   },
   "a11y": {
     "skipToMain": "ናብ ቀንዲ ትሕዝቶ ስዓር",
@@ -83,7 +84,8 @@
     "date": "ዕለት",
     "location": "ቦታ",
     "time": "ሰዓት",
-    "register": "ምዝገባ"
+    "register": "ምዝገባ",
+    "allDay": "ምሉእ መዓልቲ"
   },
   "parishes": {
     "title": "ሰበካት",
@@ -96,7 +98,14 @@
     "phone": "ተሌፎን",
     "email": "ኢ-ሜይል",
     "website": "ዌብ ሳይት",
-    "getDirections": "ኣንፈት ርኸብ"
+    "getDirections": "ኣንፈት ርኸብ",
+    "patronSaint": "ቅዱስ ጠበቓ",
+    "massSchedule": "መደብ ቅዳሴ",
+    "language": "ቋንቋ",
+    "history": "ታሪኽ",
+    "photoGallery": "ፎቶ ማሕደር",
+    "contact": "ርክብ",
+    "pastor": "ሓላፊ ሰበካ"
   },
   "contact": {
     "title": "ርኸቡና",
@@ -141,7 +150,11 @@
     "subtitle": "ናይ ቤ/ክርስቲያን ሰነዳት፣ መፅሔታት፣ ናይ ሰበካ ደብዳቤታትን ቀዳሞ ዜናዊ ሓበሬታ።",
     "noPublications": "ዝርከብ ህታሞ የለን።",
     "downloadPDF": "PDF ኣውርድ",
-    "publishedOn": "ዝተሓትመሉ"
+    "publishedOn": "ዝተሓትመሉ",
+    "latestIssue": "ናይ መወዳእታ ሕታም",
+    "magazineArchive": "ማሕደር መጽሔት",
+    "latest": "ሓዲሽ",
+    "archivesHeading": "ማሕደራት"
   },
   "apps": {
     "title": "ኣፕሊኬሽናትን ዳውንሎዳትን",
@@ -159,7 +172,9 @@
     "title": "ኣገልግሎታት",
     "subtitle": "ናይቲ ኤፓርኪ ዝተፈላለዩ ናይ ሰበካ ኣገልግሎታት ፍለጥ።",
     "noMinistries": "ዝርከብ ኣገልዎሎ የለን።",
-    "learnMore": "ዝያዳ ፍለጥ"
+    "learnMore": "ዝያዳ ፍለጥ",
+    "getInvolved": "ተሳተፉ",
+    "active": "ንጡፍ"
   },
   "bishopMessages": {
     "title": "መልእኽቲ ጳጳስ",
@@ -177,7 +192,11 @@
     "subtitle": "ኤፓርኪ ሰገነይቲ ዝጥቀመሉ ናይ ግዕዝ (ኢትዮጵያዊ) ናይ ሃይማኖት ዕለት ቈጸራ።",
     "today": "ሎሚ",
     "month": "ወርሒ",
-    "year": "ዓመት"
+    "year": "ዓመት",
+    "currentMonth": "ህሉው ወርሒ",
+    "fasting": "ጾም",
+    "allMonths": "ኩሎም ኣዋርሕ",
+    "noEntries": "ዝተመዝገበ የለን"
   },
   "footer": {
     "tagline": "ካብ ምምስራቱ ጀሚሩ ንሕዝቢ ኣምላኽ ብእምነት፣ ሕብረተሰብን ተልእኾን ኣገልጊሉ።",
@@ -225,5 +244,13 @@
     "title": "ገጽ ኣይተረኽበን",
     "description": "እቲ ትደሊ ዘሎኻ ገጽ የለን ወይ ተቐይሩ ኣሎ።",
     "goHome": "ናብ መእተዊ ገጽ ተመለስ"
+  },
+  "settings": {
+    "title": "ቅንብራት",
+    "language": "ቋንቋ",
+    "displayLanguage": "ናይ ምርኢት ቋንቋ",
+    "quickLinks": "ቅልጡፍ መላግቦታት",
+    "administration": "ምምሕዳር",
+    "cmsAdminPanel": "ናይ CMS መቆጻጸሪ"
   }
 }
