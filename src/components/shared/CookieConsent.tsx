@@ -77,7 +77,13 @@ export function CookieConsent({ ga4Id, gtmId }: { ga4Id?: string; gtmId?: string
               {t('title')}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-charcoal-600">
-              {hasAnalytics ? t('message') : t('messageNecessaryOnly')}
+              {hasAnalytics ? t('message') : t('messageNecessaryOnly')}{' '}
+              <a
+                href="/privacy"
+                className="font-medium text-maroon-700 underline underline-offset-2 hover:text-maroon-900"
+              >
+                {t('learnMore')}
+              </a>
             </p>
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">

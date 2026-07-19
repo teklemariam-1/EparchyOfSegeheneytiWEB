@@ -150,6 +150,10 @@ export async function SiteFooter() {
             <Link href="/search" className="hover:text-charcoal-300 transition-colors">
               Search
             </Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/privacy" className="hover:text-charcoal-300 transition-colors">
+              {t('privacyPolicy')}
+            </Link>
           </div>
         </div>
       </div>

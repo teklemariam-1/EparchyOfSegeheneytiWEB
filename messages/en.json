@@ -177,12 +177,30 @@
     "title": "About the Eparchy",
     "subtitle": "Learn about the history, mission, and structure of the Catholic Eparchy of Segeneyti."
   },
+  "privacy": {
+    "title": "Privacy & Cookies",
+    "subtitle": "How this website uses cookies and handles the information you send us.",
+    "intro": "This website is operated by the Catholic Eparchy of Segeneyti. We collect as little information as possible, and we never sell or share your information with third parties for advertising.",
+    "cookiesHeading": "Cookies we use",
+    "cookiesBody": "We use a cookie named NEXT_LOCALE to remember whether you are reading the site in English or Tigrinya, and a cookie named cookie-consent to remember your answer to the cookie banner so we do not ask again. Both are strictly necessary for the site to work as you expect and are not used to track you. If you sign in to the administration area, a session cookie is also set to keep you signed in.",
+    "formHeading": "The contact form",
+    "formBody": "If you write to us using the contact form, we store the name, email address, subject and message you provide — and your phone number if you choose to give one — so that the Chancery office can read and reply to you. This information is kept in our content management system and is visible only to authorised staff of the Eparchy. It is not used for any other purpose.",
+    "analyticsHeading": "Analytics",
+    "analyticsBody": "If analytics are enabled, we use Google Analytics to understand which pages are visited most, so we can improve the site. These cookies are only loaded if you press Accept on the cookie banner. If you press Decline, no analytics script is loaded at all.",
+    "errorsHeading": "Error monitoring",
+    "errorsBody": "We use an error monitoring service to be told when a page fails, so we can fix it. It records technical details about the error, such as the page address and the type of failure. We have configured it to strip cookies and authentication details from these reports.",
+    "choicesHeading": "Your choices",
+    "choicesBody": "You may decline analytics cookies at any time and continue using the whole site normally. You can also delete cookies for this site in your browser settings at any time; if you do, the cookie banner will simply appear again on your next visit.",
+    "contactHeading": "Contact us",
+    "contactBody": "If you have any question about this page, or would like us to delete a message you sent through the contact form, please contact the Chancery office using the details on our contact page."
+  },
   "cookies": {
     "title": "Cookies on this site",
     "message": "We use a small cookie to remember your language choice, which is required for the site to work. With your permission we would also use anonymous analytics cookies to understand which pages are most visited. You can decline and continue using the site normally.",
     "messageNecessaryOnly": "We use a small cookie to remember your language choice. It is required for the site to work and is not used to track you. You can decline and continue using the site normally.",
     "accept": "Accept",
-    "decline": "Decline"
+    "decline": "Decline",
+    "learnMore": "Learn more"
   },
   "error": {
     "title": "Something went wrong",
