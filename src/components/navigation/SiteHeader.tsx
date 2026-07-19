@@ -19,7 +19,7 @@ export async function SiteHeader() {
     getLocale(),
   ])
 
-  const logoLight = settings.logoLight?.url
+  const logoUrl = settings.logo?.url ?? settings.logoDark?.url
   const announcement = header.announcement
 
   return (
@@ -49,8 +49,15 @@ export async function SiteHeader() {
             href="/"
             className="flex items-center gap-3 shrink-0 focus-visible:ring-2 focus-visible:ring-maroon-700 rounded-lg"
           >
-            {logoLight ? (
-              <Image src={logoLight} alt={settings.siteName ?? 'Eparchy of Segeneyti'} width={40} height={40} className="h-10 w-auto" />
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={settings.siteName ?? 'Eparchy of Segeneyti'}
+                width={160}
+                height={40}
+                className="h-10 w-auto object-contain"
+                priority
+              />
             ) : (
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-maroon-800">
                 <span className="text-white text-xs font-bold leading-none">✝</span>

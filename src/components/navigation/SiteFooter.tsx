@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
-import { getFooterGlobal } from '@/lib/payload/queries'
+import { getFooterGlobal, getSiteSettings } from '@/lib/payload/queries'
 
 const DEFAULT_FOOTER_COLUMNS = [
   {
@@ -54,7 +55,11 @@ const SOCIAL_ICONS: Record<SocialKey, { label: string; letter: string }> = {
 }
 
 export async function SiteFooter() {
-  const footer = await getFooterGlobal()
+  const [footer, settings] = await Promise.all([getFooterGlobal(), getSiteSettings()])
+  // The footer sits on a dark maroon panel, so prefer the light-on-dark variant
+  // when one is uploaded and fall back to the main logo.
+  const logoUrl = settings.logoDark?.url ?? settings.logo?.url
+  const siteName = settings.siteName ?? 'Eparchy of Segeneyti'
   const year = new Date().getFullYear()
   const t = await getTranslations('footer')
 
@@ -70,12 +75,22 @@ export async function SiteFooter() {
           {/* Brand column */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-maroon-800 border border-maroon-700">
-                <span className="text-gold-400 text-sm">✝</span>
-              </div>
+              {logoUrl ? (
+                <Image
+                  src={logoUrl}
+                  alt={siteName}
+                  width={160}
+                  height={40}
+                  className="h-10 w-auto object-contain"
+                />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-maroon-800 border border-maroon-700">
+                  <span className="text-gold-400 text-sm">✝</span>
+                </div>
+              )}
               <div>
                 <p className="text-sm font-bold text-white font-serif leading-tight">
-                  Eparchy of Segeneyti
+                  {siteName}
                 </p>
                 <p className="text-xs text-charcoal-400 leading-tight">Eritrea</p>
               </div>

@@ -8,7 +8,7 @@ export const PopeMessages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Magisterium',
-    defaultColumns: ['title', 'documentType', 'publishedAt', 'status'],
+    defaultColumns: ['_status', 'title', 'documentType', 'publishedAt'],
     description: 'Papal encyclicals, apostolic exhortations, and messages from the Holy Father.',
   },
   access: {
@@ -41,17 +41,6 @@ export const PopeMessages: CollectionConfig = {
       unique: true,
       index: true,
       hooks: { beforeValidate: [slugFieldHook()] },
-      admin: { position: 'sidebar' },
-    },
-    {
-      name: 'status',
-      type: 'select',
-      required: true,
-      defaultValue: 'draft',
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Published', value: 'published' },
-      ],
       admin: { position: 'sidebar' },
     },
     {

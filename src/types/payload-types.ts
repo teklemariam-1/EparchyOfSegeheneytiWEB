@@ -484,7 +484,6 @@ export interface Page {
    * URL path segment (e.g. "about", "history").
    */
   slug: string;
-  status: 'draft' | 'published';
   heroImage?: (number | null) | Media;
   hero?: {
     heading?: string | null;
@@ -529,7 +528,6 @@ export interface News {
    * Auto-generated from the title if left blank. Used in the URL.
    */
   slug: string;
-  status: 'draft' | 'published';
   publishedAt?: string | null;
   category?: ('eparchy' | 'vatican' | 'pastoral' | 'community' | 'social' | 'announcement') | null;
   featuredImage?: (number | null) | Media;
@@ -596,7 +594,10 @@ export interface Event {
   id: number;
   title: string;
   slug: string;
-  status: 'draft' | 'published' | 'cancelled';
+  /**
+   * Mark this event as cancelled.
+   */
+  isCancelled?: boolean | null;
   eventType?:
     | ('liturgical' | 'feast' | 'youth' | 'community' | 'education' | 'social' | 'pilgrimage' | 'conference' | 'other')
     | null;
@@ -784,7 +785,6 @@ export interface PopeMessage {
   id: number;
   title: string;
   slug: string;
-  status: 'draft' | 'published';
   publishedAt?: string | null;
   documentType?:
     | (
@@ -844,7 +844,6 @@ export interface BishopMessage {
   id: number;
   title: string;
   slug: string;
-  status: 'draft' | 'published';
   publishedAt?: string | null;
   messageType?:
     | ('pastoral-letter' | 'homily' | 'encyclical-response' | 'christmas' | 'easter' | 'extraordinary' | 'general')
@@ -1530,7 +1529,6 @@ export interface MediaSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  status?: T;
   heroImage?: T;
   hero?:
     | T
@@ -1559,7 +1557,6 @@ export interface PagesSelect<T extends boolean = true> {
 export interface NewsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  status?: T;
   publishedAt?: T;
   category?: T;
   featuredImage?: T;
@@ -1596,7 +1593,7 @@ export interface NewsSelect<T extends boolean = true> {
 export interface EventsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  status?: T;
+  isCancelled?: T;
   eventType?: T;
   featuredImage?: T;
   excerpt?: T;
@@ -1771,7 +1768,6 @@ export interface PriestsSelect<T extends boolean = true> {
 export interface PopeMessagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  status?: T;
   publishedAt?: T;
   documentType?: T;
   featuredImage?: T;
@@ -1796,7 +1792,6 @@ export interface PopeMessagesSelect<T extends boolean = true> {
 export interface BishopMessagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  status?: T;
   publishedAt?: T;
   messageType?: T;
   featuredImage?: T;

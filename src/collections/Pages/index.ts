@@ -8,7 +8,7 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Content',
-    defaultColumns: ['title', 'slug', 'status', 'updatedAt'],
+    defaultColumns: ['_status', 'title', 'slug', 'updatedAt'],
     description: 'Static informational pages (About, History, Contact, etc.).',
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/${(doc as any).slug}`,
   },
@@ -45,17 +45,6 @@ export const Pages: CollectionConfig = {
         position: 'sidebar',
         description: 'URL path segment (e.g. "about", "history").',
       },
-    },
-    {
-      name: 'status',
-      type: 'select',
-      required: true,
-      defaultValue: 'draft',
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Published', value: 'published' },
-      ],
-      admin: { position: 'sidebar' },
     },
     {
       name: 'heroImage',

@@ -8,7 +8,7 @@ export const Events: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Content',
-    defaultColumns: ['title', 'startDate', 'endDate', 'parish', 'status'],
+    defaultColumns: ['_status', 'title', 'startDate', 'endDate', 'parish'],
     description: 'Eparchy-wide and parish-level events.',
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/events/${(doc as any).slug}`,
   },
@@ -46,16 +46,15 @@ export const Events: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
-      name: 'status',
-      type: 'select',
-      required: true,
-      defaultValue: 'draft',
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Published', value: 'published' },
-        { label: 'Cancelled', value: 'cancelled' },
-      ],
-      admin: { position: 'sidebar' },
+      // Publish state lives in Payload's own `_status` (drafts are enabled).
+      // Cancellation is a separate idea — a cancelled event is still published,
+      // it just isn't happening — so it gets its own flag rather than being a
+      // third option on a select that also meant draft/published.
+      name: 'isCancelled',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Cancelled',
+      admin: { position: 'sidebar', description: 'Mark this event as cancelled.' },
     },
     {
       name: 'eventType',

@@ -8,7 +8,7 @@ export const News: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Content',
-    defaultColumns: ['title', 'slug', 'category', 'publishedAt', 'status'],
+    defaultColumns: ['_status', 'title', 'slug', 'category', 'publishedAt'],
     description: 'Eparchy news articles and announcements.',
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/news/${(doc as any).slug}`,
   },
@@ -47,17 +47,6 @@ export const News: CollectionConfig = {
         position: 'sidebar',
         description: 'Auto-generated from the title if left blank. Used in the URL.',
       },
-    },
-    {
-      name: 'status',
-      type: 'select',
-      required: true,
-      defaultValue: 'draft',
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Published', value: 'published' },
-      ],
-      admin: { position: 'sidebar' },
     },
     {
       name: 'publishedAt',

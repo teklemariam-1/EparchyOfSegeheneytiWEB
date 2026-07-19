@@ -789,8 +789,10 @@ export interface OfficeContact {
 export interface SiteSettingsGlobal {
   siteName?: string
   tagline?: string
+  // Must match the SiteSettings global's field names. `logoLight` never existed,
+  // so the uploaded logo was silently ignored and the placeholder mark shown.
+  logo?: CMSImage | null
   logoDark?: CMSImage | null
-  logoLight?: CMSImage | null
   contact?: {
     address?: string
     city?: string

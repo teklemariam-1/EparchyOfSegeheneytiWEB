@@ -50,3 +50,6 @@ scripts/deploy_log.txt
 /media/
 
 .env.prod.pulled
+
+# Claude Code personal settings (permissions allowlist)
+.claude/settings.local.json
