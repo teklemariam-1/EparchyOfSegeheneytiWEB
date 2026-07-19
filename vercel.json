@@ -2,8 +2,15 @@
   "buildCommand": "npm run vercel-build",
   "installCommand": "npm ci",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "crons": [],
+  "regions": [
+    "iad1"
+  ],
+  "crons": [
+    {
+      "path": "/api/ingest/vatican-news?feed=all&limit=15",
+      "schedule": "0 6 * * *"
+    }
+  ],
   "git": {
     "deploymentEnabled": {
       "main": false

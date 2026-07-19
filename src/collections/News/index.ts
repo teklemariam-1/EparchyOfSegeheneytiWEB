@@ -143,6 +143,41 @@ export const News: CollectionConfig = {
       },
     },
     {
+      name: 'isImported',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Set automatically when an article arrives from an external feed.',
+      },
+    },
+    {
+      name: 'importedAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        condition: (data) => Boolean(data?.isImported),
+      },
+    },
+    {
+      name: 'reviewStatus',
+      type: 'select',
+      defaultValue: 'pending',
+      options: [
+        { label: 'Pending review', value: 'pending' },
+        { label: 'Approved', value: 'approved' },
+        { label: 'Rejected', value: 'rejected' },
+      ],
+      admin: {
+        position: 'sidebar',
+        condition: (data) => Boolean(data?.isImported),
+        description:
+          'Editorial triage for imported items. This does NOT publish the article — use Publish for that. Marking Rejected keeps a record so the item is never re-imported.',
+      },
+    },
+    {
       name: 'seo',
       type: 'group',
       label: 'SEO',

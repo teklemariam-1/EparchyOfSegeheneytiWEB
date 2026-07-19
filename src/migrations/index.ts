@@ -4,6 +4,7 @@ import * as migration_20260715_042907_about_page_content from './20260715_042907
 import * as migration_20260718_164616_bishop_profile_fields from './20260718_164616_bishop_profile_fields';
 import * as migration_20260719_051906_news_source_link from './20260719_051906_news_source_link';
 import * as migration_20260719_115129_apps_collection from './20260719_115129_apps_collection';
+import * as migration_20260719_125120_news_import_fields from './20260719_125120_news_import_fields';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260719_115129_apps_collection.up,
     down: migration_20260719_115129_apps_collection.down,
-    name: '20260719_115129_apps_collection'
+    name: '20260719_115129_apps_collection',
+  },
+  {
+    up: migration_20260719_125120_news_import_fields.up,
+    down: migration_20260719_125120_news_import_fields.down,
+    name: '20260719_125120_news_import_fields'
   },
 ];
