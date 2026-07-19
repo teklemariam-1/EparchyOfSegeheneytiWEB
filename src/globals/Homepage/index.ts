@@ -40,6 +40,60 @@ export const Homepage: GlobalConfig = {
           relationTo: 'media',
         },
         {
+          name: 'overlay',
+          type: 'group',
+          label: 'Background Overlay',
+          admin: {
+            description:
+              'Tint applied over the hero image so the text stays readable. Lower the opacity to show more of the photo.',
+          },
+          fields: [
+            {
+              name: 'color',
+              type: 'select',
+              defaultValue: 'maroon',
+              options: [
+                { label: 'Maroon (brand)', value: 'maroon' },
+                { label: 'Charcoal / near-black', value: 'charcoal' },
+                { label: 'Deep green', value: 'green' },
+                { label: 'Navy', value: 'navy' },
+                { label: 'Gold', value: 'gold' },
+                { label: 'Custom colour…', value: 'custom' },
+                { label: 'None (no tint)', value: 'none' },
+              ],
+            },
+            {
+              name: 'customColor',
+              type: 'text',
+              admin: {
+                description: 'Hex value, e.g. #5d1827',
+                condition: (_, sibling) => sibling?.color === 'custom',
+              },
+            },
+            {
+              name: 'opacity',
+              type: 'number',
+              min: 0,
+              max: 100,
+              defaultValue: 65,
+              admin: {
+                description:
+                  '0 = photo fully visible (text may be hard to read), 100 = solid colour. 55–75 usually reads well.',
+                condition: (_, sibling) => sibling?.color !== 'none',
+              },
+            },
+            {
+              name: 'darkenBottom',
+              type: 'checkbox',
+              defaultValue: true,
+              label: 'Darken towards the bottom',
+              admin: {
+                description: 'Adds a soft gradient so headings stay legible over busy photos.',
+              },
+            },
+          ],
+        },
+        {
           name: 'primaryCta',
           type: 'group',
           label: 'Primary Button',

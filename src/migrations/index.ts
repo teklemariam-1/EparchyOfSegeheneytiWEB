@@ -7,6 +7,7 @@ import * as migration_20260719_115129_apps_collection from './20260719_115129_ap
 import * as migration_20260719_125120_news_import_fields from './20260719_125120_news_import_fields';
 import * as migration_20260719_145337_drop_parish_vicariate_enum from './20260719_145337_drop_parish_vicariate_enum';
 import * as migration_20260719_145726_vicariates_collection from './20260719_145726_vicariates_collection';
+import * as migration_20260719_152627_hero_overlay_settings from './20260719_152627_hero_overlay_settings';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20260719_145726_vicariates_collection.up,
     down: migration_20260719_145726_vicariates_collection.down,
-    name: '20260719_145726_vicariates_collection'
+    name: '20260719_145726_vicariates_collection',
+  },
+  {
+    up: migration_20260719_152627_hero_overlay_settings.up,
+    down: migration_20260719_152627_hero_overlay_settings.down,
+    name: '20260719_152627_hero_overlay_settings'
   },
 ];

@@ -6,12 +6,32 @@ interface Props {
   hero?: HomepageGlobal['hero']
 }
 
+/** Brand tints selectable in the CMS. */
+const OVERLAY_COLORS: Record<string, string> = {
+  maroon: '#5d1827',
+  charcoal: '#231a18',
+  green: '#1f3d2b',
+  navy: '#16243f',
+  gold: '#7a5b16',
+}
+
 export function HeroSection({ hero }: Props) {
-  const heading = hero?.heading ?? "Serving God's People"
-  const subheading = hero?.subheading ?? 'in Faith & Community'
-  const ctaPrimary = hero?.ctaPrimary ?? { label: 'Learn About the Eparchy', url: '/about' }
-  const ctaSecondary = hero?.ctaSecondary ?? { label: 'Find a Parish', url: '/parishes' }
+  const heading = hero?.headline ?? "Serving God's People"
+  const subheading = hero?.subheading
+  const ctaPrimary = hero?.primaryCta ?? { label: 'Learn About the Eparchy', url: '/about' }
+  const ctaSecondary = hero?.secondaryCta ?? { label: 'Find a Parish', url: '/parishes' }
   const bg = hero?.backgroundImage
+
+  // Overlay is editor-controlled: colour + opacity, with an optional bottom
+  // gradient so headings stay legible over busy photographs.
+  const overlayKey = hero?.overlay?.color ?? 'maroon'
+  const overlayColor =
+    overlayKey === 'custom'
+      ? hero?.overlay?.customColor || OVERLAY_COLORS.maroon
+      : OVERLAY_COLORS[overlayKey]
+  const overlayOpacity =
+    overlayKey === 'none' ? 0 : Math.min(Math.max(hero?.overlay?.opacity ?? 65, 0), 100) / 100
+  const darkenBottom = hero?.overlay?.darkenBottom ?? true
 
   return (
     <section
@@ -20,14 +40,35 @@ export function HeroSection({ hero }: Props) {
     >
       {/* Background image (CMS) or pattern fallback */}
       {bg?.url ? (
-        <Image
-          src={bg.url}
-          alt={bg.alt}
-          fill
-          className="object-cover opacity-30"
-          priority
-          sizes="100vw"
-        />
+        <>
+          <Image
+            src={bg.url}
+            alt={bg.alt}
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+          {/* Colour tint */}
+          {overlayOpacity > 0 && overlayColor && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              aria-hidden="true"
+              style={{ backgroundColor: overlayColor, opacity: overlayOpacity }}
+            />
+          )}
+          {/* Legibility gradient */}
+          {darkenBottom && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              aria-hidden="true"
+              style={{
+                background:
+                  'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0) 75%)',
+              }}
+            />
+          )}
+        </>
       ) : (
         <div
           className="absolute inset-0 opacity-5 pointer-events-none"

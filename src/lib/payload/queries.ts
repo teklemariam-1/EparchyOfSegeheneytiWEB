@@ -663,11 +663,20 @@ export async function getPageBySlug(slug: string): Promise<CMSPage | null> {
 export interface HomepageGlobal {
   hero?: {
     enabled?: boolean
-    heading?: string
+    // NOTE: these names must match the Homepage global's field names exactly.
+    // They previously did not, so CMS values were silently ignored in favour of
+    // the component's hardcoded fallbacks.
+    headline?: string
     subheading?: string
-    ctaPrimary?: { label?: string; url?: string }
-    ctaSecondary?: { label?: string; url?: string }
+    primaryCta?: { label?: string; url?: string }
+    secondaryCta?: { label?: string; url?: string }
     backgroundImage?: CMSImage | null
+    overlay?: {
+      color?: 'maroon' | 'charcoal' | 'green' | 'navy' | 'gold' | 'custom' | 'none'
+      customColor?: string
+      opacity?: number
+      darkenBottom?: boolean
+    }
   }
   bishopMessage?: {
     enabled?: boolean

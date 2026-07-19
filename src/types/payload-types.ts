@@ -2332,6 +2332,24 @@ export interface Homepage {
     headline?: string | null;
     subheading?: string | null;
     backgroundImage?: (number | null) | Media;
+    /**
+     * Tint applied over the hero image so the text stays readable. Lower the opacity to show more of the photo.
+     */
+    overlay?: {
+      color?: ('maroon' | 'charcoal' | 'green' | 'navy' | 'gold' | 'custom' | 'none') | null;
+      /**
+       * Hex value, e.g. #5d1827
+       */
+      customColor?: string | null;
+      /**
+       * 0 = photo fully visible (text may be hard to read), 100 = solid colour. 55–75 usually reads well.
+       */
+      opacity?: number | null;
+      /**
+       * Adds a soft gradient so headings stay legible over busy photos.
+       */
+      darkenBottom?: boolean | null;
+    };
     primaryCta?: {
       label?: string | null;
       url?: string | null;
@@ -2669,6 +2687,14 @@ export interface HomepageSelect<T extends boolean = true> {
         headline?: T;
         subheading?: T;
         backgroundImage?: T;
+        overlay?:
+          | T
+          | {
+              color?: T;
+              customColor?: T;
+              opacity?: T;
+              darkenBottom?: T;
+            };
         primaryCta?:
           | T
           | {
