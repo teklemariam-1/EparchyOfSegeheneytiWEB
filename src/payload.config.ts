@@ -25,6 +25,7 @@ import { BishopMessages } from './collections/BishopMessages/index'
 import { Publications } from './collections/Publications/index'
 import { Magazines } from './collections/Magazines/index'
 import { Archives } from './collections/Archives/index'
+import { Apps } from './collections/Apps/index'
 import { Schools } from './collections/Schools/index'
 import { Clinics } from './collections/Clinics/index'
 import { ChildrenPrograms } from './collections/ChildrenPrograms/index'
@@ -99,6 +100,7 @@ export default buildConfig({
     Publications,
     Magazines,
     Archives,
+    Apps,
     Schools,
     Clinics,
     ChildrenPrograms,
@@ -164,6 +166,10 @@ export default buildConfig({
       ? [
           vercelBlobStorage({
             enabled: true,
+            // Upload straight from the browser to Blob. Vercel serverless
+            // functions cap request bodies at ~4.5 MB, so without this any
+            // sizeable file (e.g. an Android APK) would fail to upload.
+            clientUploads: true,
             // Serve files straight from the Blob CDN instead of proxying through
             // Payload's /api/media/file route (which 404s and costs a function
             // invocation per image). The Blob store is public, so its URLs are
@@ -210,7 +216,7 @@ export default buildConfig({
   upload: {
     // Local upload dir — used when STORAGE_ADAPTER=local
     limits: {
-      fileSize: 20_000_000, // 20 MB
+      fileSize: 150_000_000, // 150 MB — Android APKs are far larger than images
     },
   },
 

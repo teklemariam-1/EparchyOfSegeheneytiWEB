@@ -80,6 +80,7 @@ export interface Config {
     publications: Publication;
     magazines: Magazine;
     archives: Archive;
+    apps: App;
     schools: School;
     clinics: Clinic;
     'children-programs': ChildrenProgram;
@@ -106,6 +107,7 @@ export interface Config {
     publications: PublicationsSelect<false> | PublicationsSelect<true>;
     magazines: MagazinesSelect<false> | MagazinesSelect<true>;
     archives: ArchivesSelect<false> | ArchivesSelect<true>;
+    apps: AppsSelect<false> | AppsSelect<true>;
     schools: SchoolsSelect<false> | SchoolsSelect<true>;
     clinics: ClinicsSelect<false> | ClinicsSelect<true>;
     'children-programs': ChildrenProgramsSelect<false> | ChildrenProgramsSelect<true>;
@@ -915,6 +917,54 @@ export interface Archive {
   createdAt: string;
 }
 /**
+ * Mobile apps and downloadable resources (Android APK, archives, documents) with banner images and store links.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "apps".
+ */
+export interface App {
+  id: number;
+  title: string;
+  slug: string;
+  resourceType: 'android-app' | 'ios-app' | 'download';
+  publishedAt?: string | null;
+  /**
+   * e.g. "1.2.0" (optional).
+   */
+  version?: string | null;
+  /**
+   * Wide banner image shown on the card (recommended 1200×630).
+   */
+  bannerImage?: (number | null) | Media;
+  /**
+   * Optional square app icon.
+   */
+  icon?: (number | null) | Media;
+  /**
+   * Short description shown under the title.
+   */
+  description?: string | null;
+  /**
+   * Optional direct download (Android .apk, .zip, or a document). Large files upload straight to storage from your browser.
+   */
+  file?: (number | null) | Media;
+  /**
+   * Optional human-readable size, e.g. "24 MB".
+   */
+  fileSizeLabel?: string | null;
+  /**
+   * Optional Google Play listing URL.
+   */
+  playStoreUrl?: string | null;
+  /**
+   * Optional Apple App Store listing URL.
+   */
+  appStoreUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * Catholic schools operated by or affiliated with the Eparchy.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1232,6 +1282,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'archives';
         value: number | Archive;
+      } | null)
+    | ({
+        relationTo: 'apps';
+        value: number | App;
       } | null)
     | ({
         relationTo: 'schools';
@@ -1729,6 +1783,27 @@ export interface ArchivesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "apps_select".
+ */
+export interface AppsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  resourceType?: T;
+  publishedAt?: T;
+  version?: T;
+  bannerImage?: T;
+  icon?: T;
+  description?: T;
+  file?: T;
+  fileSizeLabel?: T;
+  playStoreUrl?: T;
+  appStoreUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

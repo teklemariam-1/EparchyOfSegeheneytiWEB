@@ -1028,6 +1028,58 @@ export async function getAllPopeMessageSlugs(): Promise<{ slug: string }[]> {
   }
 }
 
+// ─── Apps & downloadable resources ─────────────────────────────────────────────
+
+export interface AppItem {
+  id: string
+  slug: string
+  title: string
+  description?: string
+  resourceType?: 'android-app' | 'ios-app' | 'download'
+  version?: string
+  bannerImage?: CMSImage | null
+  icon?: CMSImage | null
+  fileUrl?: string | null
+  fileName?: string | null
+  fileSizeLabel?: string
+  playStoreUrl?: string
+  appStoreUrl?: string
+  publishedAt?: string
+}
+
+async function _getAppsList(limit = 50, locale?: string): Promise<AppItem[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'apps',
+      where: { _status: { equals: 'published' } },
+      sort: '-publishedAt',
+      limit,
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)
+    return (result.docs as any[]).map((d) => ({
+      id: d.id,
+      slug: d.slug,
+      title: d.title,
+      description: d.description,
+      resourceType: d.resourceType,
+      version: d.version,
+      bannerImage: imgOf(d.bannerImage),
+      icon: imgOf(d.icon),
+      fileUrl: d.file?.url ?? null,
+      fileName: d.file?.filename ?? null,
+      fileSizeLabel: d.fileSizeLabel,
+      playStoreUrl: d.playStoreUrl,
+      appStoreUrl: d.appStoreUrl,
+      publishedAt: d.publishedAt,
+    }))
+  } catch {
+    return []
+  }
+}
+export const getAppsList = cachedQuery(_getAppsList, 'getAppsList', ['apps'])
+
 // ─── Global search ─────────────────────────────────────────────────────────────
 
 export interface SearchResult {

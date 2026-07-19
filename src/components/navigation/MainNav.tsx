@@ -52,6 +52,7 @@ export async function MainNav() {
         { label: t('publications'), href: '/publications' },
         { label: t('magazines'), href: '/publications#magazines' },
         { label: t('archives'), href: '/publications#archives' },
+        { label: t('apps'), href: '/apps' },
       ],
     },
     { label: t('media'), href: '/media' },

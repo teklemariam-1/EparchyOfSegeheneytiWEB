@@ -26,7 +26,8 @@
     "gallery": "Gallery",
     "videos": "Videos",
     "contact": "Contact",
-    "search": "Search"
+    "search": "Search",
+    "apps": "Apps & Downloads"
   },
   "common": {
     "readMore": "Read More",
@@ -141,6 +142,18 @@
     "noPublications": "No publications found.",
     "downloadPDF": "Download PDF",
     "publishedOn": "Published on"
+  },
+  "apps": {
+    "title": "Apps & Downloads",
+    "subtitle": "Mobile applications and downloadable resources from the Eparchy.",
+    "empty": "No apps or downloads yet",
+    "emptyDescription": "Applications and downloadable resources will appear here once published in the CMS.",
+    "version": "Version",
+    "googlePlay": "Get it on Google Play",
+    "appStore": "Download on the App Store",
+    "download": "Download",
+    "downloadApk": "Download APK",
+    "apkNotice": "Android files (.apk) downloaded from this page are installed outside the Google Play Store. Your device may ask you to allow installation from this source. Only install files you have downloaded directly from this website."
   },
   "ministries": {
     "title": "Ministries",

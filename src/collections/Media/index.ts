@@ -20,6 +20,11 @@ export const Media: CollectionConfig = {
       'image/gif',
       'image/svg+xml',
       'application/pdf',
+      // Downloadable resources (Android apps, archives). Some browsers report
+      // an .apk as octet-stream, so both are accepted.
+      'application/vnd.android.package-archive',
+      'application/octet-stream',
+      'application/zip',
     ],
   },
   admin: {

@@ -19,6 +19,7 @@ export function MobileMenu() {
     { label: t('youthCouncil'), href: '/ministries#youth-council' },
     { label: t('catechists'), href: '/ministries#catechists' },
     { label: t('bishopMessages'), href: '/bishop-messages' },
+    { label: t('apps'), href: '/apps' },
     { label: t('popeMessages'), href: '/pope-messages' },
     { label: t('geezCalendar'), href: '/geez-calendar' },
     { label: t('publications'), href: '/publications' },
