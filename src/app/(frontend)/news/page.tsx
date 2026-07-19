@@ -74,26 +74,31 @@ export default async function NewsPage({
             /* Filtered by category: show a plain list of every match. Promoting
                one article to a "Featured" block here made the page look like it
                was still showing the highlight rather than the filter results. */
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {cards.map((item) => (
-                <NewsCard key={item.slug} news={item} />
+                <NewsCard key={item.slug} news={item} variant="compact" />
               ))}
             </div>
           ) : (
             <>
-              {/* Featured article — unfiltered listing only */}
-              <div className="mb-8">
-                <p className="text-xs font-semibold uppercase tracking-widest text-maroon-600 mb-3">
-                  {t('featured')}
-                </p>
-                <NewsCard news={cards[0]!} featured />
+              {/* Magazine block: one large lead story beside a 2×2 grid */}
+              <div className="mb-10 grid gap-6 lg:grid-cols-2">
+                <NewsCard news={cards[0]!} variant="lead" />
+
+                {cards.length > 1 && (
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    {cards.slice(1, 5).map((item) => (
+                      <NewsCard key={item.slug} news={item} variant="compact" />
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* News grid */}
-              {cards.length > 1 && (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {cards.slice(1).map((item) => (
-                    <NewsCard key={item.slug} news={item} />
+              {/* Remaining stories in a denser row */}
+              {cards.length > 5 && (
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                  {cards.slice(5).map((item) => (
+                    <NewsCard key={item.slug} news={item} variant="compact" />
                   ))}
                 </div>
               )}
