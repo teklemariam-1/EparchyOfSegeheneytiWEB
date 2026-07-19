@@ -1,7 +1,54 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from '@/lib/payload/client'
-import { fetchVaticanNews, type VaticanFeedKey } from '@/lib/ingest/vaticanNews'
+import { fetchVaticanNews, buildDraftBody, type VaticanFeedKey } from '@/lib/ingest/vaticanNews'
 import { slugify } from '@/lib/formatters/slug'
+
+const MAX_IMAGE_BYTES = 10_000_000
+
+/**
+ * Download the feed's thumbnail and store it as a Media doc.
+ *
+ * Best-effort: a missing or oversized image must never stop an article from
+ * being imported, so every failure resolves to null and the editor can attach
+ * their own image instead.
+ */
+async function importImage(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  imageUrl: string,
+  title: string,
+): Promise<string | null> {
+  try {
+    const res = await fetch(imageUrl, {
+      headers: { 'User-Agent': 'EparchyOfSegeneyti-NewsBot/1.0' },
+      cache: 'no-store',
+    })
+    if (!res.ok) return null
+
+    const mimetype = res.headers.get('content-type')?.split(';')[0]?.trim() ?? ''
+    if (!mimetype.startsWith('image/')) return null
+
+    const buf = Buffer.from(await res.arrayBuffer())
+    if (buf.length === 0 || buf.length > MAX_IMAGE_BYTES) return null
+
+    const ext = mimetype.split('/')[1]?.replace('jpeg', 'jpg') ?? 'jpg'
+    const name = `vatican-news-${slugify(title).slice(0, 60) || Date.now()}.${ext}`
+
+    const media = await payload.create({
+      collection: 'media',
+      overrideAccess: true,
+      data: {
+        alt: title,
+        credit: 'Vatican News',
+        category: 'general',
+        accessLevel: 'public',
+      } as any,
+      file: { data: buf, mimetype, name, size: buf.length },
+    })
+    return String(media.id)
+  } catch {
+    return null
+  }
+}
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -67,6 +114,10 @@ export async function POST(req: Request) {
           continue
         }
 
+        const featuredImage = item.imageUrl
+          ? await importImage(payload, item.imageUrl, item.title)
+          : null
+
         await payload.create({
           collection: 'news',
           locale: 'en',
@@ -75,8 +126,10 @@ export async function POST(req: Request) {
           data: {
             title: item.title,
             excerpt: item.summary,
+            body: buildDraftBody(item.summary, item.link),
             category: 'vatican',
             publishedAt: item.publishedAt,
+            ...(featuredImage ? { featuredImage } : {}),
             sourceUrl: item.link,
             sourceName: 'Vatican News',
             isImported: true,

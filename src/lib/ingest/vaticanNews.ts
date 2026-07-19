@@ -77,6 +77,61 @@ function extractImage(media: unknown): string | undefined {
   return pick(media)
 }
 
+/** Minimal Lexical text node. */
+function textNode(text: string) {
+  return { type: 'text', format: 0, style: '', mode: 'normal', detail: 0, text, version: 1 }
+}
+
+/**
+ * Build the draft body: the feed's own summary, followed by a clear attribution
+ * line linking to the original article.
+ *
+ * We intentionally do NOT copy the full article text — the RSS feed publishes a
+ * summary and a "read more" link, and that is what we reproduce, credited. The
+ * editor expands this with the Eparchy's own commentary before publishing.
+ */
+export function buildDraftBody(summary: string, link: string, sourceName = 'Vatican News') {
+  return {
+    root: {
+      type: 'root',
+      format: '',
+      indent: 0,
+      version: 1,
+      direction: 'ltr',
+      children: [
+        {
+          type: 'paragraph',
+          format: '',
+          indent: 0,
+          version: 1,
+          direction: 'ltr',
+          children: [textNode(summary)],
+        },
+        {
+          type: 'paragraph',
+          format: '',
+          indent: 0,
+          version: 1,
+          direction: 'ltr',
+          children: [
+            textNode('Read the full article at '),
+            {
+              type: 'link',
+              version: 1,
+              format: '',
+              indent: 0,
+              direction: 'ltr',
+              fields: { url: link, newTab: true, linkType: 'custom' },
+              children: [textNode(sourceName)],
+            },
+            textNode('.'),
+          ],
+        },
+      ],
+    },
+  }
+}
+
 export async function fetchVaticanNews(
   feed: VaticanFeedKey = 'all',
   limit = 20,
