@@ -1327,3 +1327,53 @@ export async function globalSearch(
     return []
   }
 }
+
+// ─── Public Q&A (answered contact questions) ──────────────────────────────────
+
+export interface PublicQAItem {
+  id: string
+  subject?: string
+  question: string
+  answer: unknown
+  publishedAt?: string
+}
+
+/**
+ * Answered questions the chancery has chosen to publish.
+ *
+ * The collection itself stays readable only by staff; this runs with
+ * overrideAccess and hand-picks the fields that may leave the building. The
+ * submitter's name, email, phone and original message are deliberately absent —
+ * visitors see the rewritten question and the official answer, nothing else.
+ */
+async function _getPublicQA(limit = 50, locale?: string): Promise<PublicQAItem[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'contact-submissions',
+      where: { 'publicQA.isPublic': { equals: true } },
+      sort: '-publicQA.publishedAt',
+      limit,
+      depth: 0,
+      overrideAccess: true,
+      ...(locale ? { locale } : {}),
+    } as any)
+
+    return (result.docs as any[])
+      .map((d) => {
+        const question = String(d?.publicQA?.publicQuestion ?? '').trim()
+        if (!question) return null
+        return {
+          id: String(d.id),
+          subject: d.subject ?? undefined,
+          question,
+          answer: d?.publicQA?.answer,
+          publishedAt: d?.publicQA?.publishedAt ?? undefined,
+        }
+      })
+      .filter(Boolean) as PublicQAItem[]
+  } catch {
+    return []
+  }
+}
+export const getPublicQA = cachedQuery(_getPublicQA, 'getPublicQA', ['contact-qa'])

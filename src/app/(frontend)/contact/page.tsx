@@ -4,7 +4,8 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { ContactForm } from '@/features/contact/ContactForm'
-import { getSiteSettings, type OfficeContact } from '@/lib/payload/queries'
+import { PublicQA } from '@/features/contact/PublicQA'
+import { getSiteSettings, getPublicQA, type OfficeContact } from '@/lib/payload/queries'
 import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
@@ -31,7 +32,7 @@ const STATIC_OFFICES: OfficeContact[] = [
 
 export default async function ContactPage() {
   const locale = await getLocale()
-  const settings = await getSiteSettings(locale)
+  const [settings, qa] = await Promise.all([getSiteSettings(locale), getPublicQA(50, locale)])
   const contact = settings.contact
   const t = await getTranslations('contact')
 
@@ -70,7 +71,7 @@ export default async function ContactPage() {
               <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-6">
                 Send a Message
               </h2>
-              <ContactForm />
+              <ContactForm privacyNotice={t('privacyNotice')} />
             </div>
 
             {/* Sidebar: office info + map */}
@@ -142,6 +143,8 @@ export default async function ContactPage() {
               </div>
             </aside>
           </div>
+
+          <PublicQA items={qa} title={t('qaTitle')} intro={t('qaIntro')} />
         </Container>
       </Section>
     </>

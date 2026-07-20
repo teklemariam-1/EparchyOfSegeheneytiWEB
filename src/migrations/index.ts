@@ -11,6 +11,7 @@ import * as migration_20260719_152627_hero_overlay_settings from './20260719_152
 import * as migration_20260719_171803_drop_legacy_status from './20260719_171803_drop_legacy_status';
 import * as migration_20260719_171828_add_event_cancelled from './20260719_171828_add_event_cancelled';
 import * as migration_20260720_155410_news_gallery from './20260720_155410_news_gallery';
+import * as migration_20260720_163403_contact_public_qa from './20260720_163403_contact_public_qa';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20260720_155410_news_gallery.up,
     down: migration_20260720_155410_news_gallery.down,
-    name: '20260720_155410_news_gallery'
+    name: '20260720_155410_news_gallery',
+  },
+  {
+    up: migration_20260720_163403_contact_public_qa.up,
+    down: migration_20260720_163403_contact_public_qa.down,
+    name: '20260720_163403_contact_public_qa'
   },
 ];

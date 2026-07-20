@@ -1265,7 +1265,7 @@ export interface SmallChristianCommunity {
   createdAt: string;
 }
 /**
- * Messages submitted via the public contact form.
+ * Messages submitted via the public contact form. "New" means nobody has opened it yet. A message can optionally be answered and published anonymously as a public Q&A.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contact-submissions".
@@ -1282,6 +1282,41 @@ export interface ContactSubmission {
    * Timestamp when this message was submitted.
    */
   submittedAt?: string | null;
+  /**
+   * Optionally publish this question and its answer anonymously on the public contact page. Nothing is published unless "Publish publicly" is ticked.
+   */
+  publicQA?: {
+    /**
+     * Requires a public question and an answer. The sender is never named.
+     */
+    isPublic?: boolean | null;
+    /**
+     * Rewrite the question with any identifying details removed. This is what visitors see — the original message is never shown.
+     */
+    publicQuestion?: string | null;
+    /**
+     * Only staff can answer; visitors cannot reply.
+     */
+    answer?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    /**
+     * Stamped automatically when first published.
+     */
+    publishedAt?: string | null;
+  };
   /**
    * Internal notes (not visible to submitter).
    */
@@ -2091,6 +2126,14 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
   message?: T;
   status?: T;
   submittedAt?: T;
+  publicQA?:
+    | T
+    | {
+        isPublic?: T;
+        publicQuestion?: T;
+        answer?: T;
+        publishedAt?: T;
+      };
   adminNotes?: T;
   updatedAt?: T;
   createdAt?: T;

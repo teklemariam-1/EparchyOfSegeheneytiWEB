@@ -128,7 +128,10 @@
     "emailRequired": "Email is required",
     "emailInvalid": "Please enter a valid email address",
     "subjectRequired": "Subject is required",
-    "messageRequired": "Message is required"
+    "messageRequired": "Message is required",
+    "qaTitle": "Questions & Answers",
+    "qaIntro": "Questions we have been asked, with official answers from the Eparchy. Questions are published anonymously — names are never shown.",
+    "privacyNotice": "If your question may help others, we may publish it here anonymously together with our answer. Your name, email address and phone number are never shown."
   },
   "search": {
     "title": "Search",

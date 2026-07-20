@@ -30,7 +30,13 @@ function SubmitButton() {
   )
 }
 
-export function ContactForm() {
+/**
+ * `privacyNotice` is passed in from the server page rather than read here,
+ * because this is a client component and the message catalogues are resolved
+ * server-side. It must be shown before submission, not after: people are
+ * entitled to know their question may be published before they write it.
+ */
+export function ContactForm({ privacyNotice }: { privacyNotice?: string }) {
   const [state, formAction] = useActionState(submitContactForm, initialState)
 
   if (state.ok) {
@@ -169,6 +175,10 @@ export function ContactForm() {
           placeholder="Type your message here…"
         />
       </div>
+
+      {privacyNotice && (
+        <p className="text-xs text-charcoal-500 leading-relaxed">{privacyNotice}</p>
+      )}
 
       <SubmitButton />
 
