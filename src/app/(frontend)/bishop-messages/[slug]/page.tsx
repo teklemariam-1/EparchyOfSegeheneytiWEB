@@ -28,7 +28,7 @@ export async function generateMetadata({
     title: msg.seo?.title ?? msg.title,
     description: msg.seo?.description ?? msg.excerpt,
     path: `/bishop-messages/${msg.slug}`,
-    image: msg.featuredImage?.url,
+    image: msg.seo?.ogImage?.url ?? msg.featuredImage?.url,
   })
 }
 

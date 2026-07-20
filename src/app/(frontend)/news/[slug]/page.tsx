@@ -40,6 +40,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildMetadata({
     title: article?.seo?.title ?? article?.title ?? `News — ${slug}`,
     description: article?.seo?.description ?? article?.excerpt,
+    // Falls back to the featured image, then to the site default, so a shared
+    // link is never imageless just because nobody filled in the SEO group.
+    image: article?.seo?.ogImage?.url ?? article?.featuredImage?.url,
     path: `/news/${slug}`,
   })
 }
@@ -98,14 +101,18 @@ export default async function NewsDetailPage({ params }: Props) {
                 )}
               </div>
 
-              {/* Featured image */}
+              {/* Featured image, shown uncropped at the uploaded aspect ratio.
+                  A fixed height with object-cover used to slice the top and
+                  bottom off portrait photos. max-h keeps a very tall image from
+                  pushing the article text off-screen. */}
               {article.featuredImage?.url ? (
-                <div className="mb-8 relative h-64 md:h-80 rounded-xl overflow-hidden">
+                <div className="mb-8 rounded-xl overflow-hidden bg-parchment-100">
                   <Image
                     src={article.featuredImage.url}
                     alt={article.featuredImage.alt}
-                    fill
-                    className="object-cover"
+                    width={article.featuredImage.width ?? 1600}
+                    height={article.featuredImage.height ?? 900}
+                    className="w-full h-auto max-h-[75vh] object-contain"
                     priority
                     sizes="(max-width: 1024px) 100vw, 66vw"
                   />
@@ -126,6 +133,31 @@ export default async function NewsDetailPage({ params }: Props) {
                   <p className="lead">{article.excerpt}</p>
                 </div>
               ) : null}
+
+              {/* Photo gallery — uncropped, one per row, captions beneath. */}
+              {article.gallery && article.gallery.length > 0 && (
+                <div className="mt-10 space-y-6">
+                  {article.gallery.map((item, i) => (
+                    <figure key={i}>
+                      <div className="rounded-xl overflow-hidden bg-parchment-100">
+                        <Image
+                          src={item.image.url}
+                          alt={item.image.alt || item.caption || article.title}
+                          width={item.image.width ?? 1600}
+                          height={item.image.height ?? 900}
+                          className="w-full h-auto max-h-[75vh] object-contain"
+                          sizes="(max-width: 1024px) 100vw, 66vw"
+                        />
+                      </div>
+                      {item.caption && (
+                        <figcaption className="mt-2 text-sm text-charcoal-500">
+                          {item.caption}
+                        </figcaption>
+                      )}
+                    </figure>
+                  ))}
+                </div>
+              )}
 
               {/* Source attribution (optional) */}
               {article.sourceUrl && (

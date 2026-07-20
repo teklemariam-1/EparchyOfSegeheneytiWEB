@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildMetadata({
     title: ev?.seo?.title ?? ev?.title ?? `Event — ${slug}`,
     description: ev?.seo?.description ?? ev?.excerpt,
+    image: ev?.seo?.ogImage?.url ?? ev?.featuredImage?.url,
     path: `/events/${slug}`,
   })
 }
@@ -76,14 +77,16 @@ export default async function EventDetailPage({ params }: Props) {
           <div className="grid lg:grid-cols-3 gap-10">
             {/* Main detail */}
             <article className="lg:col-span-2">
-              {/* Featured image */}
+              {/* Featured image — uncropped, at the uploaded aspect ratio.
+                  See the note on the news detail page. */}
               {ev.featuredImage?.url && (
-                <div className="mb-6 relative h-60 md:h-80 rounded-xl overflow-hidden">
+                <div className="mb-6 rounded-xl overflow-hidden bg-parchment-100">
                   <Image
                     src={ev.featuredImage.url}
                     alt={ev.featuredImage.alt}
-                    fill
-                    className="object-cover"
+                    width={ev.featuredImage.width ?? 1600}
+                    height={ev.featuredImage.height ?? 900}
+                    className="w-full h-auto max-h-[75vh] object-contain"
                     priority
                     sizes="(max-width: 1024px) 100vw, 66vw"
                   />

@@ -10,6 +10,7 @@ import * as migration_20260719_145726_vicariates_collection from './20260719_145
 import * as migration_20260719_152627_hero_overlay_settings from './20260719_152627_hero_overlay_settings';
 import * as migration_20260719_171803_drop_legacy_status from './20260719_171803_drop_legacy_status';
 import * as migration_20260719_171828_add_event_cancelled from './20260719_171828_add_event_cancelled';
+import * as migration_20260720_155410_news_gallery from './20260720_155410_news_gallery';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20260719_171828_add_event_cancelled.up,
     down: migration_20260719_171828_add_event_cancelled.down,
-    name: '20260719_171828_add_event_cancelled'
+    name: '20260719_171828_add_event_cancelled',
+  },
+  {
+    up: migration_20260720_155410_news_gallery.up,
+    down: migration_20260720_155410_news_gallery.down,
+    name: '20260720_155410_news_gallery'
   },
 ];

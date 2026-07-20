@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildMetadata({
     title: parish?.seo?.title ?? parish?.title ?? `Parish — ${slug}`,
     description: parish?.seo?.description ?? (parish ? `${parish.title} — ${parish.city ?? ''}` : undefined),
+    image: parish?.seo?.ogImage?.url ?? parish?.image?.url,
     path: `/parishes/${slug}`,
   })
 }

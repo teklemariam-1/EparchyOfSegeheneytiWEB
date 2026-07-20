@@ -48,12 +48,19 @@ export interface NewsListItem {
   tags?: string[]
 }
 
+/** One entry of a photo gallery: the image plus an optional caption. */
+export interface GalleryItem {
+  image: CMSImage
+  caption?: string
+}
+
 export interface NewsDetail extends NewsListItem {
   content?: unknown
   author?: string | null
   sourceUrl?: string
   sourceName?: string
-  seo?: { title?: string; description?: string }
+  gallery?: GalleryItem[]
+  seo?: { title?: string; description?: string; ogImage?: CMSImage | null }
 }
 
 async function _getNewsList(opts: {
@@ -127,7 +134,13 @@ export async function getNewsBySlug(slug: string, locale?: string): Promise<News
       author: d.author?.firstName ? `${d.author.firstName} ${d.author.lastName ?? ''}`.trim() : null,
       sourceUrl: d.sourceUrl ?? undefined,
       sourceName: d.sourceName ?? undefined,
-      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
+      gallery: (d.gallery ?? [])
+        .map((g: any) => {
+          const image = imgOf(g?.image)
+          return image ? { image, caption: g?.caption || undefined } : null
+        })
+        .filter(Boolean) as GalleryItem[],
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
   } catch {
     return null
@@ -164,7 +177,7 @@ export interface EventDetail extends EventListItem {
   description?: unknown
   cost?: string
   registrationUrl?: string
-  seo?: { title?: string; description?: string }
+  seo?: { title?: string; description?: string; ogImage?: CMSImage | null }
 }
 
 async function _getUpcomingEvents(limit = 5, locale?: string): Promise<EventListItem[]> {
@@ -249,7 +262,7 @@ export async function getEventBySlug(slug: string, locale?: string): Promise<Eve
     } as any)
     const d = (result.docs as any[])[0]
     if (!d) return null
-    return { ...mapEvent(d), description: d.description, cost: d.cost, registrationUrl: d.registrationUrl, seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined }
+    return { ...mapEvent(d), description: d.description, cost: d.cost, registrationUrl: d.registrationUrl, seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined }
   } catch {
     return null
   }
@@ -300,7 +313,7 @@ export interface ParishDetail extends ParishListItem {
   phone?: string
   email?: string
   gallery?: CMSImage[]
-  seo?: { title?: string; description?: string }
+  seo?: { title?: string; description?: string; ogImage?: CMSImage | null }
 }
 
 async function _getParishesList(
@@ -357,7 +370,7 @@ export async function getParishBySlug(slug: string, locale?: string): Promise<Pa
       phone: d.contact?.phone,
       email: d.contact?.email,
       gallery: (d.gallery ?? []).map((g: any) => imgOf(g?.image ?? g)).filter(Boolean),
-      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
   } catch {
     return null
@@ -631,7 +644,7 @@ export interface CMSPage {
     image?: CMSImage | null
   }
   content?: unknown
-  seo?: { title?: string; description?: string }
+  seo?: { title?: string; description?: string; ogImage?: CMSImage | null }
 }
 
 export async function getPageBySlug(slug: string): Promise<CMSPage | null> {
@@ -651,7 +664,7 @@ export async function getPageBySlug(slug: string): Promise<CMSPage | null> {
       slug: d.slug,
       hero: d.hero,
       content: d.content,
-      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
   } catch {
     return null
@@ -915,7 +928,7 @@ export const getBishopMessagesList = cachedQuery(_getBishopMessagesList, 'getBis
 
 export interface BishopMessageDetail extends BishopMessageItem {
   featuredImage?: CMSImage | null
-  seo?: { title?: string; description?: string }
+  seo?: { title?: string; description?: string; ogImage?: CMSImage | null }
 }
 
 export async function getBishopMessageBySlug(slug: string, locale?: string): Promise<BishopMessageDetail | null> {
@@ -941,7 +954,7 @@ export async function getBishopMessageBySlug(slug: string, locale?: string): Pro
       content: d.body,
       pdfUrl: d.document?.url ?? null,
       featuredImage: imgOf(d.featuredImage),
-      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
   } catch {
     return null
@@ -1007,7 +1020,7 @@ export const getPopeMessagesList = cachedQuery(_getPopeMessagesList, 'getPopeMes
 
 export interface PopeMessageDetail extends PopeMessageItem {
   featuredImage?: CMSImage | null
-  seo?: { title?: string; description?: string }
+  seo?: { title?: string; description?: string; ogImage?: CMSImage | null }
 }
 
 export async function getPopeMessageBySlug(slug: string, locale?: string): Promise<PopeMessageDetail | null> {
@@ -1033,7 +1046,7 @@ export async function getPopeMessageBySlug(slug: string, locale?: string): Promi
       pdfUrl: d.document?.url ?? null,
       sourceUrl: d.sourceUrl,
       featuredImage: imgOf(d.featuredImage),
-      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription } : undefined,
+      seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
   } catch {
     return null

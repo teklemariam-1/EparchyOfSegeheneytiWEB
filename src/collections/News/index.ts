@@ -79,6 +79,21 @@ export const News: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
+      // Additional photos shown below the article body. The featured image
+      // stays the single lead/thumbnail used in listings and link previews.
+      name: 'gallery',
+      type: 'array',
+      label: 'Photo gallery',
+      admin: {
+        description:
+          'Extra photos for this article, shown after the body. The featured image above remains the one used in listings and social previews.',
+      },
+      fields: [
+        { name: 'image', type: 'upload', relationTo: 'media', required: true },
+        { name: 'caption', type: 'text', localized: true },
+      ],
+    },
+    {
       name: 'excerpt',
       type: 'textarea',
       localized: true,

@@ -532,6 +532,16 @@ export interface News {
   category?: ('eparchy' | 'vatican' | 'pastoral' | 'community' | 'social' | 'announcement') | null;
   featuredImage?: (number | null) | Media;
   /**
+   * Extra photos for this article, shown after the body. The featured image above remains the one used in listings and social previews.
+   */
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Short summary shown in news listings and social previews (max 160 chars).
    */
   excerpt?: string | null;
@@ -1560,6 +1570,13 @@ export interface NewsSelect<T extends boolean = true> {
   publishedAt?: T;
   category?: T;
   featuredImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
   excerpt?: T;
   body?: T;
   author?: T;
