@@ -65,24 +65,42 @@ export const maxDuration = 60
  */
 export async function POST(req: Request) {
   const secret = process.env.CRON_SECRET
-  if (!secret) {
-    return NextResponse.json(
-      { error: 'CRON_SECRET is not configured on the server.' },
-      { status: 500 },
-    )
+
+  // Two callers, two credentials:
+  //   - Vercel Cron sends `Authorization: Bearer $CRON_SECRET`.
+  //   - The "Fetch latest news" button in /admin runs in a staff member's
+  //     browser, which must never see CRON_SECRET, so it authenticates with
+  //     the Payload session cookie it already has.
+  const auth = req.headers.get('authorization') ?? ''
+  const viaCron = Boolean(secret) && auth === `Bearer ${secret}`
+
+  let authorized = viaCron
+  if (!authorized) {
+    const { user } = await (await getPayload()).auth({ headers: req.headers as Headers })
+    const role = (user as { role?: string } | null)?.role
+    // Mirrors News.access.create (isChanceryOrAbove) — anyone who could create
+    // these drafts by hand may also import them.
+    authorized = role === 'super-admin' || role === 'chancery-editor'
   }
 
-  const auth = req.headers.get('authorization') ?? ''
-  if (auth !== `Bearer ${secret}`) {
+  if (!authorized) {
+    if (!secret) {
+      return NextResponse.json(
+        { error: 'CRON_SECRET is not configured on the server.' },
+        { status: 500 },
+      )
+    }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const url = new URL(req.url)
   const feed = (url.searchParams.get('feed') ?? 'all') as VaticanFeedKey
   const limit = Math.min(Number(url.searchParams.get('limit')) || 15, 50)
+  const from = url.searchParams.get('from') ?? undefined
+  const to = url.searchParams.get('to') ?? undefined
 
   try {
-    const items = await fetchVaticanNews(feed, limit)
+    const items = await fetchVaticanNews(feed, limit, { from, to })
     const payload = await getPayload()
 
     let created = 0
@@ -155,6 +173,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       feed,
+      ...(from || to ? { window: { from: from ?? null, to: to ?? null } } : {}),
       fetched: items.length,
       created,
       skipped,

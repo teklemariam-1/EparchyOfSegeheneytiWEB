@@ -11,6 +11,10 @@ export const News: CollectionConfig = {
     defaultColumns: ['_status', 'title', 'slug', 'category', 'publishedAt'],
     description: 'Eparchy news articles and announcements.',
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/news/${(doc as any).slug}`,
+    components: {
+      // On-demand Vatican News import, so staff need not wait for the 6-hourly cron.
+      beforeListTable: ['@/components/admin/news/FetchVaticanNews#FetchVaticanNews'],
+    },
   },
   access: {
     read: isPublishedOrAuthenticated,

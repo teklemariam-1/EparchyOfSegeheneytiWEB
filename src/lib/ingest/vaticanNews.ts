@@ -132,9 +132,21 @@ export function buildDraftBody(summary: string, link: string, sourceName = 'Vati
   }
 }
 
+/**
+ * Optional publication-date window. Bounds are inclusive and either may be
+ * omitted. Items with no parseable pubDate are kept only when no window is
+ * requested — if staff asked for a specific period, an item we cannot date
+ * does not demonstrably fall inside it.
+ */
+export interface DateBounds {
+  from?: string
+  to?: string
+}
+
 export async function fetchVaticanNews(
   feed: VaticanFeedKey = 'all',
   limit = 20,
+  bounds: DateBounds = {},
 ): Promise<FeedItem[]> {
   const res = await fetch(VATICAN_NEWS_FEEDS[feed], {
     headers: {
@@ -161,8 +173,22 @@ export async function fetchVaticanNews(
   const rawItems = parsed?.rss?.channel?.item
   const items: unknown[] = Array.isArray(rawItems) ? rawItems : rawItems ? [rawItems] : []
 
+  // Parse the window once. An unparseable bound is treated as absent rather
+  // than silently excluding everything.
+  const fromMs = bounds.from ? Date.parse(bounds.from) : NaN
+  // A bare "YYYY-MM-DD" parses to midnight, which would exclude that whole day
+  // from an inclusive upper bound. Push it to the end of the named day.
+  const toMs = bounds.to
+    ? Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(bounds.to) ? `${bounds.to}T23:59:59.999Z` : bounds.to)
+    : NaN
+  const hasWindow = !Number.isNaN(fromMs) || !Number.isNaN(toMs)
+
   const out: FeedItem[] = []
-  for (const raw of items.slice(0, limit)) {
+  // Filter by date BEFORE applying `limit`. Slicing first would mean a request
+  // for an older window returned nothing, because the newest `limit` items
+  // would already have been discarded.
+  for (const raw of items) {
+    if (out.length >= limit) break
     const it = raw as Record<string, unknown>
 
     const title = toPlainText(firstString(it.title) ?? firstString((it.title as any)?.['#cdata']) ?? '')
@@ -178,6 +204,15 @@ export async function fetchVaticanNews(
     if (pub) {
       const d = new Date(pub)
       if (!Number.isNaN(d.getTime())) publishedAt = d.toISOString()
+    }
+
+    if (hasWindow) {
+      // No usable date means we cannot prove the item is inside the requested
+      // window, so leave it out rather than guessing.
+      if (!publishedAt) continue
+      const ms = Date.parse(publishedAt)
+      if (!Number.isNaN(fromMs) && ms < fromMs) continue
+      if (!Number.isNaN(toMs) && ms > toMs) continue
     }
 
     out.push({
