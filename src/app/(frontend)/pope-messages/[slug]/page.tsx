@@ -81,12 +81,13 @@ export default async function PopeMessageDetailPage({
         <Container size="narrow">
           {/* Featured image */}
           {msg.featuredImage && (
-            <div className="relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-2xl">
+            <div className="mb-8 w-full overflow-hidden rounded-2xl bg-parchment-100">
               <Image
                 src={msg.featuredImage.url}
                 alt={msg.featuredImage.alt}
-                fill
-                className="object-cover"
+                width={msg.featuredImage.width ?? 1600}
+                height={msg.featuredImage.height ?? 900}
+                className="w-full h-auto max-h-[75vh] object-contain"
                 priority
                 sizes="(max-width: 768px) 100vw, 800px"
               />

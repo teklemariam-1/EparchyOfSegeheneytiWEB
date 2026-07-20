@@ -72,12 +72,13 @@ export default async function ParishDetailPage({ params }: Props) {
               {(() => {
                 if (!parish.image) return null
                 return (
-                  <div className="relative aspect-video rounded-xl overflow-hidden">
+                  <div className="rounded-xl overflow-hidden bg-parchment-100">
                     <Image
                       src={parish.image.url}
                       alt={parish.image.alt ?? parish.title}
-                      fill
-                      className="object-cover"
+                      width={parish.image.width ?? 1600}
+                      height={parish.image.height ?? 900}
+                      className="w-full h-auto max-h-[75vh] object-contain"
                       sizes="(max-width: 1024px) 100vw, 66vw"
                     />
                   </div>
