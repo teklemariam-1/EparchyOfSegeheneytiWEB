@@ -12,6 +12,7 @@ import * as migration_20260719_171803_drop_legacy_status from './20260719_171803
 import * as migration_20260719_171828_add_event_cancelled from './20260719_171828_add_event_cancelled';
 import * as migration_20260720_155410_news_gallery from './20260720_155410_news_gallery';
 import * as migration_20260720_163403_contact_public_qa from './20260720_163403_contact_public_qa';
+import * as migration_20260720_172951_feed_sources from './20260720_172951_feed_sources';
 
 export const migrations = [
   {
@@ -82,6 +83,11 @@ export const migrations = [
   {
     up: migration_20260720_163403_contact_public_qa.up,
     down: migration_20260720_163403_contact_public_qa.down,
-    name: '20260720_163403_contact_public_qa'
+    name: '20260720_163403_contact_public_qa',
+  },
+  {
+    up: migration_20260720_172951_feed_sources.up,
+    down: migration_20260720_172951_feed_sources.down,
+    name: '20260720_172951_feed_sources'
   },
 ];

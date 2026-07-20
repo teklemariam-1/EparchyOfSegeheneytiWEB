@@ -143,12 +143,19 @@ export interface DateBounds {
   to?: string
 }
 
-export async function fetchVaticanNews(
-  feed: VaticanFeedKey = 'all',
+/**
+ * Fetch and parse any RSS feed by URL.
+ *
+ * Feed URLs are configurable content now (see the FeedSources collection), so
+ * the parser can no longer assume one of the three built-in Vatican News URLs.
+ * `fetchVaticanNews` is kept as a thin wrapper over this for the named feeds.
+ */
+export async function fetchFeedByUrl(
+  feedUrl: string,
   limit = 20,
   bounds: DateBounds = {},
 ): Promise<FeedItem[]> {
-  const res = await fetch(VATICAN_NEWS_FEEDS[feed], {
+  const res = await fetch(feedUrl, {
     headers: {
       // Identify ourselves honestly rather than masquerading as a browser.
       'User-Agent': 'EparchyOfSegeneyti-NewsBot/1.0 (+https://eparchy-of-segeheneyti-web.vercel.app)',
@@ -158,7 +165,7 @@ export async function fetchVaticanNews(
   })
 
   if (!res.ok) {
-    throw new Error(`Vatican News feed responded ${res.status}`)
+    throw new Error(`Feed responded ${res.status}`)
   }
 
   const xml = await res.text()
@@ -225,4 +232,18 @@ export async function fetchVaticanNews(
   }
 
   return out
+}
+
+/**
+ * Fetch one of the three built-in Vatican News feeds.
+ *
+ * Retained so existing callers (and the seeded default sources) keep working
+ * now that feed URLs live in the CMS.
+ */
+export async function fetchVaticanNews(
+  feed: VaticanFeedKey = 'all',
+  limit = 20,
+  bounds: DateBounds = {},
+): Promise<FeedItem[]> {
+  return fetchFeedByUrl(VATICAN_NEWS_FEEDS[feed], limit, bounds)
 }

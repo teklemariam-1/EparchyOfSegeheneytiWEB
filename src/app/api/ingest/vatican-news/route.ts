@@ -1,7 +1,83 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from '@/lib/payload/client'
-import { fetchVaticanNews, buildDraftBody, type VaticanFeedKey } from '@/lib/ingest/vaticanNews'
+import {
+  fetchFeedByUrl,
+  buildDraftBody,
+  VATICAN_NEWS_FEEDS,
+  type FeedItem,
+  type VaticanFeedKey,
+} from '@/lib/ingest/vaticanNews'
 import { slugify } from '@/lib/formatters/slug'
+
+/** A feed to pull from — either a configured FeedSource or a built-in fallback. */
+interface ResolvedSource {
+  id?: string
+  name: string
+  url: string
+  target: 'news' | 'pope-messages'
+  category: string
+  documentType: string
+}
+
+/**
+ * Feeds to import from.
+ *
+ * Reads the FeedSources collection so staff can add, edit and disable sources
+ * without a deploy. If none are configured — a fresh install, or someone
+ * disabled them all — fall back to the built-in Vatican News feed so the job
+ * still does something useful rather than silently importing nothing.
+ */
+async function resolveSources(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  feedParam: string | null,
+): Promise<ResolvedSource[]> {
+  // An explicit ?feed=pope|world|all still targets the built-in feed, so the
+  // existing cron entry and any bookmarked URL keep working unchanged.
+  if (feedParam && feedParam in VATICAN_NEWS_FEEDS) {
+    return [
+      {
+        name: 'Vatican News',
+        url: VATICAN_NEWS_FEEDS[feedParam as VaticanFeedKey],
+        target: 'news',
+        category: 'vatican',
+        documentType: 'message',
+      },
+    ]
+  }
+
+  try {
+    const result = await payload.find({
+      collection: 'feed-sources',
+      where: { enabled: { equals: true } },
+      limit: 50,
+      depth: 0,
+      overrideAccess: true,
+    } as any)
+
+    const sources = (result.docs as any[]).map((d) => ({
+      id: String(d.id),
+      name: d.name,
+      url: String(d.url ?? '').trim(),
+      target: (d.target === 'pope-messages' ? 'pope-messages' : 'news') as ResolvedSource['target'],
+      category: d.category ?? 'vatican',
+      documentType: d.documentType ?? 'message',
+    })).filter((s) => s.url)
+
+    if (sources.length > 0) return sources
+  } catch {
+    // Collection missing (pre-migration) — fall through to the built-in feed.
+  }
+
+  return [
+    {
+      name: 'Vatican News',
+      url: VATICAN_NEWS_FEEDS.all,
+      target: 'news',
+      category: 'vatican',
+      documentType: 'message',
+    },
+  ]
+}
 
 const MAX_IMAGE_BYTES = 10_000_000
 
@@ -101,87 +177,127 @@ export async function POST(req: Request) {
   }
 
   const url = new URL(req.url)
-  const feed = (url.searchParams.get('feed') ?? 'all') as VaticanFeedKey
+  const feedParam = url.searchParams.get('feed')
   const limit = Math.min(Number(url.searchParams.get('limit')) || 15, 50)
   const from = url.searchParams.get('from') ?? undefined
   const to = url.searchParams.get('to') ?? undefined
 
   try {
-    const items = await fetchVaticanNews(feed, limit, { from, to })
     const payload = await getPayload()
+    const sources = await resolveSources(payload, feedParam)
 
     let created = 0
     let skipped = 0
     const errors: string[] = []
+    const perSource: Array<{ source: string; created: number; skipped: number; error?: string }> = []
 
-    for (const item of items) {
+    for (const source of sources) {
+      let items: FeedItem[] = []
+      let sourceCreated = 0
+      let sourceSkipped = 0
+
+      // One unreachable or malformed feed must not abort the others. Record the
+      // failure against that source and carry on.
       try {
-        // Dedupe on the original article URL (covers drafts, published and
-        // rejected items alike) AND on the slug the title would generate —
-        // an editor may already have written the same story by hand, and slug
-        // is unique, so creating it would fail validation.
-        const slug = slugify(item.title)
-        const existing = await payload.find({
-          collection: 'news',
-          where: {
-            or: [
-              { sourceUrl: { equals: item.link } },
-              ...(slug ? [{ slug: { equals: slug } }] : []),
-            ],
-          },
-          limit: 1,
-          depth: 0,
-          overrideAccess: true,
-        } as any)
+        items = await fetchFeedByUrl(source.url, limit, { from, to })
+      } catch (err) {
+        const msg = String(err).slice(0, 140)
+        errors.push(`${source.name}: ${msg}`)
+        perSource.push({ source: source.name, created: 0, skipped: 0, error: msg })
+        await stampSource(payload, source, `Failed: ${msg}`)
+        continue
+      }
 
-        if (existing.totalDocs > 0) {
-          skipped++
-          continue
-        }
+      for (const item of items) {
+        try {
+          const collection = source.target
+          // Dedupe on the original article URL (covers drafts, published and
+          // rejected items alike) AND on the slug the title would generate —
+          // an editor may already have written the same story by hand, and slug
+          // is unique, so creating it would fail validation.
+          const slug = slugify(item.title)
+          const existing = await payload.find({
+            collection,
+            where: {
+              or: [
+                { sourceUrl: { equals: item.link } },
+                ...(slug ? [{ slug: { equals: slug } }] : []),
+              ],
+            },
+            limit: 1,
+            depth: 0,
+            overrideAccess: true,
+          } as any)
 
-        const featuredImage = item.imageUrl
-          ? await importImage(payload, item.imageUrl, item.title)
-          : null
+          if (existing.totalDocs > 0) {
+            sourceSkipped++
+            continue
+          }
 
-        await payload.create({
-          collection: 'news',
-          locale: 'en',
-          overrideAccess: true,
-          draft: true,
-          data: {
+          const featuredImage = item.imageUrl
+            ? await importImage(payload, item.imageUrl, item.title)
+            : null
+
+          // Papal documents and news articles have different shapes; only the
+          // fields each collection actually defines are sent.
+          const shared = {
             title: item.title,
             excerpt: item.summary,
-            body: buildDraftBody(item.summary, item.link),
-            category: 'vatican',
             publishedAt: item.publishedAt,
             ...(featuredImage ? { featuredImage } : {}),
             sourceUrl: item.link,
-            sourceName: 'Vatican News',
-            isImported: true,
-            importedAt: new Date().toISOString(),
-            reviewStatus: 'pending',
             _status: 'draft',
-          } as any,
-        })
-        created++
-      } catch (err) {
-        // A unique-constraint hit means an equivalent article already exists —
-        // most often the auto-generated slug collides with one an editor wrote
-        // by hand. That is a duplicate, not a failure.
-        const msg = String(err)
-        if (/unique|duplicate|already exists/i.test(msg)) {
-          skipped++
-        } else {
-          errors.push(`${item.link}: ${msg.slice(0, 140)}`)
+          }
+
+          const data =
+            collection === 'pope-messages'
+              ? {
+                  ...shared,
+                  body: buildDraftBody(item.summary, item.link, source.name),
+                  documentType: source.documentType,
+                }
+              : {
+                  ...shared,
+                  body: buildDraftBody(item.summary, item.link, source.name),
+                  category: source.category,
+                  sourceName: source.name,
+                  isImported: true,
+                  importedAt: new Date().toISOString(),
+                  reviewStatus: 'pending',
+                }
+
+          await payload.create({
+            collection,
+            locale: 'en',
+            overrideAccess: true,
+            draft: true,
+            data: data as any,
+          })
+          sourceCreated++
+        } catch (err) {
+          // A unique-constraint hit means an equivalent item already exists —
+          // most often the auto-generated slug collides with one an editor wrote
+          // by hand. That is a duplicate, not a failure.
+          const msg = String(err)
+          if (/unique|duplicate|already exists/i.test(msg)) {
+            sourceSkipped++
+          } else {
+            errors.push(`${item.link}: ${msg.slice(0, 140)}`)
+          }
         }
       }
+
+      created += sourceCreated
+      skipped += sourceSkipped
+      perSource.push({ source: source.name, created: sourceCreated, skipped: sourceSkipped })
+      await stampSource(payload, source, `${sourceCreated} created, ${sourceSkipped} skipped`)
     }
 
     return NextResponse.json({
       ok: true,
-      feed,
+      sources: perSource,
       ...(from || to ? { window: { from: from ?? null, to: to ?? null } } : {}),
-      fetched: items.length,
+      fetched: perSource.length,
       created,
       skipped,
       ...(errors.length ? { errors } : {}),
@@ -191,6 +307,25 @@ export async function POST(req: Request) {
       { ok: false, error: String(err).slice(0, 300) },
       { status: 502 },
     )
+  }
+}
+
+/** Record the outcome on the source so staff can see it in the admin. */
+async function stampSource(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  source: ResolvedSource,
+  status: string,
+): Promise<void> {
+  if (!source.id) return
+  try {
+    await payload.update({
+      collection: 'feed-sources',
+      id: source.id,
+      overrideAccess: true,
+      data: { lastFetchedAt: new Date().toISOString(), lastStatus: status } as any,
+    })
+  } catch {
+    // Reporting must never fail the import itself.
   }
 }
 

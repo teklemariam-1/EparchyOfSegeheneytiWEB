@@ -73,6 +73,7 @@ export interface Config {
     news: News;
     events: Event;
     vicariates: Vicariate;
+    'feed-sources': FeedSource;
     parishes: Parish;
     ministries: Ministry;
     priests: Priest;
@@ -101,6 +102,7 @@ export interface Config {
     news: NewsSelect<false> | NewsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     vicariates: VicariatesSelect<false> | VicariatesSelect<true>;
+    'feed-sources': FeedSourcesSelect<false> | FeedSourcesSelect<true>;
     parishes: ParishesSelect<false> | ParishesSelect<true>;
     ministries: MinistriesSelect<false> | MinistriesSelect<true>;
     priests: PriestsSelect<false> | PriestsSelect<true>;
@@ -714,6 +716,60 @@ export interface GeezCalendarEntry {
    */
   fastingNotes?: string | null;
   relatedEvents?: (number | Event)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * RSS feeds imported automatically. Disable a source to stop importing from it without losing its settings.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "feed-sources".
+ */
+export interface FeedSource {
+  id: number;
+  /**
+   * Shown as the source attribution, e.g. "Vatican News".
+   */
+  name: string;
+  /**
+   * Full URL of the RSS/XML feed.
+   */
+  url: string;
+  /**
+   * Which collection imported items are created in.
+   */
+  target: 'news' | 'pope-messages';
+  /**
+   * Category applied to articles imported from this feed.
+   */
+  category?: ('eparchy' | 'vatican' | 'pastoral' | 'community' | 'social' | 'announcement') | null;
+  /**
+   * Document type applied to items imported from this feed.
+   */
+  documentType?:
+    | (
+        | 'encyclical'
+        | 'apostolic-exhortation'
+        | 'apostolic-letter'
+        | 'apostolic-constitution'
+        | 'message'
+        | 'homily'
+        | 'audience'
+        | 'other'
+      )
+    | null;
+  /**
+   * Uncheck to skip this feed without deleting it.
+   */
+  enabled?: boolean | null;
+  /**
+   * Set by the ingest job.
+   */
+  lastFetchedAt?: string | null;
+  /**
+   * Result of the last run — how many items were created, or the error.
+   */
+  lastStatus?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1373,6 +1429,10 @@ export interface PayloadLockedDocument {
         value: number | Vicariate;
       } | null)
     | ({
+        relationTo: 'feed-sources';
+        value: number | FeedSource;
+      } | null)
+    | ({
         relationTo: 'parishes';
         value: number | Parish;
       } | null)
@@ -1694,6 +1754,22 @@ export interface VicariatesSelect<T extends boolean = true> {
         email?: T;
         address?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "feed-sources_select".
+ */
+export interface FeedSourcesSelect<T extends boolean = true> {
+  name?: T;
+  url?: T;
+  target?: T;
+  category?: T;
+  documentType?: T;
+  enabled?: T;
+  lastFetchedAt?: T;
+  lastStatus?: T;
   updatedAt?: T;
   createdAt?: T;
 }
