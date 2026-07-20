@@ -61,7 +61,14 @@ export const maxDuration = 60
  * deduplicated on sourceUrl, which also means an item marked "rejected" is never
  * pulled back in on a later run.
  *
- * Auth: Bearer token matching CRON_SECRET (Vercel Cron sends this automatically).
+ * Auth: Bearer token matching CRON_SECRET (Vercel Cron sends this automatically),
+ * or an authenticated admin session for the "Fetch latest news" button.
+ *
+ * Schedule note: vercel.json runs this daily. Vercel's Hobby plan rejects any
+ * sub-daily cron expression *at deploy time*, which fails the entire
+ * deployment rather than just the cron -- do not set e.g. "0 * /6 * * *" there
+ * without first confirming the plan allows it. To ingest more often, drive this
+ * endpoint from an external scheduler with the CRON_SECRET bearer token.
  */
 export async function POST(req: Request) {
   const secret = process.env.CRON_SECRET
