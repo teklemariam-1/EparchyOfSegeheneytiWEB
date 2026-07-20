@@ -52,10 +52,17 @@ const ADMIN_CSP = [
   "font-src 'self' data: https://fonts.gstatic.com https://vercel.live",
   "img-src 'self' data: blob: https://* http://localhost:*",
   "frame-src 'self' https://vercel.live",
-  // Vercel live feedback uses Pusher websockets
-  "connect-src 'self' blob: wss://ws-us3.pusher.com https://vercel.live https://*.vercel.live https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io",
+  // Vercel live feedback uses Pusher websockets.
+  // Vercel Blob is configured with clientUploads, so the browser PUTs the file
+  // straight to blob.vercel-storage.com rather than proxying it through our
+  // server (that is what keeps uploads under Vercel's ~4.5MB function body
+  // limit). Without these hosts every admin upload dies on a CSP violation.
+  "connect-src 'self' blob: https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://*.public.blob.vercel-storage.com wss://ws-us3.pusher.com https://vercel.live https://*.vercel.live https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io",
   "worker-src blob: 'self'",
-  `media-src 'self' https://${process.env.S3_HOSTNAME ?? '*'}`,
+  // Blob host is listed explicitly: without it this narrows to just the S3 host
+  // the moment S3_HOSTNAME is set, silently breaking audio/video previews for
+  // media stored on Vercel Blob.
+  `media-src 'self' blob: https://${process.env.S3_HOSTNAME ?? '*'} https://*.public.blob.vercel-storage.com`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
