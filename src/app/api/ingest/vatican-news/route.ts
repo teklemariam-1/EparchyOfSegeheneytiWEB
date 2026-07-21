@@ -9,6 +9,39 @@ import {
 } from '@/lib/ingest/vaticanNews'
 import { slugify } from '@/lib/formatters/slug'
 
+/**
+ * A URL-safe slug for an imported item.
+ *
+ * `slugify` only handles Latin text, so a Tigrinya/Ge'ez title reduces to an
+ * empty string and the required `slug` field then fails validation — every
+ * Tigrinya import errored on this. Vatican News URLs carry a Latin slug in
+ * their path even for Tigrinya articles
+ * (…/2026-07/pope-leo-montecassino-abbey.html), so fall back to that, and to a
+ * timestamp only if the URL yields nothing either.
+ */
+function deriveSlug(title: string, link: string): string {
+  // "Usable" means it actually reads as a slug: at least a few characters and
+  // containing letters. A Ge'ez title with one embedded Latin numeral (Leo
+  // "14") slugifies to "14" — truthy but useless — so a bare truthiness check
+  // is not enough; prefer the URL's canonical Latin slug in that case.
+  const usable = (s: string) => s.length >= 3 && /[a-z]/.test(s)
+
+  const fromTitle = slugify(title)
+  if (usable(fromTitle)) return fromTitle
+
+  try {
+    const path = new URL(link).pathname
+    const last = path.split('/').filter(Boolean).pop() ?? ''
+    const fromUrl = slugify(last.replace(/\.(html?|php|aspx)$/i, ''))
+    if (usable(fromUrl)) return fromUrl
+  } catch {
+    // fall through
+  }
+
+  // Last resort: keep any weak title slug rather than nothing, else timestamp.
+  return fromTitle || `imported-${Date.now()}`
+}
+
 /** A feed to pull from — either a configured FeedSource or a built-in fallback. */
 interface ResolvedSource {
   id?: string
@@ -215,13 +248,13 @@ export async function POST(req: Request) {
           // rejected items alike) AND on the slug the title would generate —
           // an editor may already have written the same story by hand, and slug
           // is unique, so creating it would fail validation.
-          const slug = slugify(item.title)
+          const slug = deriveSlug(item.title, item.link)
           const existing = await payload.find({
             collection,
             where: {
               or: [
                 { sourceUrl: { equals: item.link } },
-                ...(slug ? [{ slug: { equals: slug } }] : []),
+                { slug: { equals: slug } },
               ],
             },
             limit: 1,
@@ -242,6 +275,10 @@ export async function POST(req: Request) {
           // fields each collection actually defines are sent.
           const shared = {
             title: item.title,
+            // Pass the derived slug explicitly. The collection's slug hook only
+            // auto-fills from the (Latin) title, which is empty for Tigrinya, so
+            // without this the required field stays blank and validation fails.
+            slug,
             excerpt: item.summary,
             publishedAt: item.publishedAt,
             ...(featuredImage ? { featuredImage } : {}),

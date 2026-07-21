@@ -168,16 +168,36 @@ export async function fetchFeedByUrl(
     throw new Error(`Feed responded ${res.status}`)
   }
 
+  const contentType = res.headers.get('content-type')?.toLowerCase() ?? ''
   const xml = await res.text()
+
+  // Catch the most common misconfiguration — pointing a source at a normal web
+  // page instead of its RSS feed — with a message that says what to do, rather
+  // than letting the XML parser fail deep inside with "Maximum nested tags
+  // exceeded". An HTML document is not a feed.
+  const looksLikeHtml =
+    contentType.includes('text/html') || /^\s*<!doctype html|^\s*<html[\s>]/i.test(xml)
+  const looksLikeFeed = /<rss[\s>]|<feed[\s>]|<channel[\s>]/i.test(xml)
+  if (looksLikeHtml && !looksLikeFeed) {
+    throw new Error('Not an RSS feed (looks like a web page). Use the feed URL, e.g. one ending in .rss.xml')
+  }
+
   const parser = new XMLParser({
     ignoreAttributes: false,
     attributeNamePrefix: '@_',
     trimValues: true,
     cdataPropName: '#cdata',
   })
-  const parsed = parser.parse(xml)
 
-  const rawItems = parsed?.rss?.channel?.item
+  let parsed: any
+  try {
+    parsed = parser.parse(xml)
+  } catch (err) {
+    throw new Error(`Could not parse feed as XML: ${String((err as Error)?.message ?? err).slice(0, 80)}`)
+  }
+
+  // RSS 2.0 nests items under rss.channel; Atom lists them as feed.entry.
+  const rawItems = parsed?.rss?.channel?.item ?? parsed?.feed?.entry
   const items: unknown[] = Array.isArray(rawItems) ? rawItems : rawItems ? [rawItems] : []
 
   // Parse the window once. An unparseable bound is treated as absent rather
