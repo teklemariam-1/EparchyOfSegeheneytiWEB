@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/navigation/SiteHeader'
 import { SiteFooter } from '@/components/navigation/SiteFooter'
 import { SkipNav } from '@/components/shared/SkipNav'
 import { CookieConsent } from '@/components/shared/CookieConsent'
+import { VisitorTracker } from '@/components/shared/VisitorTracker'
 import { getSiteSettings } from '@/lib/payload/queries'
 import '../globals.css'
 
@@ -74,6 +75,8 @@ export default async function FrontendLayout({
           {/* Cookie consent — also owns the analytics scripts, so GTM/GA4 are
               only ever injected after the visitor explicitly accepts. */}
           <CookieConsent ga4Id={ga4Id} gtmId={gtmId} />
+          {/* Anonymous, aggregate visit counting (country + day only). */}
+          <VisitorTracker />
 
           <SkipNav />
           <SiteHeader />

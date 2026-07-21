@@ -75,6 +75,7 @@ export interface Config {
     vicariates: Vicariate;
     'feed-sources': FeedSource;
     subscribers: Subscriber;
+    'visitor-stats': VisitorStat;
     parishes: Parish;
     ministries: Ministry;
     priests: Priest;
@@ -105,6 +106,7 @@ export interface Config {
     vicariates: VicariatesSelect<false> | VicariatesSelect<true>;
     'feed-sources': FeedSourcesSelect<false> | FeedSourcesSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
+    'visitor-stats': VisitorStatsSelect<false> | VisitorStatsSelect<true>;
     parishes: ParishesSelect<false> | ParishesSelect<true>;
     ministries: MinistriesSelect<false> | MinistriesSelect<true>;
     priests: PriestsSelect<false> | PriestsSelect<true>;
@@ -797,6 +799,20 @@ export interface Subscriber {
   createdAt: string;
 }
 /**
+ * Anonymous visit counts by country and day. No personal data is stored.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visitor-stats".
+ */
+export interface VisitorStat {
+  id: number;
+  country: string;
+  date: string;
+  count: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Eparchy and parish-level ministry groups.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1460,6 +1476,10 @@ export interface PayloadLockedDocument {
         value: number | Subscriber;
       } | null)
     | ({
+        relationTo: 'visitor-stats';
+        value: number | VisitorStat;
+      } | null)
+    | ({
         relationTo: 'parishes';
         value: number | Parish;
       } | null)
@@ -1812,6 +1832,17 @@ export interface SubscribersSelect<T extends boolean = true> {
   unsubscribeToken?: T;
   confirmedAt?: T;
   unsubscribedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visitor-stats_select".
+ */
+export interface VisitorStatsSelect<T extends boolean = true> {
+  country?: T;
+  date?: T;
+  count?: T;
   updatedAt?: T;
   createdAt?: T;
 }

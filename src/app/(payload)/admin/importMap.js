@@ -24,6 +24,7 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { FetchVaticanNews as FetchVaticanNews_ab252082b8339de15811e44cd8622977 } from '@/components/admin/news/FetchVaticanNews'
 import { default as default_d500ae2ad98a0a33d640ae0ac1a3417c } from '@/components/admin/AdminIcon'
 import { default as default_b80a86fce1072afc84cd6a430a965697 } from '@/components/admin/AdminLogo'
+import { default as default_7b57228c6f06a06348e4c53967f631ca } from '@/components/admin/DashboardStats'
 import { ContactInboxBadge as ContactInboxBadge_dbe690299ab502af40613bcc9c944d81 } from '@/components/admin/ContactInboxBadge'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -55,6 +56,7 @@ export const importMap = {
   "@/components/admin/news/FetchVaticanNews#FetchVaticanNews": FetchVaticanNews_ab252082b8339de15811e44cd8622977,
   "@/components/admin/AdminIcon#default": default_d500ae2ad98a0a33d640ae0ac1a3417c,
   "@/components/admin/AdminLogo#default": default_b80a86fce1072afc84cd6a430a965697,
+  "@/components/admin/DashboardStats#default": default_7b57228c6f06a06348e4c53967f631ca,
   "@/components/admin/ContactInboxBadge#ContactInboxBadge": ContactInboxBadge_dbe690299ab502af40613bcc9c944d81,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1

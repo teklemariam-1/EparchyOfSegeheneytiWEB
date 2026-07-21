@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { resolveFeedUrl } from '../../lib/ingest/resolveFeedUrl'
 
 /**
  * RSS feeds the ingest job pulls from.
@@ -29,6 +30,24 @@ export const FeedSources: CollectionConfig = {
     create: isChanceryOrAbove,
     update: isChanceryOrAbove,
     delete: isChanceryOrAbove,
+  },
+  hooks: {
+    beforeChange: [
+      async ({ data, originalDoc }) => {
+        // Only resolve when the URL is new or changed, so re-saving an existing
+        // source does not make a network call every time.
+        const url = data?.url
+        if (!url || url === originalDoc?.url) return data
+        // A human usually pastes the page they read (…/ti.html), not its feed.
+        // Turn it into the real RSS URL, or throw a message they can act on.
+        const { url: resolved, changed } = await resolveFeedUrl(String(url))
+        data.url = resolved
+        if (changed) {
+          data.lastStatus = `URL auto-corrected to the RSS feed: ${resolved}`
+        }
+        return data
+      },
+    ],
   },
   fields: [
     {

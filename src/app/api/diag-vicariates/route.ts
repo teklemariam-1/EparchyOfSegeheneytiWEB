@@ -41,6 +41,16 @@ export async function GET() {
     } catch (e) {
       out.count_join_error = String((e as Error)?.message ?? e).slice(0, 300)
     }
+
+    // The actual wrapped query the pages call — this is what returns [] on live.
+    try {
+      const { getVicariatesList } = await import('@/lib/payload/queries')
+      const list = await getVicariatesList('en')
+      out.getVicariatesList_en = Array.isArray(list) ? list.length : 'not-array'
+      out.getVicariatesList_slugs = Array.isArray(list) ? list.map((v: any) => v.slug) : null
+    } catch (e) {
+      out.getVicariatesList_error = String((e as Error)?.message ?? e).slice(0, 300)
+    }
   } catch (e) {
     out.fatal = String((e as Error)?.message ?? e).slice(0, 300)
   }
