@@ -33,7 +33,12 @@ export function ParishCard({ parish, className }: ParishCardProps) {
   return (
     <article
       className={cn(
-        'card group flex flex-col overflow-hidden transition-shadow hover:shadow-md',
+        // `relative` is load-bearing: the title link uses `after:absolute
+        // after:inset-0` to make the whole card clickable. Without a positioned
+        // ancestor here, that stretched overlay escapes to a distant ancestor
+        // and covered the vicariate filter buttons, so clicking a filter landed
+        // on this hidden parish link and navigated to the parish detail instead.
+        'card group relative flex flex-col overflow-hidden transition-shadow hover:shadow-md',
         className,
       )}
     >

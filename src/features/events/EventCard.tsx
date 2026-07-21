@@ -40,7 +40,10 @@ export function EventCard({ event, className }: EventCardProps) {
   return (
     <article
       className={cn(
-        'card group flex gap-4 p-4 transition-shadow hover:shadow-md',
+        // `relative` contains the title's `after:absolute after:inset-0`
+        // stretched link to this card; without it the overlay escapes and can
+        // sit over other controls (see ParishCard for the same fix).
+        'card group relative flex gap-4 p-4 transition-shadow hover:shadow-md',
         event.isPast && 'opacity-70',
         className,
       )}
