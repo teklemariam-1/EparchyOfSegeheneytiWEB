@@ -1128,7 +1128,11 @@ async function _getVicariatesList(locale?: string): Promise<VicariateItem[]> {
     return []
   }
 }
-export const getVicariatesList = cachedQuery(_getVicariatesList, 'getVicariatesList', ['vicariates'])
+// 60s TTL (vs the 300s default): the vicariate list drives the parishes filter
+// buttons, and a stale EMPTY cache here hides every button. A shorter window
+// means any transient empty result self-heals within a minute instead of five.
+// Admin edits still bust it immediately via the 'vicariates' tag.
+export const getVicariatesList = cachedQuery(_getVicariatesList, 'getVicariatesList', ['vicariates'], 60)
 
 export async function getVicariateBySlug(
   slug: string,
