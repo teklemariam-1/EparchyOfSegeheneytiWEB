@@ -21,6 +21,7 @@ import { Parishes } from './collections/Parishes/index'
 import { Ministries } from './collections/Ministries/index'
 import { Priests } from './collections/Priests/index'
 import { Vicariates } from './collections/Vicariates/index'
+import { Offices } from './collections/Offices/index'
 import { FeedSources } from './collections/FeedSources/index'
 import { Subscribers } from './collections/Subscribers/index'
 import { VisitorStats } from './collections/VisitorStats/index'
@@ -100,6 +101,8 @@ export default buildConfig({
     News,
     Events,
     Vicariates,
+
+    Offices,
 
     FeedSources,
 

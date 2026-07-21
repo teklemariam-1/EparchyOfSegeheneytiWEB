@@ -73,6 +73,7 @@ export interface Config {
     news: News;
     events: Event;
     vicariates: Vicariate;
+    offices: Office;
     'feed-sources': FeedSource;
     subscribers: Subscriber;
     'visitor-stats': VisitorStat;
@@ -104,6 +105,7 @@ export interface Config {
     news: NewsSelect<false> | NewsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     vicariates: VicariatesSelect<false> | VicariatesSelect<true>;
+    offices: OfficesSelect<false> | OfficesSelect<true>;
     'feed-sources': FeedSourcesSelect<false> | FeedSourcesSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'visitor-stats': VisitorStatsSelect<false> | VisitorStatsSelect<true>;
@@ -722,6 +724,110 @@ export interface GeezCalendarEntry {
   relatedEvents?: (number | Event)[] | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * Offices and councils (e.g. Youth Council). Each has its own page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "offices".
+ */
+export interface Office {
+  id: number;
+  /**
+   * e.g. "Youth Council"
+   */
+  name: string;
+  slug: string;
+  /**
+   * Listing order (lowest first).
+   */
+  order?: number | null;
+  /**
+   * Banner image for the office page.
+   */
+  featuredImage?: (number | null) | Media;
+  /**
+   * One-line summary shown under the title.
+   */
+  tagline?: string | null;
+  /**
+   * Main description of the office and its work.
+   */
+  about?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  leader?: {
+    name?: string | null;
+    role?: string | null;
+    phone?: string | null;
+    email?: string | null;
+  };
+  /**
+   * Short notices shown at the top of the page. Newest first.
+   */
+  announcements?:
+    | {
+        title: string;
+        date?: string | null;
+        body?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * News-style posts for this office. Newest first.
+   */
+  updates?:
+    | {
+        title: string;
+        date?: string | null;
+        image?: (number | null) | Media;
+        excerpt?: string | null;
+        body?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Events run by this office.
+   */
+  events?:
+    | {
+        title: string;
+        startDate: string;
+        endDate?: string | null;
+        location?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * RSS feeds imported automatically. Disable a source to stop importing from it without losing its settings.
@@ -1468,6 +1574,10 @@ export interface PayloadLockedDocument {
         value: number | Vicariate;
       } | null)
     | ({
+        relationTo: 'offices';
+        value: number | Office;
+      } | null)
+    | ({
         relationTo: 'feed-sources';
         value: number | FeedSource;
       } | null)
@@ -1803,6 +1913,57 @@ export interface VicariatesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "offices_select".
+ */
+export interface OfficesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  order?: T;
+  featuredImage?: T;
+  tagline?: T;
+  about?: T;
+  leader?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        phone?: T;
+        email?: T;
+      };
+  announcements?:
+    | T
+    | {
+        title?: T;
+        date?: T;
+        body?: T;
+        id?: T;
+      };
+  updates?:
+    | T
+    | {
+        title?: T;
+        date?: T;
+        image?: T;
+        excerpt?: T;
+        body?: T;
+        id?: T;
+      };
+  events?:
+    | T
+    | {
+        title?: T;
+        startDate?: T;
+        endDate?: T;
+        location?: T;
+        description?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

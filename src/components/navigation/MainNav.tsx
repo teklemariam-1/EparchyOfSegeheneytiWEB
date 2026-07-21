@@ -37,7 +37,7 @@ export async function MainNav() {
       href: '/ministries',
       children: [
         { label: t('allMinistries'), href: '/ministries' },
-        { label: t('youthCouncil'), href: '/ministries#youth-council' },
+        { label: t('youthCouncil'), href: '/offices/youth-council' },
         { label: t('catechists'), href: '/ministries#catechists' },
         { label: t('childrenMinistry'), href: '/ministries#children' },
         { label: t('smallChristianCommunity'), href: '/ministries#small-christian-community' },

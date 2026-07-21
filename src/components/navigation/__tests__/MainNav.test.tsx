@@ -109,7 +109,7 @@ describe('MainNav', () => {
     render(await MainNav())
     const items = [
       { name: 'All Ministries', href: '/ministries' },
-      { name: 'Youth Council', href: '/ministries#youth-council' },
+      { name: 'Youth Council', href: '/offices/youth-council' },
       { name: 'Catechists', href: '/ministries#catechists' },
     ]
     items.forEach(({ name, href }) => {

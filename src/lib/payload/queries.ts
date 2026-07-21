@@ -1381,3 +1381,134 @@ async function _getPublicQA(limit = 50, locale?: string): Promise<PublicQAItem[]
   }
 }
 export const getPublicQA = cachedQuery(_getPublicQA, 'getPublicQA', ['contact-qa'])
+
+// ─── Offices & councils (e.g. Youth Council) ──────────────────────────────────
+
+export interface OfficeAnnouncement {
+  title: string
+  date?: string
+  body?: string
+}
+export interface OfficeUpdate {
+  title: string
+  date?: string
+  image?: CMSImage | null
+  excerpt?: string
+  body?: unknown
+}
+export interface OfficeEvent {
+  title: string
+  startDate: string
+  endDate?: string
+  location?: string
+  description?: string
+}
+export interface OfficeListItem {
+  id: string
+  slug: string
+  name: string
+  tagline?: string
+  featuredImage?: CMSImage | null
+}
+export interface OfficeDetail extends OfficeListItem {
+  about?: unknown
+  leader?: { name?: string; role?: string; phone?: string; email?: string }
+  announcements: OfficeAnnouncement[]
+  updates: OfficeUpdate[]
+  events: OfficeEvent[]
+}
+
+function mapOfficeBase(d: any): OfficeListItem {
+  return {
+    id: String(d.id),
+    slug: d.slug,
+    name: d.name ?? d.slug,
+    tagline: d.tagline ?? undefined,
+    featuredImage: imgOf(d.featuredImage),
+  }
+}
+
+async function _getOfficesList(locale?: string): Promise<OfficeListItem[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'offices',
+      where: { _status: { equals: 'published' } },
+      sort: 'order',
+      limit: 100,
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)
+    return (result.docs as any[]).map(mapOfficeBase)
+  } catch {
+    return []
+  }
+}
+// Short TTL: an office's list drives its navigation presence; keep it fresh.
+export const getOfficesList = cachedQuery(_getOfficesList, 'getOfficesList', ['offices'], 60)
+
+export async function getOfficeBySlug(slug: string, locale?: string): Promise<OfficeDetail | null> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'offices',
+      where: { slug: { equals: slug }, _status: { equals: 'published' } },
+      limit: 1,
+      depth: 2,
+      ...(locale ? { locale } : {}),
+    } as any)
+    const d = (result.docs as any[])[0]
+    if (!d) return null
+
+    const announcements: OfficeAnnouncement[] = (d.announcements ?? [])
+      .map((a: any) => ({ title: a?.title, date: a?.date ?? undefined, body: a?.body ?? undefined }))
+      .filter((a: OfficeAnnouncement) => a.title)
+      // Newest first; undated items sort last.
+      .sort((a: OfficeAnnouncement, b: OfficeAnnouncement) => (b.date ?? '').localeCompare(a.date ?? ''))
+
+    const updates: OfficeUpdate[] = (d.updates ?? [])
+      .map((u: any) => ({
+        title: u?.title,
+        date: u?.date ?? undefined,
+        image: imgOf(u?.image),
+        excerpt: u?.excerpt ?? undefined,
+        body: u?.body,
+      }))
+      .filter((u: OfficeUpdate) => u.title)
+      .sort((a: OfficeUpdate, b: OfficeUpdate) => (b.date ?? '').localeCompare(a.date ?? ''))
+
+    const events: OfficeEvent[] = (d.events ?? [])
+      .map((e: any) => ({
+        title: e?.title,
+        startDate: e?.startDate,
+        endDate: e?.endDate ?? undefined,
+        location: e?.location ?? undefined,
+        description: e?.description ?? undefined,
+      }))
+      .filter((e: OfficeEvent) => e.title && e.startDate)
+      .sort((a: OfficeEvent, b: OfficeEvent) => (a.startDate ?? '').localeCompare(b.startDate ?? ''))
+
+    return {
+      ...mapOfficeBase(d),
+      about: d.about,
+      leader: d.leader
+        ? { name: d.leader.name, role: d.leader.role, phone: d.leader.phone, email: d.leader.email }
+        : undefined,
+      announcements,
+      updates,
+      events,
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function getAllOfficeSlugs(): Promise<{ slug: string }[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({ collection: 'offices', limit: 100, depth: 0 } as any)
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+  } catch {
+    return []
+  }
+}

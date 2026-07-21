@@ -17,7 +17,7 @@ const DEFAULT_FOOTER_COLUMNS = [
   {
     heading: 'Ministries',
     links: [
-      { label: 'Youth Council', url: '/ministries#youth-council' },
+      { label: 'Youth Council', url: '/offices/youth-council' },
       { label: 'Catechists', url: '/ministries#catechists' },
       { label: "Children's Ministry", url: '/ministries#children' },
       { label: 'Small Christian Community', url: '/ministries#small-christian-community' },

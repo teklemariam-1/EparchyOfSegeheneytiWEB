@@ -15,6 +15,7 @@ import * as migration_20260720_163403_contact_public_qa from './20260720_163403_
 import * as migration_20260720_172951_feed_sources from './20260720_172951_feed_sources';
 import * as migration_20260721_162706_subscribers from './20260721_162706_subscribers';
 import * as migration_20260721_163916_visitor_stats from './20260721_163916_visitor_stats';
+import * as migration_20260721_175444_offices from './20260721_175444_offices';
 
 export const migrations = [
   {
@@ -100,6 +101,11 @@ export const migrations = [
   {
     up: migration_20260721_163916_visitor_stats.up,
     down: migration_20260721_163916_visitor_stats.down,
-    name: '20260721_163916_visitor_stats'
+    name: '20260721_163916_visitor_stats',
+  },
+  {
+    up: migration_20260721_175444_offices.up,
+    down: migration_20260721_175444_offices.down,
+    name: '20260721_175444_offices'
   },
 ];
