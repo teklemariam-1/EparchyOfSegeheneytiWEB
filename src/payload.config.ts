@@ -81,6 +81,8 @@ export default buildConfig({
           path: '@/components/admin/AdminIcon',
         },
       },
+      // Unread contact-message badge above the nav links.
+      beforeNavLinks: ['@/components/admin/ContactInboxBadge#ContactInboxBadge'],
     },
     importMap: {
       baseDir: path.resolve(dirname),

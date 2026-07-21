@@ -25,6 +25,24 @@ export function generateMetadata({ params, searchParams }: Args): Promise<Metada
   return generatePageMetadata({ config, params, searchParams })
 }
 
+/**
+ * The uploaded Eparchy logo, for the branded auth screens.
+ *
+ * Read directly (not via the cached query helper) so the login screen never
+ * depends on the data cache, and swallow any error — a missing logo must never
+ * stop someone logging in; the views fall back to the crest mark.
+ */
+async function getBrandLogoUrl(resolvedConfig: Awaited<typeof config>): Promise<string | null> {
+  try {
+    const { getPayload } = await import('payload')
+    const payload = await getPayload({ config: resolvedConfig })
+    const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 } as any)) as any
+    return settings?.logo?.url ?? settings?.logoDark?.url ?? null
+  } catch {
+    return null
+  }
+}
+
 export default async function Page({ params, searchParams }: Args) {
   const [resolvedParams, resolvedSearchParams, resolvedConfig] = await Promise.all([
     params,
@@ -37,16 +55,20 @@ export default async function Page({ params, searchParams }: Args) {
   const resetSegment = (resolvedConfig.admin.routes.reset ?? '/reset').slice(1)
   const firstSegment = resolvedParams.segments?.[0]
 
+  const isAuthScreen =
+    firstSegment === loginSegment || firstSegment === forgotSegment || firstSegment === resetSegment
+  const logoUrl = isAuthScreen ? await getBrandLogoUrl(resolvedConfig) : null
+
   if (firstSegment === loginSegment) {
-    return <AdminLoginView redirectTo={Array.isArray(resolvedSearchParams.redirect) ? resolvedSearchParams.redirect[0] : resolvedSearchParams.redirect} />
+    return <AdminLoginView logoUrl={logoUrl} redirectTo={Array.isArray(resolvedSearchParams.redirect) ? resolvedSearchParams.redirect[0] : resolvedSearchParams.redirect} />
   }
 
   if (firstSegment === forgotSegment) {
-    return <AdminForgotPasswordView />
+    return <AdminForgotPasswordView logoUrl={logoUrl} />
   }
 
   if (firstSegment === resetSegment) {
-    return <AdminResetPasswordView token={resolvedParams.segments?.[1]} />
+    return <AdminResetPasswordView logoUrl={logoUrl} token={resolvedParams.segments?.[1]} />
   }
 
   return RootPage({

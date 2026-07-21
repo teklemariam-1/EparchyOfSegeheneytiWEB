@@ -8,10 +8,12 @@ import { formatAdminURL, getLoginOptions, getSafeRedirect } from 'payload/shared
 
 type LoginViewProps = {
   redirectTo?: string
+  logoUrl?: string | null
 }
 
 type ResetViewProps = {
   token?: string
+  logoUrl?: string | null
 }
 
 type AlertTone = 'error' | 'success' | 'info'
@@ -249,6 +251,7 @@ function AuthShell({
   children,
   footer,
   eyebrow,
+  logoUrl,
   subtitle,
   title,
   variant,
@@ -257,14 +260,23 @@ function AuthShell({
   children: ReactNode
   footer?: ReactNode
   eyebrow: string
+  logoUrl?: string | null
   subtitle: string
   title: string
   variant: 'compact' | 'login'
 }) {
+  // The uploaded Eparchy logo when one is set, otherwise the crest mark, so the
+  // screen is branded without ever failing when no logo exists yet.
+  const crest = logoUrl ? (
+    // eslint-disable-next-line @next/next/no-img-element -- admin route: next/image is not configured here
+    <img src={logoUrl} alt="Eparchy of Segeneyti" className="admin-auth-shell__logoImg" />
+  ) : (
+    '✝'
+  )
   return (
     <div className={`admin-auth-shell admin-auth-shell--${variant}`}>
       <aside className="admin-auth-shell__brand" aria-hidden={variant === 'compact' ? 'true' : undefined}>
-        <div className="admin-auth-shell__crest">✝</div>
+        <div className="admin-auth-shell__crest">{crest}</div>
         <p className="admin-auth-shell__eyebrow">Chancery Portal</p>
         <h2 className="admin-auth-shell__brandTitle">Catholic Eparchy of Segeneyti</h2>
         <p className="admin-auth-shell__brandText">
@@ -279,7 +291,7 @@ function AuthShell({
 
       <section className="admin-auth-shell__card">
         <div className="admin-auth-shell__cardHeader">
-          <div className="admin-auth-shell__badge">✝</div>
+          <div className="admin-auth-shell__badge">{crest}</div>
           <p className="admin-auth-shell__eyebrow">{eyebrow}</p>
           <h1 className="admin-auth-shell__title">{title}</h1>
           <p className="admin-auth-shell__subtitle">{subtitle}</p>
@@ -295,7 +307,7 @@ function AuthShell({
   )
 }
 
-export function AdminLoginView({ redirectTo }: LoginViewProps) {
+export function AdminLoginView({ redirectTo, logoUrl }: LoginViewProps) {
   const router = useRouter()
   const [isRedirecting, startRedirect] = useTransition()
   const { config, getEntityConfig } = useConfig()
@@ -442,6 +454,7 @@ export function AdminLoginView({ redirectTo }: LoginViewProps) {
   if (user || isRedirecting) {
     return (
       <AuthShell
+        logoUrl={logoUrl}
         alert={{ message: 'Redirecting to the admin dashboard…', tone: 'info' }}
         eyebrow="Administrator Sign In"
         subtitle="Your session is already active."
@@ -458,6 +471,7 @@ export function AdminLoginView({ redirectTo }: LoginViewProps) {
 
   return (
     <AuthShell
+        logoUrl={logoUrl}
       alert={alert}
       eyebrow="Administrator Sign In"
       footer={
@@ -507,7 +521,7 @@ export function AdminLoginView({ redirectTo }: LoginViewProps) {
   )
 }
 
-export function AdminForgotPasswordView() {
+export function AdminForgotPasswordView({ logoUrl }: { logoUrl?: string | null } = {}) {
   const { config, getEntityConfig } = useConfig()
   const { i18n } = useTranslation()
   const { user } = useAuth()
@@ -580,6 +594,7 @@ export function AdminForgotPasswordView() {
   if (user) {
     return (
       <AuthShell
+        logoUrl={logoUrl}
         alert={{ message: 'You are already signed in. Change your password from the account area if needed.', tone: 'info' }}
         eyebrow="Password Assistance"
         footer={
@@ -598,6 +613,7 @@ export function AdminForgotPasswordView() {
 
   return (
     <AuthShell
+        logoUrl={logoUrl}
       alert={alert}
       eyebrow="Password Assistance"
       footer={
@@ -646,7 +662,7 @@ export function AdminForgotPasswordView() {
   )
 }
 
-export function AdminResetPasswordView({ token }: ResetViewProps) {
+export function AdminResetPasswordView({ token, logoUrl }: ResetViewProps) {
   const router = useRouter()
   const [isRedirecting, startRedirect] = useTransition()
   const { config } = useConfig()
@@ -669,6 +685,7 @@ export function AdminResetPasswordView({ token }: ResetViewProps) {
   if (!token) {
     return (
       <AuthShell
+        logoUrl={logoUrl}
         alert={{ message: 'This reset link is incomplete. Request a new password reset email to continue.', tone: 'error' }}
         eyebrow="Reset Password"
         footer={
@@ -688,6 +705,7 @@ export function AdminResetPasswordView({ token }: ResetViewProps) {
   if (user) {
     return (
       <AuthShell
+        logoUrl={logoUrl}
         alert={{ message: 'Your account is already authenticated. Use the dashboard if you need to continue.', tone: 'info' }}
         eyebrow="Reset Password"
         footer={
@@ -762,6 +780,7 @@ export function AdminResetPasswordView({ token }: ResetViewProps) {
 
   return (
     <AuthShell
+        logoUrl={logoUrl}
       alert={isRedirecting ? { message: 'Password updated. Redirecting…', tone: 'success' } : alert}
       eyebrow="Reset Password"
       footer={
