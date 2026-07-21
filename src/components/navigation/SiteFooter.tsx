@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { getFooterGlobal, getSiteSettings } from '@/lib/payload/queries'
+import { NewsletterForm } from '@/features/newsletter/NewsletterForm'
 
 const DEFAULT_FOOTER_COLUMNS = [
   {
@@ -55,7 +56,11 @@ const SOCIAL_ICONS: Record<SocialKey, { label: string; letter: string }> = {
 }
 
 export async function SiteFooter() {
-  const [footer, settings] = await Promise.all([getFooterGlobal(), getSiteSettings()])
+  const [footer, settings, locale] = await Promise.all([
+    getFooterGlobal(),
+    getSiteSettings(),
+    getLocale(),
+  ])
   // The footer sits on a dark maroon panel, so prefer the light-on-dark variant
   // when one is uploaded and fall back to the main logo.
   const logoUrl = settings.logoDark?.url ?? settings.logo?.url
@@ -152,6 +157,17 @@ export async function SiteFooter() {
               </ul>
             </div>
           ))}
+
+          {/* Newsletter signup — enabled from the Footer global */}
+          {footer.newsletterSignup?.enabled !== false && (
+            <div className="sm:col-span-2 lg:col-span-1">
+              <NewsletterForm
+                heading={footer.newsletterSignup?.heading ?? 'Stay updated'}
+                placeholder={footer.newsletterSignup?.placeholder}
+                locale={locale}
+              />
+            </div>
+          )}
         </div>
 
         {/* Bottom bar */}

@@ -13,6 +13,7 @@ import * as migration_20260719_171828_add_event_cancelled from './20260719_17182
 import * as migration_20260720_155410_news_gallery from './20260720_155410_news_gallery';
 import * as migration_20260720_163403_contact_public_qa from './20260720_163403_contact_public_qa';
 import * as migration_20260720_172951_feed_sources from './20260720_172951_feed_sources';
+import * as migration_20260721_162706_subscribers from './20260721_162706_subscribers';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20260720_172951_feed_sources.up,
     down: migration_20260720_172951_feed_sources.down,
-    name: '20260720_172951_feed_sources'
+    name: '20260720_172951_feed_sources',
+  },
+  {
+    up: migration_20260721_162706_subscribers.up,
+    down: migration_20260721_162706_subscribers.down,
+    name: '20260721_162706_subscribers'
   },
 ];

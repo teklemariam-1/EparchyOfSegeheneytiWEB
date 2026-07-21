@@ -22,6 +22,7 @@ import { Ministries } from './collections/Ministries/index'
 import { Priests } from './collections/Priests/index'
 import { Vicariates } from './collections/Vicariates/index'
 import { FeedSources } from './collections/FeedSources/index'
+import { Subscribers } from './collections/Subscribers/index'
 import { PopeMessages } from './collections/PopeMessages/index'
 import { BishopMessages } from './collections/BishopMessages/index'
 import { Publications } from './collections/Publications/index'
@@ -99,6 +100,9 @@ export default buildConfig({
     Vicariates,
 
     FeedSources,
+
+
+    Subscribers,
     Parishes,
     Ministries,
     Priests,

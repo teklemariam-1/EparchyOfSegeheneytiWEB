@@ -74,6 +74,7 @@ export interface Config {
     events: Event;
     vicariates: Vicariate;
     'feed-sources': FeedSource;
+    subscribers: Subscriber;
     parishes: Parish;
     ministries: Ministry;
     priests: Priest;
@@ -103,6 +104,7 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     vicariates: VicariatesSelect<false> | VicariatesSelect<true>;
     'feed-sources': FeedSourcesSelect<false> | FeedSourcesSelect<true>;
+    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     parishes: ParishesSelect<false> | ParishesSelect<true>;
     ministries: MinistriesSelect<false> | MinistriesSelect<true>;
     priests: PriestsSelect<false> | PriestsSelect<true>;
@@ -774,6 +776,27 @@ export interface FeedSource {
   createdAt: string;
 }
 /**
+ * Newsletter subscribers. Confirmed subscribers receive broadcasts.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers".
+ */
+export interface Subscriber {
+  id: number;
+  email: string;
+  status: 'pending' | 'confirmed' | 'unsubscribed';
+  /**
+   * Preferred language at signup.
+   */
+  locale?: ('en' | 'ti') | null;
+  confirmationToken?: string | null;
+  unsubscribeToken?: string | null;
+  confirmedAt?: string | null;
+  unsubscribedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Eparchy and parish-level ministry groups.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1433,6 +1456,10 @@ export interface PayloadLockedDocument {
         value: number | FeedSource;
       } | null)
     | ({
+        relationTo: 'subscribers';
+        value: number | Subscriber;
+      } | null)
+    | ({
         relationTo: 'parishes';
         value: number | Parish;
       } | null)
@@ -1770,6 +1797,21 @@ export interface FeedSourcesSelect<T extends boolean = true> {
   enabled?: T;
   lastFetchedAt?: T;
   lastStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers_select".
+ */
+export interface SubscribersSelect<T extends boolean = true> {
+  email?: T;
+  status?: T;
+  locale?: T;
+  confirmationToken?: T;
+  unsubscribeToken?: T;
+  confirmedAt?: T;
+  unsubscribedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
