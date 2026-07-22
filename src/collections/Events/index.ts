@@ -57,21 +57,20 @@ export const Events: CollectionConfig = {
       admin: { position: 'sidebar', description: 'Mark this event as cancelled.' },
     },
     {
+      // Options are managed in the Event Types collection (admin-editable),
+      // so this is a text field rendered as a dynamic dropdown.
       name: 'eventType',
-      type: 'select',
-      options: [
-        { label: 'Liturgical / Mass', value: 'liturgical' },
-        { label: 'Feast Day', value: 'feast' },
-        { label: 'Youth Program', value: 'youth' },
-        { label: 'Community Gathering', value: 'community' },
-        { label: 'Educational / Catechism', value: 'education' },
-        { label: 'Social Ministry', value: 'social' },
-        { label: 'Pilgrimage', value: 'pilgrimage' },
-        { label: 'Conference', value: 'conference' },
-        { label: 'Other', value: 'other' },
-      ],
+      type: 'text',
       defaultValue: 'liturgical',
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: {
+            path: '@/components/admin/TaxonomySelect#TaxonomySelect',
+            clientProps: { collectionSlug: 'event-types', labelText: 'Event Type' },
+          },
+        },
+      },
     },
     {
       name: 'featuredImage',

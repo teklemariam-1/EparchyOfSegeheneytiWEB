@@ -59,18 +59,20 @@ export const News: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
+      // Options are managed in the News Categories collection (admin-editable),
+      // so this is a text field rendered as a dynamic dropdown.
       name: 'category',
-      type: 'select',
-      options: [
-        { label: 'Eparchy News', value: 'eparchy' },
-        { label: 'Vatican / Universal Church', value: 'vatican' },
-        { label: 'Pastoral Letter', value: 'pastoral' },
-        { label: 'Community', value: 'community' },
-        { label: 'Social Ministry', value: 'social' },
-        { label: 'Announcement', value: 'announcement' },
-      ],
+      type: 'text',
       defaultValue: 'eparchy',
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: {
+            path: '@/components/admin/TaxonomySelect#TaxonomySelect',
+            clientProps: { collectionSlug: 'news-categories', labelText: 'Category' },
+          },
+        },
+      },
     },
     {
       name: 'featuredImage',

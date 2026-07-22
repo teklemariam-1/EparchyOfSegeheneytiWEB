@@ -94,6 +94,18 @@ export const BannerSettings: GlobalConfig = {
           },
         },
         {
+          name: 'opacity',
+          type: 'number',
+          min: 0,
+          max: 100,
+          defaultValue: 100,
+          admin: {
+            description:
+              'Opacity of the image itself. 100 (default) = fully visible; lower it to fade the image into the theme colour behind it.',
+            condition: (data) => Boolean(data?.image?.image),
+          },
+        },
+        {
           name: 'overlayOpacity',
           type: 'number',
           min: 0,

@@ -16,7 +16,9 @@ import { Users } from './collections/Users/index'
 import { Media } from './collections/Media/index'
 import { Pages } from './collections/Pages/index'
 import { News } from './collections/News/index'
+import { NewsCategories } from './collections/NewsCategories/index'
 import { Events } from './collections/Events/index'
+import { EventTypes } from './collections/EventTypes/index'
 import { Parishes } from './collections/Parishes/index'
 import { Ministries } from './collections/Ministries/index'
 import { Priests } from './collections/Priests/index'
@@ -100,7 +102,9 @@ export default buildConfig({
     Media,
     Pages,
     News,
+    NewsCategories,
     Events,
+    EventTypes,
     Vicariates,
 
     Offices,

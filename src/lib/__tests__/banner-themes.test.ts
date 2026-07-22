@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { BANNER_THEMES, resolveBannerTheme, type BannerThemeColors } from '../banner-themes'
 
 /** A theme rendered with no uploaded banner image. */
-const plain = (theme: BannerThemeColors) => ({ ...theme, imageUrl: null, imageOverlayOpacity: 0 })
+const plain = (theme: BannerThemeColors) => ({ ...theme, imageUrl: null, imageOpacity: 1, imageOverlayOpacity: 0 })
 
 describe('resolveBannerTheme', () => {
   it('falls back to the default (brand red) theme when settings are missing', () => {
@@ -79,6 +79,7 @@ describe('resolveBannerTheme', () => {
       accent: '#fff',
       patternOpacity: 1,
       imageUrl: null,
+      imageOpacity: 1,
       imageOverlayOpacity: 0,
     })
   })
@@ -102,6 +103,7 @@ describe('resolveBannerTheme', () => {
       ...BANNER_THEMES.advent,
       patternOpacity: 0,
       imageUrl: '/api/media/file/banner.jpg',
+      imageOpacity: 1,
       imageOverlayOpacity: 0.4,
     })
   })
@@ -132,7 +134,18 @@ describe('resolveBannerTheme', () => {
       ...BANNER_THEMES.advent,
       patternOpacity: 0,
       imageUrl: '/x.jpg',
+      imageOpacity: 1,
       imageOverlayOpacity: 0.7,
     })
+  })
+
+  it('applies the image opacity setting, defaulting to fully opaque', () => {
+    const base = { mode: 'manual' as const, theme: 'default' as const }
+    const withOpacity = (opacity?: number) =>
+      resolveBannerTheme({ ...base, image: { image: { url: '/x.jpg' }, ...(opacity !== undefined ? { opacity } : {}) } })
+    expect(withOpacity().imageOpacity).toBe(1)
+    expect(withOpacity(40).imageOpacity).toBe(0.4)
+    expect(withOpacity(500).imageOpacity).toBe(1)
+    expect(withOpacity(-10).imageOpacity).toBe(0)
   })
 })

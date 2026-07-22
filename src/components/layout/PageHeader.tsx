@@ -35,7 +35,10 @@ export function PageHeader({
       <div
         className="absolute inset-0 bg-cover bg-center pointer-events-none"
         aria-hidden="true"
-        style={{ backgroundImage: 'var(--banner-image, none)' }}
+        style={{
+          backgroundImage: 'var(--banner-image, none)',
+          opacity: 'var(--banner-image-opacity, 1)',
+        }}
       />
       {/* Theme-colour tint keeps the text readable over the image */}
       <div

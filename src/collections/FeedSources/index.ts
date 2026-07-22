@@ -95,21 +95,20 @@ export const FeedSources: CollectionConfig = {
       },
     },
     {
+      // Options are managed in the News Categories collection (admin-editable).
       name: 'category',
-      type: 'select',
+      type: 'text',
       defaultValue: 'vatican',
-      options: [
-        { label: 'Eparchy', value: 'eparchy' },
-        { label: 'Vatican', value: 'vatican' },
-        { label: 'Pastoral', value: 'pastoral' },
-        { label: 'Community', value: 'community' },
-        { label: 'Social Ministry', value: 'social' },
-        { label: 'Announcement', value: 'announcement' },
-      ],
       admin: {
         position: 'sidebar',
         condition: (data) => data?.target === 'news',
         description: 'Category applied to articles imported from this feed.',
+        components: {
+          Field: {
+            path: '@/components/admin/TaxonomySelect#TaxonomySelect',
+            clientProps: { collectionSlug: 'news-categories', labelText: 'Category' },
+          },
+        },
       },
     },
     {

@@ -71,7 +71,9 @@ export interface Config {
     media: Media;
     pages: Page;
     news: News;
+    'news-categories': NewsCategory;
     events: Event;
+    'event-types': EventType;
     vicariates: Vicariate;
     offices: Office;
     'feed-sources': FeedSource;
@@ -103,7 +105,9 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
+    'news-categories': NewsCategoriesSelect<false> | NewsCategoriesSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
+    'event-types': EventTypesSelect<false> | EventTypesSelect<true>;
     vicariates: VicariatesSelect<false> | VicariatesSelect<true>;
     offices: OfficesSelect<false> | OfficesSelect<true>;
     'feed-sources': FeedSourcesSelect<false> | FeedSourcesSelect<true>;
@@ -539,7 +543,7 @@ export interface News {
    */
   slug: string;
   publishedAt?: string | null;
-  category?: ('eparchy' | 'vatican' | 'pastoral' | 'community' | 'social' | 'announcement') | null;
+  category?: string | null;
   featuredImage?: (number | null) | Media;
   /**
    * Extra photos for this article, shown after the body. The featured image above remains the one used in listings and social previews.
@@ -605,6 +609,25 @@ export interface News {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Categories available for news articles. They appear in the Category dropdown when editing news and as the filter buttons on the public News page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news-categories".
+ */
+export interface NewsCategory {
+  id: number;
+  /**
+   * Shown on the News page filter buttons and in the admin dropdown.
+   */
+  label: string;
+  /**
+   * URL-friendly identifier stored on articles and used in filter links (e.g. 'youth'). Lowercase letters, numbers and hyphens only. Avoid changing it once articles use it.
+   */
+  value: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Eparchy-wide and parish-level events.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -618,9 +641,7 @@ export interface Event {
    * Mark this event as cancelled.
    */
   isCancelled?: boolean | null;
-  eventType?:
-    | ('liturgical' | 'feast' | 'youth' | 'community' | 'education' | 'social' | 'pilgrimage' | 'conference' | 'other')
-    | null;
+  eventType?: string | null;
   featuredImage?: (number | null) | Media;
   excerpt?: string | null;
   description?: {
@@ -724,6 +745,25 @@ export interface GeezCalendarEntry {
    */
   fastingNotes?: string | null;
   relatedEvents?: (number | Event)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Types available for events. They appear in the Event Type dropdown when editing events and as the filter buttons on the public Events page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-types".
+ */
+export interface EventType {
+  id: number;
+  /**
+   * Shown on the Events page filter buttons and in the admin dropdown.
+   */
+  label: string;
+  /**
+   * URL-friendly identifier stored on events and used in filter links (e.g. 'pilgrimage'). Lowercase letters, numbers and hyphens only. Avoid changing it once events use it.
+   */
+  value: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -854,7 +894,7 @@ export interface FeedSource {
   /**
    * Category applied to articles imported from this feed.
    */
-  category?: ('eparchy' | 'vatican' | 'pastoral' | 'community' | 'social' | 'announcement') | null;
+  category?: string | null;
   /**
    * Document type applied to items imported from this feed.
    */
@@ -1568,8 +1608,16 @@ export interface PayloadLockedDocument {
         value: number | News;
       } | null)
     | ({
+        relationTo: 'news-categories';
+        value: number | NewsCategory;
+      } | null)
+    | ({
         relationTo: 'events';
         value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'event-types';
+        value: number | EventType;
       } | null)
     | ({
         relationTo: 'vicariates';
@@ -1859,6 +1907,16 @@ export interface NewsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news-categories_select".
+ */
+export interface NewsCategoriesSelect<T extends boolean = true> {
+  label?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
@@ -1892,6 +1950,16 @@ export interface EventsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-types_select".
+ */
+export interface EventTypesSelect<T extends boolean = true> {
+  label?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2950,7 +3018,7 @@ export interface BannerSetting {
     patternOpacity?: number | null;
   };
   /**
-   * Upload a designed banner image to use as the background of every page banner. The active theme colour is tinted over it so the white text stays readable. Remove the image to return to plain seasonal colours.
+   * Upload a designed banner image to use as the background of every page banner. It fully replaces the coloured design and shows exactly as uploaded. Remove the image to return to plain seasonal colours.
    */
   image?: {
     /**
@@ -2958,7 +3026,11 @@ export interface BannerSetting {
      */
     image?: (number | null) | Media;
     /**
-     * Theme-colour tint over the image: 0 = photo fully visible (text may be hard to read), 100 = solid colour. 55–75 usually reads well.
+     * Opacity of the image itself. 100 (default) = fully visible; lower it to fade the image into the theme colour behind it.
+     */
+    opacity?: number | null;
+    /**
+     * Optional theme-colour tint over the image. 0 (default) = image shown exactly as uploaded. Raise it (e.g. 40–65) only if the white page title is hard to read on your image.
      */
     overlayOpacity?: number | null;
   };
@@ -3298,6 +3370,7 @@ export interface BannerSettingsSelect<T extends boolean = true> {
     | T
     | {
         image?: T;
+        opacity?: T;
         overlayOpacity?: T;
       };
   schedule?:

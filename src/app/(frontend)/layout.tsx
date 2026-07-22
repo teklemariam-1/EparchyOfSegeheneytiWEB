@@ -77,6 +77,7 @@ export default async function FrontendLayout({
     ...(banner.imageUrl
       ? {
           '--banner-image': `url("${banner.imageUrl.replace(/"/g, '%22')}")`,
+          '--banner-image-opacity': String(banner.imageOpacity),
           '--banner-overlay-opacity': String(banner.imageOverlayOpacity),
         }
       : {}),

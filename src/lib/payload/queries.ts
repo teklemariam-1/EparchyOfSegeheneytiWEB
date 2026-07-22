@@ -203,13 +203,15 @@ async function _getEventsList(opts: {
   limit?: number
   page?: number
   upcoming?: boolean
+  eventType?: string
   locale?: string
 } = {}): Promise<{ docs: EventListItem[]; meta: PaginationMeta }> {
   try {
     const payload = await getPayload()
-    const { limit = 12, page = 1, upcoming, locale } = opts
+    const { limit = 12, page = 1, upcoming, eventType, locale } = opts
     const where: Record<string, unknown> = { _status: { equals: 'published' } }
     if (upcoming) where.startDate = { greater_than: new Date().toISOString() }
+    if (eventType && eventType !== 'all') where.eventType = { equals: eventType }
     const result = await payload.find({
       collection: 'events',
       where,
@@ -234,6 +236,36 @@ async function _getEventsList(opts: {
   }
 }
 export const getEventsList = cachedQuery(_getEventsList, 'getEventsList', ['events'])
+
+// ─── Taxonomies (admin-managed news categories / event types) ─────────────────
+
+export interface TaxonomyOption {
+  label: string
+  value: string
+}
+
+async function _getTaxonomy(collection: string): Promise<TaxonomyOption[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection,
+      limit: 200,
+      sort: 'id',
+      depth: 0,
+    } as any)
+    return (result.docs as any[])
+      .filter((d) => typeof d?.value === 'string' && d.value)
+      .map((d) => ({ label: String(d.label ?? d.value), value: d.value }))
+  } catch {
+    return []
+  }
+}
+
+const _getNewsCategories = () => _getTaxonomy('news-categories')
+export const getNewsCategories = cachedQuery(_getNewsCategories, 'getNewsCategories', ['taxonomies'])
+
+const _getEventTypes = () => _getTaxonomy('event-types')
+export const getEventTypes = cachedQuery(_getEventTypes, 'getEventTypes', ['taxonomies'])
 
 function mapEvent(d: any): EventListItem {
   return {

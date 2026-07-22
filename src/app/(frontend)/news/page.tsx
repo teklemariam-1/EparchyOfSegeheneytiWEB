@@ -8,7 +8,7 @@ import { NewsCard, type NewsCardData } from '@/features/news/NewsCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { FilterBar } from '@/components/shared/FilterBar'
 import { getLocale, getTranslations } from 'next-intl/server'
-import { getNewsList } from '@/lib/payload/queries'
+import { getNewsList, getNewsCategories } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,8 +18,8 @@ export const metadata: Metadata = buildMetadata({
   path: '/news',
 })
 
-const CATEGORIES = [
-  { value: 'all', label: 'All' },
+/** Fallback if the News Categories collection is empty/unreachable. */
+const DEFAULT_CATEGORIES = [
   { value: 'eparchy', label: 'Eparchy' },
   { value: 'vatican', label: 'Vatican' },
   { value: 'pastoral', label: 'Pastoral' },
@@ -38,8 +38,17 @@ export default async function NewsPage({
   const locale = await getLocale()
   const t = await getTranslations('news')
 
-  const { docs, meta } = await getNewsList({ limit: 12, category, page: currentPage, locale })
+  const [{ docs, meta }, managedCategories] = await Promise.all([
+    getNewsList({ limit: 12, category, page: currentPage, locale }),
+    getNewsCategories(),
+  ])
   const isFiltered = Boolean(category && category !== 'all')
+
+  // Filter buttons come from the admin-managed News Categories collection.
+  const filterOptions = [
+    { value: 'all', label: 'All' },
+    ...(managedCategories.length ? managedCategories : DEFAULT_CATEGORIES),
+  ]
 
   const cards: NewsCardData[] = docs.map((item) => ({
     slug: item.slug,
@@ -62,7 +71,7 @@ export default async function NewsPage({
       <Section className="bg-white">
         <Container>
           <Suspense fallback={<div className="h-12 mb-8" />}>
-            <FilterBar options={CATEGORIES} paramName="category" />
+            <FilterBar options={filterOptions} paramName="category" />
           </Suspense>
 
           {cards.length === 0 ? (

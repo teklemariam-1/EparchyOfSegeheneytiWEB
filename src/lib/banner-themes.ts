@@ -92,6 +92,8 @@ export const BANNER_THEME_OPTIONS: Array<{ label: string; value: BannerThemeKey 
 export interface ResolvedBanner extends BannerThemeColors {
   /** URL of the uploaded banner image, or null for a plain colour banner */
   imageUrl: string | null
+  /** Opacity (0–1) of the image itself — below 1 the theme colour shows through */
+  imageOpacity: number
   /** Opacity (0–1) of the theme-colour tint laid over the image */
   imageOverlayOpacity: number
 }
@@ -108,6 +110,7 @@ export interface BannerSettingsData {
   } | null
   image?: {
     image?: { url?: string | null } | string | number | null
+    opacity?: number | null
     overlayOpacity?: number | null
   } | null
   schedule?: Array<{
@@ -141,15 +144,20 @@ function themeFromKey(key: BannerThemeKey | null | undefined, settings: BannerSe
   return BANNER_THEMES[key ?? 'default'] ?? BANNER_THEMES.default
 }
 
-function resolveImage(settings: BannerSettingsData): Pick<ResolvedBanner, 'imageUrl' | 'imageOverlayOpacity'> {
+const pct = (value: number | null | undefined, fallback: number): number =>
+  typeof value === 'number' ? Math.min(Math.max(value, 0), 100) / 100 : fallback
+
+function resolveImage(
+  settings: BannerSettingsData,
+): Pick<ResolvedBanner, 'imageUrl' | 'imageOpacity' | 'imageOverlayOpacity'> {
   const img = settings.image?.image
   const imageUrl = img && typeof img === 'object' && typeof img.url === 'string' && img.url ? img.url : null
-  if (!imageUrl) return { imageUrl: null, imageOverlayOpacity: 0 }
-  const opacity = settings.image?.overlayOpacity
-  // No tint unless explicitly requested — an uploaded banner shows as designed.
+  if (!imageUrl) return { imageUrl: null, imageOpacity: 1, imageOverlayOpacity: 0 }
+  // Shown exactly as uploaded unless the admin fades it (opacity) or tints it (overlay).
   return {
     imageUrl,
-    imageOverlayOpacity: typeof opacity === 'number' ? Math.min(Math.max(opacity, 0), 100) / 100 : 0,
+    imageOpacity: pct(settings.image?.opacity, 1),
+    imageOverlayOpacity: pct(settings.image?.overlayOpacity, 0),
   }
 }
 
@@ -164,7 +172,7 @@ export function resolveBannerTheme(
   settings: BannerSettingsData | null | undefined,
   now: Date = new Date(),
 ): ResolvedBanner {
-  if (!settings) return { ...BANNER_THEMES.default, imageUrl: null, imageOverlayOpacity: 0 }
+  if (!settings) return { ...BANNER_THEMES.default, imageUrl: null, imageOpacity: 1, imageOverlayOpacity: 0 }
 
   const image = resolveImage(settings)
 
@@ -187,7 +195,7 @@ export function resolveBannerTheme(
  *  cross pattern is hidden whenever an image is present. */
 function withImage(
   colors: BannerThemeColors,
-  image: Pick<ResolvedBanner, 'imageUrl' | 'imageOverlayOpacity'>,
+  image: Pick<ResolvedBanner, 'imageUrl' | 'imageOpacity' | 'imageOverlayOpacity'>,
 ): ResolvedBanner {
   return { ...colors, ...image, ...(image.imageUrl ? { patternOpacity: 0 } : {}) }
 }
