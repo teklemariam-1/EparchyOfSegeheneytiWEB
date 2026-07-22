@@ -140,6 +140,7 @@ export interface Config {
     homepage: Homepage;
     navigation: Navigation;
     'about-page': AboutPage;
+    'banner-settings': BannerSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -148,6 +149,7 @@ export interface Config {
     homepage: HomepageSelect<false> | HomepageSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
+    'banner-settings': BannerSettingsSelect<false> | BannerSettingsSelect<true>;
   };
   locale: 'en' | 'ti';
   widgets: {
@@ -2914,6 +2916,74 @@ export interface AboutPage {
   createdAt?: string | null;
 }
 /**
+ * Seasonal colour theme for the page banners (the coloured header at the top of News, Events, Parishes, etc.). Changes apply site-wide within a few minutes — no redeploy needed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banner-settings".
+ */
+export interface BannerSetting {
+  id: number;
+  mode?: ('manual' | 'scheduled') | null;
+  /**
+   * The active theme. In Scheduled mode this is the fallback used on dates not covered by any schedule entry.
+   */
+  theme?: ('default' | 'advent' | 'christmas' | 'lent' | 'holy-week' | 'easter' | 'pentecost' | 'custom') | null;
+  /**
+   * Only used when the theme is set to "Custom colours…".
+   */
+  custom?: {
+    /**
+     * Banner background colour. Hex value, e.g. #4b2e83
+     */
+    background?: string | null;
+    /**
+     * Subtitle text colour — pick a light tint that reads on the background.
+     */
+    subtitleColor?: string | null;
+    /**
+     * Colour of the short underline bar beneath the page title.
+     */
+    accentColor?: string | null;
+    /**
+     * Visibility of the cross pattern: 0 = hidden, 100 = fully visible. Default 5.
+     */
+    patternOpacity?: number | null;
+  };
+  /**
+   * Upload a designed banner image to use as the background of every page banner. The active theme colour is tinted over it so the white text stays readable. Remove the image to return to plain seasonal colours.
+   */
+  image?: {
+    /**
+     * Recommended: wide image, at least 1920×500px. Keep important details away from the left side, where the page title sits.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Theme-colour tint over the image: 0 = photo fully visible (text may be hard to read), 100 = solid colour. 55–75 usually reads well.
+     */
+    overlayOpacity?: number | null;
+  };
+  /**
+   * Date ranges when a theme should apply automatically (e.g. Advent 2026: Nov 29 – Dec 24). The first matching entry wins; dates include the year, so update them each liturgical year.
+   */
+  schedule?:
+    | {
+        /**
+         * For your own reference, e.g. "Advent 2026".
+         */
+        label?: string | null;
+        theme: 'default' | 'advent' | 'christmas' | 'lent' | 'holy-week' | 'easter' | 'pentecost' | 'custom';
+        startDate: string;
+        /**
+         * Inclusive — the theme still shows on this day.
+         */
+        endDate: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -3204,6 +3274,40 @@ export interface AboutPageSelect<T extends boolean = true> {
         heading?: T;
         body?: T;
         ctaLabel?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banner-settings_select".
+ */
+export interface BannerSettingsSelect<T extends boolean = true> {
+  mode?: T;
+  theme?: T;
+  custom?:
+    | T
+    | {
+        background?: T;
+        subtitleColor?: T;
+        accentColor?: T;
+        patternOpacity?: T;
+      };
+  image?:
+    | T
+    | {
+        image?: T;
+        overlayOpacity?: T;
+      };
+  schedule?:
+    | T
+    | {
+        label?: T;
+        theme?: T;
+        startDate?: T;
+        endDate?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

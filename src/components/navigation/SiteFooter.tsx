@@ -2,9 +2,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { getFooterGlobal, getSiteSettings } from '@/lib/payload/queries'
+import type { FooterGlobal } from '@/lib/payload/queries'
 import { NewsletterForm } from '@/features/newsletter/NewsletterForm'
 
-const DEFAULT_FOOTER_COLUMNS = [
+const DEFAULT_FOOTER_COLUMNS: NonNullable<FooterGlobal['columns']> = [
   {
     heading: 'About',
     links: [
@@ -148,6 +149,7 @@ export async function SiteFooter() {
                   <li key={link.url}>
                     <Link
                       href={link.url}
+                      {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                       className="text-sm text-charcoal-400 hover:text-white transition-colors"
                     >
                       {link.label}

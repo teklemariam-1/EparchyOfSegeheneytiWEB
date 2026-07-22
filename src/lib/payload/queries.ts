@@ -7,6 +7,7 @@
 
 import { getPayload } from './client'
 import { cachedQuery } from './cache'
+import type { BannerSettingsData } from '../banner-themes'
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -745,7 +746,7 @@ export const getHeaderGlobal = cachedQuery(_getHeaderGlobal, 'getHeaderGlobal', 
 export interface FooterGlobal {
   columns?: Array<{
     heading: string
-    links: Array<{ label: string; url: string }>
+    links: Array<{ label: string; url: string; newTab?: boolean }>
   }>
   newsletterSignup?: { enabled?: boolean; heading?: string; placeholder?: string }
   showSocialLinks?: boolean
@@ -832,6 +833,19 @@ async function _getSiteSettings(locale?: string): Promise<SiteSettingsGlobal> {
   }
 }
 export const getSiteSettings = cachedQuery(_getSiteSettings, 'getSiteSettings', ['globals'])
+
+// ─── Banner theme settings ────────────────────────────────────────────────────
+
+async function _getBannerSettings(): Promise<BannerSettingsData | null> {
+  try {
+    const payload = await getPayload()
+    const data = await payload.findGlobal({ slug: 'banner-settings' } as any)
+    return data as unknown as BannerSettingsData
+  } catch {
+    return null
+  }
+}
+export const getBannerSettings = cachedQuery(_getBannerSettings, 'getBannerSettings', ['globals'])
 
 // ─── About page global ──────────────────────────────────────────────────────────
 

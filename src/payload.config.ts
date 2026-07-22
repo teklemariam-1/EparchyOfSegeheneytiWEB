@@ -45,6 +45,7 @@ import { Footer } from './globals/Footer/index'
 import { Homepage } from './globals/Homepage/index'
 import { Navigation } from './globals/Navigation/index'
 import { AboutPage } from './globals/AboutPage/index'
+import { BannerSettings } from './globals/BannerSettings/index'
 import { buildEmailAdapter, validateEmailConfig } from './lib/payload/email'
 import { env } from './lib/env'
 
@@ -136,6 +137,7 @@ export default buildConfig({
     Homepage,
     Navigation,
     AboutPage,
+    BannerSettings,
   ],
 
   // ── Editor ───────────────────────────────────────────────────────────────────

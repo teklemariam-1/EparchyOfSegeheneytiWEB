@@ -8,7 +8,8 @@ import { SiteFooter } from '@/components/navigation/SiteFooter'
 import { SkipNav } from '@/components/shared/SkipNav'
 import { CookieConsent } from '@/components/shared/CookieConsent'
 import { VisitorTracker } from '@/components/shared/VisitorTracker'
-import { getSiteSettings } from '@/lib/payload/queries'
+import { getSiteSettings, getBannerSettings } from '@/lib/payload/queries'
+import { resolveBannerTheme } from '@/lib/banner-themes'
 import '../globals.css'
 
 const inter = Inter({
@@ -56,13 +57,30 @@ export default async function FrontendLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [locale, settings, messages] = await Promise.all([
+  const [locale, settings, messages, bannerSettings] = await Promise.all([
     getLocale(),
     getSiteSettings(),
     getMessages(),
+    getBannerSettings(),
   ])
   const ga4Id = settings.analytics?.ga4Id
   const gtmId = settings.analytics?.gtmId
+
+  // Seasonal banner theme (admin-configurable) — exposed as CSS variables so
+  // PageHeader on every page picks it up without per-page changes.
+  const banner = resolveBannerTheme(bannerSettings)
+  const bannerVars = {
+    '--banner-bg': banner.background,
+    '--banner-subtitle': banner.subtitle,
+    '--banner-accent': banner.accent,
+    '--banner-pattern-opacity': String(banner.patternOpacity),
+    ...(banner.imageUrl
+      ? {
+          '--banner-image': `url("${banner.imageUrl.replace(/"/g, '%22')}")`,
+          '--banner-overlay-opacity': String(banner.imageOverlayOpacity),
+        }
+      : {}),
+  } as React.CSSProperties
 
   return (
     <html
@@ -70,7 +88,7 @@ export default async function FrontendLayout({
       className={`${inter.variable} ${notoSerifEthiopic.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-parchment text-charcoal-800 antialiased">
+      <body className="bg-parchment text-charcoal-800 antialiased" style={bannerVars}>
         <NextIntlClientProvider messages={messages}>
           {/* Cookie consent — also owns the analytics scripts, so GTM/GA4 are
               only ever injected after the visitor explicitly accepts. */}

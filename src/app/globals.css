@@ -83,9 +83,10 @@
     @apply py-16 md:py-20 lg:py-24;
   }
 
-  /* Page-level header block */
+  /* Page-level header block — follows the seasonal banner theme */
   .page-header {
-    @apply bg-maroon-800 text-white py-14 md:py-20;
+    @apply text-white py-14 md:py-20;
+    background-color: var(--banner-bg, theme('colors.maroon.800'));
   }
 
   /* Container */
