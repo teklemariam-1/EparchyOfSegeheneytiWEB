@@ -146,9 +146,10 @@ function resolveImage(settings: BannerSettingsData): Pick<ResolvedBanner, 'image
   const imageUrl = img && typeof img === 'object' && typeof img.url === 'string' && img.url ? img.url : null
   if (!imageUrl) return { imageUrl: null, imageOverlayOpacity: 0 }
   const opacity = settings.image?.overlayOpacity
+  // No tint unless explicitly requested — an uploaded banner shows as designed.
   return {
     imageUrl,
-    imageOverlayOpacity: typeof opacity === 'number' ? Math.min(Math.max(opacity, 0), 100) / 100 : 0.65,
+    imageOverlayOpacity: typeof opacity === 'number' ? Math.min(Math.max(opacity, 0), 100) / 100 : 0,
   }
 }
 
@@ -174,10 +175,19 @@ export function resolveBannerTheme(
       const end = new Date(entry.endDate)
       end.setHours(23, 59, 59, 999)
       if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime()) && now >= start && now <= end) {
-        return { ...themeFromKey(entry.theme, settings), ...image }
+        return withImage(themeFromKey(entry.theme, settings), image)
       }
     }
   }
 
-  return { ...themeFromKey(settings.theme, settings), ...image }
+  return withImage(themeFromKey(settings.theme, settings), image)
+}
+
+/** An uploaded banner replaces the coloured design entirely, so the decorative
+ *  cross pattern is hidden whenever an image is present. */
+function withImage(
+  colors: BannerThemeColors,
+  image: Pick<ResolvedBanner, 'imageUrl' | 'imageOverlayOpacity'>,
+): ResolvedBanner {
+  return { ...colors, ...image, ...(image.imageUrl ? { patternOpacity: 0 } : {}) }
 }

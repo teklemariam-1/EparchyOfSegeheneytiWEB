@@ -81,7 +81,7 @@ export const BannerSettings: GlobalConfig = {
       label: 'Banner Image (optional)',
       admin: {
         description:
-          'Upload a designed banner image to use as the background of every page banner. The active theme colour is tinted over it so the white text stays readable. Remove the image to return to plain seasonal colours.',
+          'Upload a designed banner image to use as the background of every page banner. It fully replaces the coloured design and shows exactly as uploaded. Remove the image to return to plain seasonal colours.',
       },
       fields: [
         {
@@ -98,10 +98,10 @@ export const BannerSettings: GlobalConfig = {
           type: 'number',
           min: 0,
           max: 100,
-          defaultValue: 65,
+          defaultValue: 0,
           admin: {
             description:
-              'Theme-colour tint over the image: 0 = photo fully visible (text may be hard to read), 100 = solid colour. 55–75 usually reads well.',
+              'Optional theme-colour tint over the image. 0 (default) = image shown exactly as uploaded. Raise it (e.g. 40–65) only if the white page title is hard to read on your image.',
             condition: (data) => Boolean(data?.image?.image),
           },
         },

@@ -92,7 +92,7 @@ describe('resolveBannerTheme', () => {
     expect(result).toEqual(plain(BANNER_THEMES.default))
   })
 
-  it('includes the uploaded banner image with its overlay opacity', () => {
+  it('replaces the design with the uploaded image: pattern hidden, tint only if requested', () => {
     const result = resolveBannerTheme({
       mode: 'manual',
       theme: 'advent',
@@ -100,16 +100,17 @@ describe('resolveBannerTheme', () => {
     })
     expect(result).toEqual({
       ...BANNER_THEMES.advent,
+      patternOpacity: 0,
       imageUrl: '/api/media/file/banner.jpg',
       imageOverlayOpacity: 0.4,
     })
   })
 
-  it('defaults the image overlay to 65% and clamps out-of-range values', () => {
+  it('defaults the image overlay to 0 (exact image) and clamps out-of-range values', () => {
     const base = { mode: 'manual' as const, theme: 'default' as const }
     const withImage = (overlayOpacity?: number) =>
       resolveBannerTheme({ ...base, image: { image: { url: '/x.jpg' }, ...(overlayOpacity !== undefined ? { overlayOpacity } : {}) } })
-    expect(withImage().imageOverlayOpacity).toBe(0.65)
+    expect(withImage().imageOverlayOpacity).toBe(0)
     expect(withImage(500).imageOverlayOpacity).toBe(1)
     expect(withImage(-10).imageOverlayOpacity).toBe(0)
   })
@@ -127,6 +128,11 @@ describe('resolveBannerTheme', () => {
       },
       new Date('2026-12-01T12:00:00'),
     )
-    expect(scheduled).toEqual({ ...BANNER_THEMES.advent, imageUrl: '/x.jpg', imageOverlayOpacity: 0.7 })
+    expect(scheduled).toEqual({
+      ...BANNER_THEMES.advent,
+      patternOpacity: 0,
+      imageUrl: '/x.jpg',
+      imageOverlayOpacity: 0.7,
+    })
   })
 })
