@@ -38,6 +38,7 @@ import { Clinics } from './collections/Clinics/index'
 import { ChildrenPrograms } from './collections/ChildrenPrograms/index'
 import { SmallChristianCommunities } from './collections/SmallChristianCommunities/index'
 import { GeezCalendarEntries } from './collections/GeezCalendarEntries/index'
+import { GeezCalendarDays } from './collections/GeezCalendarDays/index'
 import { ContactSubmissions } from './collections/ContactSubmissions/index'
 
 // ── Globals ───────────────────────────────────────────────────────────────────
@@ -130,6 +131,7 @@ export default buildConfig({
     ChildrenPrograms,
     SmallChristianCommunities,
     GeezCalendarEntries,
+    GeezCalendarDays,
     ContactSubmissions,
   ],
 

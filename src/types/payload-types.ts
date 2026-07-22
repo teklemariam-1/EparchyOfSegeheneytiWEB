@@ -93,6 +93,7 @@ export interface Config {
     'children-programs': ChildrenProgram;
     'small-christian-communities': SmallChristianCommunity;
     'geez-calendar-entries': GeezCalendarEntry;
+    'geez-calendar-days': GeezCalendarDay;
     'contact-submissions': ContactSubmission;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -127,6 +128,7 @@ export interface Config {
     'children-programs': ChildrenProgramsSelect<false> | ChildrenProgramsSelect<true>;
     'small-christian-communities': SmallChristianCommunitiesSelect<false> | SmallChristianCommunitiesSelect<true>;
     'geez-calendar-entries': GeezCalendarEntriesSelect<false> | GeezCalendarEntriesSelect<true>;
+    'geez-calendar-days': GeezCalendarDaysSelect<false> | GeezCalendarDaysSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -1508,6 +1510,60 @@ export interface SmallChristianCommunity {
   createdAt: string;
 }
 /**
+ * Daily liturgical calendar: one entry per Ge'ez day with readings, antiphon, commemorations and feasts, plus the corresponding Gregorian date.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geez-calendar-days".
+ */
+export interface GeezCalendarDay {
+  id: number;
+  /**
+   * Ge'ez date as shown to visitors, e.g. ፩ መስከረም 2018
+   */
+  geezLabel: string;
+  month:
+    | 'meskerem'
+    | 'tikimit'
+    | 'hidar'
+    | 'tahsas'
+    | 'tir'
+    | 'yekatit'
+    | 'megabit'
+    | 'miyazia'
+    | 'ginbot'
+    | 'sene'
+    | 'hamle'
+    | 'nehase'
+    | 'paguemen';
+  day: number;
+  /**
+   * E.C. year, e.g. 2018
+   */
+  geezYear: number;
+  /**
+   * Corresponding Gregorian (ፈረንጂ) date.
+   */
+  gregorianDate: string;
+  /**
+   * Scripture readings for the day (ንባባት).
+   */
+  readings?: string | null;
+  /**
+   * Antiphon / መዝሙር of the day.
+   */
+  antiphon?: string | null;
+  /**
+   * Clergy commemorated on this day (ዝኽሪ ዝዓረፉ ካህናት).
+   */
+  deceasedClergy?: string | null;
+  /**
+   * Feast days and celebrations on this day (በዓላት).
+   */
+  events?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Messages submitted via the public contact form. "New" means nobody has opened it yet. A message can optionally be answered and published anonymously as a public Q&A.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1694,6 +1750,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'geez-calendar-entries';
         value: number | GeezCalendarEntry;
+      } | null)
+    | ({
+        relationTo: 'geez-calendar-days';
+        value: number | GeezCalendarDay;
       } | null)
     | ({
         relationTo: 'contact-submissions';
@@ -2491,6 +2551,23 @@ export interface GeezCalendarEntriesSelect<T extends boolean = true> {
       };
   fastingNotes?: T;
   relatedEvents?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geez-calendar-days_select".
+ */
+export interface GeezCalendarDaysSelect<T extends boolean = true> {
+  geezLabel?: T;
+  month?: T;
+  day?: T;
+  geezYear?: T;
+  gregorianDate?: T;
+  readings?: T;
+  antiphon?: T;
+  deceasedClergy?: T;
+  events?: T;
   updatedAt?: T;
   createdAt?: T;
 }

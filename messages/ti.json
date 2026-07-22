@@ -201,7 +201,12 @@
     "currentMonth": "ህሉው ወርሒ",
     "fasting": "ጾም",
     "allMonths": "ኩሎም ኣዋርሕ",
-    "noEntries": "ዝተመዝገበ የለን"
+    "noEntries": "ዝተመዝገበ የለን",
+    "readings": "ንባባት",
+    "antiphon": "ኣንቲፎና",
+    "deceasedClergy": "ዝኽሪ ዝዓረፉ ካህናት",
+    "feast": "በዓል",
+    "majorFeasts": "ዓበይቲ በዓላትን ጾማትን"
   },
   "footer": {
     "tagline": "ካብ ምምስራቱ ጀሚሩ ንሕዝቢ ኣምላኽ ብእምነት፣ ሕብረተሰብን ተልእኾን ኣገልጊሉ።",

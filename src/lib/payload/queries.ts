@@ -608,6 +608,49 @@ async function _getGeezCalendarEntries(month?: string): Promise<GeezCalendarEntr
 }
 export const getGeezCalendarEntries = cachedQuery(_getGeezCalendarEntries, 'getGeezCalendarEntries', ['geez'])
 
+// ─── Ge'ez daily liturgical calendar ─────────────────────────────────────────
+
+export interface GeezCalendarDay {
+  id: string
+  geezLabel: string
+  month: string
+  day: number
+  geezYear: number
+  /** ISO date (yyyy-mm-dd) */
+  gregorianDate: string
+  readings?: string
+  antiphon?: string
+  deceasedClergy?: string
+  events?: string
+}
+
+async function _getGeezCalendarDays(): Promise<GeezCalendarDay[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'geez-calendar-days',
+      sort: 'gregorianDate',
+      limit: 400,
+      depth: 0,
+    } as any)
+    return (result.docs as any[]).map((d) => ({
+      id: d.id,
+      geezLabel: d.geezLabel,
+      month: d.month,
+      day: d.day,
+      geezYear: d.geezYear,
+      gregorianDate: typeof d.gregorianDate === 'string' ? d.gregorianDate.slice(0, 10) : '',
+      readings: d.readings ?? undefined,
+      antiphon: d.antiphon ?? undefined,
+      deceasedClergy: d.deceasedClergy ?? undefined,
+      events: d.events ?? undefined,
+    }))
+  } catch {
+    return []
+  }
+}
+export const getGeezCalendarDays = cachedQuery(_getGeezCalendarDays, 'getGeezCalendarDays', ['geez'])
+
 // ─── Media / Gallery ──────────────────────────────────────────────────────────
 
 export interface MediaItem {

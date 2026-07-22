@@ -201,7 +201,12 @@
     "currentMonth": "Current Month",
     "fasting": "Fasting",
     "allMonths": "All Months",
-    "noEntries": "No entries recorded"
+    "noEntries": "No entries recorded",
+    "readings": "Readings",
+    "antiphon": "Antiphon",
+    "deceasedClergy": "Deceased Clergy Commemoration",
+    "feast": "Feast",
+    "majorFeasts": "Major Feasts & Fasts"
   },
   "footer": {
     "tagline": "Serving God's people through faith, community, and mission since our founding.",
