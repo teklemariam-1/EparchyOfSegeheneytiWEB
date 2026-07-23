@@ -50,31 +50,55 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      # ── Load env vars from Vercel pull output ──────────────────────────────
-      # vercel pull writes .vercel/.env.production.local; export vars for next steps
-      - name: Export Vercel environment variables
+      # ── Export ONLY the database URL from the Vercel pull output ───────────
+      # This previously appended the whole of .vercel/.env.production.local to
+      # $GITHUB_ENV. That exported every production secret into the job env,
+      # where GitHub prints them verbatim in step logs -- masking only applies
+      # to values registered as repository secrets, which these are not, so
+      # CRON_SECRET and friends appeared in cleartext. It also corrupted
+      # DATABASE_URI (migrations resolved a host of literally "base"), because
+      # any value containing newlines or '=' breaks the KEY=VALUE format.
+      #
+      # Export the single variable migrations need, and mask it explicitly.
+      - name: Export database URL for migrations
         run: |
-          if [ -f .vercel/.env.production.local ]; then
-            grep -v '^#' .vercel/.env.production.local | grep -v '^$' >> $GITHUB_ENV
+          set -uo pipefail
+          f=.vercel/.env.production.local
+          if [ ! -f "$f" ]; then
+            echo "::warning::$f not found; skipping migrations"
+            exit 0
           fi
+          # Payload migrations run DDL and need a DIRECT (non-pooled)
+          # connection. Neon's pooled URL goes through pgBouncer; Vercel
+          # exposes the direct one as POSTGRES_URL_NON_POOLING.
+          url=$(grep -m1 '^POSTGRES_URL_NON_POOLING=' "$f" | cut -d= -f2- | tr -d '"')
+          if [ -z "$url" ]; then
+            url=$(grep -m1 '^DATABASE_URI=' "$f" | cut -d= -f2- | tr -d '"')
+          fi
+          if [ -z "$url" ]; then
+            echo "::warning::no database URL found; skipping migrations"
+            exit 0
+          fi
+          echo "::add-mask::$url"
+          echo "DATABASE_URI=$url" >> "$GITHUB_ENV"
+          echo "Database URL exported (masked)."
 
       # ── Run database migrations before the build ───────────────────────────
-      # Runs against the production database using DATABASE_URI from Vercel env.
-      # IMPORTANT: Payload migrate requires a direct (non-pooled) Neon connection.
-      # Neon provides two URLs:
-      #   - DATABASE_URI (pooled, pgBouncer) — used by the app at runtime
-      #   - DATABASE_DIRECT_URL (direct, port 5432) — required for migrations
-      # Add DATABASE_DIRECT_URL as a Vercel environment variable AND as a GitHub
-      # secret, then uncomment the env override below.
-      # continue-on-error: true means the deployment proceeds even if migrations
-      # already applied (idempotent) or connection fails.
+      # DATABASE_URI comes from the step above (direct, non-pooled connection).
+      # Migrations are idempotent, so a re-run of an applied migration is a
+      # no-op. continue-on-error keeps a migration failure from blocking the
+      # deploy, but it is surfaced loudly rather than passing silently -- the
+      # previous setup hid a total connection failure behind a green run.
       - name: Run database migrations
+        id: migrate
         continue-on-error: true
         run: npm run migrate
         env:
           NODE_ENV: production
-          # Uncomment to override with direct connection for migrations:
-          # DATABASE_URI: ${{ secrets.DATABASE_DIRECT_URL }}
+
+      - name: Flag migration failure
+        if: steps.migrate.outcome == 'failure'
+        run: echo "::warning::Database migrations did NOT run. Schema changes in this release are unapplied -- check the migrate step above."
 
       # ── Deploy to Vercel Production ────────────────────────────────────────
       # vercel deploy --prod uploads source to Vercel and triggers a remote
@@ -87,11 +111,18 @@ jobs:
         id: deploy
         run: |
           set -o pipefail
-          # Strip ANSI escape codes from Vercel CLI output and extract the URL
-          OUTPUT=$(vercel deploy --prod \
+          # Capture the exit status explicitly. `OUTPUT=$(...)` under bash -e
+          # aborts the step on failure BEFORE the echo, so a rejected
+          # deployment produced an exit code and no explanation -- which is how
+          # a vercel.json cron the plan disallows looked like a silent failure.
+          if ! OUTPUT=$(vercel deploy --prod \
             --archive=tgz \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            2>&1 | sed 's/\x1b\[[0-9;]*m//g')
+            2>&1 | sed 's/\x1b\[[0-9;]*m//g'); then
+            echo "$OUTPUT"
+            echo "::error::vercel deploy failed -- see the CLI output above."
+            exit 1
+          fi
           echo "$OUTPUT"
           # vercel deploy --prod outputs the deployment URL on the last line
           DEPLOYMENT_URL=$(echo "$OUTPUT" | grep -oE 'https://[a-zA-Z0-9._-]+\.vercel\.app' | tail -1)
