@@ -89,9 +89,18 @@ export default buildConfig({
           path: '@/components/admin/AdminIcon',
         },
       },
-      // Unread contact-message badge above the nav links.
-      beforeNavLinks: ['@/components/admin/ContactInboxBadge#ContactInboxBadge'],
-      beforeDashboard: ['@/components/admin/DashboardStats'],
+      // Dashboard shortcut + unread contact-message badge above the nav links.
+      beforeNavLinks: [
+        '@/components/admin/DashboardNavLink#DashboardNavLink',
+        '@/components/admin/ContactInboxBadge#ContactInboxBadge',
+      ],
+      // Stats-focused dashboard: replaces the default view, whose per-collection
+      // cards (with quick-create "+" buttons) duplicated the sidebar nav.
+      views: {
+        dashboard: {
+          Component: '@/components/admin/AdminDashboard',
+        },
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
