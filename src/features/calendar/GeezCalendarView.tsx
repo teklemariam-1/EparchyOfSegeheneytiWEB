@@ -8,7 +8,9 @@
  */
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import type { GeezCalendarDay, GeezMonthlyFeast } from '@/lib/payload/queries'
+import type { DayEventRef } from '@/lib/calendar-sync/upcoming'
 import { toGeezNumeral, weekdayOf, fixedSeasonOf } from '@/lib/geez-liturgical'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +24,7 @@ export interface CalendarLabels {
   season: string
   noEntries: string
   gregorian: string
+  events: string
 }
 
 const WEEKDAYS = [
@@ -48,11 +51,14 @@ export function GeezCalendarView({
   monthlyFeasts,
   todayIso,
   labels,
+  eventsByDate = {},
 }: {
   monthDays: GeezCalendarDay[]
   monthlyFeasts: GeezMonthlyFeast[]
   todayIso: string
   labels: CalendarLabels
+  /** yyyy-mm-dd → eparchy events on that day (multi-day events repeated). */
+  eventsByDate?: Record<string, DayEventRef[]>
 }) {
   const days = useMemo(() => [...monthDays].sort((a, b) => a.day - b.day), [monthDays])
   const feastsByDay = useMemo(() => {
@@ -104,6 +110,7 @@ export function GeezCalendarView({
             const isSunday = weekdayOf(d.gregorianDate) === 0
             const hasFeast = Boolean(d.events)
             const monthly = feastsByDay.get(d.day)
+            const dayEvents = eventsByDate[d.gregorianDate]
             const gregDay = Number(d.gregorianDate.slice(8, 10))
             return (
               <button
@@ -150,6 +157,12 @@ export function GeezCalendarView({
                       aria-hidden="true"
                     />
                   )}
+                  {dayEvents && dayEvents.length > 0 && (
+                    <span
+                      className={cn('h-1.5 w-1.5 rounded-full', isSelected ? 'bg-white' : 'bg-maroon-600')}
+                      aria-hidden="true"
+                    />
+                  )}
                   {monthly && <span aria-hidden="true">{monthly.icon ?? '✝'}</span>}
                 </span>
               </button>
@@ -164,6 +177,9 @@ export function GeezCalendarView({
           </span>
           <span className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-gold-500" /> {labels.feast}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-maroon-600" /> {labels.events}
           </span>
           <span className="flex items-center gap-1.5">
             <span aria-hidden="true">✝</span> {labels.monthlyFeast}
@@ -202,6 +218,31 @@ export function GeezCalendarView({
                 </dt>
                 <dd className="mt-1 font-geez font-medium text-gold-900 leading-relaxed dark:text-gold-100">
                   {selected.events}
+                </dd>
+              </div>
+            )}
+
+            {(eventsByDate[selected.gregorianDate]?.length ?? 0) > 0 && (
+              <div className="rounded-xl bg-maroon-50 border border-maroon-100 p-3 dark:bg-charcoal-800 dark:border-maroon-800">
+                <dt className="text-xs font-semibold uppercase tracking-wider text-maroon-800 dark:text-maroon-300">
+                  📅 {labels.events}
+                </dt>
+                <dd className="mt-1">
+                  <ul className="space-y-1">
+                    {eventsByDate[selected.gregorianDate]!.map((ev) => (
+                      <li key={ev.slug}>
+                        <Link
+                          href={`/events/${ev.slug}`}
+                          className={cn(
+                            'text-sm font-medium text-maroon-800 hover:text-maroon-900 hover:underline transition-colors dark:text-maroon-300',
+                            ev.isCancelled && 'line-through opacity-60',
+                          )}
+                        >
+                          {ev.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </dd>
               </div>
             )}

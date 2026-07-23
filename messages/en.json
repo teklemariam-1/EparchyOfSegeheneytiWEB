@@ -211,7 +211,8 @@
     "season": "Liturgical Season",
     "upcoming": "Upcoming Feasts",
     "inDays": "in {days} d",
-    "gregorian": "Gregorian"
+    "gregorian": "Gregorian",
+    "events": "Eparchy Events"
   },
   "footer": {
     "tagline": "Serving God's people through faith, community, and mission since our founding.",

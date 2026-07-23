@@ -9,13 +9,16 @@ import { GEEZ_MONTHS, GEEZ_MONTH_LABELS, type GeezMonth } from '@/lib/constants/
 import { getTranslations } from 'next-intl/server'
 import {
   getGeezCalendarDays,
+  getGeezCalendarDaysFrom,
   getGeezCalendarEntries,
   getGeezMonthlyFeasts,
-  type GeezCalendarDay,
-  type GeezMonthlyFeast,
+  getGeezAvailableYears,
+  getGeezDayByDate,
+  getEventsInRange,
 } from '@/lib/payload/queries'
 import { GeezCalendarView } from '@/features/calendar/GeezCalendarView'
-import { daysBetween } from '@/lib/geez-liturgical'
+import { buildUpcoming, eventsByDate } from '@/lib/calendar-sync/upcoming'
+import { toGeezNumeral } from '@/lib/geez-liturgical'
 import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -38,86 +41,62 @@ function formatGregorianShort(iso: string): string {
   )
 }
 
-interface UpcomingItem {
-  key: string
-  icon: string
-  name: string
-  geezLabel: string
-  gregorianDate: string
-  daysLeft: number
-}
-
-/** Next feast occurrences (annual feast days + monthly commemorations),
- *  chronological from today. */
-function buildUpcoming(
-  days: GeezCalendarDay[],
-  monthlyFeasts: GeezMonthlyFeast[],
-  today: string,
-  limit = 8,
-): UpcomingItem[] {
-  const byDay = new Map<number, GeezMonthlyFeast>()
-  for (const f of monthlyFeasts) byDay.set(f.day, f)
-
-  const items: UpcomingItem[] = []
-  for (const d of days) {
-    if (d.gregorianDate < today) continue
-    const daysLeft = daysBetween(today, d.gregorianDate)
-    if (d.events) {
-      items.push({
-        key: `${d.id}-annual`,
-        icon: '🎉',
-        name: d.events,
-        geezLabel: d.geezLabel,
-        gregorianDate: d.gregorianDate,
-        daysLeft,
-      })
-    }
-    const monthly = byDay.get(d.day)
-    if (monthly) {
-      items.push({
-        key: `${d.id}-monthly`,
-        icon: monthly.icon ?? '✝',
-        name: monthly.name,
-        geezLabel: d.geezLabel,
-        gregorianDate: d.gregorianDate,
-        daysLeft,
-      })
-    }
-    if (items.length >= limit * 2) break
-  }
-  return items.slice(0, limit)
+/** Next Gregorian day after an ISO date (yyyy-mm-dd). */
+function nextIso(iso: string): string {
+  return new Date(Date.parse(`${iso}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10)
 }
 
 export default async function GeezCalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string }>
+  searchParams: Promise<{ month?: string; year?: string }>
 }) {
-  const { month: monthParam } = await searchParams
-  const [days, monthlyFeasts, feasts, t] = await Promise.all([
-    getGeezCalendarDays(),
+  const { month: monthParam, year: yearParam } = await searchParams
+  const today = todayIso()
+
+  const [years, todayEntry, monthlyFeasts, feasts, upcomingDays, t] = await Promise.all([
+    getGeezAvailableYears(),
+    getGeezDayByDate(today),
     getGeezMonthlyFeasts(),
     getGeezCalendarEntries(),
+    getGeezCalendarDaysFrom(today, 62),
     getTranslations('calendar'),
   ])
 
-  const today = todayIso()
-  const todayEntry = days.find((d) => d.gregorianDate === today)
+  // Selected year: URL param → today's Ge'ez year → latest imported year.
+  const yearFromParam = Number(yearParam)
+  const selectedYear: number | undefined =
+    (years.includes(yearFromParam) ? yearFromParam : undefined) ??
+    todayEntry?.geezYear ??
+    years[years.length - 1]
 
-  // Selected month: URL param → today's Ge'ez month → first month with data.
+  const days = selectedYear ? await getGeezCalendarDays(selectedYear) : []
+
+  // Selected month: URL param → today's Ge'ez month (when viewing its year)
+  // → first month with data.
   const monthsWithData = new Set(days.map((d) => d.month))
   const selectedMonth: GeezMonth =
     (GEEZ_MONTHS.includes(monthParam as GeezMonth) ? (monthParam as GeezMonth) : undefined) ??
-    (todayEntry?.month as GeezMonth | undefined) ??
+    (todayEntry?.geezYear === selectedYear ? (todayEntry?.month as GeezMonth | undefined) : undefined) ??
     GEEZ_MONTHS.find((m) => monthsWithData.has(m)) ??
     'meskerem'
 
-  const monthDays = days.filter((d) => d.month === selectedMonth)
-  const geezYear = monthDays[0]?.geezYear ?? todayEntry?.geezYear
-  const upcoming = buildUpcoming(days, monthlyFeasts, today)
+  const monthDays = days
+    .filter((d) => d.month === selectedMonth)
+    .sort((a, b) => a.day - b.day)
+  const upcoming = buildUpcoming(upcomingDays, monthlyFeasts, today)
 
-  const first = [...monthDays].sort((a, b) => a.day - b.day)[0]
-  const last = [...monthDays].sort((a, b) => a.day - b.day)[monthDays.length - 1]
+  const first = monthDays[0]
+  const last = monthDays[monthDays.length - 1]
+
+  // Eparchy events overlapping the visible month, keyed by Gregorian day.
+  const monthEvents =
+    first && last ? await getEventsInRange(first.gregorianDate, nextIso(last.gregorianDate)) : []
+  const monthEventsByDate =
+    first && last ? eventsByDate(monthEvents, first.gregorianDate, last.gregorianDate) : {}
+
+  const href = (year: number, month?: GeezMonth) =>
+    `/geez-calendar?year=${year}${month ? `&month=${month}` : ''}`
 
   return (
     <>
@@ -139,6 +118,30 @@ export default async function GeezCalendarPage({
       ) : (
         <Section className="bg-parchment-50 dark:bg-charcoal-950">
           <Container>
+            {/* ── Year navigation (only once several years are imported) ── */}
+            {years.length > 1 && (
+              <nav aria-label={t('year')} className="mb-3 flex flex-wrap items-center gap-1.5">
+                <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-charcoal-400 dark:text-charcoal-300">
+                  {t('year')}
+                </span>
+                {years.map((y) => (
+                  <a
+                    key={y}
+                    href={href(y)}
+                    aria-current={y === selectedYear ? 'page' : undefined}
+                    className={cn(
+                      'rounded-full border px-3 py-1 text-sm transition-all duration-200',
+                      y === selectedYear
+                        ? 'border-gold-600 bg-gold-500 text-white shadow-sm'
+                        : 'border-charcoal-200 bg-white text-charcoal-600 hover:border-gold-400 dark:bg-charcoal-800 dark:text-charcoal-200 dark:border-charcoal-600',
+                    )}
+                  >
+                    {y} ዓ.ም.
+                  </a>
+                ))}
+              </nav>
+            )}
+
             {/* ── Month navigation ─────────────────────────────────── */}
             <nav aria-label={t('month')} className="mb-6 flex flex-wrap gap-1.5">
               {GEEZ_MONTHS.map((m) => {
@@ -146,7 +149,7 @@ export default async function GeezCalendarPage({
                 return (
                   <a
                     key={m}
-                    href={`/geez-calendar?month=${m}`}
+                    href={href(selectedYear!, m)}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
                       'rounded-full border px-3 py-1 text-sm transition-all duration-200',
@@ -167,7 +170,7 @@ export default async function GeezCalendarPage({
                 <span className="font-geez">{GEEZ_MONTH_LABELS[selectedMonth].ti}</span>
                 <span className="ml-3 text-lg text-charcoal-400 font-normal dark:text-charcoal-300">
                   {GEEZ_MONTH_LABELS[selectedMonth].en}
-                  {geezYear ? ` ${geezYear}` : ''}
+                  {selectedYear ? ` ${selectedYear}` : ''}
                 </span>
               </h2>
               {first && last && (
@@ -183,6 +186,7 @@ export default async function GeezCalendarPage({
                 monthDays={monthDays}
                 monthlyFeasts={monthlyFeasts}
                 todayIso={today}
+                eventsByDate={monthEventsByDate}
                 labels={{
                   today: t('today'),
                   feast: t('feast'),
@@ -193,6 +197,7 @@ export default async function GeezCalendarPage({
                   season: t('season'),
                   noEntries: t('noEntries'),
                   gregorian: t('gregorian'),
+                  events: t('events'),
                 }}
               />
 
@@ -255,7 +260,7 @@ export default async function GeezCalendarPage({
                   </div>
                   <p className="text-xs text-charcoal-500">
                     {entry.geezMonth && GEEZ_MONTH_LABELS[entry.geezMonth as GeezMonth]
-                      ? `${GEEZ_MONTH_LABELS[entry.geezMonth as GeezMonth].ti} ${entry.geezDay ?? ''}`
+                      ? `${GEEZ_MONTH_LABELS[entry.geezMonth as GeezMonth].ti} ${entry.geezDay ? toGeezNumeral(entry.geezDay) : ''}`
                       : null}
                     {entry.gregorianDate ? ` · ${entry.gregorianDate}` : null}
                   </p>

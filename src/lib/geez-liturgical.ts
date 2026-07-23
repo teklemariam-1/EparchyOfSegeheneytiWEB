@@ -58,3 +58,11 @@ export function fixedSeasonOf(month: string, day: number): { ti: string; en: str
 export function daysBetween(fromIso: string, toIso: string): number {
   return Math.round((Date.parse(`${toIso}T00:00:00Z`) - Date.parse(`${fromIso}T00:00:00Z`)) / 86_400_000)
 }
+
+/**
+ * Days in ጳጉሜን for an E.C. year: 6 in Ethiopic leap years (year % 4 === 3,
+ * e.g. 2015, 2019 E.C.), otherwise 5. Total year length is 360 + this.
+ */
+export function paguemenDaysIn(geezYear: number): 5 | 6 {
+  return geezYear % 4 === 3 ? 6 : 5
+}

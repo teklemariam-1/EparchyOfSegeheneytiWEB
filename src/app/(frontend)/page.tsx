@@ -5,6 +5,7 @@ import { LatestNewsSection } from '@/features/home/LatestNewsSection'
 import { UpcomingEventsSection } from '@/features/home/UpcomingEventsSection'
 import { BishopMessageSection } from '@/features/home/BishopMessageSection'
 import { QuickLinksSection } from '@/features/home/QuickLinksSection'
+import { TodaysFeast } from '@/features/calendar-sync/widgets/TodaysFeast'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { websiteSchema, organizationSchema } from '@/lib/seo/structuredData'
@@ -52,6 +53,7 @@ export default async function HomePage() {
     <>
       <JsonLd data={[websiteSchema(), organizationSchema()]} />
       <HeroSection hero={homepage.hero} />
+      <TodaysFeast />
       <BishopMessageSection config={homepage.bishopMessage} message={bishopMessage} />
       <LatestNewsSection config={homepage.latestNews} news={news} />
       <UpcomingEventsSection config={homepage.upcomingEvents} events={events} />

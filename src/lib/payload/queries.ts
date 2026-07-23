@@ -199,6 +199,55 @@ async function _getUpcomingEvents(limit = 5, locale?: string): Promise<EventList
 }
 export const getUpcomingEvents = cachedQuery(_getUpcomingEvents, 'getUpcomingEvents', ['events'])
 
+/** Light event reference for calendar-grid rendering. */
+export interface EventInRange {
+  slug: string
+  title: string
+  /** ISO datetime */
+  startDate: string
+  endDate?: string
+  isAllDay?: boolean
+  isCancelled?: boolean
+}
+
+/** Published events overlapping [fromIso, toIso) — both yyyy-mm-dd.
+ *  Includes multi-day events that started before the range. */
+async function _getEventsInRange(fromIso: string, toIso: string, locale?: string): Promise<EventInRange[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'events',
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          { startDate: { less_than: toIso } },
+          {
+            or: [
+              { endDate: { greater_than_equal: fromIso } },
+              { and: [{ endDate: { exists: false } }, { startDate: { greater_than_equal: fromIso } }] },
+            ],
+          },
+        ],
+      },
+      sort: 'startDate',
+      limit: 200,
+      depth: 0,
+      ...(locale ? { locale } : {}),
+    } as any)
+    return (result.docs as any[]).map((d) => ({
+      slug: d.slug,
+      title: d.title,
+      startDate: d.startDate,
+      endDate: d.endDate ?? undefined,
+      isAllDay: d.isAllDay ?? undefined,
+      isCancelled: d.isCancelled ?? undefined,
+    }))
+  } catch {
+    return []
+  }
+}
+export const getEventsInRange = cachedQuery(_getEventsInRange, 'getEventsInRange', ['events'])
+
 async function _getEventsList(opts: {
   limit?: number
   page?: number
@@ -629,32 +678,98 @@ export interface GeezCalendarDay {
   events?: string
 }
 
-async function _getGeezCalendarDays(): Promise<GeezCalendarDay[]> {
+function mapGeezDay(d: any): GeezCalendarDay {
+  return {
+    id: d.id,
+    geezLabel: d.geezLabel,
+    month: d.month,
+    day: d.day,
+    geezYear: d.geezYear,
+    gregorianDate: typeof d.gregorianDate === 'string' ? d.gregorianDate.slice(0, 10) : '',
+    readings: d.readings ?? undefined,
+    antiphon: d.antiphon ?? undefined,
+    deceasedClergy: d.deceasedClergy ?? undefined,
+    events: d.events ?? undefined,
+  }
+}
+
+/** All days of one Ge'ez year (E.C.). A year has at most 366 days, so the
+ *  limit never truncates — but only when filtered by year, hence required. */
+async function _getGeezCalendarDays(geezYear: number): Promise<GeezCalendarDay[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
       collection: 'geez-calendar-days',
+      where: { geezYear: { equals: geezYear } },
       sort: 'gregorianDate',
       limit: 400,
       depth: 0,
     } as any)
-    return (result.docs as any[]).map((d) => ({
-      id: d.id,
-      geezLabel: d.geezLabel,
-      month: d.month,
-      day: d.day,
-      geezYear: d.geezYear,
-      gregorianDate: typeof d.gregorianDate === 'string' ? d.gregorianDate.slice(0, 10) : '',
-      readings: d.readings ?? undefined,
-      antiphon: d.antiphon ?? undefined,
-      deceasedClergy: d.deceasedClergy ?? undefined,
-      events: d.events ?? undefined,
-    }))
+    return (result.docs as any[]).map(mapGeezDay)
   } catch {
     return []
   }
 }
 export const getGeezCalendarDays = cachedQuery(_getGeezCalendarDays, 'getGeezCalendarDays', ['geez'])
+
+/** Distinct imported Ge'ez years, ascending. */
+async function _getGeezAvailableYears(): Promise<number[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'geez-calendar-days',
+      select: { geezYear: true },
+      limit: 10_000,
+      depth: 0,
+    } as any)
+    const years = new Set<number>()
+    for (const d of result.docs as any[]) {
+      if (typeof d?.geezYear === 'number') years.add(d.geezYear)
+    }
+    return [...years].sort((a, b) => a - b)
+  } catch {
+    return []
+  }
+}
+export const getGeezAvailableYears = cachedQuery(_getGeezAvailableYears, 'getGeezAvailableYears', ['geez'])
+
+/** The Ge'ez day for one Gregorian date (yyyy-mm-dd), or null when not imported. */
+async function _getGeezDayByDate(iso: string): Promise<GeezCalendarDay | null> {
+  try {
+    const payload = await getPayload()
+    const next = new Date(Date.parse(`${iso}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10)
+    const result = await payload.find({
+      collection: 'geez-calendar-days',
+      where: { and: [{ gregorianDate: { greater_than_equal: iso } }, { gregorianDate: { less_than: next } }] },
+      limit: 1,
+      depth: 0,
+    } as any)
+    const d = (result.docs as any[])[0]
+    return d ? mapGeezDay(d) : null
+  } catch {
+    return null
+  }
+}
+export const getGeezDayByDate = cachedQuery(_getGeezDayByDate, 'getGeezDayByDate', ['geez'])
+
+/** Days from a Gregorian date onward (crossing Ge'ez year boundaries),
+ *  for "upcoming feasts" style lookaheads. */
+async function _getGeezCalendarDaysFrom(iso: string, limit = 60): Promise<GeezCalendarDay[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'geez-calendar-days',
+      where: { gregorianDate: { greater_than_equal: iso } },
+      sort: 'gregorianDate',
+      limit,
+      depth: 0,
+    } as any)
+    return (result.docs as any[]).map(mapGeezDay)
+  } catch {
+    return []
+  }
+}
+export const getGeezCalendarDaysFrom = cachedQuery(_getGeezCalendarDaysFrom, 'getGeezCalendarDaysFrom', ['geez'])
 
 export interface GeezMonthlyFeast {
   day: number

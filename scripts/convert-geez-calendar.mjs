@@ -13,6 +13,12 @@
  *    entries carry)
  *  - "DD-MM-YY" Gregorian dates → ISO "20YY-MM-DD" (stray suffixes like
  *    "ፈረንጂ" are ignored)
+ *
+ * Validation: the E.C. year length is enforced (360 + 5 Paguemen days, or 6
+ * when year % 4 === 3). The 2018 E.C. book carried six Paguemen texts in a
+ * 5-day Paguemen year — one entry too many, which silently shifted every
+ * date after the surplus row. A wrong entry count now fails the conversion
+ * (override with --allow-length-mismatch after fixing the input by hand).
  */
 
 import fs from 'node:fs'
@@ -60,11 +66,17 @@ function parseGregorian(str) {
   return `20${m[3]}-${m[2]}-${m[1]}`
 }
 
-const [, , input, output = 'src/migrations/data/geez-calendar-days.json'] = process.argv
+const args = process.argv.slice(2).filter((a) => a !== '--allow-length-mismatch')
+const allowLengthMismatch = process.argv.includes('--allow-length-mismatch')
+const [input, output = 'src/migrations/data/geez-calendar-days.json'] = args
 if (!input) {
-  console.error('Usage: node scripts/convert-geez-calendar.mjs <input.json> [output.json]')
+  console.error('Usage: node scripts/convert-geez-calendar.mjs <input.json> [output.json] [--allow-length-mismatch]')
   process.exit(1)
 }
+
+/** ጳጉሜን days for an E.C. year: 6 in Ethiopic leap years (year % 4 === 3), else 5.
+ *  Keep in sync with paguemenDaysIn() in src/lib/geez-liturgical.ts. */
+const paguemenDaysIn = (year) => (year % 4 === 3 ? 6 : 5)
 
 const raw = JSON.parse(fs.readFileSync(input, 'utf8'))
 const source = raw.liturgical_calendar
@@ -78,6 +90,34 @@ for (const e of source) {
 }
 const fallbackYear = Number(Object.entries(yearCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 0)
 if (!fallbackYear) throw new Error('Could not infer the Geʼez year from the data')
+
+// ── Year-length validation ──────────────────────────────────────────────────
+// A surplus or missing entry shifts every date after it, so a wrong count is
+// fatal, not a warning. Duplicated per-entry Gregorian dates locate the
+// culprit (the 2018 book duplicated 07-09 across ጳጉሜን 2/3).
+const expectedLength = 360 + paguemenDaysIn(fallbackYear)
+if (source.length !== expectedLength) {
+  const dupes = []
+  for (let i = 1; i < source.length; i++) {
+    const prev = parseGregorian(source[i - 1]?.gregorian_date)
+    const cur = parseGregorian(source[i]?.gregorian_date)
+    if (prev && cur && prev === cur) {
+      dupes.push(`#${i - 1}/#${i}: "${source[i - 1].date}" and "${source[i].date}" both ${cur}`)
+    }
+  }
+  const msg = [
+    `Year ${fallbackYear} E.C. must have ${expectedLength} days (ጳጉሜን ${paguemenDaysIn(fallbackYear)}), but the input has ${source.length} entries.`,
+    dupes.length
+      ? `Suspect duplicated Gregorian dates:\n  ${dupes.join('\n  ')}`
+      : 'No duplicated Gregorian dates found — check for missing or extra rows.',
+    'Fix the input, or re-run with --allow-length-mismatch to proceed anyway.',
+  ].join('\n')
+  if (allowLengthMismatch) console.warn(msg)
+  else {
+    console.error(msg)
+    process.exit(1)
+  }
+}
 
 /** 1–30 as Ge'ez numerals, for rebuilding broken date labels. */
 function toGeezNumeral(n) {
