@@ -29,6 +29,8 @@ import {
   getMinistriesList,
   getPublicationsList,
   getMagazinesList,
+  getMediaGallery,
+  getArchivesList,
   getSiteSettings,
   getLatestBishopMessage,
   getBishopMessagesList,
@@ -498,6 +500,64 @@ describe('getMagazinesList', () => {
   it('returns empty array on error', async () => {
     mockError()
     expect(await getMagazinesList()).toEqual([])
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MEDIA GALLERY / ARCHIVES ACCESS CONTROL
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('getMediaGallery', () => {
+  it('only ever queries public media (accessLevel filter is always applied)', async () => {
+    const findMock = vi.fn().mockResolvedValue({ docs: [], ...EMPTY_PAGINATION })
+    vi.mocked(getPayload).mockResolvedValue({ find: findMock } as any)
+
+    await getMediaGallery()
+    expect(findMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'media',
+        where: expect.objectContaining({
+          or: [
+            { accessLevel: { equals: 'public' } },
+            { accessLevel: { exists: false } },
+          ],
+        }),
+      }),
+    )
+  })
+
+  it('keeps the access filter when a category filter is added', async () => {
+    const findMock = vi.fn().mockResolvedValue({ docs: [], ...EMPTY_PAGINATION })
+    vi.mocked(getPayload).mockResolvedValue({ find: findMock } as any)
+
+    await getMediaGallery({ category: 'event' })
+    const call = findMock.mock.calls[0]![0]
+    expect(call.where.category).toEqual({ equals: 'event' })
+    expect(call.where.or).toEqual([
+      { accessLevel: { equals: 'public' } },
+      { accessLevel: { exists: false } },
+    ])
+  })
+})
+
+describe('getArchivesList', () => {
+  const archiveDoc = (accessLevel: string) => ({
+    id: `a-${accessLevel}`,
+    slug: `arch-${accessLevel}`,
+    title: 'Synod Records',
+    accessLevel,
+    year: 2020,
+    category: 'synod',
+    description: 'Records',
+    files: [{ file: { url: '/api/media/file/secret.pdf' } }],
+  })
+
+  it('exposes file URLs only for public archives', async () => {
+    mockFind({ docs: [archiveDoc('public'), archiveDoc('restricted')] })
+    const result = await getArchivesList()
+    expect(result).toHaveLength(2)
+    expect(result[0]).toMatchObject({ accessTier: 'public', fileUrl: '/api/media/file/secret.pdf' })
+    expect(result[1]).toMatchObject({ accessTier: 'restricted', fileUrl: null })
   })
 })
 

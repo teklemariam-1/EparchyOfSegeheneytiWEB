@@ -552,8 +552,13 @@ async function _getArchivesList(limit = 50): Promise<ArchiveItem[]> {
       year: d.year,
       category: d.category,
       description: d.description,
-      // First attached file (public archives only expose a working link).
-      fileUrl: Array.isArray(d.files) && d.files[0]?.file?.url ? d.files[0].file.url : null,
+      // First attached file. Restricted archives must never expose a URL —
+      // the frontend hides the link, but the URL would still ship in the
+      // server-rendered payload, so strip it here.
+      fileUrl:
+        d.accessLevel !== 'restricted' && Array.isArray(d.files) && d.files[0]?.file?.url
+          ? d.files[0].file.url
+          : null,
     }))
   } catch {
     return []
@@ -696,7 +701,15 @@ async function _getMediaGallery(opts: {
   try {
     const payload = await getPayload()
     const { limit = 24, category, page = 1 } = opts
-    const where: Record<string, unknown> = {}
+    // The local Payload API bypasses collection access control, so the public
+    // gallery must enforce the Media collection's read rule itself: only
+    // public assets (missing accessLevel = legacy uploads, treated as public).
+    const where: Record<string, unknown> = {
+      or: [
+        { accessLevel: { equals: 'public' } },
+        { accessLevel: { exists: false } },
+      ],
+    }
     if (category && category !== 'all') where.category = { equals: category }
     const result = await payload.find({
       collection: 'media',
