@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import type { HomepageGlobal } from '@/lib/payload/queries'
+import type { HomepageGlobal, CMSImage } from '@/lib/payload/queries'
 
 interface Props {
   hero?: HomepageGlobal['hero']
+  /** Round site emblem shown top-right (Site Settings → Show logo on homepage banner). */
+  logo?: CMSImage | null
 }
 
 /** Brand tints selectable in the CMS. */
@@ -15,7 +17,7 @@ const OVERLAY_COLORS: Record<string, string> = {
   gold: '#7a5b16',
 }
 
-export function HeroSection({ hero }: Props) {
+export function HeroSection({ hero, logo }: Props) {
   const heading = hero?.headline ?? "Serving God's People"
   const subheading = hero?.subheading
   const ctaPrimary = hero?.primaryCta ?? { label: 'Learn About the Eparchy', url: '/about' }
@@ -82,6 +84,23 @@ export function HeroSection({ hero }: Props) {
 
       {/* Gold top accent */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600" />
+
+      {/* Round site emblem, top-right. Sized/offset per breakpoint so it sits
+          in the open sky area of the banner without crowding the text column. */}
+      {logo?.url && (
+        <div className="absolute z-10 right-4 top-6 sm:right-8 sm:top-12 lg:right-16 lg:top-20 xl:right-24">
+          <div className="h-16 w-16 sm:h-24 sm:w-24 lg:h-36 lg:w-36 rounded-full bg-white/95 p-1.5 sm:p-2 shadow-xl ring-2 ring-gold-400/80">
+            <Image
+              src={logo.url}
+              alt={logo.alt || 'Eparchy of Segeneyti emblem'}
+              width={144}
+              height={144}
+              className="h-full w-full rounded-full object-contain"
+              sizes="(max-width: 640px) 64px, (max-width: 1024px) 96px, 144px"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40">
         <div className="max-w-3xl">

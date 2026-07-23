@@ -49,6 +49,16 @@ export const SiteSettings: GlobalConfig = {
       admin: { description: 'Dark variant of the logo (used on light backgrounds).' },
     },
     {
+      name: 'showHeroLogo',
+      type: 'checkbox',
+      defaultValue: true,
+      label: 'Show logo on homepage banner',
+      admin: {
+        description:
+          'Display the site logo as a round emblem in the top-right of the homepage hero banner. Uses the Main site logo above.',
+      },
+    },
+    {
       name: 'favicon',
       type: 'upload',
       relationTo: 'media',

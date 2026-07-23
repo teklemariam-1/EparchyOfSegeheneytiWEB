@@ -24,6 +24,7 @@ import * as migration_20260722_173951_geez_calendar_days from './20260722_173951
 import * as migration_20260723_040238_geez_monthly_feasts from './20260723_040238_geez_monthly_feasts';
 import * as migration_20260723_051512_analytics_dimensions from './20260723_051512_analytics_dimensions';
 import * as migration_20260723_071051_calendar_integrity from './20260723_071051_calendar_integrity';
+import * as migration_20260723_143752_hero_logo_toggle from './20260723_143752_hero_logo_toggle';
 
 export const migrations = [
   {
@@ -154,6 +155,11 @@ export const migrations = [
   {
     up: migration_20260723_071051_calendar_integrity.up,
     down: migration_20260723_071051_calendar_integrity.down,
-    name: '20260723_071051_calendar_integrity'
+    name: '20260723_071051_calendar_integrity',
+  },
+  {
+    up: migration_20260723_143752_hero_logo_toggle.up,
+    down: migration_20260723_143752_hero_logo_toggle.down,
+    name: '20260723_143752_hero_logo_toggle'
   },
 ];

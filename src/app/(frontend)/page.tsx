@@ -14,6 +14,7 @@ import {
   getNewsList,
   getUpcomingEvents,
   getLatestBishopMessage,
+  getSiteSettings,
 } from '@/lib/payload/queries'
 
 export const metadata: Metadata = buildMetadata({
@@ -32,6 +33,7 @@ export default async function HomePage() {
   let news: Awaited<ReturnType<typeof getNewsList>>['docs'] = []
   let events: Awaited<ReturnType<typeof getUpcomingEvents>> = []
   let bishopMessage: Awaited<ReturnType<typeof getLatestBishopMessage>> = null
+  let settings: Awaited<ReturnType<typeof getSiteSettings>> = {}
 
   try {
     homepage = await getHomepageGlobal(locale)
@@ -41,18 +43,23 @@ export default async function HomePage() {
       getNewsList({ limit: newsLimit, locale }),
       getUpcomingEvents(eventsLimit, locale),
       getLatestBishopMessage(locale),
+      getSiteSettings(locale),
     ])
     news = results[0].docs
     events = results[1]
     bishopMessage = results[2]
+    settings = results[3]
   } catch {
     // DB unavailable — render full page structure with empty data
   }
 
+  // Hero emblem: shown unless explicitly disabled in Site Settings.
+  const heroLogo = settings.showHeroLogo !== false ? (settings.logo ?? settings.logoDark) : null
+
   return (
     <>
       <JsonLd data={[websiteSchema(), organizationSchema()]} />
-      <HeroSection hero={homepage.hero} />
+      <HeroSection hero={homepage.hero} logo={heroLogo} />
       <TodaysFeast />
       <BishopMessageSection config={homepage.bishopMessage} message={bishopMessage} />
       <LatestNewsSection config={homepage.latestNews} news={news} />

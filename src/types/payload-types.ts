@@ -2714,6 +2714,10 @@ export interface SiteSetting {
    */
   logoDark?: (number | null) | Media;
   /**
+   * Display the site logo as a round emblem in the top-right of the homepage hero banner. Uses the Main site logo above.
+   */
+  showHeroLogo?: boolean | null;
+  /**
    * Favicon image (ICO or 32×32 PNG).
    */
   favicon?: (number | null) | Media;
@@ -3195,6 +3199,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   siteDescription?: T;
   logo?: T;
   logoDark?: T;
+  showHeroLogo?: T;
   favicon?: T;
   defaultOgImage?: T;
   contact?:

@@ -1225,6 +1225,8 @@ export interface SiteSettingsGlobal {
   // so the uploaded logo was silently ignored and the placeholder mark shown.
   logo?: CMSImage | null
   logoDark?: CMSImage | null
+  /** Homepage hero emblem toggle — show unless explicitly disabled. */
+  showHeroLogo?: boolean | null
   contact?: {
     address?: string
     city?: string
