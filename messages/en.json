@@ -222,6 +222,8 @@
     "providerGoogle": "Google Calendar",
     "providerApple": "Apple Calendar (webcal)",
     "providerOutlook": "Outlook.com",
+    "downloadFeed": "Download .ics (Samsung / offline)",
+    "samsungHint": "Two ways to get these calendars into Samsung Calendar: (1) Auto-updating — tap the Google Calendar button, sign in once on the web, and the calendar appears in Samsung Calendar via your Google account (turn it on under Samsung Calendar → Manage calendars); synced events are stored on the phone and visible offline. (2) Fully offline — tap Download .ics on the phone, open the file, and choose Samsung Calendar to import; all events are saved directly on the device with no account and no internet needed. The offline import is a one-time copy, so re-import after each new Ge'ez year is published.",
     "allParishes": "All parishes",
     "addToCalendar": "Add to Google Calendar",
     "downloadIcs": "Download .ics"

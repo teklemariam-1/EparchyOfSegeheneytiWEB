@@ -13,6 +13,7 @@ export interface FeedCardLabels {
   google: string
   apple: string
   outlook: string
+  download: string
   allParishes: string
 }
 
@@ -106,6 +107,11 @@ export function FeedCard({
           className={pill}
         >
           <span aria-hidden="true">📧</span> {labels.outlook}
+        </a>
+        {/* Direct .ics download — importable into Samsung Calendar and other
+            phone calendars as offline device events (no account needed). */}
+        <a href={url} download className={pill}>
+          <span aria-hidden="true">⬇</span> {labels.download}
         </a>
       </div>
     </div>

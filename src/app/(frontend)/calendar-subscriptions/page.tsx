@@ -29,6 +29,7 @@ export default async function CalendarSubscriptionsPage() {
     google: t('providerGoogle'),
     apple: t('providerApple'),
     outlook: t('providerOutlook'),
+    download: t('downloadFeed'),
     allParishes: t('allParishes'),
   }
 
@@ -59,9 +60,13 @@ export default async function CalendarSubscriptionsPage() {
             ))}
           </div>
 
-          <p className="mt-8 text-sm text-charcoal-500 leading-relaxed max-w-2xl dark:text-charcoal-300">
-            {t('subscribeHint')}
-          </p>
+          <div className="mt-8 max-w-2xl space-y-3 text-sm text-charcoal-500 leading-relaxed dark:text-charcoal-300">
+            <p>{t('subscribeHint')}</p>
+            <p>
+              <strong className="text-charcoal-700 dark:text-charcoal-100">Samsung / Android · </strong>
+              {t('samsungHint')}
+            </p>
+          </div>
         </Container>
       </Section>
     </>

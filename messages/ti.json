@@ -222,6 +222,8 @@
     "providerGoogle": "Google Calendar",
     "providerApple": "Apple Calendar (webcal)",
     "providerOutlook": "Outlook.com",
+    "downloadFeed": "ፋይል .ics ኣውርድ (Samsung / ብዘይ ኢንተርነት)",
+    "samsungHint": "ናብ Samsung Calendar ንምእታው ክልተ መንገዲ ኣሎ፦ (1) ባዕሉ ዝሕደስ — ብ Google Calendar መልጎም ተመዝገቡ፣ እቲ ዓውደ-ኣዋርሕ ብ Google ኣካውንትኹም ኣብ Samsung Calendar ይረአ (ኣብ Samsung Calendar → Manage calendars ኣብርህዎ)፤ ዝተመሳሰሉ ኣጋጣሚታት ኣብ ተሌፎን ተዓቂቦም ብዘይ ኢንተርነት ይረኣዩ። (2) ምሉእ ብምሉእ ብዘይ ኢንተርነት — ኣብ ተሌፎንኩም Download .ics ጠውቑ፣ ነቲ ፋይል ክፈትዎ እሞ Samsung Calendar ምረጹ፤ ኩሎም ኣጋጣሚታት ብዘይ ኣካውንትን ኢንተርነትን ኣብ መሳርሒኹም ይዕቀቡ። እዚ ናይ ሓደ ግዜ ቅዳሕ ስለ ዝኾነ፣ ሓድሽ ዓመት ግዕዝ ምስ ተሓትመ እንደገና ኣእትውዎ።",
     "allParishes": "ኩለን ቁምስናታት",
     "addToCalendar": "ናብ Google Calendar ወስኽ",
     "downloadIcs": "ፋይል .ics ኣውርድ"
