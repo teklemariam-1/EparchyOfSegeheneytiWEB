@@ -212,7 +212,19 @@
     "upcoming": "ዝመጹ በዓላት",
     "inDays": "ኣብ {days} መዓልቲ",
     "gregorian": "ፈረንጂ",
-    "events": "ናይ ኤጳርቅና ኣጋጣሚታት"
+    "events": "ናይ ኤጳርቅና ኣጋጣሚታት",
+    "subscribe": "ተኸታተል",
+    "subscribeTitle": "ምክትታል ዓውደ-ኣዋርሕ",
+    "subscribeSubtitle": "በዓላት፣ ኣጽዋማትን ኣጋጣሚታትን ኣብ ናይ ገዛእ ርእስኹም መተግበሪ ዓውደ-ኣዋርሕ ተኸታተሉ",
+    "subscribeHint": "ምምዝጋብ ንዓውደ-ኣዋርሕኩም ብቐጻሊ የሐድሶ። ኣብ Google Calendar፡ feeds ብመርበብ (calendar.google.com) ክውሰኹ ኣለዎም — ድሕሪኡ ኣብ ሞባይል መተግበሪ እውን ይረኣዩ። ኣብ iPhone፣ iPad ን Mac ን፡ እቲ webcal መላግቦ ብቐጥታ Apple Calendar ይኸፍት። ምሕዳስ ክሳብ ሓደ መዓልቲ ክወስድ ይኽእል።",
+    "copyUrl": "URL ቅዳሕ",
+    "copied": "ተቐዲሑ!",
+    "providerGoogle": "Google Calendar",
+    "providerApple": "Apple Calendar (webcal)",
+    "providerOutlook": "Outlook.com",
+    "allParishes": "ኩለን ቁምስናታት",
+    "addToCalendar": "ናብ Google Calendar ወስኽ",
+    "downloadIcs": "ፋይል .ics ኣውርድ"
   },
   "footer": {
     "tagline": "ካብ ምምስራቱ ጀሚሩ ንሕዝቢ ኣምላኽ ብእምነት፣ ሕብረተሰብን ተልእኾን ኣገልጊሉ።",

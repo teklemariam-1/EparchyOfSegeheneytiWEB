@@ -13,6 +13,7 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import { eventSchema } from '@/lib/seo/structuredData'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { getEventBySlug,  getEventsList } from '@/lib/payload/queries'
+import { AddToCalendar } from '@/features/calendar-sync/AddToCalendar'
 
 // This page resolves the active locale from the NEXT_LOCALE cookie, so it can
 // never be statically generated. Marking it dynamic prevents Next from trying
@@ -39,6 +40,7 @@ export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params
   const locale = await getLocale()
   const t = await getTranslations('events')
+  const tCal = await getTranslations('calendar')
   const [ev, { docs: upcoming }] = await Promise.all([
     getEventBySlug(slug, locale),
     getEventsList({ upcoming: true, limit: 4, locale }),
@@ -131,6 +133,24 @@ export default async function EventDetailPage({ params }: Props) {
                       </Link>
                     </p>
                   )}
+                  <div className="mt-3">
+                    <AddToCalendar
+                      event={{
+                        title: ev.title,
+                        start: ev.isAllDay ? ev.startDate.slice(0, 10) : ev.startDate,
+                        end: ev.endDate
+                          ? ev.isAllDay
+                            ? ev.endDate.slice(0, 10)
+                            : ev.endDate
+                          : undefined,
+                        allDay: Boolean(ev.isAllDay),
+                        description: ev.excerpt,
+                        location: [ventue, address].filter(Boolean).join(', ') || undefined,
+                      }}
+                      icsHref={`/api/calendar/event/${slug}.ics`}
+                      labels={{ google: tCal('addToCalendar'), ics: tCal('downloadIcs') }}
+                    />
+                  </div>
                 </div>
               </div>
 

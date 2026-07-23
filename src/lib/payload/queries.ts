@@ -167,6 +167,7 @@ export interface EventListItem {
   startDate: string
   endDate?: string
   isAllDay?: boolean
+  isCancelled?: boolean
   eventType?: string
   location?: { venue?: string; city?: string; address?: string }
   parish?: { title?: string; slug?: string } | null
@@ -324,6 +325,7 @@ function mapEvent(d: any): EventListItem {
     startDate: d.startDate,
     endDate: d.endDate,
     isAllDay: d.isAllDay,
+    isCancelled: d.isCancelled,
     eventType: d.eventType,
     location: d.location ? { venue: d.location.name, address: d.location.address } : undefined,
     parish: d.parish ? { title: d.parish.name ?? d.parish.title, slug: d.parish.slug } : null,
@@ -770,6 +772,83 @@ async function _getGeezCalendarDaysFrom(iso: string, limit = 60): Promise<GeezCa
   }
 }
 export const getGeezCalendarDaysFrom = cachedQuery(_getGeezCalendarDaysFrom, 'getGeezCalendarDaysFrom', ['geez'])
+
+/** Every imported day across all years, plus updatedAt — the working set for
+ *  ICS feeds (a decade of data is < 4k small rows). */
+export interface GeezFeedDay extends GeezCalendarDay {
+  updatedAt?: string
+}
+
+async function _getGeezDaysForFeeds(): Promise<GeezFeedDay[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'geez-calendar-days',
+      sort: 'gregorianDate',
+      limit: 4000,
+      depth: 0,
+    } as any)
+    return (result.docs as any[]).map((d) => ({
+      ...mapGeezDay(d),
+      updatedAt: typeof d.updatedAt === 'string' ? d.updatedAt : undefined,
+    }))
+  } catch {
+    return []
+  }
+}
+export const getGeezDaysForFeeds = cachedQuery(_getGeezDaysForFeeds, 'getGeezDaysForFeeds', ['geez'])
+
+/** Event fields needed by ICS feeds and add-to-calendar links. */
+export interface EventForFeed extends EventInRange {
+  excerpt?: string
+  locationName?: string
+  locationAddress?: string
+  updatedAt?: string
+}
+
+/** Published events from ~3 months back onward, optionally parish-scoped.
+ *  The short backward window keeps recently-finished events in subscribed
+ *  calendars instead of vanishing the day after they end. */
+async function _getEventsForCalendarFeed(parishSlug?: string): Promise<EventForFeed[]> {
+  try {
+    const payload = await getPayload()
+    const from = new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10)
+    const where: Record<string, unknown> = {
+      and: [
+        { _status: { equals: 'published' } },
+        {
+          or: [
+            { startDate: { greater_than_equal: from } },
+            { endDate: { greater_than_equal: from } },
+          ],
+        },
+        ...(parishSlug ? [{ 'parish.slug': { equals: parishSlug } }] : []),
+      ],
+    }
+    const result = await payload.find({
+      collection: 'events',
+      where,
+      sort: 'startDate',
+      limit: 500,
+      depth: 0,
+    } as any)
+    return (result.docs as any[]).map((d) => ({
+      slug: d.slug,
+      title: d.title,
+      startDate: d.startDate,
+      endDate: d.endDate ?? undefined,
+      isAllDay: d.isAllDay ?? undefined,
+      isCancelled: d.isCancelled ?? undefined,
+      excerpt: d.excerpt ?? undefined,
+      locationName: d.location?.name ?? undefined,
+      locationAddress: d.location?.address ?? undefined,
+      updatedAt: typeof d.updatedAt === 'string' ? d.updatedAt : undefined,
+    }))
+  } catch {
+    return []
+  }
+}
+export const getEventsForCalendarFeed = cachedQuery(_getEventsForCalendarFeed, 'getEventsForCalendarFeed', ['events'])
 
 export interface GeezMonthlyFeast {
   day: number

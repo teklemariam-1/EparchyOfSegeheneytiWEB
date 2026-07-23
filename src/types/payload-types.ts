@@ -702,18 +702,18 @@ export interface GeezCalendarEntry {
   geezDate: {
     month:
       | 'meskerem'
-      | 'tikmt'
+      | 'tikimit'
       | 'hidar'
       | 'tahsas'
       | 'tir'
       | 'yekatit'
       | 'megabit'
-      | 'miyazya'
+      | 'miyazia'
       | 'ginbot'
       | 'sene'
       | 'hamle'
       | 'nehase'
-      | 'pagume';
+      | 'paguemen';
     day: number;
   };
   gregorianEquivalent?: {

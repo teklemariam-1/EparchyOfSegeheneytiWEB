@@ -212,7 +212,19 @@
     "upcoming": "Upcoming Feasts",
     "inDays": "in {days} d",
     "gregorian": "Gregorian",
-    "events": "Eparchy Events"
+    "events": "Eparchy Events",
+    "subscribe": "Subscribe",
+    "subscribeTitle": "Calendar Subscriptions",
+    "subscribeSubtitle": "Follow feasts, fasts and events in your own calendar app",
+    "subscribeHint": "Subscribing keeps your calendar up to date automatically. In Google Calendar, feeds must be added on the web (calendar.google.com) — the mobile app then shows them too. On iPhone, iPad and Mac the webcal link opens Apple Calendar directly. Updates can take up to a day to reach subscribed calendars.",
+    "copyUrl": "Copy URL",
+    "copied": "Copied!",
+    "providerGoogle": "Google Calendar",
+    "providerApple": "Apple Calendar (webcal)",
+    "providerOutlook": "Outlook.com",
+    "allParishes": "All parishes",
+    "addToCalendar": "Add to Google Calendar",
+    "downloadIcs": "Download .ics"
   },
   "footer": {
     "tagline": "Serving God's people through faith, community, and mission since our founding.",

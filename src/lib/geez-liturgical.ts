@@ -22,18 +22,22 @@ export function weekdayOf(iso: string): number {
  * same every year are included — movable seasons (Great Lent, Eastertide,
  * the Apostles' fast) are intentionally omitted rather than guessed.
  */
-const FIXED_SEASONS: Array<{
+export interface FixedSeason {
   from: { month: GeezMonth; day: number }
   to: { month: GeezMonth; day: number }
   ti: string
   en: string
-}> = [
+  /** True for fasting windows (used by the fasting calendar feed). */
+  fast?: boolean
+}
+
+export const FIXED_SEASONS: FixedSeason[] = [
   { from: { month: 'meskerem', day: 1 }, to: { month: 'meskerem', day: 16 }, ti: 'ዘመነ ቅዱስ ዮሓንስ', en: 'Season of the New Year' },
   { from: { month: 'meskerem', day: 17 }, to: { month: 'meskerem', day: 17 }, ti: 'በዓለ መስቀል', en: 'Feast of the Cross (Meskel)' },
-  { from: { month: 'hidar', day: 15 }, to: { month: 'tahsas', day: 28 }, ti: 'ጾመ ልደት', en: 'Advent Fast' },
+  { from: { month: 'hidar', day: 15 }, to: { month: 'tahsas', day: 28 }, ti: 'ጾመ ልደት', en: 'Advent Fast', fast: true },
   { from: { month: 'tahsas', day: 29 }, to: { month: 'tir', day: 10 }, ti: 'ዘመነ ልደት', en: 'Christmastide' },
   { from: { month: 'tir', day: 11 }, to: { month: 'tir', day: 12 }, ti: 'በዓለ ጥምቀት', en: 'Epiphany (Timket)' },
-  { from: { month: 'nehase', day: 1 }, to: { month: 'nehase', day: 16 }, ti: 'ጾመ ፍልሰታ', en: 'Assumption Fast (Filseta)' },
+  { from: { month: 'nehase', day: 1 }, to: { month: 'nehase', day: 16 }, ti: 'ጾመ ፍልሰታ', en: 'Assumption Fast (Filseta)', fast: true },
 ]
 
 const MONTH_INDEX: Record<string, number> = {

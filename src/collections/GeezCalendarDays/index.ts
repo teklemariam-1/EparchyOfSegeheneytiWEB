@@ -1,7 +1,33 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, PayloadRequest } from 'payload'
+import { sql } from '@payloadcms/db-postgres'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 import { GEEZ_MONTHS, GEEZ_MONTH_LABELS } from '../../lib/constants/geezMonths'
+import {
+  validateYearRows,
+  checkExistingDays,
+  type ImportRow,
+} from '../../lib/calendar-sync/import-validation'
+
+const canManageCalendar = (req: PayloadRequest): boolean => {
+  const role = (req.user as { role?: string } | null)?.role
+  return role === 'super-admin' || role === 'chancery-editor'
+}
+
+async function fetchExistingDays(req: PayloadRequest) {
+  const result = await req.payload.find({
+    collection: 'geez-calendar-days',
+    sort: 'gregorianDate',
+    limit: 10_000,
+    depth: 0,
+  })
+  return (result.docs as unknown as Array<Record<string, unknown>>).map((d) => ({
+    month: String(d.month),
+    day: Number(d.day),
+    geezYear: Number(d.geezYear),
+    gregorianDate: String(d.gregorianDate).slice(0, 10),
+  }))
+}
 
 /**
  * One document per day of the Ge'ez liturgical year: readings, antiphon,
@@ -30,6 +56,94 @@ export const GeezCalendarDays: CollectionConfig = {
   // silently duplicate or overlap days. (A unique index on the Gregorian
   // calendar day lives in SQL — see the calendar_integrity migration.)
   indexes: [{ unique: true, fields: ['geezYear', 'month', 'day'] }],
+  endpoints: [
+    {
+      // GET /api/geez-calendar-days/integrity — health report over the live
+      // data: per-year completeness, duplicates, Gregorian continuity.
+      path: '/integrity',
+      method: 'get',
+      handler: async (req) => {
+        if (!canManageCalendar(req)) {
+          return Response.json({ error: 'Forbidden' }, { status: 403 })
+        }
+        const report = checkExistingDays(await fetchExistingDays(req))
+        return Response.json(report)
+      },
+    },
+    {
+      // POST /api/geez-calendar-days/import — import one E.C. year produced
+      // by scripts/convert-geez-calendar.mjs.
+      // Body: { rows: ImportRow[], dryRun?: boolean }. Validation failures
+      // return 422 with the issue list; dryRun always stops after validation.
+      path: '/import',
+      method: 'post',
+      handler: async (req) => {
+        if (!canManageCalendar(req)) {
+          return Response.json({ error: 'Forbidden' }, { status: 403 })
+        }
+        let body: { rows?: ImportRow[]; dryRun?: boolean }
+        try {
+          body = (await req.json?.()) ?? {}
+        } catch {
+          return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
+        }
+        const rows = body.rows
+        if (!Array.isArray(rows) || rows.length === 0) {
+          return Response.json({ error: 'Body must be { rows: ImportRow[] }' }, { status: 400 })
+        }
+
+        const issues = validateYearRows(rows)
+        const year = rows[0]?.geezYear
+        const existing = await fetchExistingDays(req)
+        if (existing.some((d) => d.geezYear === year)) {
+          issues.push({
+            level: 'error',
+            code: 'year-exists',
+            message: `${year} E.C. is already imported. Delete that year first to re-import it.`,
+          })
+        }
+        const existingGreg = new Set(existing.map((d) => d.gregorianDate))
+        const overlap = rows.filter((r) => existingGreg.has(r.gregorianDate))
+        if (overlap.length > 0) {
+          issues.push({
+            level: 'error',
+            code: 'greg-overlap',
+            message: `${overlap.length} Gregorian date(s) already exist (first: ${overlap[0]!.gregorianDate}).`,
+          })
+        }
+
+        const errors = issues.filter((i) => i.level === 'error')
+        if (body.dryRun || errors.length > 0) {
+          return Response.json(
+            { ok: errors.length === 0, dryRun: Boolean(body.dryRun), year, rows: rows.length, issues },
+            { status: errors.length > 0 ? 422 : 200 },
+          )
+        }
+
+        // Chunked raw inserts — same shape as the seed migration; a per-row
+        // Local API loop would mean ~365 network round-trips.
+        const drizzle = (req.payload.db as unknown as { drizzle: { execute: (q: unknown) => Promise<unknown> } }).drizzle
+        const CHUNK = 60
+        for (let i = 0; i < rows.length; i += CHUNK) {
+          const chunk = rows.slice(i, i + CHUNK)
+          const values = sql.join(
+            chunk.map(
+              (r) =>
+                sql`(${r.geezLabel}, ${r.month}, ${r.day}, ${r.geezYear}, ${r.gregorianDate}, ${r.readings || null}, ${r.antiphon || null}, ${r.deceasedClergy || null}, ${r.events || null})`,
+            ),
+            sql`, `,
+          )
+          await drizzle.execute(
+            sql`INSERT INTO "geez_calendar_days" ("geez_label", "month", "day", "geez_year", "gregorian_date", "readings", "antiphon", "deceased_clergy", "events") VALUES ${values}`,
+          )
+        }
+        safeRevalidateTag('geez')
+        safeRevalidatePath('/geez-calendar')
+        req.payload.logger.info(`Imported ${rows.length} geez calendar days for ${year} E.C.`)
+        return Response.json({ ok: true, imported: rows.length, year, issues })
+      },
+    },
+  ],
   hooks: {
     afterChange: [
       () => {

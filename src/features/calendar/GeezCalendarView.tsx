@@ -11,6 +11,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import type { GeezCalendarDay, GeezMonthlyFeast } from '@/lib/payload/queries'
 import type { DayEventRef } from '@/lib/calendar-sync/upcoming'
+import { googleEventUrl } from '@/lib/calendar-sync/providers'
 import { toGeezNumeral, weekdayOf, fixedSeasonOf } from '@/lib/geez-liturgical'
 import { cn } from '@/lib/utils'
 
@@ -25,6 +26,7 @@ export interface CalendarLabels {
   noEntries: string
   gregorian: string
   events: string
+  addToCalendar: string
 }
 
 const WEEKDAYS = [
@@ -219,6 +221,19 @@ export function GeezCalendarView({
                 <dd className="mt-1 font-geez font-medium text-gold-900 leading-relaxed dark:text-gold-100">
                   {selected.events}
                 </dd>
+                <a
+                  href={googleEventUrl({
+                    title: selected.events,
+                    start: selected.gregorianDate,
+                    allDay: true,
+                    description: selected.geezLabel,
+                  })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-gold-800 hover:text-gold-900 hover:underline dark:text-gold-300"
+                >
+                  <span aria-hidden="true">📅</span> {labels.addToCalendar}
+                </a>
               </div>
             )}
 

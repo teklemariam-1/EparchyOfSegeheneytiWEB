@@ -178,6 +178,12 @@ export default async function GeezCalendarPage({
                   {formatGregorianShort(first.gregorianDate)} – {formatGregorianShort(last.gregorianDate)}
                 </span>
               )}
+              <a
+                href="/calendar-subscriptions"
+                className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-charcoal-200 px-3 py-1 text-xs font-medium text-charcoal-600 transition-colors hover:border-maroon-400 hover:bg-maroon-50 hover:text-maroon-800 dark:text-charcoal-200 dark:border-charcoal-600"
+              >
+                <span aria-hidden="true">🔔</span> {t('subscribe')}
+              </a>
             </div>
 
             {/* ── Calendar + sidebar ───────────────────────────────── */}
@@ -198,6 +204,7 @@ export default async function GeezCalendarPage({
                   noEntries: t('noEntries'),
                   gregorian: t('gregorian'),
                   events: t('events'),
+                  addToCalendar: t('addToCalendar'),
                 }}
               />
 
