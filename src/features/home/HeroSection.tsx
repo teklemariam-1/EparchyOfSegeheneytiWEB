@@ -85,18 +85,19 @@ export function HeroSection({ hero, logo }: Props) {
       {/* Gold top accent */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600" />
 
-      {/* Round site emblem, top-right. Sized/offset per breakpoint so it sits
-          in the open sky area of the banner without crowding the text column. */}
+      {/* Round site emblem, top-right. Hidden on small screens (phones) where
+          it would crowd the headline; shown from md up, sized/offset per
+          breakpoint so it sits in the open sky area of the banner. */}
       {logo?.url && (
-        <div className="absolute z-10 right-4 top-6 sm:right-8 sm:top-12 lg:right-16 lg:top-20 xl:right-24">
-          <div className="h-16 w-16 sm:h-24 sm:w-24 lg:h-36 lg:w-36 rounded-full bg-white/95 p-1.5 sm:p-2 shadow-xl ring-2 ring-gold-400/80">
+        <div className="pointer-events-none absolute z-10 hidden md:block md:right-10 md:top-10 lg:right-16 lg:top-14 xl:right-24">
+          <div className="md:h-44 md:w-44 lg:h-56 lg:w-56 xl:h-64 xl:w-64 rounded-full bg-white/95 p-2.5 shadow-2xl ring-2 ring-gold-400/80">
             <Image
               src={logo.url}
               alt={logo.alt || 'Eparchy of Segeneyti emblem'}
-              width={144}
-              height={144}
+              width={256}
+              height={256}
               className="h-full w-full rounded-full object-contain"
-              sizes="(max-width: 640px) 64px, (max-width: 1024px) 96px, 144px"
+              sizes="(max-width: 1024px) 176px, (max-width: 1280px) 224px, 256px"
             />
           </div>
         </div>
