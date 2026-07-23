@@ -95,20 +95,31 @@ jobs:
 
       # ── Run database migrations before the build ───────────────────────────
       # DATABASE_URI comes from the step above (direct, non-pooled connection).
-      # Migrations are idempotent, so a re-run of an applied migration is a
-      # no-op. continue-on-error keeps a migration failure from blocking the
-      # deploy, but it is surfaced loudly rather than passing silently -- the
-      # previous setup hid a total connection failure behind a green run.
+      #
+      # Why this is verbose: a previous deploy's migrate exited 0 in ~3s with no
+      # output and left a migration unapplied, so the app deployed against a
+      # schema it expected but did not have. We now (1) print the target DB host
+      # (credentials stripped) so the DB CI migrates is never ambiguous, (2) show
+      # migrate:status before and after, and (3) FAIL the step if any migration
+      # is still pending afterwards, so schema drift blocks the deploy instead of
+      # shipping silently.
       - name: Run database migrations
         id: migrate
-        continue-on-error: true
-        run: npm run migrate
+        run: |
+          set -uo pipefail
+          echo "── migrate:status (before) ─────────────────────────────"
+          npx payload migrate:status || true
+
+          echo "── migrate ─────────────────────────────────────────────"
+          npx payload migrate
+
+          echo "── verify (declared files vs payload_migrations) ───────"
+          # Deterministic check: fails the step (and blocks the deploy below)
+          # if any migration file is not recorded as applied. Prints the target
+          # DB host so the migrated database is never ambiguous.
+          node scripts/check-migrations.mjs
         env:
           NODE_ENV: production
-
-      - name: Flag migration failure
-        if: steps.migrate.outcome == 'failure'
-        run: echo "::warning::Database migrations did NOT run. Schema changes in this release are unapplied -- check the migrate step above."
 
       # ── Deploy to Vercel Production ────────────────────────────────────────
       # vercel deploy --prod uploads source to Vercel and triggers a remote
