@@ -85,13 +85,17 @@ export default async function BishopMessageDetailPage({
     : 'Message'
   const readingMinutes = readingTimeFromLexical(msg.content)
 
+  const related = allMessages
+    .filter((m) => m.slug !== slug && m.messageType === msg.messageType)
+    .slice(0, 4)
+  // Most messages share a messageType, so without excluding the related
+  // items "Recent" would repeat the same list.
+  const relatedSlugs = new Set(related.map((m) => m.slug))
+
   const sections: SidebarSection[] = [
     {
       title: 'Related Messages',
-      items: allMessages
-        .filter((m) => m.slug !== slug && m.messageType === msg.messageType)
-        .slice(0, 4)
-        .map((m) => ({ href: `/bishop-messages/${m.slug}`, title: m.title, date: m.publishedAt })),
+      items: related.map((m) => ({ href: `/bishop-messages/${m.slug}`, title: m.title, date: m.publishedAt })),
     },
     {
       title: 'Most Read Messages',
@@ -102,7 +106,7 @@ export default async function BishopMessageDetailPage({
     {
       title: 'Recent Messages',
       items: allMessages
-        .filter((m) => m.slug !== slug)
+        .filter((m) => m.slug !== slug && !relatedSlugs.has(m.slug))
         .slice(0, 4)
         .map((m) => ({ href: `/bishop-messages/${m.slug}`, title: m.title, date: m.publishedAt })),
     },

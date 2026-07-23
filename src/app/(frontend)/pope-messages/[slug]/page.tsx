@@ -86,13 +86,17 @@ export default async function PopeMessageDetailPage({
     : 'Document'
   const readingMinutes = readingTimeFromLexical(msg.content)
 
+  const related = allMessages
+    .filter((m) => m.slug !== slug && m.documentType === msg.documentType)
+    .slice(0, 4)
+  // Most messages share a documentType, so without excluding the related
+  // items "Recent" would repeat the same list.
+  const relatedSlugs = new Set(related.map((m) => m.slug))
+
   const sections: SidebarSection[] = [
     {
       title: 'Related Messages',
-      items: allMessages
-        .filter((m) => m.slug !== slug && m.documentType === msg.documentType)
-        .slice(0, 4)
-        .map((m) => ({ href: `/pope-messages/${m.slug}`, title: m.title, date: m.publishedAt })),
+      items: related.map((m) => ({ href: `/pope-messages/${m.slug}`, title: m.title, date: m.publishedAt })),
     },
     {
       title: 'Most Read Messages',
@@ -103,7 +107,7 @@ export default async function PopeMessageDetailPage({
     {
       title: 'Recent Messages',
       items: allMessages
-        .filter((m) => m.slug !== slug)
+        .filter((m) => m.slug !== slug && !relatedSlugs.has(m.slug))
         .slice(0, 4)
         .map((m) => ({ href: `/pope-messages/${m.slug}`, title: m.title, date: m.publishedAt })),
     },

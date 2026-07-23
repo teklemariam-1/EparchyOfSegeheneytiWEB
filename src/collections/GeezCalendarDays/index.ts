@@ -26,6 +26,10 @@ export const GeezCalendarDays: CollectionConfig = {
     update: isChanceryOrAbove,
     delete: isChanceryOrAbove,
   },
+  // Each Ge'ez date exists exactly once; a second year's import cannot
+  // silently duplicate or overlap days. (A unique index on the Gregorian
+  // calendar day lives in SQL — see the calendar_integrity migration.)
+  indexes: [{ unique: true, fields: ['geezYear', 'month', 'day'] }],
   hooks: {
     afterChange: [
       () => {

@@ -8,7 +8,10 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { getBishopMessagesList } from '@/lib/payload/queries'
 
-export const revalidate = 600
+// Reads the locale cookie via getLocale(), so this page can never be
+// statically generated (same empty-prerender failure the pope-messages list
+// hit). Data-layer caching still applies via cachedQuery.
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = buildMetadata({
   title: "Bishop's Messages",

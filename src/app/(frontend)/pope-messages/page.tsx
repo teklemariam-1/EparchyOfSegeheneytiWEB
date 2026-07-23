@@ -8,7 +8,11 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { getPopeMessagesList, type PopeMessageItem } from '@/lib/payload/queries'
 
-export const revalidate = 600
+// Reads the locale cookie via getLocale(), so this page can never be
+// statically generated: the ISR prerender baked an empty list (the data fetch
+// fails outside a request scope and the [] fallback was cached), leaving
+// published messages invisible here while detail pages showed them.
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Messages from the Holy Father',

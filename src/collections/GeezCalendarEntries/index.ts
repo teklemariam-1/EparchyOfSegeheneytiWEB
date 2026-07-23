@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { GEEZ_MONTHS, GEEZ_MONTH_LABELS } from '../../lib/constants/geezMonths'
 
 export const GeezCalendarEntries: CollectionConfig = {
   slug: 'geez-calendar-entries',
@@ -79,24 +80,16 @@ export const GeezCalendarEntries: CollectionConfig = {
       label: "Ge'ez Date",
       fields: [
         {
+          // Canonical month slugs shared with geez-calendar-days (see
+          // src/lib/constants/geezMonths.ts) so the two collections can be
+          // joined and rendered with the same labels.
           name: 'month',
           type: 'select',
           required: true,
-          options: [
-            { label: 'Meskerem (Sep–Oct)', value: 'meskerem' },
-            { label: 'Tikmt (Oct–Nov)', value: 'tikmt' },
-            { label: 'Hidar (Nov–Dec)', value: 'hidar' },
-            { label: 'Tahsas (Dec–Jan)', value: 'tahsas' },
-            { label: 'Tir (Jan–Feb)', value: 'tir' },
-            { label: 'Yekatit (Feb–Mar)', value: 'yekatit' },
-            { label: 'Megabit (Mar–Apr)', value: 'megabit' },
-            { label: 'Miyazya (Apr–May)', value: 'miyazya' },
-            { label: 'Ginbot (May–Jun)', value: 'ginbot' },
-            { label: 'Sene (Jun–Jul)', value: 'sene' },
-            { label: 'Hamle (Jul–Aug)', value: 'hamle' },
-            { label: 'Nehase (Aug–Sep)', value: 'nehase' },
-            { label: 'Pagume (Sep)', value: 'pagume' },
-          ],
+          options: GEEZ_MONTHS.map((m) => ({
+            label: `${GEEZ_MONTH_LABELS[m].en} (${GEEZ_MONTH_LABELS[m].ti})`,
+            value: m,
+          })),
         },
         {
           name: 'day',
