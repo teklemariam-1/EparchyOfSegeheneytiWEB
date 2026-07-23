@@ -46,6 +46,10 @@ export const GeezCalendarDays: CollectionConfig = {
     listSearchableFields: ['geezLabel', 'events', 'deceasedClergy', 'readings'],
     description:
       "Daily liturgical calendar: one entry per Ge'ez day with readings, antiphon, commemorations and feasts, plus the corresponding Gregorian date.",
+    components: {
+      // "Import New Year" entry point at the top of the Calendar list view.
+      beforeList: ['@/components/admin/calendar/ImportYearBanner#ImportYearBanner'],
+    },
   },
   access: {
     read: () => true,
