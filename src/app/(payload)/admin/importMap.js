@@ -25,10 +25,12 @@ import { TaxonomySelect as TaxonomySelect_8e6f1c6f8b0ab830480886ee3061d10c } fro
 import { FetchVaticanNews as FetchVaticanNews_ab252082b8339de15811e44cd8622977 } from '@/components/admin/news/FetchVaticanNews'
 import { default as default_d500ae2ad98a0a33d640ae0ac1a3417c } from '@/components/admin/AdminIcon'
 import { default as default_b80a86fce1072afc84cd6a430a965697 } from '@/components/admin/AdminLogo'
+import { CalendarImportNavLink as CalendarImportNavLink_be3345247c2e9fbd329edd1ebd59c072 } from '@/components/admin/calendar/CalendarImportNavLink'
 import { DashboardNavLink as DashboardNavLink_3987d42d9edba53cc710fb1f6cc541b5 } from '@/components/admin/DashboardNavLink'
 import { ContactInboxBadge as ContactInboxBadge_dbe690299ab502af40613bcc9c944d81 } from '@/components/admin/ContactInboxBadge'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { default as default_805d8044a9399a3bb874e2f235b204e8 } from '@/components/admin/AdminDashboard'
+import { default as default_3db80f12c3c94947e84dea91f5507ddb } from '@/components/admin/calendar/CalendarImportView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
@@ -59,9 +61,11 @@ export const importMap = {
   "@/components/admin/news/FetchVaticanNews#FetchVaticanNews": FetchVaticanNews_ab252082b8339de15811e44cd8622977,
   "@/components/admin/AdminIcon#default": default_d500ae2ad98a0a33d640ae0ac1a3417c,
   "@/components/admin/AdminLogo#default": default_b80a86fce1072afc84cd6a430a965697,
+  "@/components/admin/calendar/CalendarImportNavLink#CalendarImportNavLink": CalendarImportNavLink_be3345247c2e9fbd329edd1ebd59c072,
   "@/components/admin/DashboardNavLink#DashboardNavLink": DashboardNavLink_3987d42d9edba53cc710fb1f6cc541b5,
   "@/components/admin/ContactInboxBadge#ContactInboxBadge": ContactInboxBadge_dbe690299ab502af40613bcc9c944d81,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@/components/admin/AdminDashboard#default": default_805d8044a9399a3bb874e2f235b204e8,
+  "@/components/admin/calendar/CalendarImportView#default": default_3db80f12c3c94947e84dea91f5507ddb,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

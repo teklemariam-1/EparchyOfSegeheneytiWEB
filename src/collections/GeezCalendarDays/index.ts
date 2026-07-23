@@ -8,6 +8,7 @@ import {
   checkExistingDays,
   type ImportRow,
 } from '../../lib/calendar-sync/import-validation'
+import { convertGxawieBook } from '../../lib/calendar-sync/convert-gxawie'
 
 const canManageCalendar = (req: PayloadRequest): boolean => {
   const role = (req.user as { role?: string } | null)?.role
@@ -71,28 +72,49 @@ export const GeezCalendarDays: CollectionConfig = {
       },
     },
     {
-      // POST /api/geez-calendar-days/import — import one E.C. year produced
-      // by scripts/convert-geez-calendar.mjs.
-      // Body: { rows: ImportRow[], dryRun?: boolean }. Validation failures
-      // return 422 with the issue list; dryRun always stops after validation.
+      // POST /api/geez-calendar-days/import — import one E.C. year.
+      // Body: { raw: <book JSON>, dryRun?: boolean } for the eparchy's raw
+      // liturgical-book file (converted server-side), or
+      // { rows: ImportRow[], dryRun?: boolean } for pre-converted data.
+      // Validation failures return 422 with the issue list; dryRun always
+      // stops after validation and echoes a preview.
       path: '/import',
       method: 'post',
       handler: async (req) => {
         if (!canManageCalendar(req)) {
           return Response.json({ error: 'Forbidden' }, { status: 403 })
         }
-        let body: { rows?: ImportRow[]; dryRun?: boolean }
+        let body: { raw?: unknown; rows?: ImportRow[]; dryRun?: boolean }
         try {
           body = (await req.json?.()) ?? {}
         } catch {
           return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
         }
-        const rows = body.rows
+
+        const conversionWarnings: string[] = []
+        let rows = body.rows
+        if (!rows && body.raw !== undefined) {
+          const converted = convertGxawieBook(body.raw)
+          if (converted.errors.length > 0) {
+            return Response.json(
+              { ok: false, stage: 'conversion', errors: converted.errors, warnings: converted.warnings },
+              { status: 422 },
+            )
+          }
+          rows = converted.rows
+          conversionWarnings.push(...converted.warnings)
+        }
         if (!Array.isArray(rows) || rows.length === 0) {
-          return Response.json({ error: 'Body must be { rows: ImportRow[] }' }, { status: 400 })
+          return Response.json(
+            { error: 'Body must be { raw: <book JSON> } or { rows: ImportRow[] }' },
+            { status: 400 },
+          )
         }
 
         const issues = validateYearRows(rows)
+        for (const w of conversionWarnings) {
+          issues.push({ level: 'warning', code: 'conversion', message: w })
+        }
         const year = rows[0]?.geezYear
         const existing = await fetchExistingDays(req)
         if (existing.some((d) => d.geezYear === year)) {
@@ -114,8 +136,16 @@ export const GeezCalendarDays: CollectionConfig = {
 
         const errors = issues.filter((i) => i.level === 'error')
         if (body.dryRun || errors.length > 0) {
+          const sorted = [...rows].sort((a, b) => (a.gregorianDate < b.gregorianDate ? -1 : 1))
           return Response.json(
-            { ok: errors.length === 0, dryRun: Boolean(body.dryRun), year, rows: rows.length, issues },
+            {
+              ok: errors.length === 0,
+              dryRun: Boolean(body.dryRun),
+              year,
+              rows: rows.length,
+              issues,
+              preview: { first: sorted[0], last: sorted[sorted.length - 1] },
+            },
             { status: errors.length > 0 ? 422 : 200 },
           )
         }

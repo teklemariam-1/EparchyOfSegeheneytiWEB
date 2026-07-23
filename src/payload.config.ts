@@ -94,11 +94,19 @@ export default buildConfig({
         '@/components/admin/DashboardNavLink#DashboardNavLink',
         '@/components/admin/ContactInboxBadge#ContactInboxBadge',
       ],
+      // Ge'ez New-Year import wizard, below the collection nav.
+      afterNavLinks: [
+        '@/components/admin/calendar/CalendarImportNavLink#CalendarImportNavLink',
+      ],
       // Stats-focused dashboard: replaces the default view, whose per-collection
       // cards (with quick-create "+" buttons) duplicated the sidebar nav.
       views: {
         dashboard: {
           Component: '@/components/admin/AdminDashboard',
+        },
+        calendarImport: {
+          Component: '@/components/admin/calendar/CalendarImportView',
+          path: '/calendar-import',
         },
       },
     },
