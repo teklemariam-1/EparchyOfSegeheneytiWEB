@@ -59,7 +59,8 @@ jobs:
       # DATABASE_URI (migrations resolved a host of literally "base"), because
       # any value containing newlines or '=' breaks the KEY=VALUE format.
       #
-      # Export the single variable migrations need, and mask it explicitly.
+      # Export only the variables migrations need (src/lib/env.ts requires
+      # DATABASE_URI and PAYLOAD_SECRET in production), each masked explicitly.
       - name: Export database URL for migrations
         run: |
           set -uo pipefail
@@ -81,7 +82,16 @@ jobs:
           fi
           echo "::add-mask::$url"
           echo "DATABASE_URI=$url" >> "$GITHUB_ENV"
-          echo "Database URL exported (masked)."
+          # Payload's env validation (src/lib/env.ts) refuses to boot in
+          # production without PAYLOAD_SECRET, so migrations need it too.
+          secret=$(grep -m1 '^PAYLOAD_SECRET=' "$f" | cut -d= -f2- | tr -d '"')
+          if [ -n "$secret" ]; then
+            echo "::add-mask::$secret"
+            echo "PAYLOAD_SECRET=$secret" >> "$GITHUB_ENV"
+          else
+            echo "::warning::PAYLOAD_SECRET not found in Vercel env; migrations may fail env validation"
+          fi
+          echo "Database URL and Payload secret exported (masked)."
 
       # ── Run database migrations before the build ───────────────────────────
       # DATABASE_URI comes from the step above (direct, non-pooled connection).
