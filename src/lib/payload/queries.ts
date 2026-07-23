@@ -745,6 +745,118 @@ async function _getMediaGallery(opts: {
 }
 export const getMediaGallery = cachedQuery(_getMediaGallery, 'getMediaGallery', ['media'])
 
+// ─── Article sidebar helpers (most-viewed, adjacent) ─────────────────────────
+
+export interface ViewedItem {
+  slug: string
+  title: string
+  publishedAt?: string
+  featuredImage?: CMSImage | null
+  views: number
+}
+
+/**
+ * Most-viewed published documents of a collection, ranked by the anonymous
+ * page-view counters (visitor-stats dimension 'path'). Returns [] until the
+ * tracker has accumulated views.
+ */
+async function _getMostViewed(
+  collection: string,
+  pathPrefix: string,
+  limit = 5,
+  locale?: string,
+): Promise<ViewedItem[]> {
+  try {
+    const payload = await getPayload()
+    const stats = await payload.find({
+      collection: 'visitor-stats',
+      where: { and: [{ dimension: { equals: 'path' } }, { key: { like: `${pathPrefix}/` } }] },
+      limit: 3000,
+      depth: 0,
+      overrideAccess: true,
+    } as any)
+    const bySlug = new Map<string, number>()
+    for (const row of stats.docs as any[]) {
+      const key: string = row.key ?? ''
+      const slug = key.slice(pathPrefix.length + 1)
+      if (!slug || slug.includes('/')) continue
+      bySlug.set(slug, (bySlug.get(slug) ?? 0) + (Number(row.count) || 0))
+    }
+    const top = [...bySlug.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit)
+    if (top.length === 0) return []
+
+    const docs = await payload.find({
+      collection,
+      where: { slug: { in: top.map(([slug]) => slug) }, _status: { equals: 'published' } },
+      limit,
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)
+    const byDocSlug = new Map((docs.docs as any[]).map((d) => [d.slug, d]))
+    return top
+      .filter(([slug]) => byDocSlug.has(slug))
+      .map(([slug, views]) => {
+        const d = byDocSlug.get(slug)!
+        return {
+          slug,
+          title: d.title,
+          publishedAt: d.publishedAt,
+          featuredImage: imgOf(d.featuredImage),
+          views,
+        }
+      })
+  } catch {
+    return []
+  }
+}
+
+const _getMostViewedNews = (limit?: number, locale?: string) => _getMostViewed('news', '/news', limit, locale)
+export const getMostViewedNews = cachedQuery(_getMostViewedNews, 'getMostViewedNews', ['news'])
+
+const _getMostViewedPopeMessages = (limit?: number, locale?: string) =>
+  _getMostViewed('pope-messages', '/pope-messages', limit, locale)
+export const getMostViewedPopeMessages = cachedQuery(_getMostViewedPopeMessages, 'getMostViewedPopeMessages', ['pope-messages'])
+
+const _getMostViewedBishopMessages = (limit?: number, locale?: string) =>
+  _getMostViewed('bishop-messages', '/bishop-messages', limit, locale)
+export const getMostViewedBishopMessages = cachedQuery(_getMostViewedBishopMessages, 'getMostViewedBishopMessages', ['bishop-messages'])
+
+export interface AdjacentArticle {
+  slug: string
+  title: string
+}
+
+/** Previous (older) and next (newer) published documents by publishedAt. */
+export async function getAdjacent(
+  collection: 'news' | 'pope-messages' | 'bishop-messages',
+  publishedAt: string | undefined,
+  locale?: string,
+): Promise<{ prev: AdjacentArticle | null; next: AdjacentArticle | null }> {
+  if (!publishedAt) return { prev: null, next: null }
+  try {
+    const payload = await getPayload()
+    const fetchOne = async (dir: 'prev' | 'next') => {
+      const res = await payload.find({
+        collection,
+        where: {
+          _status: { equals: 'published' },
+          publishedAt: dir === 'prev' ? { less_than: publishedAt } : { greater_than: publishedAt },
+        },
+        sort: dir === 'prev' ? '-publishedAt' : 'publishedAt',
+        limit: 1,
+        depth: 0,
+        ...(locale ? { locale } : {}),
+      } as any)
+      const d = res.docs[0] as any
+      return d ? { slug: d.slug, title: d.title } : null
+    }
+    const [prev, next] = await Promise.all([fetchOne('prev'), fetchOne('next')])
+    return { prev, next }
+  } catch {
+    return { prev: null, next: null }
+  }
+}
+
 // ─── Pages (static CMS pages) ─────────────────────────────────────────────────
 
 export interface CMSPage {

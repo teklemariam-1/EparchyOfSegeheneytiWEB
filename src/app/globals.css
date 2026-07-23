@@ -88,6 +88,32 @@
     @apply text-white py-14 md:py-20;
     background-color: var(--banner-bg, theme('colors.maroon.800'));
   }
+}
+
+/* Print-friendly articles: strip the site chrome so news and messages print
+   as clean documents. Interactive elements opt out via `print:hidden`. */
+@media print {
+  body > header,
+  body footer,
+  #main-content > div:first-child:where(.text-white) {
+    display: none !important;
+  }
+
+  main {
+    min-height: 0 !important;
+  }
+
+  article {
+    max-width: 100% !important;
+  }
+
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+}
+
+@layer components {
 
   /* Container */
   .container-narrow {
