@@ -5,6 +5,7 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { getTranslations } from 'next-intl/server'
 import { globalSearch, type SearchResult } from '@/lib/payload/queries'
+import { incrementStat } from '@/lib/payload/track'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,6 +50,13 @@ export default async function SearchPage({
   const trimmed = q.trim()
   const results = trimmed.length >= 2 ? await globalSearch(trimmed, scope) : []
   const hasQuery = trimmed.length >= 2
+
+  // Anonymous search analytics: count the term (lowercased, capped), split by
+  // whether it found anything. Fire-and-forget — never delays the results.
+  if (hasQuery) {
+    const term = trimmed.toLowerCase().slice(0, 80)
+    void incrementStat(results.length > 0 ? 'search' : 'search-empty', term)
+  }
   const t = await getTranslations('search')
 
   return (

@@ -1,54 +1,69 @@
 import { NextResponse } from 'next/server'
-import { getPayload } from '@/lib/payload/client'
+import { incrementStat } from '@/lib/payload/track'
+import {
+  categorizeSource,
+  deviceFromUserAgent,
+  normalizePath,
+  primaryLanguage,
+} from '@/lib/analytics'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * Anonymous visit counter.
  *
- * Called once per browser session by a small client component. It stores
- * nothing about the visitor — it reads only the country Vercel derives at the
- * edge (x-vercel-ip-country) and increments a single (country, day) counter.
- * No IP, no user agent, no identifier is persisted.
+ * Called by a small client component. Nothing about the visitor is stored —
+ * only daily aggregate counters are incremented:
  *
- * The client throttles to one call per session; this endpoint is best-effort
- * and always returns 204 so it can never surface an error to visitors.
+ *  - every page view:      (path, day)
+ *  - once per session:     (country, day), (device, day), (source, day),
+ *                          (language, day)
+ *
+ * The user agent, referrer and Accept-Language header are read to pick a
+ * bucket and immediately discarded — no IP, no identifier, no raw values are
+ * persisted. Best-effort: always returns 204 so it can never surface an error
+ * to visitors.
  */
 export async function POST(req: Request) {
   try {
-    const country =
-      req.headers.get('x-vercel-ip-country') ||
-      req.headers.get('cf-ipcountry') ||
-      'Unknown'
-
-    // Normalise to a bare day so counts aggregate per date.
-    const now = new Date()
-    const day = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString()
-
-    const payload = await getPayload()
-    const existing = await payload.find({
-      collection: 'visitor-stats',
-      where: { and: [{ country: { equals: country } }, { date: { equals: day } }] },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    } as any)
-
-    const doc = existing.docs[0] as any
-    if (doc) {
-      await payload.update({
-        collection: 'visitor-stats',
-        id: doc.id,
-        overrideAccess: true,
-        data: { count: (Number(doc.count) || 0) + 1 } as any,
-      })
-    } else {
-      await payload.create({
-        collection: 'visitor-stats',
-        overrideAccess: true,
-        data: { country, date: day, count: 1 } as any,
-      })
+    let body: { path?: unknown; session?: unknown; ref?: unknown } = {}
+    try {
+      body = await req.json()
+    } catch {
+      // empty body (legacy pings) — still counts as a session below
+      body = { session: true }
     }
+
+    const tasks: Promise<void>[] = []
+
+    const path = normalizePath(typeof body.path === 'string' ? body.path : null)
+    if (path) tasks.push(incrementStat('path', path))
+
+    if (body.session === true || body.path === undefined) {
+      const country =
+        req.headers.get('x-vercel-ip-country') ||
+        req.headers.get('cf-ipcountry') ||
+        'Unknown'
+      const device = deviceFromUserAgent(req.headers.get('user-agent'))
+      const ownHost = (() => {
+        try {
+          return new URL(process.env.NEXT_PUBLIC_SITE_URL ?? '').hostname || undefined
+        } catch {
+          return undefined
+        }
+      })()
+      const source = categorizeSource(typeof body.ref === 'string' ? body.ref : null, ownHost)
+      const language = primaryLanguage(req.headers.get('accept-language'))
+
+      tasks.push(
+        incrementStat('country', country, { country }),
+        incrementStat('device', device),
+        incrementStat('source', source),
+        incrementStat('language', language),
+      )
+    }
+
+    await Promise.all(tasks)
   } catch {
     // Never let analytics break a page view.
   }

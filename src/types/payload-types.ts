@@ -951,14 +951,25 @@ export interface Subscriber {
   createdAt: string;
 }
 /**
- * Anonymous visit counts by country and day. No personal data is stored.
+ * Anonymous daily visit aggregates. No personal data is stored.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "visitor-stats".
  */
 export interface VisitorStat {
   id: number;
-  country: string;
+  /**
+   * What is being counted: country, path, device, source, language, search.
+   */
+  dimension: string;
+  /**
+   * The value within the dimension (country code, path, device class, …).
+   */
+  key: string;
+  /**
+   * Country code (only set when dimension is 'country').
+   */
+  country?: string | null;
   date: string;
   count: number;
   updatedAt: string;
@@ -2160,6 +2171,8 @@ export interface SubscribersSelect<T extends boolean = true> {
  * via the `definition` "visitor-stats_select".
  */
 export interface VisitorStatsSelect<T extends boolean = true> {
+  dimension?: T;
+  key?: T;
   country?: T;
   date?: T;
   count?: T;

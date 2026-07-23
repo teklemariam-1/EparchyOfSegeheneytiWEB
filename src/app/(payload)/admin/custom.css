@@ -568,3 +568,48 @@
 		}
 	}
 }
+
+/*
+ * Analytics dashboard — PDF export via print.
+ * Hides the admin chrome and interactive controls so the printed page reads
+ * as a standalone report with the Eparchy header. Page numbers come from the
+ * browser's print headers/footers option.
+ */
+@media print {
+	.template-default .nav,
+	.template-default .app-header,
+	.template-default .hamburger,
+	.analytics-screen-header {
+		display: none !important;
+	}
+
+	.template-default .template-default__wrap {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.analytics-print-header {
+		display: block !important;
+		color: #231a18;
+	}
+
+	#analytics-report {
+		color: #231a18;
+	}
+
+	#analytics-report .analytics-section {
+		border-color: #ddd !important;
+		background: #fff !important;
+		page-break-inside: avoid;
+	}
+
+	#analytics-report a {
+		text-decoration: none;
+		color: inherit;
+	}
+
+	@page {
+		size: A4;
+		margin: 14mm 12mm;
+	}
+}
