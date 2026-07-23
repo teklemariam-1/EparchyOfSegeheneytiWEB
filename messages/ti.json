@@ -206,7 +206,12 @@
     "antiphon": "ኣንቲፎና",
     "deceasedClergy": "ዝኽሪ ዝዓረፉ ካህናት",
     "feast": "በዓል",
-    "majorFeasts": "ዓበይቲ በዓላትን ጾማትን"
+    "majorFeasts": "ዓበይቲ በዓላትን ጾማትን",
+    "monthlyFeast": "ወርሓዊ ዝኽሪ",
+    "season": "ዘመነ ኣምልኾ",
+    "upcoming": "ዝመጹ በዓላት",
+    "inDays": "ኣብ {days} መዓልቲ",
+    "gregorian": "ፈረንጂ"
   },
   "footer": {
     "tagline": "ካብ ምምስራቱ ጀሚሩ ንሕዝቢ ኣምላኽ ብእምነት፣ ሕብረተሰብን ተልእኾን ኣገልጊሉ።",

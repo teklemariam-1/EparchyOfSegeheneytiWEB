@@ -3,6 +3,10 @@ import forms from '@tailwindcss/forms'
 import typography from '@tailwindcss/typography'
 
 const config: Config = {
+  // Class strategy: dark styles activate only when a `.dark` class is set on
+  // <html>, so components can ship dark-ready styles without the site
+  // switching by OS preference before a theme toggle exists.
+  darkMode: 'class',
   content: [
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',

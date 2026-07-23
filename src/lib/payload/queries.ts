@@ -651,6 +651,30 @@ async function _getGeezCalendarDays(): Promise<GeezCalendarDay[]> {
 }
 export const getGeezCalendarDays = cachedQuery(_getGeezCalendarDays, 'getGeezCalendarDays', ['geez'])
 
+export interface GeezMonthlyFeast {
+  day: number
+  name: string
+  icon?: string
+}
+
+async function _getGeezMonthlyFeasts(): Promise<GeezMonthlyFeast[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'geez-monthly-feasts',
+      sort: 'day',
+      limit: 100,
+      depth: 0,
+    } as any)
+    return (result.docs as any[])
+      .filter((d) => typeof d?.day === 'number' && d.name)
+      .map((d) => ({ day: d.day, name: d.name, icon: d.icon ?? undefined }))
+  } catch {
+    return []
+  }
+}
+export const getGeezMonthlyFeasts = cachedQuery(_getGeezMonthlyFeasts, 'getGeezMonthlyFeasts', ['geez'])
+
 // ─── Media / Gallery ──────────────────────────────────────────────────────────
 
 export interface MediaItem {

@@ -206,7 +206,12 @@
     "antiphon": "Antiphon",
     "deceasedClergy": "Deceased Clergy Commemoration",
     "feast": "Feast",
-    "majorFeasts": "Major Feasts & Fasts"
+    "majorFeasts": "Major Feasts & Fasts",
+    "monthlyFeast": "Monthly Commemoration",
+    "season": "Liturgical Season",
+    "upcoming": "Upcoming Feasts",
+    "inDays": "in {days} d",
+    "gregorian": "Gregorian"
   },
   "footer": {
     "tagline": "Serving God's people through faith, community, and mission since our founding.",

@@ -94,6 +94,7 @@ export interface Config {
     'small-christian-communities': SmallChristianCommunity;
     'geez-calendar-entries': GeezCalendarEntry;
     'geez-calendar-days': GeezCalendarDay;
+    'geez-monthly-feasts': GeezMonthlyFeast;
     'contact-submissions': ContactSubmission;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -129,6 +130,7 @@ export interface Config {
     'small-christian-communities': SmallChristianCommunitiesSelect<false> | SmallChristianCommunitiesSelect<true>;
     'geez-calendar-entries': GeezCalendarEntriesSelect<false> | GeezCalendarEntriesSelect<true>;
     'geez-calendar-days': GeezCalendarDaysSelect<false> | GeezCalendarDaysSelect<true>;
+    'geez-monthly-feasts': GeezMonthlyFeastsSelect<false> | GeezMonthlyFeastsSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -1564,6 +1566,29 @@ export interface GeezCalendarDay {
   createdAt: string;
 }
 /**
+ * Recurring monthly commemorations: each appears on its day in every Ge'ez month of the public calendar.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geez-monthly-feasts".
+ */
+export interface GeezMonthlyFeast {
+  id: number;
+  /**
+   * Ge'ez day of the month (1–30) this commemoration recurs on.
+   */
+  day: number;
+  /**
+   * Commemoration name(s), e.g. ሚካኤል. Separate multiple with ፣
+   */
+  name: string;
+  /**
+   * Optional small icon (emoji) shown on the calendar, e.g. ✝
+   */
+  icon?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Messages submitted via the public contact form. "New" means nobody has opened it yet. A message can optionally be answered and published anonymously as a public Q&A.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1754,6 +1779,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'geez-calendar-days';
         value: number | GeezCalendarDay;
+      } | null)
+    | ({
+        relationTo: 'geez-monthly-feasts';
+        value: number | GeezMonthlyFeast;
       } | null)
     | ({
         relationTo: 'contact-submissions';
@@ -2568,6 +2597,17 @@ export interface GeezCalendarDaysSelect<T extends boolean = true> {
   antiphon?: T;
   deceasedClergy?: T;
   events?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geez-monthly-feasts_select".
+ */
+export interface GeezMonthlyFeastsSelect<T extends boolean = true> {
+  day?: T;
+  name?: T;
+  icon?: T;
   updatedAt?: T;
   createdAt?: T;
 }

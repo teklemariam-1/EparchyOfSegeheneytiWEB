@@ -10,8 +10,12 @@ import { getTranslations } from 'next-intl/server'
 import {
   getGeezCalendarDays,
   getGeezCalendarEntries,
+  getGeezMonthlyFeasts,
   type GeezCalendarDay,
+  type GeezMonthlyFeast,
 } from '@/lib/payload/queries'
+import { GeezCalendarView } from '@/features/calendar/GeezCalendarView'
+import { daysBetween } from '@/lib/geez-liturgical'
 import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -19,7 +23,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = buildMetadata({
   title: "Ge'ez Calendar",
   description:
-    "The daily Ge'ez liturgical calendar of the Catholic Eparchy of Segeneyti — readings, antiphons, feasts and commemorations, with corresponding Gregorian dates.",
+    "The daily Ge'ez liturgical calendar of the Catholic Eparchy of Segeneyti — monthly view with feasts, readings, antiphons and commemorations, with corresponding Gregorian dates.",
   path: '/geez-calendar',
 })
 
@@ -28,84 +32,60 @@ function todayIso(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Asmara' }).format(new Date())
 }
 
-function formatGregorian(iso: string): string {
-  const d = new Date(`${iso}T00:00:00`)
-  return new Intl.DateTimeFormat('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(d)
+function formatGregorianShort(iso: string): string {
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(
+    new Date(`${iso}T00:00:00`),
+  )
 }
 
-function DayRow({
-  day,
-  isToday,
-  t,
-}: {
-  day: GeezCalendarDay
-  isToday: boolean
-  t: (key: string) => string
-}) {
-  const hasFeast = Boolean(day.events)
-  return (
-    <li
-      className={cn(
-        'rounded-xl border p-4',
-        hasFeast ? 'bg-gold-50 border-gold-300' : 'bg-white border-charcoal-100',
-        isToday && 'ring-2 ring-maroon-500',
-      )}
-    >
-      <div className="flex items-start gap-3">
-        <div className="shrink-0 flex flex-col items-center justify-center rounded-lg bg-maroon-800 text-white px-2.5 py-1.5 min-w-[48px] text-center">
-          <span className="text-xl font-bold leading-none">{day.day}</span>
-          <span className="mt-0.5 text-[10px] text-maroon-200 leading-tight">
-            {formatGregorian(day.gregorianDate).replace(/^[A-Za-z]+, /, '')}
-          </span>
-        </div>
+interface UpcomingItem {
+  key: string
+  icon: string
+  name: string
+  geezLabel: string
+  gregorianDate: string
+  daysLeft: number
+}
 
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="font-semibold text-sm text-charcoal-900 font-geez">{day.geezLabel}</p>
-            <span className="text-xs text-charcoal-400">{formatGregorian(day.gregorianDate)}</span>
-            {isToday && <Badge variant="maroon" size="sm">{t('today')}</Badge>}
-            {hasFeast && <Badge variant="gold" size="sm">{t('feast')}</Badge>}
-          </div>
+/** Next feast occurrences (annual feast days + monthly commemorations),
+ *  chronological from today. */
+function buildUpcoming(
+  days: GeezCalendarDay[],
+  monthlyFeasts: GeezMonthlyFeast[],
+  today: string,
+  limit = 8,
+): UpcomingItem[] {
+  const byDay = new Map<number, GeezMonthlyFeast>()
+  for (const f of monthlyFeasts) byDay.set(f.day, f)
 
-          {day.events && (
-            <p className="mt-1.5 text-sm font-medium text-gold-900 font-geez leading-relaxed">
-              {day.events}
-            </p>
-          )}
-
-          {day.deceasedClergy && (
-            <p className="mt-1.5 text-xs text-charcoal-600 font-geez leading-relaxed">
-              <span className="font-semibold text-charcoal-500">✝ {t('deceasedClergy')}: </span>
-              {day.deceasedClergy}
-            </p>
-          )}
-
-          {day.readings && (
-            <p className="mt-1.5 text-xs text-charcoal-600 font-geez leading-relaxed">
-              <span className="font-semibold text-charcoal-500">{t('readings')}: </span>
-              {day.readings}
-            </p>
-          )}
-
-          {day.antiphon && (
-            <details className="mt-1.5">
-              <summary className="cursor-pointer text-xs font-semibold text-maroon-700 hover:text-maroon-900">
-                {t('antiphon')}
-              </summary>
-              <p className="mt-1 text-xs text-charcoal-600 font-geez leading-relaxed border-l-2 border-gold-300 pl-3">
-                {day.antiphon}
-              </p>
-            </details>
-          )}
-        </div>
-      </div>
-    </li>
-  )
+  const items: UpcomingItem[] = []
+  for (const d of days) {
+    if (d.gregorianDate < today) continue
+    const daysLeft = daysBetween(today, d.gregorianDate)
+    if (d.events) {
+      items.push({
+        key: `${d.id}-annual`,
+        icon: '🎉',
+        name: d.events,
+        geezLabel: d.geezLabel,
+        gregorianDate: d.gregorianDate,
+        daysLeft,
+      })
+    }
+    const monthly = byDay.get(d.day)
+    if (monthly) {
+      items.push({
+        key: `${d.id}-monthly`,
+        icon: monthly.icon ?? '✝',
+        name: monthly.name,
+        geezLabel: d.geezLabel,
+        gregorianDate: d.gregorianDate,
+        daysLeft,
+      })
+    }
+    if (items.length >= limit * 2) break
+  }
+  return items.slice(0, limit)
 }
 
 export default async function GeezCalendarPage({
@@ -114,8 +94,9 @@ export default async function GeezCalendarPage({
   searchParams: Promise<{ month?: string }>
 }) {
   const { month: monthParam } = await searchParams
-  const [days, feasts, t] = await Promise.all([
+  const [days, monthlyFeasts, feasts, t] = await Promise.all([
     getGeezCalendarDays(),
+    getGeezMonthlyFeasts(),
     getGeezCalendarEntries(),
     getTranslations('calendar'),
   ])
@@ -131,10 +112,12 @@ export default async function GeezCalendarPage({
     GEEZ_MONTHS.find((m) => monthsWithData.has(m)) ??
     'meskerem'
 
-  const monthDays = days
-    .filter((d) => d.month === selectedMonth)
-    .sort((a, b) => a.day - b.day)
+  const monthDays = days.filter((d) => d.month === selectedMonth)
   const geezYear = monthDays[0]?.geezYear ?? todayEntry?.geezYear
+  const upcoming = buildUpcoming(days, monthlyFeasts, today)
+
+  const first = [...monthDays].sort((a, b) => a.day - b.day)[0]
+  const last = [...monthDays].sort((a, b) => a.day - b.day)[monthDays.length - 1]
 
   return (
     <>
@@ -154,117 +137,110 @@ export default async function GeezCalendarPage({
           </Container>
         </Section>
       ) : (
-        <>
-          {/* ── Today ─────────────────────────────────────────────── */}
-          {todayEntry && (
-            <Section className="bg-parchment-50 py-10">
-              <Container>
-                <div className="rounded-2xl border border-gold-300 bg-white p-6 shadow-soft">
-                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
-                    <Badge variant="maroon" size="sm">{t('today')}</Badge>
-                    <h2 className="text-2xl font-serif font-bold text-charcoal-900 font-geez">
-                      {todayEntry.geezLabel}
-                    </h2>
-                    <span className="text-sm text-charcoal-500">
-                      {formatGregorian(todayEntry.gregorianDate)}
-                    </span>
-                  </div>
+        <Section className="bg-parchment-50 dark:bg-charcoal-950">
+          <Container>
+            {/* ── Month navigation ─────────────────────────────────── */}
+            <nav aria-label={t('month')} className="mb-6 flex flex-wrap gap-1.5">
+              {GEEZ_MONTHS.map((m) => {
+                const active = m === selectedMonth
+                return (
+                  <a
+                    key={m}
+                    href={`/geez-calendar?month=${m}`}
+                    aria-current={active ? 'page' : undefined}
+                    className={cn(
+                      'rounded-full border px-3 py-1 text-sm transition-all duration-200',
+                      active
+                        ? 'border-maroon-800 bg-maroon-800 text-white shadow-sm'
+                        : 'border-charcoal-200 bg-white text-charcoal-600 hover:border-maroon-300 hover:text-maroon-800 dark:bg-charcoal-800 dark:text-charcoal-200 dark:border-charcoal-600',
+                      !monthsWithData.has(m) && !active && 'opacity-40',
+                    )}
+                  >
+                    <span className="font-geez">{GEEZ_MONTH_LABELS[m].ti}</span>
+                  </a>
+                )
+              })}
+            </nav>
 
-                  {todayEntry.events && (
-                    <p className="mb-2 text-base font-medium text-gold-900 font-geez leading-relaxed">
-                      🎉 {todayEntry.events}
-                    </p>
-                  )}
-                  {todayEntry.readings && (
-                    <p className="mb-2 text-sm text-charcoal-700 font-geez leading-relaxed">
-                      <span className="font-semibold text-charcoal-500">{t('readings')}: </span>
-                      {todayEntry.readings}
-                    </p>
-                  )}
-                  {todayEntry.antiphon && (
-                    <p className="mb-2 text-sm text-charcoal-700 font-geez leading-relaxed border-l-2 border-gold-300 pl-3 italic">
-                      {todayEntry.antiphon}
-                    </p>
-                  )}
-                  {todayEntry.deceasedClergy && (
-                    <p className="text-sm text-charcoal-600 font-geez leading-relaxed">
-                      <span className="font-semibold text-charcoal-500">
-                        ✝ {t('deceasedClergy')}:{' '}
-                      </span>
-                      {todayEntry.deceasedClergy}
-                    </p>
+            <div className="flex items-baseline gap-3 mb-5">
+              <h2 className="text-2xl font-serif font-bold text-charcoal-900 dark:text-white">
+                <span className="font-geez">{GEEZ_MONTH_LABELS[selectedMonth].ti}</span>
+                <span className="ml-3 text-lg text-charcoal-400 font-normal dark:text-charcoal-300">
+                  {GEEZ_MONTH_LABELS[selectedMonth].en}
+                  {geezYear ? ` ${geezYear}` : ''}
+                </span>
+              </h2>
+              {first && last && (
+                <span className="text-sm text-charcoal-400 dark:text-charcoal-300">
+                  {formatGregorianShort(first.gregorianDate)} – {formatGregorianShort(last.gregorianDate)}
+                </span>
+              )}
+            </div>
+
+            {/* ── Calendar + sidebar ───────────────────────────────── */}
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+              <GeezCalendarView
+                monthDays={monthDays}
+                monthlyFeasts={monthlyFeasts}
+                todayIso={today}
+                labels={{
+                  today: t('today'),
+                  feast: t('feast'),
+                  readings: t('readings'),
+                  antiphon: t('antiphon'),
+                  deceasedClergy: t('deceasedClergy'),
+                  monthlyFeast: t('monthlyFeast'),
+                  season: t('season'),
+                  noEntries: t('noEntries'),
+                  gregorian: t('gregorian'),
+                }}
+              />
+
+              {/* Upcoming feasts */}
+              <aside aria-label={t('upcoming')}>
+                <div className="lg:sticky lg:top-24 rounded-2xl border border-charcoal-100 bg-white p-5 shadow-soft dark:bg-charcoal-900 dark:border-charcoal-700">
+                  <h3 className="font-serif font-semibold text-charcoal-900 dark:text-white">
+                    {t('upcoming')}
+                  </h3>
+                  <div className="mt-1 h-1 w-10 rounded-full bg-gold-400 mb-4" />
+                  {upcoming.length === 0 ? (
+                    <p className="text-sm text-charcoal-400 italic">{t('noEntries')}</p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {upcoming.map((item) => (
+                        <li key={item.key} className="flex items-start gap-2.5">
+                          <span className="shrink-0 text-base leading-6" aria-hidden="true">
+                            {item.icon}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-geez text-sm font-medium text-charcoal-800 leading-snug dark:text-charcoal-100">
+                              {item.name}
+                            </p>
+                            <p className="text-xs text-charcoal-400 dark:text-charcoal-300">
+                              <span className="font-geez">{item.geezLabel}</span>
+                              {' · '}
+                              {formatGregorianShort(item.gregorianDate)}
+                            </p>
+                          </div>
+                          <Badge variant={item.daysLeft === 0 ? 'maroon' : 'neutral'} size="sm">
+                            {item.daysLeft === 0 ? t('today') : t('inDays', { days: item.daysLeft })}
+                          </Badge>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
-              </Container>
-            </Section>
-          )}
-
-          {/* ── Month browser ─────────────────────────────────────── */}
-          <Section className="bg-white">
-            <Container>
-              <nav aria-label={t('month')} className="mb-8 flex flex-wrap gap-2">
-                {GEEZ_MONTHS.map((m) => {
-                  const active = m === selectedMonth
-                  return (
-                    <a
-                      key={m}
-                      href={`/geez-calendar?month=${m}`}
-                      aria-current={active ? 'page' : undefined}
-                      className={cn(
-                        'rounded-full border px-4 py-1.5 text-sm transition-colors',
-                        active
-                          ? 'border-maroon-800 bg-maroon-800 text-white'
-                          : 'border-charcoal-200 text-charcoal-600 hover:border-maroon-300 hover:text-maroon-800',
-                        !monthsWithData.has(m) && !active && 'opacity-50',
-                      )}
-                    >
-                      <span className="font-geez">{GEEZ_MONTH_LABELS[m].ti}</span>
-                      <span className="ml-1.5 text-xs opacity-75">{GEEZ_MONTH_LABELS[m].en}</span>
-                    </a>
-                  )
-                })}
-              </nav>
-
-              <div className="flex items-baseline gap-3 mb-6">
-                <h2 className="text-2xl font-serif font-bold text-charcoal-900">
-                  <span className="font-geez">{GEEZ_MONTH_LABELS[selectedMonth].ti}</span>
-                  <span className="ml-3 text-lg text-charcoal-400 font-normal">
-                    {GEEZ_MONTH_LABELS[selectedMonth].en}
-                    {geezYear ? ` ${geezYear}` : ''}
-                  </span>
-                </h2>
-                {monthDays.length > 0 && (
-                  <span className="text-sm text-charcoal-400">
-                    {formatGregorian(monthDays[0]!.gregorianDate)} –{' '}
-                    {formatGregorian(monthDays[monthDays.length - 1]!.gregorianDate)}
-                  </span>
-                )}
-              </div>
-
-              {monthDays.length > 0 ? (
-                <ul className="space-y-3">
-                  {monthDays.map((day) => (
-                    <DayRow
-                      key={day.id}
-                      day={day}
-                      isToday={day.gregorianDate === today}
-                      t={t}
-                    />
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-charcoal-400 italic">{t('noEntries')}</p>
-              )}
-            </Container>
-          </Section>
-        </>
+              </aside>
+            </div>
+          </Container>
+        </Section>
       )}
 
       {/* ── Major feasts & fasts (curated entries) ───────────────── */}
       {feasts.length > 0 && (
-        <Section className="bg-parchment-50">
+        <Section className="bg-white dark:bg-charcoal-900">
           <Container>
-            <h2 className="text-2xl font-serif font-bold text-charcoal-900 mb-2">
+            <h2 className="text-2xl font-serif font-bold text-charcoal-900 mb-2 dark:text-white">
               {t('majorFeasts')}
             </h2>
             <div className="mt-2 h-1 w-14 rounded-full bg-gold-400 mb-8" />

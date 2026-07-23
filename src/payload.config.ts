@@ -39,6 +39,7 @@ import { ChildrenPrograms } from './collections/ChildrenPrograms/index'
 import { SmallChristianCommunities } from './collections/SmallChristianCommunities/index'
 import { GeezCalendarEntries } from './collections/GeezCalendarEntries/index'
 import { GeezCalendarDays } from './collections/GeezCalendarDays/index'
+import { GeezMonthlyFeasts } from './collections/GeezMonthlyFeasts/index'
 import { ContactSubmissions } from './collections/ContactSubmissions/index'
 
 // ── Globals ───────────────────────────────────────────────────────────────────
@@ -132,6 +133,7 @@ export default buildConfig({
     SmallChristianCommunities,
     GeezCalendarEntries,
     GeezCalendarDays,
+    GeezMonthlyFeasts,
     ContactSubmissions,
   ],
 

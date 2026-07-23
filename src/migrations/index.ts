@@ -21,6 +21,7 @@ import * as migration_20260722_044837_banner_image from './20260722_044837_banne
 import * as migration_20260722_061101_banner_image_exact from './20260722_061101_banner_image_exact';
 import * as migration_20260722_172127_taxonomies_and_banner_image_opacity from './20260722_172127_taxonomies_and_banner_image_opacity';
 import * as migration_20260722_173951_geez_calendar_days from './20260722_173951_geez_calendar_days';
+import * as migration_20260723_040238_geez_monthly_feasts from './20260723_040238_geez_monthly_feasts';
 
 export const migrations = [
   {
@@ -136,6 +137,11 @@ export const migrations = [
   {
     up: migration_20260722_173951_geez_calendar_days.up,
     down: migration_20260722_173951_geez_calendar_days.down,
-    name: '20260722_173951_geez_calendar_days'
+    name: '20260722_173951_geez_calendar_days',
+  },
+  {
+    up: migration_20260723_040238_geez_monthly_feasts.up,
+    down: migration_20260723_040238_geez_monthly_feasts.down,
+    name: '20260723_040238_geez_monthly_feasts'
   },
 ];
