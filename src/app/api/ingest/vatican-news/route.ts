@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { getPayload } from '@/lib/payload/client'
 import {
@@ -9,6 +10,14 @@ import {
 } from '@/lib/ingest/vaticanNews'
 import { slugify } from '@/lib/formatters/slug'
 import { safeFetch } from '@/lib/ingest/safeFetch'
+
+/** Length-safe, constant-time string comparison for the bearer token. */
+function timingSafeStrEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ab.length !== bb.length) return false
+  return timingSafeEqual(ab, bb)
+}
 
 /**
  * A URL-safe slug for an imported item.
@@ -189,7 +198,7 @@ export async function POST(req: Request) {
   //     browser, which must never see CRON_SECRET, so it authenticates with
   //     the Payload session cookie it already has.
   const auth = req.headers.get('authorization') ?? ''
-  const viaCron = Boolean(secret) && auth === `Bearer ${secret}`
+  const viaCron = Boolean(secret) && timingSafeStrEqual(auth, `Bearer ${secret}`)
 
   let authorized = viaCron
   if (!authorized) {

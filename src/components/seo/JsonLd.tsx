@@ -14,8 +14,10 @@ export function JsonLd({
         <script
           key={i}
           type="application/ld+json"
-          // Schema content is server-generated from trusted CMS data.
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(entry) }}
+          // Content is server-generated from CMS data, but a stray "</script>"
+          // (or "<") inside any string field would break out of the tag, so
+          // escape "<" — the one character that can end the script element.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(entry).replace(/</g, '\\u003c') }}
         />
       ))}
     </>
