@@ -5,11 +5,23 @@
  * the database is seeded to get the full generated Payload types.
  */
 
+import * as Sentry from '@sentry/nextjs'
 import { getPayload } from './client'
 import { cachedQuery } from './cache'
 import type { BannerSettingsData } from '../banner-themes'
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
+
+/**
+ * Report a swallowed query failure. Reads here return safe empties so a page
+ * still renders when the DB is unavailable, but a genuine bug (bad query,
+ * schema drift) must not be indistinguishable from "no data" — so surface it to
+ * Sentry and the server log before returning the fallback.
+ */
+function logQueryError(where: string, err: unknown): void {
+  console.error(`[query:${where}]`, err)
+  Sentry.captureException(err, { tags: { query: where } })
+}
 
 function imgOf(doc: any): CMSImage | null {
   if (!doc) return null
@@ -143,7 +155,8 @@ export async function getNewsBySlug(slug: string, locale?: string): Promise<News
         .filter(Boolean) as GalleryItem[],
       seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
-  } catch {
+  } catch (err) {
+    logQueryError('getNewsBySlug', err)
     return null
   }
 }
@@ -347,7 +360,8 @@ export async function getEventBySlug(slug: string, locale?: string): Promise<Eve
     const d = (result.docs as any[])[0]
     if (!d) return null
     return { ...mapEvent(d), description: d.description, cost: d.cost, registrationUrl: d.registrationUrl, seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined }
-  } catch {
+  } catch (err) {
+    logQueryError('getEventBySlug', err)
     return null
   }
 }
@@ -456,7 +470,8 @@ export async function getParishBySlug(slug: string, locale?: string): Promise<Pa
       gallery: (d.gallery ?? []).map((g: any) => imgOf(g?.image ?? g)).filter(Boolean),
       seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
-  } catch {
+  } catch (err) {
+    logQueryError('getParishBySlug', err)
     return null
   }
 }
@@ -1390,7 +1405,8 @@ export async function getBishopMessageBySlug(slug: string, locale?: string): Pro
       featuredImage: imgOf(d.featuredImage),
       seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
-  } catch {
+  } catch (err) {
+    logQueryError('getBishopMessageBySlug', err)
     return null
   }
 }
@@ -1482,7 +1498,8 @@ export async function getPopeMessageBySlug(slug: string, locale?: string): Promi
       featuredImage: imgOf(d.featuredImage),
       seo: d.seo ? { title: d.seo.metaTitle, description: d.seo.metaDescription, ogImage: imgOf(d.seo.ogImage) } : undefined,
     }
-  } catch {
+  } catch (err) {
+    logQueryError('getPopeMessageBySlug', err)
     return null
   }
 }
@@ -1768,7 +1785,8 @@ export async function globalSearch(
   }
 
   return (await Promise.all(jobs)).flat()
-  } catch {
+  } catch (err) {
+    logQueryError('globalSearch', err)
     return []
   }
 }
