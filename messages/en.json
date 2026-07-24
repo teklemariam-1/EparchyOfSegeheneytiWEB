@@ -70,7 +70,10 @@
     "latestNews": "Latest News",
     "upcomingEvents": "Upcoming Events",
     "quickLinks": "Quick Links",
-    "bishopMessage": "A Word from the Bishop"
+    "bishopMessage": "A Word from the Bishop",
+    "heroEyebrow": "Catholic Eparchy of Segeneyti",
+    "heroWelcome": "Welcome to the official website of the Catholic Eparchy of Segeneyti, Eritrea. Rooted in faith, united in mission, and open to all.",
+    "readFullMessage": "Read Full Message"
   },
   "news": {
     "title": "News",
@@ -87,7 +90,10 @@
     "location": "Location",
     "time": "Time",
     "register": "Register",
-    "allDay": "All day"
+    "allDay": "All day",
+    "sectionUpcoming": "Upcoming Events",
+    "sectionPast": "Past Events",
+    "scheduled": "{count} scheduled"
   },
   "parishes": {
     "title": "Parishes",
@@ -131,7 +137,25 @@
     "messageRequired": "Message is required",
     "qaTitle": "Questions & Answers",
     "qaIntro": "Questions we have been asked, with official answers from the Eparchy. Questions are published anonymously — names are never shown.",
-    "privacyNotice": "If your question may help others, we may publish it here anonymously together with our answer. Your name, email address and phone number are never shown."
+    "privacyNotice": "If your question may help others, we may publish it here anonymously together with our answer. Your name, email address and phone number are never shown.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "firstNamePlaceholder": "Your first name",
+    "lastNamePlaceholder": "Your last name",
+    "emailPlaceholder": "you@example.com",
+    "phonePlaceholder": "+291 1 000 000",
+    "selectSubject": "Select a subject…",
+    "messagePlaceholder": "Type your message here…",
+    "responseNotice": "Your message will be reviewed by the Chancery office. We aim to respond within 3–5 business days.",
+    "subjects": {
+      "general": "General Enquiry",
+      "parish": "Parish Information",
+      "sacrament": "Sacramental Request",
+      "vocations": "Vocations",
+      "schools": "Schools & Education",
+      "media": "Media & Press",
+      "other": "Other"
+    }
   },
   "search": {
     "title": "Search",

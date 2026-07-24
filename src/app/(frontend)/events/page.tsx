@@ -89,11 +89,11 @@ export default async function EventsPage({
 
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-serif font-semibold text-charcoal-900">
-              Upcoming Events
+              {t('sectionUpcoming')}
             </h2>
             {upcomingCards.length > 0 && (
               <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                {upcomingCards.length} scheduled
+                {t('scheduled', { count: upcomingCards.length })}
               </span>
             )}
           </div>
@@ -122,7 +122,7 @@ export default async function EventsPage({
         <Section className="bg-parchment-50">
           <Container>
             <h2 className="text-xl font-serif font-semibold text-charcoal-900 mb-6">
-              Past Events
+              {t('sectionPast')}
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {pastCards.map((ev) => (

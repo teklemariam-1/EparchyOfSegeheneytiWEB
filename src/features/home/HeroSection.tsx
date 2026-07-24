@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { getTranslations } from 'next-intl/server'
 import type { HomepageGlobal, CMSImage } from '@/lib/payload/queries'
 
 interface Props {
@@ -17,7 +18,8 @@ const OVERLAY_COLORS: Record<string, string> = {
   gold: '#7a5b16',
 }
 
-export function HeroSection({ hero, logo }: Props) {
+export async function HeroSection({ hero, logo }: Props) {
+  const t = await getTranslations('home')
   const heading = hero?.headline ?? "Serving God's People"
   const subheading = hero?.subheading
   const ctaPrimary = hero?.primaryCta ?? { label: 'Learn About the Eparchy', url: '/about' }
@@ -107,7 +109,7 @@ export function HeroSection({ hero, logo }: Props) {
         <div className="max-w-3xl">
           {/* Eyebrow */}
           <p className="text-gold-400 text-sm font-semibold uppercase tracking-widest mb-4">
-            Catholic Eparchy of Segeneyti · ካቶሊካዊ ጵጵስና ሰገነይቲ
+            {t('heroEyebrow')}
           </p>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-tight text-white mb-6">
@@ -118,8 +120,7 @@ export function HeroSection({ hero, logo }: Props) {
           </h1>
 
           <p className="text-lg md:text-xl text-maroon-200 leading-relaxed mb-8 max-w-2xl">
-            Welcome to the official website of the Catholic Eparchy of Segeneyti, Eritrea.
-            Rooted in faith, united in mission, and open to all.
+            {t('heroWelcome')}
           </p>
 
           <div className="flex flex-wrap gap-4">

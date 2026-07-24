@@ -70,7 +70,10 @@
     "latestNews": "እዋናዊ ዜናታት",
     "upcomingEvents": "ኣብ ቀራባ ግዜ ኣጋጣሚታት",
     "quickLinks": "ቅልጡፍ ናይ ምዃን መስርሕ",
-    "bishopMessage": "ቃል ካብ ጳጳስ"
+    "bishopMessage": "ቃል ካብ ጳጳስ",
+    "heroEyebrow": "ካቶሊካዊ ኤጳርቅና ሰገነይቲ",
+    "heroWelcome": "ናብ ወግዓዊ መርበብ ሓበሬታ ካቶሊካዊ ኤጳርቅና ሰገነይቲ፡ ኤርትራ፡ እንቋዕ ብደሓን መጻእኩም። ብእምነት ዝተመስረተ፡ ብተልእኮ ዝተሓበረ፡ ንኹሉ ክፉት።",
+    "readFullMessage": "ምሉእ መልእኽቲ ኣንብብ"
   },
   "news": {
     "title": "ዜናታት",
@@ -87,7 +90,10 @@
     "location": "ቦታ",
     "time": "ሰዓት",
     "register": "ምዝገባ",
-    "allDay": "ምሉእ መዓልቲ"
+    "allDay": "ምሉእ መዓልቲ",
+    "sectionUpcoming": "ዝቕጽሉ ኣጋጣሚታት",
+    "sectionPast": "ዝሓለፉ ኣጋጣሚታት",
+    "scheduled": "{count} ተመዲቦም"
   },
   "parishes": {
     "title": "ሰበካት",
@@ -118,7 +124,7 @@
     "subject": "ኣርእስቲ",
     "message": "መልእኽቲ",
     "send": "መልእኽቲ ሰደድ",
-    "sending": "ይሰዳ ኣሎ…",
+    "sending": "ይለኣኽ ኣሎ…",
     "successTitle": "መልእኽቲ ተሰዲዱ!",
     "successMessage": "ስለ ዝረኸብኩሙና ነመስግን። ኣብ ዝቐርብ ክንምልስ ኢና።",
     "errorTitle": "ምስዳድ ኣይሰለጠን",
@@ -131,7 +137,25 @@
     "messageRequired": "መልእኽቲ ዘድሊ'ዩ",
     "qaTitle": "ሕቶታትን መልስታትን",
     "qaIntro": "ካብ ምእመናን ዝቐረቡ ሕቶታትን ካብ ኤጳርቅና ዝተዋህበ ወግዓዊ መልስን። ሕቶታት ብዘይ መንነት እዮም ዝዝርግሑ — ስም ሓታቲ ፈጺሙ ኣይግለጽን።",
-    "privacyNotice": "ሕቶኹም ንኻልኦት ክሕግዝ ይኽእል እዩ እንተኾይኑ፡ ምስ መልስና ብዘይ መንነት ኣብዚ ገጽ ክንዝርግሖ ንኽእል ኢና። ስምኩም፡ ኢመይልኩምን ቁጽሪ ተለፎንኩምን ፈጺሙ ኣይረአን።"
+    "privacyNotice": "ሕቶኹም ንኻልኦት ክሕግዝ ይኽእል እዩ እንተኾይኑ፡ ምስ መልስና ብዘይ መንነት ኣብዚ ገጽ ክንዝርግሖ ንኽእል ኢና። ስምኩም፡ ኢመይልኩምን ቁጽሪ ተለፎንኩምን ፈጺሙ ኣይረአን።",
+    "firstName": "ቀዳማይ ስም",
+    "lastName": "ካልኣይ ስም",
+    "firstNamePlaceholder": "ቀዳማይ ስምኩም",
+    "lastNamePlaceholder": "ካልኣይ ስምኩም",
+    "emailPlaceholder": "you@example.com",
+    "phonePlaceholder": "+291 1 000 000",
+    "selectSubject": "ኣርእስቲ ምረጹ…",
+    "messagePlaceholder": "መልእኽትኹም ኣብዚ ጽሓፉ…",
+    "responseNotice": "መልእኽትኹም ብቤት ጽሕፈት ቻንስለሪ ክግምገም እዩ። ኣብ ውሽጢ 3–5 ናይ ስራሕ መዓልትታት ክንምልሰልኩም ንጽዕር።",
+    "subjects": {
+      "general": "ሓፈሻዊ ሕቶ",
+      "parish": "ሓበሬታ ቁምስና",
+      "sacrament": "ሕቶ ምስጢራት",
+      "vocations": "ጸዋዕታ",
+      "schools": "ኣብያተ ትምህርቲ",
+      "media": "ሚድያን ፕረስን",
+      "other": "ካልእ"
+    }
   },
   "search": {
     "title": "ድለ",
