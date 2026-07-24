@@ -32,7 +32,11 @@ function ArchPortrait({ photoUrl, alt }: { photoUrl?: string; alt: string }) {
       viewBox="0 0 310 302"
       role="img"
       aria-label={alt}
-      className="w-64 sm:w-72 lg:w-80 h-auto"
+      // Small/medium screens: fixed sizes (single stacked column). Large screens
+      // (two-column layout): fill the column so the arch stays proportional to the
+      // text beside it, capped by max-width so it never overflows the narrow end
+      // of the lg range or grows unbounded on very wide desktops.
+      className="w-64 sm:w-72 lg:w-full lg:max-w-sm xl:max-w-md h-auto"
     >
       <defs>
         <pattern id="bishop-weave" width="44" height="44" patternUnits="userSpaceOnUse">
