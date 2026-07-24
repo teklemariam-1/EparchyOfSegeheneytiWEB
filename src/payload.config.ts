@@ -173,6 +173,12 @@ export default buildConfig({
     pool: {
       connectionString: env.DATABASE_URI,
     },
+    // Disable Drizzle's dev schema-push in production. With push enabled,
+    // `payload migrate` in CI hits an interactive "data loss will occur —
+    // proceed? (y/N)" prompt, hangs ~8 min on the non-interactive stdin, then
+    // defaults to "No" and exits 0 WITHOUT applying migrations (silent schema
+    // drift). Production is migration-driven only; local dev keeps push.
+    push: process.env.NODE_ENV !== 'production',
   }),
 
   // ── Localization ──────────────────────────────────────────────────────────────
