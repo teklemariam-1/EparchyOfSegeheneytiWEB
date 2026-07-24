@@ -50,7 +50,12 @@ const ADMIN_CSP = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://vercel.live https://vercel.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://vercel.live",
   "font-src 'self' data: https://fonts.gstatic.com https://vercel.live",
-  "img-src 'self' data: blob: https://* http://localhost:*",
+  // Media thumbnails/previews come from Vercel Blob (or the S3/R2 host). The
+  // generic `https://*` here did not reliably match those hosts, so the admin
+  // Media list rendered every image as a black box (the frontend CSP already
+  // lists the Blob host explicitly, which is why the public site worked). List
+  // the same hosts here.
+  `img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://${process.env.S3_HOSTNAME ?? '*'} http://localhost:*`,
   "frame-src 'self' https://vercel.live",
   // Vercel live feedback uses Pusher websockets.
   // Vercel Blob is configured with clientUploads, so the browser PUTs the file

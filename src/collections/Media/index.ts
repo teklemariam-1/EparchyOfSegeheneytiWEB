@@ -12,7 +12,18 @@ export const Media: CollectionConfig = {
       { name: 'hero', width: 1920, height: 1080, position: 'centre' },
       { name: 'og', width: 1200, height: 630, position: 'centre' },
     ],
-    adminThumbnail: 'thumbnail',
+    // Render the admin list thumbnail through Next's image optimizer, from the
+    // ORIGINAL upload. This serves a small, same-origin (`/_next/image`) image,
+    // so it displays regardless of the Blob-host CSP or whether a resized
+    // `thumbnail` variant was produced — the failure mode that showed every
+    // image as a black box. Non-images return null and keep the file icon.
+    adminThumbnail: ({ doc }) => {
+      const mimeType = (doc as { mimeType?: unknown }).mimeType
+      const url = (doc as { url?: unknown }).url
+      if (typeof mimeType !== 'string' || !mimeType.startsWith('image/')) return null
+      if (typeof url !== 'string' || !url) return null
+      return `/_next/image?url=${encodeURIComponent(url)}&w=256&q=70`
+    },
     mimeTypes: [
       'image/jpeg',
       'image/png',
