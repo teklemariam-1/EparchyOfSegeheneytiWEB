@@ -108,6 +108,16 @@ describe('normalizePath', () => {
     expect(normalizePath('not-a-path')).toBeNull()
     expect(normalizePath(undefined)).toBeNull()
   })
+
+  it('rejects unknown top-level paths so junk cannot grow the stats table', () => {
+    // Arbitrary attacker paths are not tracked…
+    expect(normalizePath('/x1')).toBeNull()
+    expect(normalizePath('/random-junk-path')).toBeNull()
+    // …but real routes and their content slugs are.
+    expect(normalizePath('/events/holy-week')).toBe('/events/holy-week')
+    expect(normalizePath('/geez-calendar')).toBe('/geez-calendar')
+    expect(normalizePath('/contact')).toBe('/contact')
+  })
 })
 
 describe('contentBucket', () => {

@@ -102,14 +102,3 @@ export function isOwnParishOrAbove(parishField = 'parish'): Access {
     } as unknown as boolean
   }
 }
-
-/**
- * Access for contact submissions — only elevated roles can read; no one can
- * create through admin (submissions come in via the API/form endpoint).
- */
-export const contactSubmissionAccess = {
-  read: isChanceryOrAbove,
-  create: isPublicRead, // public POST via API
-  update: isChanceryOrAbove,
-  delete: isSuperAdmin,
-}

@@ -221,6 +221,18 @@ export const LANGUAGE_LABELS: Record<string, string> = {
 }
 
 /** Normalize a tracked path: same-origin pathname only, trimmed, capped. */
+/**
+ * Top-level route segments the site actually serves. Paths outside this set
+ * are not tracked, so an attacker POSTing arbitrary distinct paths (/x1, /x2…)
+ * to /api/track cannot grow the visitor-stats table without bound — cardinality
+ * stays within these routes plus their content slugs.
+ */
+const KNOWN_ROUTE_SEGMENTS = new Set([
+  'about', 'news', 'events', 'parishes', 'vicariates', 'ministries', 'offices',
+  'bishop-messages', 'pope-messages', 'publications', 'apps', 'media',
+  'geez-calendar', 'calendar-subscriptions', 'search', 'contact', 'settings', 'privacy',
+])
+
 export function normalizePath(path: string | null | undefined): string | null {
   if (typeof path !== 'string') return null
   let p = path.trim()
@@ -229,7 +241,10 @@ export function normalizePath(path: string | null | undefined): string | null {
   if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1)
   if (p.startsWith('/admin') || p.startsWith('/api')) return null
   if (p.length > 200) p = p.slice(0, 200)
-  return p || '/'
+  if (p === '' || p === '/') return '/'
+  const first = p.slice(1).split('/')[0]!
+  if (!KNOWN_ROUTE_SEGMENTS.has(first)) return null
+  return p
 }
 
 /** Group a path into a content bucket for "popular content" reporting. */
