@@ -305,7 +305,30 @@
     "displayLanguage": "Display language",
     "quickLinks": "Quick Links",
     "administration": "Administration",
-    "cmsAdminPanel": "CMS Admin Panel"
+    "cmsAdminPanel": "CMS Admin Panel",
+    "subtitle": "Manage your preferences",
+    "languageHelp": "Choose the language used for navigation and interface labels.",
+    "contentLanguageNote": "Content language is set per article by our editors.",
+    "adminHelp": "Manage content, users, and site settings (editors only).",
+    "goToAdmin": "Go to Admin",
+    "links": {
+      "contact": {
+        "label": "Contact Us",
+        "desc": "Send a message to the Eparchy"
+      },
+      "about": {
+        "label": "About the Eparchy",
+        "desc": "Learn about our diocese"
+      },
+      "calendar": {
+        "label": "Ge'ez Calendar",
+        "desc": "Liturgical calendar"
+      },
+      "parish": {
+        "label": "Find a Parish",
+        "desc": "Locate your nearest parish"
+      }
+    }
   },
   "vicariates": {
     "title": "Vicariates",

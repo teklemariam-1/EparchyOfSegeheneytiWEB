@@ -13,14 +13,21 @@ export const metadata: Metadata = buildMetadata({
 
 export default async function SettingsPage() {
   const locale = await getLocale()
-  const t = await getTranslations('settings')
+  const [t, tn] = await Promise.all([getTranslations('settings'), getTranslations('nav')])
+
+  const quickLinks = [
+    { key: 'contact', href: '/contact' },
+    { key: 'about', href: '/about' },
+    { key: 'calendar', href: '/geez-calendar' },
+    { key: 'parish', href: '/parishes' },
+  ] as const
 
   return (
     <>
       <PageHeader
-        title="Settings"
-        subtitle="Manage your preferences"
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Settings' }]}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: tn('home'), href: '/' }, { label: t('title') }]}
       />
 
       <section className="py-12 bg-parchment min-h-[60vh]">
@@ -32,14 +39,14 @@ export default async function SettingsPage() {
               <div className="px-6 py-4 border-b border-charcoal-100 bg-maroon-50">
                 <h2 className="text-base font-semibold text-maroon-900 font-serif">{t('language')}</h2>
                 <p className="text-sm text-charcoal-500 mt-0.5">
-                  Choose the language used for navigation and interface labels.
+                  {t('languageHelp')}
                 </p>
               </div>
               <div className="px-6 py-5 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium text-charcoal-700">{t('displayLanguage')}</p>
                   <p className="text-xs text-charcoal-400 mt-0.5">
-                    Content language is set per article by our editors.
+                    {t('contentLanguageNote')}
                   </p>
                 </div>
                 <LanguageSwitcher currentLocale={locale} />
@@ -52,12 +59,7 @@ export default async function SettingsPage() {
                 <h2 className="text-base font-semibold text-maroon-900 font-serif">{t('quickLinks')}</h2>
               </div>
               <ul className="divide-y divide-charcoal-100">
-                {[
-                  { label: 'Contact Us', href: '/contact', desc: 'Send a message to the Eparchy' },
-                  { label: 'About the Eparchy', href: '/about', desc: 'Learn about our diocese' },
-                  { label: "Ge'ez Calendar", href: '/geez-calendar', desc: 'Liturgical calendar' },
-                  { label: 'Find a Parish', href: '/parishes', desc: 'Locate your nearest parish' },
-                ].map(({ label, href, desc }) => (
+                {quickLinks.map(({ key, href }) => (
                   <li key={href}>
                     <Link
                       href={href}
@@ -65,9 +67,9 @@ export default async function SettingsPage() {
                     >
                       <div>
                         <p className="text-sm font-medium text-charcoal-800 group-hover:text-maroon-800 transition-colors">
-                          {label}
+                          {t(`links.${key}.label`)}
                         </p>
-                        <p className="text-xs text-charcoal-400 mt-0.5">{desc}</p>
+                        <p className="text-xs text-charcoal-400 mt-0.5">{t(`links.${key}.desc`)}</p>
                       </div>
                       <svg
                         className="h-4 w-4 text-charcoal-300 group-hover:text-maroon-600 transition-colors shrink-0"
@@ -93,14 +95,14 @@ export default async function SettingsPage() {
                 <div>
                   <p className="text-sm font-medium text-charcoal-700">{t('cmsAdminPanel')}</p>
                   <p className="text-xs text-charcoal-400 mt-0.5">
-                    Manage content, users, and site settings (editors only).
+                    {t('adminHelp')}
                   </p>
                 </div>
                 <Link
                   href="/admin"
                   className="inline-flex items-center gap-2 rounded-lg border border-maroon-200 bg-maroon-50 px-4 py-2 text-sm font-medium text-maroon-800 hover:bg-maroon-100 transition-colors"
                 >
-                  Go to Admin →
+                  {t('goToAdmin')} →
                 </Link>
               </div>
             </div>

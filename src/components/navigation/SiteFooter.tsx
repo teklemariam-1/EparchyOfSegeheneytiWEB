@@ -5,47 +5,53 @@ import { getFooterGlobal, getSiteSettings } from '@/lib/payload/queries'
 import type { FooterGlobal } from '@/lib/payload/queries'
 import { NewsletterForm } from '@/features/newsletter/NewsletterForm'
 
-const DEFAULT_FOOTER_COLUMNS: NonNullable<FooterGlobal['columns']> = [
-  {
-    heading: 'About',
-    links: [
-      { label: 'About the Eparchy', url: '/about' },
-      { label: 'Bishop', url: '/about#bishop' },
-      { label: 'History', url: '/about#history' },
-      { label: 'Contact', url: '/contact' },
-    ],
-  },
-  {
-    heading: 'Ministries',
-    links: [
-      { label: 'Youth Council', url: '/offices/youth-council' },
-      { label: 'Catechists', url: '/ministries#catechists' },
-      { label: "Children's Ministry", url: '/ministries#children' },
-      { label: 'Small Christian Community', url: '/ministries#small-christian-community' },
-      { label: 'All Ministries', url: '/ministries' },
-    ],
-  },
-  {
-    heading: 'Resources',
-    links: [
-      { label: "Bishop's Messages", url: '/bishop-messages' },
-      { label: 'Pope Messages', url: '/pope-messages' },
-      { label: "Ge'ez Calendar", url: '/geez-calendar' },
-      { label: 'Magazines', url: '/publications#magazines' },
-      { label: 'Archives', url: '/publications#archives' },
-      { label: 'Publications', url: '/publications' },
-    ],
-  },
-  {
-    heading: 'Media',
-    links: [
-      { label: 'Photo Gallery', url: '/media' },
-      { label: 'News', url: '/news' },
-      { label: 'Events', url: '/events' },
-      { label: 'Parishes', url: '/parishes' },
-    ],
-  },
-]
+/** Localized fallback footer columns, used when the Footer global defines none.
+ *  Labels come from the `nav` namespace so they match the header and translate. */
+function defaultFooterColumns(
+  tn: (key: string) => string,
+): NonNullable<FooterGlobal['columns']> {
+  return [
+    {
+      heading: tn('about'),
+      links: [
+        { label: tn('aboutEparchy'), url: '/about' },
+        { label: tn('bishop'), url: '/about#bishop' },
+        { label: tn('history'), url: '/about#history' },
+        { label: tn('contact'), url: '/contact' },
+      ],
+    },
+    {
+      heading: tn('ministries'),
+      links: [
+        { label: tn('youthCouncil'), url: '/offices/youth-council' },
+        { label: tn('catechists'), url: '/ministries#catechists' },
+        { label: tn('childrenMinistry'), url: '/ministries#children' },
+        { label: tn('smallChristianCommunity'), url: '/ministries#small-christian-community' },
+        { label: tn('allMinistries'), url: '/ministries' },
+      ],
+    },
+    {
+      heading: tn('resources'),
+      links: [
+        { label: tn('bishopMessages'), url: '/bishop-messages' },
+        { label: tn('popeMessages'), url: '/pope-messages' },
+        { label: tn('geezCalendar'), url: '/geez-calendar' },
+        { label: tn('magazines'), url: '/publications#magazines' },
+        { label: tn('archives'), url: '/publications#archives' },
+        { label: tn('publications'), url: '/publications' },
+      ],
+    },
+    {
+      heading: tn('media'),
+      links: [
+        { label: tn('gallery'), url: '/media' },
+        { label: tn('news'), url: '/news' },
+        { label: tn('events'), url: '/events' },
+        { label: tn('parishes'), url: '/parishes' },
+      ],
+    },
+  ]
+}
 
 type SocialKey = 'facebook' | 'youtube' | 'instagram' | 'twitter'
 
@@ -67,9 +73,9 @@ export async function SiteFooter() {
   const logoUrl = settings.logoDark?.url ?? settings.logo?.url
   const siteName = settings.siteName ?? 'Eparchy of Segeneyti'
   const year = new Date().getFullYear()
-  const t = await getTranslations('footer')
+  const [t, tn] = await Promise.all([getTranslations('footer'), getTranslations('nav')])
 
-  const columns = footer.columns?.length ? footer.columns : DEFAULT_FOOTER_COLUMNS
+  const columns = footer.columns?.length ? footer.columns : defaultFooterColumns(tn)
 
   return (
     <footer className="bg-maroon-950 text-charcoal-200">
@@ -177,11 +183,11 @@ export async function SiteFooter() {
           <p>{footer.copyrightText ?? `© ${year} Catholic Eparchy of Segeneyti. All rights reserved.`}</p>
           <div className="flex gap-4">
             <Link href="/contact" className="hover:text-charcoal-300 transition-colors">
-              Contact
+              {tn('contact')}
             </Link>
             <span aria-hidden="true">·</span>
             <Link href="/search" className="hover:text-charcoal-300 transition-colors">
-              Search
+              {tn('search')}
             </Link>
             <span aria-hidden="true">·</span>
             <Link href="/privacy" className="hover:text-charcoal-300 transition-colors">

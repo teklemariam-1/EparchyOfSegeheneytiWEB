@@ -325,6 +325,29 @@
     "displayLanguage": "ናይ ምርኢት ቋንቋ",
     "quickLinks": "ቅልጡፍ መላግቦታት",
     "administration": "ምምሕዳር",
-    "cmsAdminPanel": "ናይ CMS መቆጻጸሪ"
+    "cmsAdminPanel": "ናይ CMS መቆጻጸሪ",
+    "subtitle": "ምርጫታትኩም ኣመሓድሩ",
+    "languageHelp": "ንመሪሕን ንመለለዪ ምልክታትን ዝውዕል ቋንቋ ምረጹ።",
+    "contentLanguageNote": "ቋንቋ ትሕዝቶ ብኣርታዒና ንነፍሲ ወከፍ ጽሑፍ ይምደብ።",
+    "adminHelp": "ትሕዝቶ፣ ተጠቀምትን ናይ መርበብ ቅንብራትን ኣመሓድሩ (ንኣርተዕቲ ጥራይ)።",
+    "goToAdmin": "ናብ ኣድሚን ኪድ",
+    "links": {
+      "contact": {
+        "label": "ርኸቡና",
+        "desc": "ናብ ኤጳርቅና መልእኽቲ ስደዱ"
+      },
+      "about": {
+        "label": "ብዛዕባ ኤጳርቅና",
+        "desc": "ብዛዕባ ሃገረ ስብከትና ፍለጡ"
+      },
+      "calendar": {
+        "label": "ዕለታት ግዕዝ",
+        "desc": "ናይ ስርዓተ-ኣምልኾ ዓውደ-ኣዋርሕ"
+      },
+      "parish": {
+        "label": "ሰበካ ርኸቡ",
+        "desc": "ናብ ዝቐረበኩም ሰበካ ርኸቡ"
+      }
+    }
   }
 }
