@@ -11,7 +11,7 @@
 import type { GeezFeedDay, GeezMonthlyFeast, EventForFeed } from '@/lib/payload/queries'
 import { GEEZ_MONTH_LABELS, type GeezMonth } from '@/lib/constants/geezMonths'
 import { FIXED_SEASONS, type FixedSeason } from '@/lib/geez-liturgical'
-import { CALENDAR_CONFIG, eventUid } from './config'
+import { CALENDAR_CONFIG, eventUid, localDateOf } from './config'
 import type { CalendarEvent } from './ics'
 
 const monthTi = (m: string): string => GEEZ_MONTH_LABELS[m as GeezMonth]?.ti ?? m
@@ -101,8 +101,11 @@ export function eventDocToCalendarEvent(ev: EventForFeed): CalendarEvent {
     description: ev.excerpt,
     location: location || undefined,
     url: `${CALENDAR_CONFIG.siteUrl}/events/${ev.slug}`,
-    start: ev.isAllDay ? ev.startDate.slice(0, 10) : ev.startDate,
-    end: ev.endDate ? (ev.isAllDay ? ev.endDate.slice(0, 10) : ev.endDate) : undefined,
+    // All-day dates are resolved in the eparchy's timezone (localDateOf), not a
+    // raw UTC slice, so an event stored near the local-midnight boundary lands
+    // on the correct day.
+    start: ev.isAllDay ? localDateOf(ev.startDate) : ev.startDate,
+    end: ev.endDate ? (ev.isAllDay ? localDateOf(ev.endDate) : ev.endDate) : undefined,
     allDay: Boolean(ev.isAllDay),
     cancelled: ev.isCancelled,
     updatedAt: ev.updatedAt,

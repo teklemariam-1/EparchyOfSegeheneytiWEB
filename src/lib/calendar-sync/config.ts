@@ -34,3 +34,14 @@ export function feedUrl(feedId: string, params?: Record<string, string>): string
 export function eventUid(localPart: string): string {
   return `${localPart}@${CALENDAR_CONFIG.uidDomain}`
 }
+
+/**
+ * The calendar date (yyyy-mm-dd) an instant falls on **in the eparchy's
+ * timezone**. All-day events must use this, not a raw UTC `slice(0,10)`: an
+ * instant like `2025-10-04T21:00:00Z` is Oct 5 in Asmara (UTC+3), and slicing
+ * the UTC string would place it a day early. A plain `yyyy-mm-dd` input is
+ * returned unchanged (UTC midnight + 3h stays the same day).
+ */
+export function localDateOf(iso: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: CALENDAR_CONFIG.timeZone }).format(new Date(iso))
+}

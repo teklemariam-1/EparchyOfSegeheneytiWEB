@@ -5,6 +5,7 @@
 
 import type { GeezCalendarDay, GeezMonthlyFeast, EventInRange } from '@/lib/payload/queries'
 import { daysBetween } from '@/lib/geez-liturgical'
+import { localDateOf } from './config'
 
 export interface UpcomingItem {
   key: string
@@ -65,8 +66,9 @@ export interface DayEventRef {
 
 /**
  * Expand events (possibly multi-day) into a yyyy-mm-dd → events map, clamped
- * to [fromIso, toIso]. Date-only comparison; an event running to 14:00 on its
- * last day still appears on that day.
+ * to [fromIso, toIso]. Days are resolved in the eparchy's timezone (localDateOf)
+ * so an instant near local midnight isn't placed a day early; an event running
+ * to 14:00 on its last day still appears on that day.
  */
 export function eventsByDate(
   events: EventInRange[],
@@ -75,8 +77,8 @@ export function eventsByDate(
 ): Record<string, DayEventRef[]> {
   const map: Record<string, DayEventRef[]> = {}
   for (const ev of events) {
-    const start = ev.startDate.slice(0, 10)
-    const end = (ev.endDate ?? ev.startDate).slice(0, 10)
+    const start = localDateOf(ev.startDate)
+    const end = localDateOf(ev.endDate ?? ev.startDate)
     let day = start < fromIso ? fromIso : start
     const last = end > toIso ? toIso : end
     while (day <= last) {

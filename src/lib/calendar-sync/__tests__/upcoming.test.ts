@@ -87,6 +87,13 @@ describe('eventsByDate', () => {
     expect(Object.keys(map).sort()).toEqual(['2025-10-01', '2025-10-02'])
   })
 
+  it('places an instant near local midnight on the Asmara day, not the UTC day', () => {
+    // 21:00Z on Oct 4 is 00:00 Oct 5 in Asmara (UTC+3) — must appear on Oct 5.
+    const map = eventsByDate([ev({ startDate: '2025-10-04T21:00:00.000Z' })], '2025-10-01', '2025-10-31')
+    expect(map['2025-10-05']).toHaveLength(1)
+    expect(map['2025-10-04']).toBeUndefined()
+  })
+
   it('drops events wholly outside the window and keeps cancelled flag', () => {
     const map = eventsByDate(
       [
