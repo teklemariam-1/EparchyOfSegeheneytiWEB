@@ -224,8 +224,16 @@ export default buildConfig({
             clientUploads: true,
             // Serve files straight from the Blob CDN instead of proxying through
             // Payload's /api/media/file route (which 404s and costs a function
-            // invocation per image). The Blob store is public, so its URLs are
-            // publicly reachable regardless of Payload access control.
+            // invocation per image).
+            //
+            // Vercel Blob is public-only: object URLs are reachable by anyone
+            // who has them (the hash suffix makes them unguessable, not private).
+            // The app never hands out the raw URL of a `restricted` asset — the
+            // Media read access filter hides them from the API, and the query
+            // layer strips restricted archive file URLs before render. Authorized
+            // retrieval of restricted assets goes through the access-controlled
+            // /api/secure-file/[id] route. Residual risk: a leaked raw Blob URL
+            // stays reachable. Truly private files require R2/S3 + signed URLs.
             collections: { media: { disablePayloadAccessControl: true } },
             token: process.env.BLOB_READ_WRITE_TOKEN as string,
           }),
