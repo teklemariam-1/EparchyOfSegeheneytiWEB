@@ -4,13 +4,15 @@ import {
   getAllEventSlugs,
   getAllParishSlugs,
   getAllBishopMessageSlugs,
+  getAllPopeMessageSlugs,
+  getAllVicariateSlugs,
+  getAllOfficeSlugs,
 } from '@/lib/payload/queries'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim()
 
 const STATIC_ROUTES: Array<{
   url: string
-  lastModified?: Date
   changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']
   priority: number
 }> = [
@@ -18,66 +20,56 @@ const STATIC_ROUTES: Array<{
   { url: '/news', changeFrequency: 'daily', priority: 0.9 },
   { url: '/events', changeFrequency: 'daily', priority: 0.9 },
   { url: '/parishes', changeFrequency: 'weekly', priority: 0.8 },
+  { url: '/vicariates', changeFrequency: 'monthly', priority: 0.7 },
   { url: '/ministries', changeFrequency: 'weekly', priority: 0.7 },
   { url: '/bishop-messages', changeFrequency: 'weekly', priority: 0.8 },
+  { url: '/pope-messages', changeFrequency: 'weekly', priority: 0.7 },
   { url: '/publications', changeFrequency: 'weekly', priority: 0.7 },
   { url: '/media', changeFrequency: 'weekly', priority: 0.6 },
+  { url: '/apps', changeFrequency: 'monthly', priority: 0.5 },
   { url: '/geez-calendar', changeFrequency: 'monthly', priority: 0.6 },
+  { url: '/calendar-subscriptions', changeFrequency: 'monthly', priority: 0.5 },
   { url: '/about', changeFrequency: 'monthly', priority: 0.7 },
   { url: '/contact', changeFrequency: 'monthly', priority: 0.7 },
   { url: '/search', changeFrequency: 'monthly', priority: 0.4 },
+  { url: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
+]
+
+/** Detail-page groups: each provides slugs with a real `updatedAt`. */
+const DETAIL_GROUPS: Array<{
+  prefix: string
+  load: () => Promise<{ slug: string; updatedAt?: string }[]>
+  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']
+  priority: number
+}> = [
+  { prefix: '/news', load: getAllNewsSlugs, changeFrequency: 'monthly', priority: 0.7 },
+  { prefix: '/events', load: getAllEventSlugs, changeFrequency: 'monthly', priority: 0.6 },
+  { prefix: '/parishes', load: getAllParishSlugs, changeFrequency: 'monthly', priority: 0.7 },
+  { prefix: '/vicariates', load: getAllVicariateSlugs, changeFrequency: 'monthly', priority: 0.6 },
+  { prefix: '/offices', load: getAllOfficeSlugs, changeFrequency: 'monthly', priority: 0.5 },
+  { prefix: '/bishop-messages', load: getAllBishopMessageSlugs, changeFrequency: 'monthly', priority: 0.7 },
+  { prefix: '/pope-messages', load: getAllPopeMessageSlugs, changeFrequency: 'monthly', priority: 0.6 },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [newsSlugs, eventSlugs, parishSlugs, bishopSlugs] = await Promise.all([
-    getAllNewsSlugs(),
-    getAllEventSlugs(),
-    getAllParishSlugs(),
-    getAllBishopMessageSlugs(),
-  ])
+  const groups = await Promise.all(DETAIL_GROUPS.map((g) => g.load()))
 
-  const now = new Date()
-
+  // Static routes carry no lastModified — a real, per-page date is better than
+  // a fabricated "now" that trains crawlers to distrust the signal.
   const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((r) => ({
     url: `${SITE_URL}${r.url}`,
-    lastModified: now,
     changeFrequency: r.changeFrequency,
     priority: r.priority,
   }))
 
-  const newsEntries: MetadataRoute.Sitemap = newsSlugs.map((s) => ({
-    url: `${SITE_URL}/news/${s.slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.7,
-  }))
+  const detailEntries: MetadataRoute.Sitemap = DETAIL_GROUPS.flatMap((g, i) =>
+    groups[i]!.map((s) => ({
+      url: `${SITE_URL}${g.prefix}/${s.slug}`,
+      lastModified: s.updatedAt ? new Date(s.updatedAt) : undefined,
+      changeFrequency: g.changeFrequency,
+      priority: g.priority,
+    })),
+  )
 
-  const eventEntries: MetadataRoute.Sitemap = eventSlugs.map((s) => ({
-    url: `${SITE_URL}/events/${s.slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.6,
-  }))
-
-  const parishEntries: MetadataRoute.Sitemap = parishSlugs.map((s) => ({
-    url: `${SITE_URL}/parishes/${s.slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.7,
-  }))
-
-  const bishopEntries: MetadataRoute.Sitemap = bishopSlugs.map((s) => ({
-    url: `${SITE_URL}/bishop-messages/${s.slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.7,
-  }))
-
-  return [
-    ...staticEntries,
-    ...newsEntries,
-    ...eventEntries,
-    ...parishEntries,
-    ...bishopEntries,
-  ]
+  return [...staticEntries, ...detailEntries]
 }

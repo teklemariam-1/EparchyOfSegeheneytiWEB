@@ -95,6 +95,9 @@ export const Events: CollectionConfig = {
           name: 'startDate',
           type: 'date',
           required: true,
+          // Primary sort/filter key for every event listing and the calendar
+          // range query — indexed so those don't seq-scan.
+          index: true,
           admin: { date: { pickerAppearance: 'dayAndTime' } },
         },
         {

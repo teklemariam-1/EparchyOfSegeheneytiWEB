@@ -148,11 +148,11 @@ export async function getNewsBySlug(slug: string, locale?: string): Promise<News
   }
 }
 
-export async function getAllNewsSlugs(): Promise<{ slug: string }[]> {
+export async function getAllNewsSlugs(): Promise<{ slug: string; updatedAt?: string }[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({ collection: 'news', limit: 1000, depth: 0 } as any)
-    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string, updatedAt: d.updatedAt as string | undefined }))
   } catch {
     return []
   }
@@ -352,11 +352,11 @@ export async function getEventBySlug(slug: string, locale?: string): Promise<Eve
   }
 }
 
-export async function getAllEventSlugs(): Promise<{ slug: string }[]> {
+export async function getAllEventSlugs(): Promise<{ slug: string; updatedAt?: string }[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({ collection: 'events', limit: 1000, depth: 0 } as any)
-    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string, updatedAt: d.updatedAt as string | undefined }))
   } catch {
     return []
   }
@@ -461,11 +461,11 @@ export async function getParishBySlug(slug: string, locale?: string): Promise<Pa
   }
 }
 
-export async function getAllParishSlugs(): Promise<{ slug: string }[]> {
+export async function getAllParishSlugs(): Promise<{ slug: string; updatedAt?: string }[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({ collection: 'parishes', limit: 1000, depth: 0 } as any)
-    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string, updatedAt: d.updatedAt as string | undefined }))
   } catch {
     return []
   }
@@ -1395,7 +1395,7 @@ export async function getBishopMessageBySlug(slug: string, locale?: string): Pro
   }
 }
 
-export async function getAllBishopMessageSlugs(): Promise<{ slug: string }[]> {
+export async function getAllBishopMessageSlugs(): Promise<{ slug: string; updatedAt?: string }[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -1404,7 +1404,7 @@ export async function getAllBishopMessageSlugs(): Promise<{ slug: string }[]> {
       limit: 1000,
       depth: 0,
     } as any)
-    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string, updatedAt: d.updatedAt as string | undefined }))
   } catch {
     return []
   }
@@ -1487,7 +1487,7 @@ export async function getPopeMessageBySlug(slug: string, locale?: string): Promi
   }
 }
 
-export async function getAllPopeMessageSlugs(): Promise<{ slug: string }[]> {
+export async function getAllPopeMessageSlugs(): Promise<{ slug: string; updatedAt?: string }[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
@@ -1496,7 +1496,7 @@ export async function getAllPopeMessageSlugs(): Promise<{ slug: string }[]> {
       limit: 1000,
       depth: 0,
     } as any)
-    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string, updatedAt: d.updatedAt as string | undefined }))
   } catch {
     return []
   }
@@ -1596,11 +1596,11 @@ export async function getVicariateBySlug(
   }
 }
 
-export async function getAllVicariateSlugs(): Promise<{ slug: string }[]> {
+export async function getAllVicariateSlugs(): Promise<{ slug: string; updatedAt?: string }[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({ collection: 'vicariates', limit: 200, depth: 0 } as any)
-    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string, updatedAt: d.updatedAt as string | undefined }))
   } catch {
     return []
   }
@@ -1677,9 +1677,11 @@ export async function globalSearch(
   if (!q || q.trim().length < 2) return []
   const payload = await getPayload()
   const term = q.trim()
-  const results: SearchResult[] = []
+  // Each enabled collection is searched concurrently; results are flattened in
+  // call order so output ordering stays deterministic (news, events, …).
+  const jobs: Promise<SearchResult[]>[] = []
 
-  const run = async (
+  const run = (
     collection: string,
     type: SearchResult['type'],
     titleFields: string[],
@@ -1689,78 +1691,83 @@ export async function globalSearch(
     // published filter to a non-draft collection matches nothing, which is why
     // parishes/ministries/publications previously returned zero results.
     hasDrafts = false,
-  ) => {
-    try {
-      const whereOr = [
-        ...titleFields.map((f) => ({ [f]: { like: term } })),
-        ...extraFields.map((f) => ({ [f]: { like: term } })),
-      ]
-      const andClauses: any[] = [{ or: whereOr }]
-      if (hasDrafts) {
-        andClauses.unshift({ _status: { equals: 'published' } })
+  ): Promise<SearchResult[]> => {
+    const exec = async (): Promise<SearchResult[]> => {
+      try {
+        const whereOr = [
+          ...titleFields.map((f) => ({ [f]: { like: term } })),
+          ...extraFields.map((f) => ({ [f]: { like: term } })),
+        ]
+        const andClauses: any[] = [{ or: whereOr }]
+        if (hasDrafts) {
+          andClauses.unshift({ _status: { equals: 'published' } })
+        }
+        const res = await payload.find({
+          collection,
+          where: { and: andClauses },
+          limit: 10,
+          depth: 0,
+        } as any)
+        return (res.docs as any[]).map(toResult)
+      } catch {
+        return [] // non-fatal per collection
       }
-      const res = await payload.find({
-        collection,
-        where: { and: andClauses },
-        limit: 10,
-        depth: 0,
-      } as any)
-      ;(res.docs as any[]).forEach((d) => results.push(toResult(d)))
-    } catch {
-      // non-fatal per collection
     }
+    const p = exec()
+    jobs.push(p)
+    return p
   }
 
   const all = !scope || scope === 'all'
 
   if (all || scope === 'news') {
-    await run(
+    run(
       'news', 'news', ['title'], ['excerpt'],
       (d) => ({ type: 'news', slug: d.slug, title: d.title, excerpt: d.excerpt, category: d.category, date: d.publishedAt }),
       true,
     )
   }
   if (all || scope === 'events') {
-    await run(
+    run(
       'events', 'event', ['title'], ['description', 'location'],
       (d) => ({ type: 'event', slug: d.slug, title: d.title, excerpt: d.description, date: d.startDate }),
       true,
     )
   }
   if (all || scope === 'bishop-messages') {
-    await run(
+    run(
       'bishop-messages', 'bishop-message', ['title'], ['excerpt'],
       (d) => ({ type: 'bishop-message', slug: d.slug, title: d.title, excerpt: d.excerpt, date: d.publishedAt }),
       true,
     )
   }
   if (all || scope === 'pope-messages') {
-    await run(
+    run(
       'pope-messages', 'pope-message', ['title'], ['excerpt'],
       (d) => ({ type: 'pope-message', slug: d.slug, title: d.title, excerpt: d.excerpt, date: d.publishedAt }),
       true,
     )
   }
   if (all || scope === 'parishes') {
-    await run(
+    run(
       'parishes', 'parish', ['name'], ['region'],
       (d) => ({ type: 'parish', slug: d.slug, title: d.name ?? d.title, excerpt: d.region ? `${d.region}` : undefined }),
     )
   }
   if (all || scope === 'ministries') {
-    await run(
+    run(
       'ministries', 'ministry', ['name'], [],
       (d) => ({ type: 'ministry', slug: d.slug, title: d.name ?? d.title }),
     )
   }
   if (all || scope === 'publications') {
-    await run(
+    run(
       'publications', 'publication', ['title'], ['excerpt'],
       (d) => ({ type: 'publication', slug: d.slug, title: d.title, excerpt: d.excerpt }),
     )
   }
 
-  return results
+  return (await Promise.all(jobs)).flat()
   } catch {
     return []
   }
@@ -1937,11 +1944,11 @@ export async function getOfficeBySlug(slug: string, locale?: string): Promise<Of
   }
 }
 
-export async function getAllOfficeSlugs(): Promise<{ slug: string }[]> {
+export async function getAllOfficeSlugs(): Promise<{ slug: string; updatedAt?: string }[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({ collection: 'offices', limit: 100, depth: 0 } as any)
-    return (result.docs as any[]).map((d) => ({ slug: d.slug as string }))
+    return (result.docs as any[]).map((d) => ({ slug: d.slug as string, updatedAt: d.updatedAt as string | undefined }))
   } catch {
     return []
   }

@@ -45,7 +45,10 @@ export function monthlyFeastEvents(
   const byDay = new Map<number, GeezMonthlyFeast>()
   for (const f of monthlyFeasts) byDay.set(f.day, f)
   return days
-    .filter((d) => byDay.has(d.day))
+    // Monthly commemorations recur through the 12 regular months; ጳጉሜን is the
+    // 5-6 day intercalary period, not a normal month, so a day-1..6 feast should
+    // not also fire inside it.
+    .filter((d) => byDay.has(d.day) && d.month !== 'paguemen')
     .map((d) => {
       const f = byDay.get(d.day)!
       return {
