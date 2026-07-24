@@ -34,38 +34,38 @@ export async function TodaysFeast() {
   }).format(new Date(`${day.gregorianDate}T00:00:00`))
 
   return (
-    <section aria-label={t('title')} className="border-y border-gold-200 bg-parchment-50 dark:bg-charcoal-900 dark:border-gold-800">
+    <section aria-label={t('title')} className="border-y border-gold-200 bg-parchment-50">
       <Container>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 py-4">
           <div className="flex items-baseline gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gold-700 dark:text-gold-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-gold-700">
               {t('today')}
             </span>
-            <span className="font-geez text-lg font-bold text-charcoal-900 dark:text-white">
+            <span className="font-geez text-lg font-bold text-charcoal-900">
               {day.geezLabel}
             </span>
-            <span className="text-sm text-charcoal-500 dark:text-charcoal-300">{gregorian}</span>
+            <span className="text-sm text-charcoal-500">{gregorian}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             {day.events && (
-              <span className="font-geez font-medium text-gold-800 dark:text-gold-300">
+              <span className="font-geez font-medium text-gold-800">
                 🎉 {day.events}
               </span>
             )}
             {monthly && (
-              <span className="font-geez text-charcoal-700 dark:text-charcoal-100">
+              <span className="font-geez text-charcoal-700">
                 {monthly.icon ?? '✝'} {monthly.name}
               </span>
             )}
             {season && !day.events && (
-              <span className="font-geez text-charcoal-500 dark:text-charcoal-300">{season.ti}</span>
+              <span className="font-geez text-charcoal-500">{season.ti}</span>
             )}
           </div>
 
           <Link
             href="/geez-calendar"
-            className="ml-auto shrink-0 text-sm font-semibold text-maroon-700 hover:text-maroon-900 transition-colors dark:text-maroon-400"
+            className="ml-auto shrink-0 text-sm font-semibold text-maroon-700 hover:text-maroon-900 transition-colors"
           >
             {t('title')} →
           </Link>

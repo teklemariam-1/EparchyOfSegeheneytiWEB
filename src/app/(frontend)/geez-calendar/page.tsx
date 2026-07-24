@@ -116,12 +116,12 @@ export default async function GeezCalendarPage({
           </Container>
         </Section>
       ) : (
-        <Section className="bg-parchment-50 dark:bg-charcoal-950">
+        <Section className="bg-parchment-50">
           <Container>
             {/* ── Year navigation (only once several years are imported) ── */}
             {years.length > 1 && (
               <nav aria-label={t('year')} className="mb-3 flex flex-wrap items-center gap-1.5">
-                <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-charcoal-400 dark:text-charcoal-300">
+                <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-charcoal-400">
                   {t('year')}
                 </span>
                 {years.map((y) => (
@@ -133,7 +133,7 @@ export default async function GeezCalendarPage({
                       'rounded-full border px-3 py-1 text-sm transition-all duration-200',
                       y === selectedYear
                         ? 'border-gold-600 bg-gold-500 text-white shadow-sm'
-                        : 'border-charcoal-200 bg-white text-charcoal-600 hover:border-gold-400 dark:bg-charcoal-800 dark:text-charcoal-200 dark:border-charcoal-600',
+                        : 'border-charcoal-200 bg-white text-charcoal-600 hover:border-gold-400',
                     )}
                   >
                     {y} ዓ.ም.
@@ -155,7 +155,7 @@ export default async function GeezCalendarPage({
                       'rounded-full border px-3 py-1 text-sm transition-all duration-200',
                       active
                         ? 'border-maroon-800 bg-maroon-800 text-white shadow-sm'
-                        : 'border-charcoal-200 bg-white text-charcoal-600 hover:border-maroon-300 hover:text-maroon-800 dark:bg-charcoal-800 dark:text-charcoal-200 dark:border-charcoal-600',
+                        : 'border-charcoal-200 bg-white text-charcoal-600 hover:border-maroon-300 hover:text-maroon-800',
                       !monthsWithData.has(m) && !active && 'opacity-40',
                     )}
                   >
@@ -166,21 +166,21 @@ export default async function GeezCalendarPage({
             </nav>
 
             <div className="flex items-baseline gap-3 mb-5">
-              <h2 className="text-2xl font-serif font-bold text-charcoal-900 dark:text-white">
+              <h2 className="text-2xl font-serif font-bold text-charcoal-900">
                 <span className="font-geez">{GEEZ_MONTH_LABELS[selectedMonth].ti}</span>
-                <span className="ml-3 text-lg text-charcoal-400 font-normal dark:text-charcoal-300">
+                <span className="ml-3 text-lg text-charcoal-400 font-normal">
                   {GEEZ_MONTH_LABELS[selectedMonth].en}
                   {selectedYear ? ` ${selectedYear}` : ''}
                 </span>
               </h2>
               {first && last && (
-                <span className="text-sm text-charcoal-400 dark:text-charcoal-300">
+                <span className="text-sm text-charcoal-400">
                   {formatGregorianShort(first.gregorianDate)} – {formatGregorianShort(last.gregorianDate)}
                 </span>
               )}
               <a
                 href="/calendar-subscriptions"
-                className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-charcoal-200 px-3 py-1 text-xs font-medium text-charcoal-600 transition-colors hover:border-maroon-400 hover:bg-maroon-50 hover:text-maroon-800 dark:text-charcoal-200 dark:border-charcoal-600"
+                className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-charcoal-200 px-3 py-1 text-xs font-medium text-charcoal-600 transition-colors hover:border-maroon-400 hover:bg-maroon-50 hover:text-maroon-800"
               >
                 <span aria-hidden="true">🔔</span> {t('subscribe')}
               </a>
@@ -210,8 +210,8 @@ export default async function GeezCalendarPage({
 
               {/* Upcoming feasts */}
               <aside aria-label={t('upcoming')}>
-                <div className="lg:sticky lg:top-24 rounded-2xl border border-charcoal-100 bg-white p-5 shadow-soft dark:bg-charcoal-900 dark:border-charcoal-700">
-                  <h3 className="font-serif font-semibold text-charcoal-900 dark:text-white">
+                <div className="lg:sticky lg:top-24 rounded-2xl border border-charcoal-100 bg-white p-5 shadow-soft">
+                  <h3 className="font-serif font-semibold text-charcoal-900">
                     {t('upcoming')}
                   </h3>
                   <div className="mt-1 h-1 w-10 rounded-full bg-gold-400 mb-4" />
@@ -225,10 +225,10 @@ export default async function GeezCalendarPage({
                             {item.icon}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className="font-geez text-sm font-medium text-charcoal-800 leading-snug dark:text-charcoal-100">
+                            <p className="font-geez text-sm font-medium text-charcoal-800 leading-snug">
                               {item.name}
                             </p>
-                            <p className="text-xs text-charcoal-400 dark:text-charcoal-300">
+                            <p className="text-xs text-charcoal-400">
                               <span className="font-geez">{item.geezLabel}</span>
                               {' · '}
                               {formatGregorianShort(item.gregorianDate)}
@@ -250,9 +250,9 @@ export default async function GeezCalendarPage({
 
       {/* ── Major feasts & fasts (curated entries) ───────────────── */}
       {feasts.length > 0 && (
-        <Section className="bg-white dark:bg-charcoal-900">
+        <Section className="bg-white">
           <Container>
-            <h2 className="text-2xl font-serif font-bold text-charcoal-900 mb-2 dark:text-white">
+            <h2 className="text-2xl font-serif font-bold text-charcoal-900 mb-2">
               {t('majorFeasts')}
             </h2>
             <div className="mt-2 h-1 w-14 rounded-full bg-gold-400 mb-8" />

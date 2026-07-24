@@ -41,7 +41,7 @@ export default async function CalendarSubscriptionsPage() {
         breadcrumbs={[{ label: t('title'), href: '/geez-calendar' }, { label: t('subscribeTitle') }]}
       />
 
-      <Section className="bg-parchment-50 dark:bg-charcoal-950">
+      <Section className="bg-parchment-50">
         <Container>
           <div className="grid gap-5 sm:grid-cols-2">
             {FEEDS.map((feed) => (
@@ -60,10 +60,10 @@ export default async function CalendarSubscriptionsPage() {
             ))}
           </div>
 
-          <div className="mt-8 max-w-2xl space-y-3 text-sm text-charcoal-500 leading-relaxed dark:text-charcoal-300">
+          <div className="mt-8 max-w-2xl space-y-3 text-sm text-charcoal-500 leading-relaxed">
             <p>{t('subscribeHint')}</p>
             <p>
-              <strong className="text-charcoal-700 dark:text-charcoal-100">Samsung / Android · </strong>
+              <strong className="text-charcoal-700">Samsung / Android · </strong>
               {t('samsungHint')}
             </p>
           </div>

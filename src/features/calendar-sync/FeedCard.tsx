@@ -53,13 +53,13 @@ export function FeedCard({
   }
 
   const pill =
-    'inline-flex items-center gap-1.5 rounded-full border border-charcoal-200 px-3 py-1.5 text-xs font-medium text-charcoal-600 transition-colors hover:border-maroon-400 hover:bg-maroon-50 hover:text-maroon-800 dark:text-charcoal-200 dark:border-charcoal-600'
+    'inline-flex items-center gap-1.5 rounded-full border border-charcoal-200 px-3 py-1.5 text-xs font-medium text-charcoal-600 transition-colors hover:border-maroon-400 hover:bg-maroon-50 hover:text-maroon-800'
 
   return (
     <div className="card p-5 flex flex-col gap-3">
       <div>
-        <h3 className="font-serif font-semibold text-charcoal-900 dark:text-white">{title}</h3>
-        <p className="mt-1 text-sm text-charcoal-500 leading-relaxed dark:text-charcoal-300">
+        <h3 className="font-serif font-semibold text-charcoal-900">{title}</h3>
+        <p className="mt-1 text-sm text-charcoal-500 leading-relaxed">
           {description}
         </p>
       </div>
@@ -69,7 +69,7 @@ export function FeedCard({
           value={parish}
           onChange={(e) => setParish(e.target.value)}
           aria-label={labels.allParishes}
-          className="w-full rounded-lg border border-charcoal-200 bg-white px-3 py-2 text-sm text-charcoal-700 dark:bg-charcoal-800 dark:text-charcoal-100 dark:border-charcoal-600"
+          className="w-full rounded-lg border border-charcoal-200 bg-white px-3 py-2 text-sm text-charcoal-700"
         >
           <option value="">{labels.allParishes}</option>
           {parishes.map((p) => (
@@ -86,7 +86,7 @@ export function FeedCard({
           value={url}
           onFocus={(e) => e.currentTarget.select()}
           aria-label={title}
-          className="min-w-0 flex-1 rounded-lg border border-charcoal-200 bg-parchment-50 px-3 py-2 text-xs text-charcoal-600 dark:bg-charcoal-800 dark:text-charcoal-200 dark:border-charcoal-600"
+          className="min-w-0 flex-1 rounded-lg border border-charcoal-200 bg-parchment-50 px-3 py-2 text-xs text-charcoal-600"
         />
         <button type="button" onClick={copy} className={pill}>
           <span aria-hidden="true">🔗</span> {copied ? labels.copied : labels.copyUrl}

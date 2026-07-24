@@ -15,7 +15,7 @@ export function AddToCalendar({
   labels: { google: string; ics: string }
 }) {
   const pill =
-    'inline-flex items-center gap-1.5 rounded-full border border-charcoal-200 px-3 py-1.5 text-xs font-medium text-charcoal-600 transition-colors hover:border-maroon-400 hover:bg-maroon-50 hover:text-maroon-800 dark:text-charcoal-200 dark:border-charcoal-600'
+    'inline-flex items-center gap-1.5 rounded-full border border-charcoal-200 px-3 py-1.5 text-xs font-medium text-charcoal-600 transition-colors hover:border-maroon-400 hover:bg-maroon-50 hover:text-maroon-800'
   return (
     <div className="flex flex-wrap items-center gap-2 print:hidden">
       <a href={googleEventUrl(event)} target="_blank" rel="noopener noreferrer" className={pill}>
