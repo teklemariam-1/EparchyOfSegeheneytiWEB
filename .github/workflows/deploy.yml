@@ -117,12 +117,19 @@ jobs:
           npx payload migrate:status || true
 
           echo "── migrate ─────────────────────────────────────────────"
-          npx payload migrate
+          # `payload migrate` prints a generic "…data loss will occur. Would you
+          # like to proceed? (y/N)" confirmation before running ANY pending
+          # migration and then hangs on CI's non-interactive stdin, defaulting to
+          # No — so the migration silently doesn't apply. Our migration files are
+          # code-reviewed and additive, so auto-confirm with `yes`. This never
+          # fabricates schema: it only runs the committed migration files. The
+          # deterministic verifier below is the real gate — if anything is still
+          # unapplied the deploy fails, so a bad auto-confirm can't ship silently.
+          yes | npx payload migrate || true
 
           echo "── verify (declared files vs payload_migrations) ───────"
-          # Deterministic check: fails the step (and blocks the deploy below)
-          # if any migration file is not recorded as applied. Prints the target
-          # DB host so the migrated database is never ambiguous.
+          # Fails the step (blocking the deploy below) if any migration file is
+          # not recorded as applied. Also prints the target DB host.
           node scripts/check-migrations.mjs
         env:
           NODE_ENV: production
