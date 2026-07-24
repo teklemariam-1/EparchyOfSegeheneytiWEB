@@ -13,11 +13,13 @@
  * Returns the resolved feed URL, or throws with a message the admin can act on.
  */
 
+import { safeFetch } from './safeFetch'
+
 const UA = 'EparchyOfSegeneyti-NewsBot/1.0 (+https://eparchy-of-segeheneyti-web.vercel.app)'
 
 async function looksLikeFeed(url: string): Promise<boolean> {
   try {
-    const res = await fetch(url, {
+    const res = await safeFetch(url, {
       headers: { 'User-Agent': UA, Accept: 'application/rss+xml, application/xml;q=0.9, */*;q=0.8' },
       cache: 'no-store',
     })
@@ -80,7 +82,7 @@ export async function resolveFeedUrl(input: string): Promise<{ url: string; chan
 
   // 3. Autodiscovery: read the page and follow its declared feed link.
   try {
-    const res = await fetch(raw, { headers: { 'User-Agent': UA }, cache: 'no-store' })
+    const res = await safeFetch(raw, { headers: { 'User-Agent': UA }, cache: 'no-store' })
     if (res.ok) {
       const html = (await res.text()).slice(0, 200_000)
       const discovered = discoverFromHtml(html, raw)

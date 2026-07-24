@@ -8,6 +8,7 @@ import {
   type VaticanFeedKey,
 } from '@/lib/ingest/vaticanNews'
 import { slugify } from '@/lib/formatters/slug'
+import { safeFetch } from '@/lib/ingest/safeFetch'
 
 /**
  * A URL-safe slug for an imported item.
@@ -127,7 +128,7 @@ async function importImage(
   title: string,
 ): Promise<string | null> {
   try {
-    const res = await fetch(imageUrl, {
+    const res = await safeFetch(imageUrl, {
       headers: { 'User-Agent': 'EparchyOfSegeneyti-NewsBot/1.0' },
       cache: 'no-store',
     })

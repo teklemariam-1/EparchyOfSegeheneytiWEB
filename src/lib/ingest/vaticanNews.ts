@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser'
+import { safeFetch } from './safeFetch'
 
 /**
  * Vatican News RSS ingestion.
@@ -155,7 +156,7 @@ export async function fetchFeedByUrl(
   limit = 20,
   bounds: DateBounds = {},
 ): Promise<FeedItem[]> {
-  const res = await fetch(feedUrl, {
+  const res = await safeFetch(feedUrl, {
     headers: {
       // Identify ourselves honestly rather than masquerading as a browser.
       'User-Agent': 'EparchyOfSegeneyti-NewsBot/1.0 (+https://eparchy-of-segeheneyti-web.vercel.app)',
