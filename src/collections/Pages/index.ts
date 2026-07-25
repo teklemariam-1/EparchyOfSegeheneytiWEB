@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath } from '../../lib/payload/revalidate'
-import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
+import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
+    hidden: hideUnless('pages.create', 'pages.update', 'pages.delete', 'pages.publish'),
     useAsTitle: 'title',
     group: 'Content',
     defaultColumns: ['_status', 'title', 'slug', 'updatedAt'],
@@ -13,13 +15,11 @@ export const Pages: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/${(doc as any).slug}`,
   },
   access: {
-    read: isPublishedOrAuthenticated,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublishedOrAuthenticated, 'pages.create', 'pages.update', 'pages.delete'),
   },
   versions: { drafts: true },
   hooks: {
+    beforeChange: [requirePublishPermission('pages.publish')],
     afterChange: [
       ({ doc }) => {
         safeRevalidatePath(`/${doc.slug}`)

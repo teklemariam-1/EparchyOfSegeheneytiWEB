@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
+import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 /** Optional URL field validator — empty is allowed, otherwise must be http(s). */
@@ -14,6 +15,7 @@ const optionalUrl = (value: unknown) => {
 export const Apps: CollectionConfig = {
   slug: 'apps',
   admin: {
+    hidden: hideUnless('apps.create', 'apps.update', 'apps.delete', 'apps.publish'),
     useAsTitle: 'title',
     group: 'Publications',
     defaultColumns: ['title', 'resourceType', 'version', 'publishedAt'],
@@ -22,13 +24,11 @@ export const Apps: CollectionConfig = {
     preview: (doc) => `${(process.env.NEXT_PUBLIC_SITE_URL ?? '').trim()}/apps`,
   },
   access: {
-    read: isPublishedOrAuthenticated,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublishedOrAuthenticated, 'apps.create', 'apps.update', 'apps.delete'),
   },
   versions: { drafts: true },
   hooks: {
+    beforeChange: [requirePublishPermission('apps.publish')],
     afterChange: [
       () => {
         safeRevalidateTag('apps')

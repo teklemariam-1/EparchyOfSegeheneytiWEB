@@ -1,21 +1,20 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Priests: CollectionConfig = {
   slug: 'priests',
   admin: {
+    hidden: hideUnless('priests.create', 'priests.update', 'priests.delete'),
     useAsTitle: 'fullName',
     group: 'Church',
     defaultColumns: ['fullName', 'title', 'assignment', 'parish', 'status'],
     description: 'Priests, deacons, and clergy of the Eparchy.',
   },
   access: {
-    read: isPublicRead,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'priests.create', 'priests.update', 'priests.delete'),
   },
   hooks: {
     afterChange: [

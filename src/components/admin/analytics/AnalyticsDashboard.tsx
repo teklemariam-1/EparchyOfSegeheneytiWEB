@@ -78,8 +78,11 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
  */
 export async function AnalyticsDashboard({
   searchParams,
+  canViewSecurity = false,
 }: {
   searchParams?: Record<string, string | string[] | undefined>
+  /** Gate the "Users & security" section — held only by users.manage (super-admin). */
+  canViewSecurity?: boolean
 }) {
   const p = (k: string) => {
     const v = searchParams?.[k]
@@ -327,7 +330,8 @@ export async function AnalyticsDashboard({
           )}
         </Section>
 
-        <Section title="Users & security" hint="Visible to super-admins only.">
+        {canViewSecurity && (
+        <Section title="Users & security" hint="Visible to user administrators only.">
           <div style={{ display: 'grid', gap: 6, fontSize: 13, color: 'var(--theme-elevation-650)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Registered users</span><b>{security.totalUsers < 0 ? '—' : security.totalUsers}</b></div>
             {security.byRole.map((r) => (
@@ -360,6 +364,7 @@ export async function AnalyticsDashboard({
             </>
           )}
         </Section>
+        )}
       </div>
 
       {/* ── Donations ────────────────────────────────────────────────────── */}

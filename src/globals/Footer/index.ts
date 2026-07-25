@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { can } from '../../lib/permissions/access'
 
 export const Footer: GlobalConfig = {
   slug: 'footer',
@@ -8,7 +8,7 @@ export const Footer: GlobalConfig = {
     group: 'Navigation',
     description: 'Site footer: link columns, social icons, and copyright text.',
   },
-  access: { read: () => true, update: isChanceryOrAbove },
+  access: { read: () => true, update: can('globals.footer.edit') },
   hooks: {
     afterChange: [
       () => {

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { can, hideUnless } from '../../lib/permissions/access'
 import { resolveFeedUrl } from '../../lib/ingest/resolveFeedUrl'
 import { probeFeed } from '../../lib/ingest/vaticanNews'
 
@@ -21,6 +21,7 @@ import { probeFeed } from '../../lib/ingest/vaticanNews'
 export const FeedSources: CollectionConfig = {
   slug: 'feed-sources',
   admin: {
+    hidden: hideUnless('feed-sources.manage'),
     useAsTitle: 'name',
     group: 'Administration',
     defaultColumns: ['name', 'target', 'enabled', 'healthStatus', 'lastFetchedAt', 'lastStatus'],
@@ -28,10 +29,10 @@ export const FeedSources: CollectionConfig = {
       'RSS feeds imported automatically. Disable a source to stop importing from it without losing its settings.',
   },
   access: {
-    read: isChanceryOrAbove,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    read: can('feed-sources.manage'),
+    create: can('feed-sources.manage'),
+    update: can('feed-sources.manage'),
+    delete: can('feed-sources.manage'),
   },
   hooks: {
     beforeChange: [

@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { can, canManageOwnParish, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const SmallChristianCommunities: CollectionConfig = {
   slug: 'small-christian-communities',
   admin: {
+    hidden: hideUnless('small-christian-communities.create', 'small-christian-communities.update', 'small-christian-communities.delete', 'small-christian-communities.manage-own'),
     useAsTitle: 'name',
     group: 'Ministries',
     defaultColumns: ['name', 'parish', 'meetingDay', 'status'],
@@ -13,9 +15,9 @@ export const SmallChristianCommunities: CollectionConfig = {
   },
   access: {
     read: isPublicRead,
-    create: isOwnParishOrAbove(),
-    update: isOwnParishOrAbove(),
-    delete: isChanceryOrAbove,
+    create: canManageOwnParish('small-christian-communities.create', 'small-christian-communities.manage-own'),
+    update: canManageOwnParish('small-christian-communities.update', 'small-christian-communities.manage-own'),
+    delete: can('small-christian-communities.delete'),
   },
   hooks: {
     afterChange: [

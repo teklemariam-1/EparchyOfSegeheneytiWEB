@@ -42,6 +42,7 @@ import { GeezCalendarDays } from './collections/GeezCalendarDays/index'
 import { GeezMonthlyFeasts } from './collections/GeezMonthlyFeasts/index'
 import { ContactSubmissions } from './collections/ContactSubmissions/index'
 import { Donations } from './collections/Donations/index'
+import { AuditLog } from './collections/AuditLog/index'
 
 // ── Globals ───────────────────────────────────────────────────────────────────
 import { SiteSettings } from './globals/SiteSettings/index'
@@ -155,6 +156,7 @@ export default buildConfig({
     GeezMonthlyFeasts,
     ContactSubmissions,
     Donations,
+    AuditLog,
   ],
 
   // ── Globals ───────────────────────────────────────────────────────────────────

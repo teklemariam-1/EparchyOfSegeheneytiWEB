@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Clinics: CollectionConfig = {
   slug: 'clinics',
   admin: {
+    hidden: hideUnless('clinics.create', 'clinics.update', 'clinics.delete'),
     useAsTitle: 'name',
     group: 'Institutions',
     defaultColumns: ['name', 'facilityType', 'parish', 'status'],
@@ -13,10 +15,7 @@ export const Clinics: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/institutions/clinics/${(doc as any).slug}`,
   },
   access: {
-    read: isPublicRead,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'clinics.create', 'clinics.update', 'clinics.delete'),
   },
   hooks: {
     afterChange: [

@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { can } from '../../lib/permissions/access'
 
 export const Homepage: GlobalConfig = {
   slug: 'homepage',
@@ -8,7 +8,7 @@ export const Homepage: GlobalConfig = {
     group: 'Content',
     description: 'Homepage hero, featured content, and section toggles.',
   },
-  access: { read: () => true, update: isChanceryOrAbove },
+  access: { read: () => true, update: can('globals.homepage.edit') },
   hooks: {
     afterChange: [
       () => {

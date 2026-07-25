@@ -1,12 +1,14 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { taxonomyValueField } from '../shared/taxonomyValueField'
 
 export const EventTypes: CollectionConfig = {
   slug: 'event-types',
   labels: { singular: 'Event Type', plural: 'Event Types' },
   admin: {
+    hidden: hideUnless('event-types.manage'),
     group: 'Content',
     useAsTitle: 'label',
     defaultColumns: ['label', 'value'],
@@ -14,10 +16,7 @@ export const EventTypes: CollectionConfig = {
       'Types available for events. They appear in the Event Type dropdown when editing events and as the filter buttons on the public Events page.',
   },
   access: {
-    read: () => true,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'event-types.manage', 'event-types.manage', 'event-types.manage'),
   },
   hooks: {
     afterChange: [

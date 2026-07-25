@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { can } from '../../lib/permissions/access'
 
 export const AboutPage: GlobalConfig = {
   slug: 'about-page',
@@ -8,7 +8,7 @@ export const AboutPage: GlobalConfig = {
     group: 'Content',
     description: 'Editable content for the public About page (mission, stats, pillars, timeline).',
   },
-  access: { read: () => true, update: isChanceryOrAbove },
+  access: { read: () => true, update: can('globals.about-page.edit') },
   hooks: {
     afterChange: [
       () => {

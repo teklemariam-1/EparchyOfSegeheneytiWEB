@@ -1,21 +1,20 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Publications: CollectionConfig = {
   slug: 'publications',
   admin: {
+    hidden: hideUnless('publications.create', 'publications.update', 'publications.delete'),
     useAsTitle: 'title',
     group: 'Publications',
     defaultColumns: ['title', 'category', 'publishedAt', 'language'],
     description: 'Downloadable documents, booklets, and pastorals.',
   },
   access: {
-    read: isPublicRead,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'publications.create', 'publications.update', 'publications.delete'),
   },
   hooks: {
     afterChange: [

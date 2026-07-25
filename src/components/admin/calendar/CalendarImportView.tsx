@@ -1,6 +1,7 @@
 import React from 'react'
 import { Gutter } from '@payloadcms/ui'
 import { CalendarImportWizard } from './CalendarImportWizard'
+import { hasPermission, type AuthUser } from '@/lib/permissions/resolve'
 
 /**
  * Custom admin view at /admin/calendar-import: the Ge'ez New-Year import
@@ -8,10 +9,9 @@ import { CalendarImportWizard } from './CalendarImportWizard'
  * (e.g. 2019, 2020…), review the dry-run validation report, then import.
  */
 export default async function CalendarImportView(props: {
-  initPageResult?: { req?: { user?: { role?: string } | null } }
+  initPageResult?: { req?: { user?: AuthUser | null } }
 }) {
-  const role = props?.initPageResult?.req?.user?.role
-  const allowed = role === 'super-admin' || role === 'chancery-editor'
+  const allowed = hasPermission(props?.initPageResult?.req?.user ?? null, 'geez-calendar.import')
 
   return (
     <Gutter>

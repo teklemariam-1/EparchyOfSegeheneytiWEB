@@ -1,7 +1,8 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 /**
@@ -14,6 +15,7 @@ import { slugFieldHook } from '../../lib/payload/slugField'
 export const Vicariates: CollectionConfig = {
   slug: 'vicariates',
   admin: {
+    hidden: hideUnless('vicariates.create', 'vicariates.update', 'vicariates.delete'),
     useAsTitle: 'name',
     group: 'Church',
     defaultColumns: ['name', 'seat', 'order'],
@@ -21,10 +23,7 @@ export const Vicariates: CollectionConfig = {
     preview: (doc) => `${(process.env.NEXT_PUBLIC_SITE_URL ?? '').trim()}/vicariates/${(doc as any).slug}`,
   },
   access: {
-    read: isPublicRead,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'vicariates.create', 'vicariates.update', 'vicariates.delete'),
   },
   hooks: {
     // Deleting a vicariate used to silently orphan its parishes: they kept a

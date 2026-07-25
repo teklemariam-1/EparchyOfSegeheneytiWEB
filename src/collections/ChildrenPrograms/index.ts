@@ -1,21 +1,20 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath } from '../../lib/payload/revalidate'
-import { isPublicRead, isRoleOneOf, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const ChildrenPrograms: CollectionConfig = {
   slug: 'children-programs',
   admin: {
+    hidden: hideUnless('children-programs.create', 'children-programs.update', 'children-programs.delete'),
     useAsTitle: 'name',
     group: 'Ministries',
     defaultColumns: ['name', 'ageGroup', 'parish', 'status'],
     description: 'Catechism, Sunday school, and other children ministry programs.',
   },
   access: {
-    read: isPublicRead,
-    create: isRoleOneOf('super-admin', 'chancery-editor', 'youth-editor', 'catechist-editor'),
-    update: isRoleOneOf('super-admin', 'chancery-editor', 'youth-editor', 'catechist-editor'),
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'children-programs.create', 'children-programs.update', 'children-programs.delete'),
   },
   hooks: {
     afterChange: [

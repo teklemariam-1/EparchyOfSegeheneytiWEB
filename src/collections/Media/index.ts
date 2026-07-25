@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
-import { isRoleOneOf, isAnyEditor } from '../../lib/permissions/collectionAccess'
+import { can, hideUnless } from '../../lib/permissions/access'
+import { hasPermission, type AuthUser } from '../../lib/permissions/resolve'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 
 export const Media: CollectionConfig = {
@@ -44,14 +45,11 @@ export const Media: CollectionConfig = {
     description: 'Images, documents, and other media assets.',
   },
   access: {
-    // Public visitors and non-elevated editors can only read public assets.
-    // Restricted assets (e.g. files attached to restricted archive documents)
-    // are hidden so they cannot be fetched by their direct media URL/API.
+    // Public visitors and editors without media.view-restricted can only read
+    // public assets. Restricted assets (e.g. files attached to restricted archive
+    // documents) are hidden so they cannot be fetched by their direct media URL.
     read: ({ req }) => {
-      const user = req.user as { role?: string } | null
-      if (user && ['super-admin', 'chancery-editor', 'media-editor'].includes(user.role ?? '')) {
-        return true
-      }
+      if (hasPermission(req.user as AuthUser | null, 'media.view-restricted')) return true
       // Treat null/missing accessLevel as public (safe default for existing assets).
       return {
         or: [
@@ -60,9 +58,10 @@ export const Media: CollectionConfig = {
         ],
       }
     },
-    create: isAnyEditor,
-    update: isAnyEditor,
-    delete: isRoleOneOf('super-admin', 'chancery-editor', 'media-editor'),
+    // Any authenticated editor may upload/update media (all presets grant media.upload).
+    create: can('media.upload'),
+    update: can('media.upload'),
+    delete: can('media.delete'),
   },
   hooks: {
     afterChange: [

@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
-import { isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
-import { elevatedOnly } from '../../lib/permissions/fieldAccess'
+import { can, canField, hideUnless } from '../../lib/permissions/access'
+import { hasPermission, type AuthUser } from '../../lib/permissions/resolve'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 
 /**
@@ -28,19 +28,20 @@ export const ContactSubmissions: CollectionConfig = {
     description:
       'Messages submitted via the public contact form. "New" means nobody has opened it yet. A message can optionally be answered and published anonymously as a public Q&A.',
     listSearchableFields: ['name', 'email', 'subject', 'message'],
+    hidden: hideUnless('contact-submissions.view'),
   },
   access: {
-    read: isChanceryOrAbove,
+    read: can('contact-submissions.view'),
     // No public REST create — the website form submits through a trusted server
     // action (overrideAccess), so the anonymous /api/contact-submissions POST
     // vector (spam/DB-flood) is closed entirely. Staff can still create in-admin.
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isSuperAdmin,
+    create: can('contact-submissions.manage'),
+    update: can('contact-submissions.manage'),
+    delete: can('contact-submissions.delete'),
   },
   hooks: {
     beforeChange: [
-      ({ data, operation }) => {
+      ({ data, operation, req }) => {
         if (operation === 'create') {
           // Server-controlled fields — never trust client input for these.
           data.submittedAt = new Date().toISOString()
@@ -52,6 +53,9 @@ export const ContactSubmissions: CollectionConfig = {
         // would put someone's question on the site with no reply. Both would be
         // a privacy failure rather than a cosmetic one, so refuse the write.
         if (data?.publicQA?.isPublic) {
+          if (!hasPermission(req.user as AuthUser | null, 'contact-submissions.publish-qa')) {
+            throw new APIError('You do not have permission to publish a public Q&A.', 403)
+          }
           const q = String(data.publicQA.publicQuestion ?? '').trim()
           if (!q) {
             throw new APIError(
@@ -111,7 +115,7 @@ export const ContactSubmissions: CollectionConfig = {
       required: true,
       defaultValue: 'new',
       // Only staff may set/change status — a public form submission cannot.
-      access: { create: elevatedOnly, update: elevatedOnly },
+      access: { create: canField('contact-submissions.manage'), update: canField('contact-submissions.manage') },
       options: [
         { label: 'New', value: 'new' },
         { label: 'Read', value: 'read' },
@@ -124,7 +128,7 @@ export const ContactSubmissions: CollectionConfig = {
       name: 'submittedAt',
       type: 'date',
       // Server-stamped in beforeChange; never writable via the public API.
-      access: { create: elevatedOnly, update: elevatedOnly },
+      access: { create: canField('contact-submissions.manage'), update: canField('contact-submissions.manage') },
       admin: {
         position: 'sidebar',
         readOnly: true,
@@ -148,7 +152,7 @@ export const ContactSubmissions: CollectionConfig = {
       name: 'publicQA',
       type: 'group',
       label: 'Public Q&A',
-      access: { create: elevatedOnly, update: elevatedOnly },
+      access: { create: canField('contact-submissions.manage'), update: canField('contact-submissions.manage') },
       admin: {
         description:
           'Optionally publish this question and its answer anonymously on the public contact page. Nothing is published unless "Publish publicly" is ticked.',
@@ -195,7 +199,7 @@ export const ContactSubmissions: CollectionConfig = {
       name: 'adminNotes',
       type: 'textarea',
       // Internal-only — must not be settable by the public submitter.
-      access: { create: elevatedOnly, update: elevatedOnly, read: elevatedOnly },
+      access: { create: canField('contact-submissions.manage'), update: canField('contact-submissions.manage'), read: canField('contact-submissions.manage') },
       admin: {
         description: 'Internal notes (not visible to submitter).',
       },

@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { can } from '../../lib/permissions/access'
 import { BANNER_THEME_OPTIONS } from '../../lib/banner-themes'
 
 export const BannerSettings: GlobalConfig = {
@@ -11,7 +11,7 @@ export const BannerSettings: GlobalConfig = {
     description:
       'Seasonal colour theme for the page banners (the coloured header at the top of News, Events, Parishes, etc.). Changes apply site-wide within a few minutes — no redeploy needed.',
   },
-  access: { read: () => true, update: isChanceryOrAbove },
+  access: { read: () => true, update: can('globals.banner-settings.edit') },
   hooks: {
     afterChange: [
       () => {

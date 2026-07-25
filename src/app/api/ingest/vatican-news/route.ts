@@ -10,6 +10,7 @@ import {
 } from '@/lib/ingest/vaticanNews'
 import { slugify } from '@/lib/formatters/slug'
 import { safeFetch } from '@/lib/ingest/safeFetch'
+import { hasPermission, type AuthUser } from '@/lib/permissions/resolve'
 
 /** Length-safe, constant-time string comparison for the bearer token. */
 function timingSafeStrEqual(a: string, b: string): boolean {
@@ -207,10 +208,9 @@ export async function POST(req: Request) {
   let authorized = viaCron
   if (!authorized) {
     const { user } = await (await getPayload()).auth({ headers: req.headers as Headers })
-    const role = (user as { role?: string } | null)?.role
-    // Mirrors News.access.create (isChanceryOrAbove) — anyone who could create
-    // these drafts by hand may also import them.
-    authorized = role === 'super-admin' || role === 'chancery-editor'
+    // Feed ingestion is managing feed sources + creating news drafts, so gate on
+    // feed-sources.manage (held by chancery-and-above by default).
+    authorized = hasPermission(user as AuthUser | null, 'feed-sources.manage')
   }
 
   if (!authorized) {

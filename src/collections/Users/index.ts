@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
-import { isSuperAdmin, isRoleOneOf } from '../../lib/permissions/collectionAccess'
-import { superAdminOnly, elevatedOnly } from '../../lib/permissions/fieldAccess'
+import { can, canField, hideUnless } from '../../lib/permissions/access'
+import { PERMISSIONS } from '../../lib/permissions/permissions'
+import { hasPermission, type AuthUser } from '../../lib/permissions/resolve'
+import {
+  guardUserBeforeChange,
+  guardUserBeforeDelete,
+  auditAndInviteUserAfterChange,
+  rejectInactiveLogin,
+} from '../../lib/permissions/userGuards'
 
 /** Minimum password policy: ≥8 chars with upper, lower, and a number. */
 function assertStrongPassword(password: unknown): void {
@@ -18,6 +25,12 @@ function assertStrongPassword(password: unknown): void {
     )
   }
 }
+
+/**
+ * Override pickers list the catalog verbatim: the permission string IS the label,
+ * so what an administrator picks is exactly what the resolver checks.
+ */
+const PERMISSION_OPTIONS = PERMISSIONS.map((p) => ({ label: p, value: p }))
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -36,23 +49,38 @@ export const Users: CollectionConfig = {
         return data
       },
     ],
+    beforeLogin: [rejectInactiveLogin],
+    beforeChange: [guardUserBeforeChange],
+    beforeDelete: [guardUserBeforeDelete],
+    afterChange: [auditAndInviteUserAfterChange],
   },
   admin: {
     useAsTitle: 'email',
-    defaultColumns: ['email', 'firstName', 'lastName', 'role', 'assignedParish'],
+    defaultColumns: ['email', 'firstName', 'lastName', 'role', 'status', 'assignedParish'],
     group: 'Administration',
-    description: 'CMS users and their editorial roles.',
+    description: 'CMS users, their roles, and any per-user permission overrides.',
+    hidden: hideUnless('users.view'),
   },
   access: {
-    read: isRoleOneOf('super-admin', 'chancery-editor'),
-    create: isSuperAdmin,
-    update: ({ req }) => {
-      const user = req.user as { id: string; role: string } | null
+    // Everyone may read their own record — the admin account page needs it —
+    // and `users.view` holders may read all of them.
+    read: ({ req }) => {
+      const user = req.user as AuthUser | null
       if (!user) return false
-      if (user.role === 'super-admin') return true
+      if (hasPermission(user, 'users.view')) return true
       return { id: { equals: user.id } }
     },
-    delete: isSuperAdmin,
+    create: can('users.manage'),
+    // Editing other users requires `users.manage`; everyone else is confined to
+    // their own record, where field access + the beforeChange guard keep role,
+    // permissions, and status out of reach.
+    update: ({ req }) => {
+      const user = req.user as AuthUser | null
+      if (!user) return false
+      if (hasPermission(user, 'users.manage')) return true
+      return { id: { equals: user.id } }
+    },
+    delete: can('users.manage'),
   },
   fields: [
     {
@@ -76,20 +104,69 @@ export const Users: CollectionConfig = {
         { label: 'Media Editor', value: 'media-editor' },
       ],
       // SECURITY: role must never be self-editable — otherwise any editor could
-      // promote themselves to super-admin. Only super-admins may change roles.
-      access: { update: superAdminOnly },
+      // promote themselves to super-admin. `users.manage` holders only, and the
+      // beforeChange guard blocks even them from editing their own role.
+      access: { update: canField('users.manage') },
       admin: {
         position: 'sidebar',
-        description: 'Determines which content areas this user can edit.',
+        description: 'Preset bundle of permissions. Fine-tune with the overrides below.',
+      },
+    },
+    {
+      name: 'status',
+      type: 'select',
+      // Deliberately not `required`: rows predating this field read as active
+      // (the resolver only treats an explicit 'suspended' as inactive), so the
+      // migration needs no backfill and scripted user creation stays valid.
+      defaultValue: 'active',
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Suspended', value: 'suspended' },
+      ],
+      access: { update: canField('users.manage') },
+      admin: {
+        position: 'sidebar',
+        description:
+          'Suspending revokes every permission immediately, on the next request — the account stays for the audit trail.',
+      },
+    },
+    {
+      name: 'expiresAt',
+      type: 'date',
+      access: { update: canField('users.manage') },
+      admin: {
+        position: 'sidebar',
+        date: { pickerAppearance: 'dayOnly' },
+        description: 'Optional. For temporary accounts (volunteers, contractors) — access stops at this date.',
+      },
+    },
+    {
+      name: 'permissionsGrant',
+      type: 'select',
+      hasMany: true,
+      options: PERMISSION_OPTIONS,
+      access: { update: canField('users.manage') },
+      admin: {
+        description: 'Extra permissions on top of the role preset.',
+      },
+    },
+    {
+      name: 'permissionsRevoke',
+      type: 'select',
+      hasMany: true,
+      options: PERMISSION_OPTIONS,
+      access: { update: canField('users.manage') },
+      admin: {
+        description: 'Permissions taken away from the role preset. Revoke wins over grant.',
       },
     },
     {
       name: 'assignedParish',
       type: 'relationship',
       relationTo: 'parishes',
-      // SECURITY: only elevated roles may (re)assign a user's parish, so a
-      // parish-editor cannot edit their own record to escape their scope.
-      access: { update: elevatedOnly },
+      // SECURITY: a parish-editor must not be able to edit their own record to
+      // escape their scope, so reassignment needs `users.manage`.
+      access: { update: canField('users.manage') },
       admin: {
         position: 'sidebar',
         description: 'Required for parish-editor role — limits edit scope to this parish.',

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
+import { can, hideUnless } from '../../lib/permissions/access'
 
 /**
  * Anonymous, aggregated visit counts by day.
@@ -24,13 +24,13 @@ export const VisitorStats: CollectionConfig = {
     group: 'Administration',
     defaultColumns: ['dimension', 'key', 'date', 'count'],
     description: 'Anonymous daily visit aggregates. No personal data is stored.',
-    hidden: false,
+    hidden: hideUnless('visitor-stats.view'),
   },
   access: {
-    read: isChanceryOrAbove,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isSuperAdmin,
+    read: can('visitor-stats.view'),
+    create: can('visitor-stats.view'),
+    update: can('visitor-stats.view'),
+    delete: can('visitor-stats.delete'),
   },
   fields: [
     {

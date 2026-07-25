@@ -1,7 +1,9 @@
 import type { CollectionConfig, PayloadRequest } from 'payload'
 import { sql } from '@payloadcms/db-postgres'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
+import { hasPermission, type AuthUser } from '../../lib/permissions/resolve'
 import { GEEZ_MONTHS, GEEZ_MONTH_LABELS } from '../../lib/constants/geezMonths'
 import {
   validateYearRows,
@@ -10,10 +12,11 @@ import {
 } from '../../lib/calendar-sync/import-validation'
 import { convertGxawieBook } from '../../lib/calendar-sync/convert-gxawie'
 
-const canManageCalendar = (req: PayloadRequest): boolean => {
-  const role = (req.user as { role?: string } | null)?.role
-  return role === 'super-admin' || role === 'chancery-editor'
-}
+const canManageCalendar = (req: PayloadRequest): boolean =>
+  hasPermission(req.user as AuthUser | null, 'geez-calendar.manage')
+
+const canImportCalendar = (req: PayloadRequest): boolean =>
+  hasPermission(req.user as AuthUser | null, 'geez-calendar.import')
 
 async function fetchExistingDays(req: PayloadRequest) {
   const result = await req.payload.find({
@@ -40,6 +43,7 @@ export const GeezCalendarDays: CollectionConfig = {
   slug: 'geez-calendar-days',
   labels: { singular: "Ge'ez Calendar Day", plural: "Ge'ez Calendar Days" },
   admin: {
+    hidden: hideUnless('geez-calendar.manage'),
     group: 'Calendar',
     useAsTitle: 'geezLabel',
     defaultColumns: ['geezLabel', 'month', 'day', 'gregorianDate', 'events'],
@@ -52,10 +56,7 @@ export const GeezCalendarDays: CollectionConfig = {
     },
   },
   access: {
-    read: () => true,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'geez-calendar.manage', 'geez-calendar.manage', 'geez-calendar.manage'),
   },
   // Each Ge'ez date exists exactly once; a second year's import cannot
   // silently duplicate or overlap days. (A unique index on the Gregorian
@@ -85,7 +86,7 @@ export const GeezCalendarDays: CollectionConfig = {
       path: '/import',
       method: 'post',
       handler: async (req) => {
-        if (!canManageCalendar(req)) {
+        if (!canImportCalendar(req)) {
           return Response.json({ error: 'Forbidden' }, { status: 403 })
         }
         let body: { raw?: unknown; rows?: ImportRow[]; dryRun?: boolean }

@@ -2,22 +2,32 @@ import { NextResponse } from 'next/server'
 import { getPayload } from '@/lib/payload/client'
 import { groupByAggregate, AggregationError } from '@/lib/payload/aggregation'
 import { AGGREGATIONS, type GroupByRequest } from '@/lib/payload/aggregationConfig'
+import { hasPermission, type AuthUser } from '@/lib/permissions/resolve'
+import type { Permission } from '@/lib/permissions/permissions'
 
 export const dynamic = 'force-dynamic'
 
+/** The permission required to aggregate each whitelisted collection. */
+const AGGREGATE_PERMISSION: Record<string, Permission> = {
+  'visitor-stats': 'visitor-stats.view',
+  news: 'news.update',
+  donations: 'donations.view',
+}
+
 /**
- * Grouped aggregation for admin grouped tables (Visitor Stats, News).
+ * Grouped aggregation for admin grouped tables (Visitor Stats, News, Donations).
  *
- * Auth mirrors the collections' own read access (chancery-or-above): the caller
- * is the logged-in admin's browser, authenticating with the Payload session
- * cookie. The collection/columns are validated inside groupByAggregate against
- * the AGGREGATIONS whitelist.
+ * The caller is the logged-in admin's browser (session cookie). Authorization is
+ * enforced per requested collection via the permission map above — a
+ * lower-privileged authenticated user cannot read data they lack the permission
+ * for. Columns are validated inside groupByAggregate against the AGGREGATIONS
+ * whitelist.
  */
 export async function POST(req: Request) {
   const payload = await getPayload()
   const { user } = await payload.auth({ headers: req.headers as Headers })
-  const role = (user as { role?: string } | null)?.role
-  if (role !== 'super-admin' && role !== 'chancery-editor') {
+  const authUser = user as AuthUser | null
+  if (!authUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -30,6 +40,11 @@ export async function POST(req: Request) {
 
   if (!body.collection || !AGGREGATIONS[body.collection]) {
     return NextResponse.json({ error: 'Unknown collection' }, { status: 400 })
+  }
+
+  const requiredPermission = AGGREGATE_PERMISSION[body.collection]
+  if (!requiredPermission || !hasPermission(authUser, requiredPermission)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   try {

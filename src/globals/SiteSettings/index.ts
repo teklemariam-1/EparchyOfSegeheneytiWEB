@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { can, canField } from '../../lib/permissions/access'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -8,7 +8,7 @@ export const SiteSettings: GlobalConfig = {
     group: 'Settings',
     description: 'Global site identity, contact info, and metadata defaults.',
   },
-  access: { read: () => true, update: isChanceryOrAbove },
+  access: { read: () => true, update: can('globals.site-settings.edit') },
   hooks: {
     afterChange: [
       () => {
@@ -135,7 +135,7 @@ export const SiteSettings: GlobalConfig = {
       defaultValue: false,
       admin: { description: 'Enable maintenance mode to show a holding page to visitors.' },
       access: {
-        update: ({ req: { user } }) => !!(user && (user as any).role === 'super-admin'),
+        update: canField('system.maintenance-mode'),
       },
     },
   ],

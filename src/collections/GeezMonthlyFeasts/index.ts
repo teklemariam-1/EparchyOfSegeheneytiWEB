@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 
 /**
  * Monthly recurring commemorations of the Ge'ez calendar — feasts observed on
@@ -11,6 +12,7 @@ export const GeezMonthlyFeasts: CollectionConfig = {
   slug: 'geez-monthly-feasts',
   labels: { singular: "Ge'ez Monthly Feast", plural: "Ge'ez Monthly Feasts" },
   admin: {
+    hidden: hideUnless('geez-calendar.manage'),
     group: 'Calendar',
     useAsTitle: 'name',
     defaultColumns: ['day', 'name', 'icon'],
@@ -18,10 +20,7 @@ export const GeezMonthlyFeasts: CollectionConfig = {
       'Recurring monthly commemorations: each appears on its day in every Ge\'ez month of the public calendar.',
   },
   access: {
-    read: () => true,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'geez-calendar.manage', 'geez-calendar.manage', 'geez-calendar.manage'),
   },
   hooks: {
     afterChange: [

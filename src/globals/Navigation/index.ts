@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { can } from '../../lib/permissions/access'
 
 export const Navigation: GlobalConfig = {
   slug: 'navigation',
@@ -8,7 +8,7 @@ export const Navigation: GlobalConfig = {
     group: 'Navigation',
     description: 'Main site navigation structure with optional mega-menu dropdowns.',
   },
-  access: { read: () => true, update: isChanceryOrAbove },
+  access: { read: () => true, update: can('globals.navigation.edit') },
   hooks: {
     afterChange: [
       () => {

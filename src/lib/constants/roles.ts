@@ -1,8 +1,10 @@
 /**
  * Role definitions for the Eparchy of Segeneyti platform.
  *
- * Each role is scoped to a specific ministry or operational area.
- * super-admin has unrestricted access to everything.
+ * A role is only a preset — it names a bundle of permissions (see
+ * lib/permissions/permissions.ts), and per-user grants/revokes layer on top.
+ * Nothing outside the resolver's `super-admin` short-circuit may branch on a
+ * role string; ask `hasPermission` instead.
  */
 
 export const ROLES = [
@@ -15,9 +17,3 @@ export const ROLES = [
 ] as const
 
 export type Role = (typeof ROLES)[number]
-
-/** Roles that have broad editorial access across the platform */
-export const ELEVATED_ROLES: Role[] = ['super-admin', 'chancery-editor']
-
-/** All authenticated editor roles */
-export const ALL_EDITOR_ROLES: Role[] = [...ROLES]

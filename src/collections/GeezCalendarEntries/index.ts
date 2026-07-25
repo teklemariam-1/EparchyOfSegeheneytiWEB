@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { GEEZ_MONTHS, GEEZ_MONTH_LABELS } from '../../lib/constants/geezMonths'
 
 export const GeezCalendarEntries: CollectionConfig = {
   slug: 'geez-calendar-entries',
   admin: {
+    hidden: hideUnless('geez-calendar.manage'),
     useAsTitle: 'title',
     group: 'Calendar',
     defaultColumns: ['title', 'geezDate.month', 'geezDate.day', 'feastRank', 'isFasting'],
@@ -13,10 +15,7 @@ export const GeezCalendarEntries: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/geez-calendar/${(doc as any).slug}`,
   },
   access: {
-    read: isPublicRead,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'geez-calendar.manage', 'geez-calendar.manage', 'geez-calendar.manage'),
   },
   hooks: {
     afterChange: [

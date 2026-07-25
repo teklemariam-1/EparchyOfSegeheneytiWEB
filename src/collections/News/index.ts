@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
+import { can, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const News: CollectionConfig = {
@@ -18,15 +19,19 @@ export const News: CollectionConfig = {
         '@/components/admin/news/NewsGrouping#NewsGrouping',
       ],
     },
+    hidden: hideUnless('news.create', 'news.update', 'news.delete'),
   },
   access: {
     read: isPublishedOrAuthenticated,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    create: can('news.create'),
+    update: can('news.update'),
+    delete: can('news.delete'),
   },
   versions: { drafts: true },
   hooks: {
+    // Publishing is a distinct permission from editing — gate the draft→published
+    // transition on news.publish.
+    beforeChange: [requirePublishPermission('news.publish')],
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('news')

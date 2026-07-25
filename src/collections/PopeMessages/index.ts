@@ -1,24 +1,24 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
+import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const PopeMessages: CollectionConfig = {
   slug: 'pope-messages',
   admin: {
+    hidden: hideUnless('pope-messages.create', 'pope-messages.update', 'pope-messages.delete', 'pope-messages.publish'),
     useAsTitle: 'title',
     group: 'Magisterium',
     defaultColumns: ['_status', 'title', 'documentType', 'publishedAt'],
     description: 'Papal encyclicals, apostolic exhortations, and messages from the Holy Father.',
   },
   access: {
-    read: isPublishedOrAuthenticated,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublishedOrAuthenticated, 'pope-messages.create', 'pope-messages.update', 'pope-messages.delete'),
   },
   versions: { drafts: true },
   hooks: {
+    beforeChange: [requirePublishPermission('pope-messages.publish')],
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('pope-messages')

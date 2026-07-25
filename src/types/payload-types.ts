@@ -97,6 +97,7 @@ export interface Config {
     'geez-monthly-feasts': GeezMonthlyFeast;
     'contact-submissions': ContactSubmission;
     donations: Donation;
+    'audit-log': AuditLog;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -134,6 +135,7 @@ export interface Config {
     'geez-monthly-feasts': GeezMonthlyFeastsSelect<false> | GeezMonthlyFeastsSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     donations: DonationsSelect<false> | DonationsSelect<true>;
+    'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -192,7 +194,7 @@ export interface UserAuthOperations {
   };
 }
 /**
- * CMS users and their editorial roles.
+ * CMS users, their roles, and any per-user permission overrides.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
@@ -202,9 +204,225 @@ export interface User {
   firstName: string;
   lastName: string;
   /**
-   * Determines which content areas this user can edit.
+   * Preset bundle of permissions. Fine-tune with the overrides below.
    */
   role: 'super-admin' | 'chancery-editor' | 'parish-editor' | 'youth-editor' | 'catechist-editor' | 'media-editor';
+  /**
+   * Suspending revokes every permission immediately, on the next request — the account stays for the audit trail.
+   */
+  status?: ('active' | 'suspended') | null;
+  /**
+   * Optional. For temporary accounts (volunteers, contractors) — access stops at this date.
+   */
+  expiresAt?: string | null;
+  /**
+   * Extra permissions on top of the role preset.
+   */
+  permissionsGrant?:
+    | (
+        | 'news.create'
+        | 'news.update'
+        | 'news.delete'
+        | 'news.publish'
+        | 'pages.create'
+        | 'pages.update'
+        | 'pages.delete'
+        | 'pages.publish'
+        | 'pope-messages.create'
+        | 'pope-messages.update'
+        | 'pope-messages.delete'
+        | 'pope-messages.publish'
+        | 'bishop-messages.create'
+        | 'bishop-messages.update'
+        | 'bishop-messages.delete'
+        | 'bishop-messages.publish'
+        | 'apps.create'
+        | 'apps.update'
+        | 'apps.delete'
+        | 'apps.publish'
+        | 'offices.create'
+        | 'offices.update'
+        | 'offices.delete'
+        | 'offices.publish'
+        | 'events.create'
+        | 'events.update'
+        | 'events.delete'
+        | 'events.publish'
+        | 'events.manage-own'
+        | 'publications.create'
+        | 'publications.update'
+        | 'publications.delete'
+        | 'magazines.create'
+        | 'magazines.update'
+        | 'magazines.delete'
+        | 'archives.create'
+        | 'archives.update'
+        | 'archives.delete'
+        | 'priests.create'
+        | 'priests.update'
+        | 'priests.delete'
+        | 'vicariates.create'
+        | 'vicariates.update'
+        | 'vicariates.delete'
+        | 'schools.create'
+        | 'schools.update'
+        | 'schools.delete'
+        | 'clinics.create'
+        | 'clinics.update'
+        | 'clinics.delete'
+        | 'parishes.create'
+        | 'parishes.update'
+        | 'parishes.delete'
+        | 'parishes.update-own'
+        | 'ministries.create'
+        | 'ministries.update'
+        | 'ministries.delete'
+        | 'children-programs.create'
+        | 'children-programs.update'
+        | 'children-programs.delete'
+        | 'small-christian-communities.create'
+        | 'small-christian-communities.update'
+        | 'small-christian-communities.delete'
+        | 'small-christian-communities.manage-own'
+        | 'news-categories.manage'
+        | 'event-types.manage'
+        | 'geez-calendar.manage'
+        | 'geez-calendar.import'
+        | 'media.upload'
+        | 'media.delete'
+        | 'media.view-restricted'
+        | 'feed-sources.manage'
+        | 'subscribers.view'
+        | 'subscribers.manage'
+        | 'subscribers.delete'
+        | 'visitor-stats.view'
+        | 'visitor-stats.delete'
+        | 'contact-submissions.view'
+        | 'contact-submissions.manage'
+        | 'contact-submissions.publish-qa'
+        | 'contact-submissions.delete'
+        | 'donations.view'
+        | 'donations.manage'
+        | 'donations.config'
+        | 'donations.delete'
+        | 'users.view'
+        | 'users.manage'
+        | 'audit-log.view'
+        | 'system.maintenance-mode'
+        | 'globals.site-settings.edit'
+        | 'globals.header.edit'
+        | 'globals.footer.edit'
+        | 'globals.homepage.edit'
+        | 'globals.navigation.edit'
+        | 'globals.about-page.edit'
+        | 'globals.banner-settings.edit'
+        | 'globals.donation-settings.edit'
+      )[]
+    | null;
+  /**
+   * Permissions taken away from the role preset. Revoke wins over grant.
+   */
+  permissionsRevoke?:
+    | (
+        | 'news.create'
+        | 'news.update'
+        | 'news.delete'
+        | 'news.publish'
+        | 'pages.create'
+        | 'pages.update'
+        | 'pages.delete'
+        | 'pages.publish'
+        | 'pope-messages.create'
+        | 'pope-messages.update'
+        | 'pope-messages.delete'
+        | 'pope-messages.publish'
+        | 'bishop-messages.create'
+        | 'bishop-messages.update'
+        | 'bishop-messages.delete'
+        | 'bishop-messages.publish'
+        | 'apps.create'
+        | 'apps.update'
+        | 'apps.delete'
+        | 'apps.publish'
+        | 'offices.create'
+        | 'offices.update'
+        | 'offices.delete'
+        | 'offices.publish'
+        | 'events.create'
+        | 'events.update'
+        | 'events.delete'
+        | 'events.publish'
+        | 'events.manage-own'
+        | 'publications.create'
+        | 'publications.update'
+        | 'publications.delete'
+        | 'magazines.create'
+        | 'magazines.update'
+        | 'magazines.delete'
+        | 'archives.create'
+        | 'archives.update'
+        | 'archives.delete'
+        | 'priests.create'
+        | 'priests.update'
+        | 'priests.delete'
+        | 'vicariates.create'
+        | 'vicariates.update'
+        | 'vicariates.delete'
+        | 'schools.create'
+        | 'schools.update'
+        | 'schools.delete'
+        | 'clinics.create'
+        | 'clinics.update'
+        | 'clinics.delete'
+        | 'parishes.create'
+        | 'parishes.update'
+        | 'parishes.delete'
+        | 'parishes.update-own'
+        | 'ministries.create'
+        | 'ministries.update'
+        | 'ministries.delete'
+        | 'children-programs.create'
+        | 'children-programs.update'
+        | 'children-programs.delete'
+        | 'small-christian-communities.create'
+        | 'small-christian-communities.update'
+        | 'small-christian-communities.delete'
+        | 'small-christian-communities.manage-own'
+        | 'news-categories.manage'
+        | 'event-types.manage'
+        | 'geez-calendar.manage'
+        | 'geez-calendar.import'
+        | 'media.upload'
+        | 'media.delete'
+        | 'media.view-restricted'
+        | 'feed-sources.manage'
+        | 'subscribers.view'
+        | 'subscribers.manage'
+        | 'subscribers.delete'
+        | 'visitor-stats.view'
+        | 'visitor-stats.delete'
+        | 'contact-submissions.view'
+        | 'contact-submissions.manage'
+        | 'contact-submissions.publish-qa'
+        | 'contact-submissions.delete'
+        | 'donations.view'
+        | 'donations.manage'
+        | 'donations.config'
+        | 'donations.delete'
+        | 'users.view'
+        | 'users.manage'
+        | 'audit-log.view'
+        | 'system.maintenance-mode'
+        | 'globals.site-settings.edit'
+        | 'globals.header.edit'
+        | 'globals.footer.edit'
+        | 'globals.homepage.edit'
+        | 'globals.navigation.edit'
+        | 'globals.about-page.edit'
+        | 'globals.banner-settings.edit'
+        | 'globals.donation-settings.edit'
+      )[]
+    | null;
   /**
    * Required for parish-editor role — limits edit scope to this parish.
    */
@@ -1723,6 +1941,36 @@ export interface Donation {
   createdAt: string;
 }
 /**
+ * Immutable record of sensitive administrative actions.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log".
+ */
+export interface AuditLog {
+  id: number;
+  /**
+   * e.g. user.created, user.permissions-changed, donation-settings.updated.
+   */
+  action: string;
+  /**
+   * Who performed the action.
+   */
+  actor?: (number | null) | User;
+  /**
+   * Actor email snapshot (survives user deletion).
+   */
+  actorEmail?: string | null;
+  targetCollection?: string | null;
+  targetId?: string | null;
+  /**
+   * Human-readable before/after summary. No secrets.
+   */
+  summary?: string | null;
+  ip?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -1865,6 +2113,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'donations';
         value: number | Donation;
+      } | null)
+    | ({
+        relationTo: 'audit-log';
+        value: number | AuditLog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1916,6 +2168,10 @@ export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
   role?: T;
+  status?: T;
+  expiresAt?: T;
+  permissionsGrant?: T;
+  permissionsRevoke?: T;
   assignedParish?: T;
   profilePhoto?: T;
   updatedAt?: T;
@@ -2738,6 +2994,21 @@ export interface DonationsSelect<T extends boolean = true> {
   reference?: T;
   submittedAt?: T;
   adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log_select".
+ */
+export interface AuditLogSelect<T extends boolean = true> {
+  action?: T;
+  actor?: T;
+  actorEmail?: T;
+  targetCollection?: T;
+  targetId?: T;
+  summary?: T;
+  ip?: T;
   updatedAt?: T;
   createdAt?: T;
 }

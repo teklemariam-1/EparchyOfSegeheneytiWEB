@@ -1,8 +1,9 @@
 import type { GlobalConfig } from 'payload'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
-import { superAdminOnly } from '../../lib/permissions/fieldAccess'
+import { can, canField } from '../../lib/permissions/access'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { encrypt, isEncrypted, isMasked, mask } from '../../lib/crypto/fieldEncryption'
+import { writeAudit } from '../../lib/permissions/audit'
+import type { AuthUser } from '../../lib/permissions/resolve'
 
 /**
  * Donation configuration.
@@ -26,6 +27,35 @@ import { encrypt, isEncrypted, isMasked, mask } from '../../lib/crypto/fieldEncr
  * not available to an Eritrea-registered entity, so live card processing is
  * stubbed behind the toggle rather than built.
  */
+/** Fields whose values must never reach the audit log — only the fact they changed. */
+const SECRET_FIELDS = new Set(['receivingAccount', 'stripePublishableKey'])
+
+/**
+ * Names the top-level fields that changed, with before → after values for the
+ * ordinary ones and a bare "changed" for the secret-bearing ones. Bookkeeping
+ * fields the beforeChange hook writes itself are skipped so every save does not
+ * log a change.
+ */
+function summarizeChanges(prev: unknown, next: unknown): string {
+  const before = (prev ?? {}) as Record<string, unknown>
+  const after = (next ?? {}) as Record<string, unknown>
+  const skip = new Set(['lastChangedBy', 'lastChangedAt', 'updatedAt', 'createdAt', 'id', 'globalType'])
+  const changed: string[] = []
+
+  for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
+    if (skip.has(key)) continue
+    if (JSON.stringify(before[key]) === JSON.stringify(after[key])) continue
+    if (SECRET_FIELDS.has(key)) {
+      changed.push(`${key} changed`)
+    } else if (typeof after[key] === 'object' && after[key] !== null) {
+      changed.push(`${key} changed`)
+    } else {
+      changed.push(`${key}: ${String(before[key] ?? '—')} → ${String(after[key] ?? '—')}`)
+    }
+  }
+  return changed.length ? changed.join('; ') : 'saved with no field changes'
+}
+
 export const DonationSettings: GlobalConfig = {
   slug: 'donation-settings',
   admin: {
@@ -34,14 +64,21 @@ export const DonationSettings: GlobalConfig = {
   },
   access: {
     read: () => true, // public config is filtered field-by-field below
-    update: isChanceryOrAbove,
+    update: can('globals.donation-settings.edit'),
   },
   hooks: {
     afterChange: [
-      () => {
+      ({ doc, previousDoc, req }) => {
         safeRevalidateTag('globals')
         safeRevalidateTag('donation-settings')
         safeRevalidatePath('/donate')
+        void writeAudit(req.payload, {
+          action: 'donation-settings.updated',
+          actor: req.user as AuthUser | null,
+          targetCollection: 'donation-settings',
+          summary: summarizeChanges(previousDoc, doc),
+          req,
+        })
       },
     ],
     beforeChange: [
@@ -141,7 +178,7 @@ export const DonationSettings: GlobalConfig = {
       name: 'receivingAccount',
       type: 'group',
       label: 'Receiving account (private)',
-      access: { read: superAdminOnly, create: superAdminOnly, update: superAdminOnly },
+      access: { read: canField('donations.config'), create: canField('donations.config'), update: canField('donations.config') },
       admin: {
         description:
           'Internal record of where funds are collected. Encrypted at rest, masked here, never sent to the public site.',
@@ -178,7 +215,9 @@ export const DonationSettings: GlobalConfig = {
     {
       name: 'stripePublishableKey',
       type: 'text',
-      access: { read: superAdminOnly },
+      // Incidental fix: add an update gate so a lower-privileged editor cannot
+      // write the key even though the global's update permission is broader.
+      access: { read: canField('donations.config'), update: canField('donations.config') },
       admin: {
         position: 'sidebar',
         condition: (data) => data?.provider === 'stripe',

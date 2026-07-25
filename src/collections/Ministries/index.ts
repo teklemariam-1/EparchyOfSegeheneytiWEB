@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove, isRoleOneOf } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Ministries: CollectionConfig = {
   slug: 'ministries',
   admin: {
+    hidden: hideUnless('ministries.create', 'ministries.update', 'ministries.delete'),
     useAsTitle: 'name',
     group: 'Church',
     defaultColumns: ['name', 'type', 'parish', 'status'],
@@ -13,10 +15,7 @@ export const Ministries: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/ministries/${(doc as any).slug}`,
   },
   access: {
-    read: isPublicRead,
-    create: isRoleOneOf('super-admin', 'chancery-editor', 'parish-editor', 'catechist-editor', 'youth-editor'),
-    update: isRoleOneOf('super-admin', 'chancery-editor', 'parish-editor', 'catechist-editor', 'youth-editor'),
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'ministries.create', 'ministries.update', 'ministries.delete'),
   },
   hooks: {
     afterChange: [

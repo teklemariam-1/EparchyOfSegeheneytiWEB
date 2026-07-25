@@ -1,21 +1,20 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Magazines: CollectionConfig = {
   slug: 'magazines',
   admin: {
+    hidden: hideUnless('magazines.create', 'magazines.update', 'magazines.delete'),
     useAsTitle: 'title',
     group: 'Publications',
     defaultColumns: ['title', 'issueNumber', 'year', 'publishedAt'],
     description: 'Eparchy magazine issues (e.g. Tesfanet, Qal Hiwet).',
   },
   access: {
-    read: isPublicRead,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'magazines.create', 'magazines.update', 'magazines.delete'),
   },
   hooks: {
     afterChange: [

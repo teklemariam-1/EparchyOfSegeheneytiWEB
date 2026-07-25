@@ -1,4 +1,5 @@
 import { getPayload } from '@/lib/payload/client'
+import { hasPermission, type AuthUser } from '@/lib/permissions/resolve'
 
 /**
  * Access-controlled download for media assets.
@@ -11,10 +12,8 @@ import { getPayload } from '@/lib/payload/client'
  *
  * GET /api/secure-file/<mediaId>
  *   public asset      → 307 redirect to the file
- *   restricted asset  → 307 for elevated users, else 403
+ *   restricted asset  → 307 for users with media.view-restricted, else 403
  */
-const ELEVATED = ['super-admin', 'chancery-editor', 'media-editor']
-
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -41,14 +40,14 @@ export async function GET(
   }
 
   if (media.accessLevel === 'restricted') {
-    let role: string | undefined
+    let authUser: AuthUser | null = null
     try {
       const { user } = await payload.auth({ headers: req.headers as Headers })
-      role = (user as { role?: string } | null)?.role
+      authUser = user as AuthUser | null
     } catch {
-      role = undefined
+      authUser = null
     }
-    if (!role || !ELEVATED.includes(role)) {
+    if (!hasPermission(authUser, 'media.view-restricted')) {
       return new Response('Forbidden — this document requires authorization.', { status: 403 })
     }
   }

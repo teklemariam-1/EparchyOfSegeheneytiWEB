@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { can, canManageOwnParish, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Parishes: CollectionConfig = {
   slug: 'parishes',
   admin: {
+    hidden: hideUnless('parishes.create', 'parishes.update', 'parishes.delete', 'parishes.update-own'),
     useAsTitle: 'name',
     group: 'Church',
     defaultColumns: ['name', 'region', 'vicariate', 'pastor', 'slug'],
@@ -14,9 +16,9 @@ export const Parishes: CollectionConfig = {
   },
   access: {
     read: isPublicRead,
-    create: isChanceryOrAbove,
-    update: isOwnParishOrAbove('id'),
-    delete: isChanceryOrAbove,
+    create: can('parishes.create'),
+    update: canManageOwnParish('parishes.update', 'parishes.update-own', 'id'),
+    delete: can('parishes.delete'),
   },
   hooks: {
     afterChange: [

@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublishedOrAuthenticated, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
+import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const BishopMessages: CollectionConfig = {
   slug: 'bishop-messages',
   admin: {
+    hidden: hideUnless('bishop-messages.create', 'bishop-messages.update', 'bishop-messages.delete', 'bishop-messages.publish'),
     useAsTitle: 'title',
     group: 'Magisterium',
     defaultColumns: ['_status', 'title', 'messageType', 'publishedAt'],
@@ -13,13 +15,11 @@ export const BishopMessages: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/publications/bishop-messages/${(doc as any).slug}`,
   },
   access: {
-    read: isPublishedOrAuthenticated,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublishedOrAuthenticated, 'bishop-messages.create', 'bishop-messages.update', 'bishop-messages.delete'),
   },
   versions: { drafts: true },
   hooks: {
+    beforeChange: [requirePublishPermission('bishop-messages.publish')],
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('bishop-messages')

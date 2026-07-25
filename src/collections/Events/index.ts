@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublishedOrAuthenticated, isChanceryOrAbove, isOwnParishOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
+import { can, canManageOwnParish, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Events: CollectionConfig = {
   slug: 'events',
   admin: {
+    hidden: hideUnless('events.create', 'events.update', 'events.delete', 'events.manage-own', 'events.publish'),
     useAsTitle: 'title',
     group: 'Content',
     defaultColumns: ['_status', 'title', 'startDate', 'endDate', 'parish'],
@@ -14,12 +16,13 @@ export const Events: CollectionConfig = {
   },
   access: {
     read: isPublishedOrAuthenticated,
-    create: isOwnParishOrAbove(),
-    update: isOwnParishOrAbove(),
-    delete: isChanceryOrAbove,
+    create: canManageOwnParish('events.create', 'events.manage-own'),
+    update: canManageOwnParish('events.update', 'events.manage-own'),
+    delete: can('events.delete'),
   },
   versions: { drafts: true },
   hooks: {
+    beforeChange: [requirePublishPermission('events.publish')],
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('events')

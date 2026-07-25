@@ -1,12 +1,14 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublicRead } from '../../lib/permissions/readAccess'
+import { crud, hideUnless } from '../../lib/permissions/access'
 import { taxonomyValueField } from '../shared/taxonomyValueField'
 
 export const NewsCategories: CollectionConfig = {
   slug: 'news-categories',
   labels: { singular: 'News Category', plural: 'News Categories' },
   admin: {
+    hidden: hideUnless('news-categories.manage'),
     group: 'Content',
     useAsTitle: 'label',
     defaultColumns: ['label', 'value'],
@@ -14,10 +16,7 @@ export const NewsCategories: CollectionConfig = {
       'Categories available for news articles. They appear in the Category dropdown when editing news and as the filter buttons on the public News page.',
   },
   access: {
-    read: () => true,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublicRead, 'news-categories.manage', 'news-categories.manage', 'news-categories.manage'),
   },
   hooks: {
     afterChange: [

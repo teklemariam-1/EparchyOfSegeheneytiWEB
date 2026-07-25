@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
+import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 /**
@@ -16,6 +17,7 @@ import { slugFieldHook } from '../../lib/payload/slugField'
 export const Offices: CollectionConfig = {
   slug: 'offices',
   admin: {
+    hidden: hideUnless('offices.create', 'offices.update', 'offices.delete', 'offices.publish'),
     useAsTitle: 'name',
     group: 'Church',
     defaultColumns: ['name', 'slug', 'order'],
@@ -23,13 +25,11 @@ export const Offices: CollectionConfig = {
     preview: (doc) => `${(process.env.NEXT_PUBLIC_SITE_URL ?? '').trim()}/offices/${(doc as any).slug}`,
   },
   access: {
-    read: isPublicRead,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isChanceryOrAbove,
+    ...crud(isPublishedOrAuthenticated, 'offices.create', 'offices.update', 'offices.delete'),
   },
   versions: { drafts: true },
   hooks: {
+    beforeChange: [requirePublishPermission('offices.publish')],
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('offices')

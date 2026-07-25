@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
+import { can } from '../../lib/permissions/access'
 
 export const Header: GlobalConfig = {
   slug: 'header',
@@ -8,7 +8,7 @@ export const Header: GlobalConfig = {
     group: 'Navigation',
     description: 'Site header: logo, announcement banner, and utility links.',
   },
-  access: { read: () => true, update: isChanceryOrAbove },
+  access: { read: () => true, update: can('globals.header.edit') },
   hooks: {
     afterChange: [
       () => {

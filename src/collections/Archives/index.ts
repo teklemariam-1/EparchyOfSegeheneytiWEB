@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
-import { isPublicRead, isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
+import { can, hideUnless } from '../../lib/permissions/access'
+import { hasPermission, type AuthUser } from '../../lib/permissions/resolve'
 import { slugFieldHook } from '../../lib/payload/slugField'
 
 export const Archives: CollectionConfig = {
   slug: 'archives',
   admin: {
+    hidden: hideUnless('archives.create', 'archives.update', 'archives.delete'),
     useAsTitle: 'title',
     group: 'Publications',
     defaultColumns: ['title', 'category', 'year', 'accessLevel'],
@@ -13,14 +15,13 @@ export const Archives: CollectionConfig = {
   },
   access: {
     read: ({ req }) => {
-      // Public archives can be read by everyone; restricted ones need auth
-      const user = req.user as { role: string } | null
-      if (user && ['super-admin', 'chancery-editor'].includes(user.role)) return true
+      // Public archives can be read by everyone; restricted ones need staff access.
+      if (hasPermission(req.user as AuthUser | null, 'archives.update')) return true
       return { accessLevel: { equals: 'public' } }
     },
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isSuperAdmin,
+    create: can('archives.create'),
+    update: can('archives.update'),
+    delete: can('archives.delete'),
   },
   hooks: {
     afterChange: [

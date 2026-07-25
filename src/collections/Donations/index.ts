@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
-import { elevatedOnly } from '../../lib/permissions/fieldAccess'
+import { can, canField, hideUnless } from '../../lib/permissions/access'
 
 /**
  * Donation records (pledges and, later, processed payments).
@@ -22,12 +21,13 @@ export const Donations: CollectionConfig = {
     defaultColumns: ['status', 'donorName', 'amount', 'currency', 'frequency', 'createdAt'],
     description: 'Donations and pledges received through the website.',
     listSearchableFields: ['donorName', 'donorEmail', 'reference', 'message'],
+    hidden: hideUnless('donations.view'),
   },
   access: {
-    read: isChanceryOrAbove,
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isSuperAdmin,
+    read: can('donations.view'),
+    create: can('donations.manage'),
+    update: can('donations.manage'),
+    delete: can('donations.delete'),
   },
   hooks: {
     beforeChange: [
@@ -78,7 +78,7 @@ export const Donations: CollectionConfig = {
       required: true,
       defaultValue: 'pending',
       // Staff-only — a public submission cannot set or change this.
-      access: { create: elevatedOnly, update: elevatedOnly },
+      access: { create: canField('donations.manage'), update: canField('donations.manage') },
       options: [
         { label: 'Pending', value: 'pending' },
         { label: 'Received', value: 'received' },
@@ -90,7 +90,7 @@ export const Donations: CollectionConfig = {
       name: 'provider',
       type: 'select',
       defaultValue: 'manual',
-      access: { update: elevatedOnly },
+      access: { update: canField('donations.manage') },
       options: [
         { label: 'Manual transfer', value: 'manual' },
         { label: 'Stripe', value: 'stripe' },
@@ -100,25 +100,25 @@ export const Donations: CollectionConfig = {
     {
       name: 'providerRef',
       type: 'text',
-      access: { create: elevatedOnly, update: elevatedOnly },
+      access: { create: canField('donations.manage'), update: canField('donations.manage') },
       admin: { position: 'sidebar', description: 'External payment/session id (for a PSP).' },
     },
     {
       name: 'reference',
       type: 'text',
-      access: { create: elevatedOnly, update: elevatedOnly },
+      access: { create: canField('donations.manage'), update: canField('donations.manage') },
       admin: { position: 'sidebar', description: 'Bank/transfer reference for reconciliation.' },
     },
     {
       name: 'submittedAt',
       type: 'date',
-      access: { create: elevatedOnly, update: elevatedOnly },
+      access: { create: canField('donations.manage'), update: canField('donations.manage') },
       admin: { position: 'sidebar', readOnly: true },
     },
     {
       name: 'adminNotes',
       type: 'textarea',
-      access: { create: elevatedOnly, update: elevatedOnly, read: elevatedOnly },
+      access: { create: canField('donations.manage'), update: canField('donations.manage'), read: canField('donations.manage') },
       admin: { description: 'Internal notes (not visible to the donor).' },
     },
   ],

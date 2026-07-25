@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectionAccess'
+import { can, canField, hideUnless } from '../../lib/permissions/access'
 
 /**
  * Newsletter subscribers.
@@ -15,19 +15,20 @@ import { isChanceryOrAbove, isSuperAdmin } from '../../lib/permissions/collectio
 export const Subscribers: CollectionConfig = {
   slug: 'subscribers',
   admin: {
+    hidden: hideUnless('subscribers.view'),
     useAsTitle: 'email',
     group: 'Administration',
     defaultColumns: ['email', 'status', 'confirmedAt', 'createdAt'],
     description: 'Newsletter subscribers. Confirmed subscribers receive broadcasts.',
   },
   access: {
-    read: isChanceryOrAbove,
+    read: can('subscribers.view'),
     // No public create/update/delete — the signup, confirm and unsubscribe
     // flows all run server-side with overrideAccess. Staff can still manage
     // subscribers in-admin.
-    create: isChanceryOrAbove,
-    update: isChanceryOrAbove,
-    delete: isSuperAdmin,
+    create: can('subscribers.manage'),
+    update: can('subscribers.manage'),
+    delete: can('subscribers.delete'),
   },
   fields: [
     {
@@ -61,16 +62,20 @@ export const Subscribers: CollectionConfig = {
     },
     {
       // Random token embedded in the confirmation link. Cleared once confirmed.
+      // Read-gated so it is never returned to a view-only grant or leaked via the
+      // API; the confirm/unsubscribe flows read it server-side with overrideAccess.
       name: 'confirmationToken',
       type: 'text',
       index: true,
+      access: { read: canField('subscribers.manage') },
       admin: { readOnly: true, position: 'sidebar' },
     },
     {
-      // Stable token embedded in every email's unsubscribe link.
+      // Stable token embedded in every email's unsubscribe link. Read-gated (see above).
       name: 'unsubscribeToken',
       type: 'text',
       index: true,
+      access: { read: canField('subscribers.manage') },
       admin: { readOnly: true, position: 'sidebar' },
     },
     {
