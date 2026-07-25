@@ -1,45 +1,35 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { MainNav } from './MainNav'
 import { MobileMenu } from './MobileMenu'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { AnnouncementBanner } from './AnnouncementBanner'
+import { DonateCTA } from '@/features/donate/DonateCTA'
 import { getHeaderGlobal, getSiteSettings } from '@/lib/payload/queries'
 
-const ANNOUNCEMENT_STYLES = {
-  info: 'bg-maroon-800 text-white',
-  warning: 'bg-gold-500 text-charcoal-900',
-  success: 'bg-green-700 text-white',
-} as const
-
 export async function SiteHeader() {
-  const [header, settings, locale] = await Promise.all([
+  const [header, settings, locale, tc] = await Promise.all([
     getHeaderGlobal(),
     getSiteSettings(),
     getLocale(),
+    getTranslations('common'),
   ])
 
   const logoUrl = settings.logo?.url ?? settings.logoDark?.url
-  const announcement = header.announcement
+  const announcement = header.announcementBanner
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-nav border-b border-charcoal-100">
-      {/* CMS-driven announcement bar */}
+      {/* CMS-driven announcement bar (client component handles dismiss) */}
       {announcement?.enabled && announcement.message && (
-        <div
-          className={`${ANNOUNCEMENT_STYLES[announcement.style ?? 'info']} px-4 py-2 text-center text-xs sm:text-sm font-medium`}
-          role="alert"
-        >
-          <span>{announcement.message}</span>
-          {announcement.linkUrl && announcement.linkLabel && (
-            <Link
-              href={announcement.linkUrl}
-              className="ml-3 underline underline-offset-2 font-semibold hover:opacity-80 transition-opacity"
-            >
-              {announcement.linkLabel} →
-            </Link>
-          )}
-        </div>
+        <AnnouncementBanner
+          message={announcement.message}
+          link={announcement.link || undefined}
+          style={announcement.style ?? 'info'}
+          learnMoreLabel={tc('readMore')}
+          dismissLabel={tc('close')}
+        />
       )}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -76,6 +66,11 @@ export async function SiteHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            {/* Donate CTA — renders nothing when donations are disabled */}
+            <div className="hidden sm:block">
+              <DonateCTA locale={locale} />
+            </div>
+
             {/* Language switcher */}
             <LanguageSwitcher currentLocale={locale} />
 

@@ -1,6 +1,8 @@
 import type { CollectionConfig } from 'payload'
+import { APIError } from 'payload'
 import { isChanceryOrAbove } from '../../lib/permissions/collectionAccess'
 import { resolveFeedUrl } from '../../lib/ingest/resolveFeedUrl'
+import { probeFeed } from '../../lib/ingest/vaticanNews'
 
 /**
  * RSS feeds the ingest job pulls from.
@@ -21,7 +23,7 @@ export const FeedSources: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     group: 'Administration',
-    defaultColumns: ['name', 'target', 'enabled', 'lastFetchedAt', 'lastStatus'],
+    defaultColumns: ['name', 'target', 'enabled', 'healthStatus', 'lastFetchedAt', 'lastStatus'],
     description:
       'RSS feeds imported automatically. Disable a source to stop importing from it without losing its settings.',
   },
@@ -34,17 +36,35 @@ export const FeedSources: CollectionConfig = {
   hooks: {
     beforeChange: [
       async ({ data, originalDoc }) => {
-        // Only resolve when the URL is new or changed, so re-saving an existing
-        // source does not make a network call every time.
+        // Only resolve/test when the URL is new or changed, so re-saving an
+        // existing source does not make a network call every time.
         const url = data?.url
         if (!url || url === originalDoc?.url) return data
+
         // A human usually pastes the page they read (…/ti.html), not its feed.
-        // Turn it into the real RSS URL, or throw a message they can act on.
+        // Turn it into the real feed URL, or throw a message they can act on.
         const { url: resolved, changed } = await resolveFeedUrl(String(url))
         data.url = resolved
-        if (changed) {
-          data.lastStatus = `URL auto-corrected to the RSS feed: ${resolved}`
+
+        // Validate on save: test-fetch the feed now so the admin sees an
+        // immediate "N items found" success or a clear, actionable error before
+        // the record is stored. A dead or wrong URL never gets silently saved.
+        const probe = await probeFeed(resolved, 5)
+        if (!probe.ok) {
+          throw new APIError(
+            `Could not read that feed (${probe.httpStatus ?? 'no response'}): ${probe.error ?? 'unknown error'}`,
+            400,
+          )
         }
+
+        const corrected = changed ? `URL auto-corrected to ${resolved}. ` : ''
+        data.feedFormat = probe.format
+        data.lastItemCount = probe.itemCount
+        data.lastError = null
+        data.healthStatus = 'healthy'
+        data.consecutiveFailures = 0
+        data.lastFetchedAt = new Date().toISOString()
+        data.lastStatus = `${corrected}✓ ${probe.itemCount} item${probe.itemCount === 1 ? '' : 's'} found (${probe.format.toUpperCase()})`
         return data
       },
     ],
@@ -141,6 +161,46 @@ export const FeedSources: CollectionConfig = {
       },
     },
     {
+      name: 'healthStatus',
+      type: 'select',
+      defaultValue: 'unknown',
+      options: [
+        { label: '— Unknown', value: 'unknown' },
+        { label: '✓ Healthy', value: 'healthy' },
+        { label: '⚠ Degraded', value: 'degraded' },
+        { label: '✕ Failing', value: 'failing' },
+      ],
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Set automatically from the last fetch. Degraded after 1 failure, failing after 3.',
+      },
+    },
+    {
+      name: 'feedFormat',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Detected feed format (RSS / Atom / JSON).',
+      },
+    },
+    {
+      name: 'lastItemCount',
+      type: 'number',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Number of items found on the last successful fetch.',
+      },
+    },
+    {
+      name: 'consecutiveFailures',
+      type: 'number',
+      defaultValue: 0,
+      admin: { position: 'sidebar', readOnly: true, description: 'Reset to 0 on a successful fetch.' },
+    },
+    {
       name: 'lastFetchedAt',
       type: 'date',
       admin: { position: 'sidebar', readOnly: true, description: 'Set by the ingest job.' },
@@ -152,6 +212,15 @@ export const FeedSources: CollectionConfig = {
         position: 'sidebar',
         readOnly: true,
         description: 'Result of the last run — how many items were created, or the error.',
+      },
+    },
+    {
+      name: 'lastError',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'The error message from the last failed fetch, if any.',
       },
     },
   ],

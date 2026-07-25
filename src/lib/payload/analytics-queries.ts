@@ -256,6 +256,136 @@ export async function getEngagementStats(from: string | null, to: string): Promi
   return { contactTotal, contactInRange, contactUnread, subscribersConfirmed, subscribersInRange }
 }
 
+// ─── Donations ───────────────────────────────────────────────────────────────
+
+/** Run a parameterized query on the raw pg pool; [] on any failure. */
+async function poolQuery<T = Record<string, unknown>>(text: string, values: unknown[] = []): Promise<T[]> {
+  try {
+    const payload = await getPayload()
+    const db = payload.db as unknown as {
+      pool?: { query: (t: string, v: unknown[]) => Promise<{ rows: T[] }> }
+    }
+    if (!db.pool?.query) return []
+    const res = await db.pool.query(text, values)
+    return res.rows
+  } catch {
+    return []
+  }
+}
+
+export interface DonationStats {
+  /** All-time totals per currency (excludes cancelled). */
+  totalsByCurrency: Array<{ currency: string; count: number; sum: number }>
+  countAllTime: number
+  countYear: number
+  countMonth: number
+  countToday: number
+  uniqueDonors: number
+  pendingCount: number
+  /** Daily count + amount within the selected range (mixed currency sum). */
+  daily: Array<{ date: string; count: number; amount: number }>
+  /** Most recent donations, donor names masked when anonymous. */
+  recent: Array<{
+    name: string
+    amount: number
+    currency: string
+    frequency: string
+    status: string
+    createdAt: string
+  }>
+}
+
+const EMPTY_DONATIONS: DonationStats = {
+  totalsByCurrency: [],
+  countAllTime: 0,
+  countYear: 0,
+  countMonth: 0,
+  countToday: 0,
+  uniqueDonors: 0,
+  pendingCount: 0,
+  daily: [],
+  recent: [],
+}
+
+/**
+ * Donation metrics for the dashboard. Excludes cancelled donations from money
+ * totals. Amounts are summed per currency (never blindly across currencies).
+ */
+export async function getDonationStats(
+  from: string | null,
+  to: string,
+  today: string,
+): Promise<DonationStats> {
+  const yearStart = `${today.slice(0, 4)}-01-01`
+  const monthStart = `${today.slice(0, 7)}-01`
+  const notCancelled = `status <> 'cancelled'`
+
+  const [totals, counts, unique, series, recent] = await Promise.all([
+    poolQuery<{ currency: string; count: string; sum: string }>(
+      `SELECT currency, COUNT(*)::int AS count, COALESCE(SUM(amount),0)::float8 AS sum
+       FROM donations WHERE ${notCancelled} GROUP BY currency ORDER BY sum DESC`,
+    ),
+    poolQuery<{ all: string; yr: string; mo: string; today: string; pending: string }>(
+      `SELECT
+         COUNT(*) FILTER (WHERE ${notCancelled})::int AS all,
+         COUNT(*) FILTER (WHERE ${notCancelled} AND created_at >= $1)::int AS yr,
+         COUNT(*) FILTER (WHERE ${notCancelled} AND created_at >= $2)::int AS mo,
+         COUNT(*) FILTER (WHERE ${notCancelled} AND created_at >= $3)::int AS today,
+         COUNT(*) FILTER (WHERE status = 'pending')::int AS pending
+       FROM donations`,
+      [`${yearStart}T00:00:00.000Z`, `${monthStart}T00:00:00.000Z`, `${today}T00:00:00.000Z`],
+    ),
+    poolQuery<{ donors: string }>(
+      `SELECT COUNT(DISTINCT lower(donor_email))::int AS donors FROM donations WHERE ${notCancelled}`,
+    ),
+    poolQuery<{ d: string; count: string; amount: string }>(
+      `SELECT date_trunc('day', created_at)::date AS d, COUNT(*)::int AS count, COALESCE(SUM(amount),0)::float8 AS amount
+       FROM donations
+       WHERE ${notCancelled} AND created_at <= $1 ${from ? 'AND created_at >= $2' : ''}
+       GROUP BY d ORDER BY d`,
+      from ? [`${to}T23:59:59.999Z`, `${from}T00:00:00.000Z`] : [`${to}T23:59:59.999Z`],
+    ),
+    poolQuery<{
+      donor_name: string
+      anonymous: boolean
+      amount: string
+      currency: string
+      frequency: string
+      status: string
+      created_at: string
+    }>(
+      `SELECT donor_name, anonymous, amount, currency, frequency, status, created_at
+       FROM donations ORDER BY created_at DESC LIMIT 12`,
+    ),
+  ])
+
+  const c = counts[0]
+  return {
+    totalsByCurrency: totals.map((t) => ({ currency: t.currency, count: Number(t.count), sum: Number(t.sum) })),
+    countAllTime: Number(c?.all ?? 0),
+    countYear: Number(c?.yr ?? 0),
+    countMonth: Number(c?.mo ?? 0),
+    countToday: Number(c?.today ?? 0),
+    pendingCount: Number(c?.pending ?? 0),
+    uniqueDonors: Number(unique[0]?.donors ?? 0),
+    daily: series.map((r) => ({
+      date: typeof r.d === 'string' ? r.d.slice(0, 10) : new Date(r.d).toISOString().slice(0, 10),
+      count: Number(r.count),
+      amount: Number(r.amount),
+    })),
+    recent: recent.map((r) => ({
+      name: r.anonymous ? 'Anonymous' : r.donor_name || 'Anonymous',
+      amount: Number(r.amount),
+      currency: r.currency,
+      frequency: r.frequency,
+      status: r.status,
+      createdAt: typeof r.created_at === 'string' ? r.created_at : new Date(r.created_at).toISOString(),
+    })),
+  }
+}
+
+export { EMPTY_DONATIONS }
+
 export interface MediaStats {
   total: number
   images: number

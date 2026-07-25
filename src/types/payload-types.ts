@@ -96,6 +96,7 @@ export interface Config {
     'geez-calendar-days': GeezCalendarDay;
     'geez-monthly-feasts': GeezMonthlyFeast;
     'contact-submissions': ContactSubmission;
+    donations: Donation;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -132,6 +133,7 @@ export interface Config {
     'geez-calendar-days': GeezCalendarDaysSelect<false> | GeezCalendarDaysSelect<true>;
     'geez-monthly-feasts': GeezMonthlyFeastsSelect<false> | GeezMonthlyFeastsSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
+    donations: DonationsSelect<false> | DonationsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -149,6 +151,7 @@ export interface Config {
     navigation: Navigation;
     'about-page': AboutPage;
     'banner-settings': BannerSetting;
+    'donation-settings': DonationSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -158,6 +161,7 @@ export interface Config {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
     'banner-settings': BannerSettingsSelect<false> | BannerSettingsSelect<true>;
+    'donation-settings': DonationSettingsSelect<false> | DonationSettingsSelect<true>;
   };
   locale: 'en' | 'ti';
   widgets: {
@@ -919,6 +923,22 @@ export interface FeedSource {
    */
   enabled?: boolean | null;
   /**
+   * Set automatically from the last fetch. Degraded after 1 failure, failing after 3.
+   */
+  healthStatus?: ('unknown' | 'healthy' | 'degraded' | 'failing') | null;
+  /**
+   * Detected feed format (RSS / Atom / JSON).
+   */
+  feedFormat?: string | null;
+  /**
+   * Number of items found on the last successful fetch.
+   */
+  lastItemCount?: number | null;
+  /**
+   * Reset to 0 on a successful fetch.
+   */
+  consecutiveFailures?: number | null;
+  /**
    * Set by the ingest job.
    */
   lastFetchedAt?: string | null;
@@ -926,6 +946,10 @@ export interface FeedSource {
    * Result of the last run — how many items were created, or the error.
    */
   lastStatus?: string | null;
+  /**
+   * The error message from the last failed fetch, if any.
+   */
+  lastError?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1660,6 +1684,45 @@ export interface ContactSubmission {
   createdAt: string;
 }
 /**
+ * Donations and pledges received through the website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "donations".
+ */
+export interface Donation {
+  id: number;
+  donorName: string;
+  donorEmail: string;
+  amount: number;
+  currency: string;
+  frequency?: ('one-time' | 'monthly') | null;
+  /**
+   * Optional message from the donor.
+   */
+  message?: string | null;
+  /**
+   * Hide the donor’s name in public statistics and lists.
+   */
+  anonymous?: boolean | null;
+  status: 'pending' | 'received' | 'cancelled';
+  provider?: ('manual' | 'stripe') | null;
+  /**
+   * External payment/session id (for a PSP).
+   */
+  providerRef?: string | null;
+  /**
+   * Bank/transfer reference for reconciliation.
+   */
+  reference?: string | null;
+  submittedAt?: string | null;
+  /**
+   * Internal notes (not visible to the donor).
+   */
+  adminNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -1798,6 +1861,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contact-submissions';
         value: number | ContactSubmission;
+      } | null)
+    | ({
+        relationTo: 'donations';
+        value: number | Donation;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2146,8 +2213,13 @@ export interface FeedSourcesSelect<T extends boolean = true> {
   category?: T;
   documentType?: T;
   enabled?: T;
+  healthStatus?: T;
+  feedFormat?: T;
+  lastItemCount?: T;
+  consecutiveFailures?: T;
   lastFetchedAt?: T;
   lastStatus?: T;
+  lastError?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2644,6 +2716,27 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
         answer?: T;
         publishedAt?: T;
       };
+  adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "donations_select".
+ */
+export interface DonationsSelect<T extends boolean = true> {
+  donorName?: T;
+  donorEmail?: T;
+  amount?: T;
+  currency?: T;
+  frequency?: T;
+  message?: T;
+  anonymous?: T;
+  status?: T;
+  provider?: T;
+  providerRef?: T;
+  reference?: T;
+  submittedAt?: T;
   adminNotes?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3190,6 +3283,103 @@ export interface BannerSetting {
   createdAt?: string | null;
 }
 /**
+ * Enable donations, set amounts/currency, donor-facing text, and the (encrypted) receiving account.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "donation-settings".
+ */
+export interface DonationSetting {
+  id: number;
+  /**
+   * Master switch. When off, the donate page and CTAs are hidden.
+   */
+  enabled?: boolean | null;
+  /**
+   * Manual transfer is the working flow. Stripe is a placeholder for later.
+   */
+  provider?: ('manual' | 'stripe') | null;
+  /**
+   * Quick-pick amounts shown as buttons.
+   */
+  presetAmounts?:
+    | {
+        amount: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * ISO code, e.g. ERN, USD, EUR.
+   */
+  defaultCurrency?: string | null;
+  minAmount?: number | null;
+  /**
+   * Optional cap.
+   */
+  maxAmount?: number | null;
+  /**
+   * Currencies a donor may choose. Leave empty to use only the default.
+   */
+  currencies?:
+    | {
+        /**
+         * ISO code, e.g. USD.
+         */
+        code: string;
+        /**
+         * Optional display name.
+         */
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  allowCustomAmount?: boolean | null;
+  /**
+   * Offer monthly giving.
+   */
+  allowRecurring?: boolean | null;
+  /**
+   * Short intro shown at the top of the donate page.
+   */
+  intro?: string | null;
+  /**
+   * Shown to donors explaining how to complete a manual transfer (bank name, public account/till, reference to quote). You decide what account detail to publish here — the stored account number below stays private.
+   */
+  manualInstructions?: string | null;
+  /**
+   * Confirmation message shown after a donation is recorded.
+   */
+  thankYou?: string | null;
+  /**
+   * Internal record of where funds are collected. Encrypted at rest, masked here, never sent to the public site.
+   */
+  receivingAccount?: {
+    accountHolder?: string | null;
+    /**
+     * Bank or payment provider name.
+     */
+    bankOrProvider?: string | null;
+    /**
+     * Stored encrypted. Shows only the last 4 digits; type a new number to replace it.
+     */
+    accountNumber?: string | null;
+    /**
+     * Reference/memo to quote on transfers.
+     */
+    referenceNote?: string | null;
+  };
+  /**
+   * Publishable key only. The secret key lives in STRIPE_SECRET_KEY (env), never in the DB.
+   */
+  stripePublishableKey?: string | null;
+  /**
+   * Who last changed donation settings.
+   */
+  lastChangedBy?: (number | null) | User;
+  lastChangedAt?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -3517,6 +3707,49 @@ export interface BannerSettingsSelect<T extends boolean = true> {
         endDate?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "donation-settings_select".
+ */
+export interface DonationSettingsSelect<T extends boolean = true> {
+  enabled?: T;
+  provider?: T;
+  presetAmounts?:
+    | T
+    | {
+        amount?: T;
+        id?: T;
+      };
+  defaultCurrency?: T;
+  minAmount?: T;
+  maxAmount?: T;
+  currencies?:
+    | T
+    | {
+        code?: T;
+        label?: T;
+        id?: T;
+      };
+  allowCustomAmount?: T;
+  allowRecurring?: T;
+  intro?: T;
+  manualInstructions?: T;
+  thankYou?: T;
+  receivingAccount?:
+    | T
+    | {
+        accountHolder?: T;
+        bankOrProvider?: T;
+        accountNumber?: T;
+        referenceNote?: T;
+      };
+  stripePublishableKey?: T;
+  lastChangedBy?: T;
+  lastChangedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

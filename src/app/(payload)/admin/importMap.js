@@ -23,6 +23,7 @@ import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { TaxonomySelect as TaxonomySelect_8e6f1c6f8b0ab830480886ee3061d10c } from '@/components/admin/TaxonomySelect'
 import { FetchVaticanNews as FetchVaticanNews_ab252082b8339de15811e44cd8622977 } from '@/components/admin/news/FetchVaticanNews'
+import { NewsGrouping as NewsGrouping_c1f0a2b3d4e5f6a7b8c9d0e1f2a3b4c5 } from '@/components/admin/news/NewsGrouping'
 import { ImportYearBanner as ImportYearBanner_1d28316acc630f9dcf8e10929e023102 } from '@/components/admin/calendar/ImportYearBanner'
 import { default as default_d500ae2ad98a0a33d640ae0ac1a3417c } from '@/components/admin/AdminIcon'
 import { default as default_b80a86fce1072afc84cd6a430a965697 } from '@/components/admin/AdminLogo'
@@ -60,6 +61,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/admin/TaxonomySelect#TaxonomySelect": TaxonomySelect_8e6f1c6f8b0ab830480886ee3061d10c,
   "@/components/admin/news/FetchVaticanNews#FetchVaticanNews": FetchVaticanNews_ab252082b8339de15811e44cd8622977,
+  "@/components/admin/news/NewsGrouping#NewsGrouping": NewsGrouping_c1f0a2b3d4e5f6a7b8c9d0e1f2a3b4c5,
   "@/components/admin/calendar/ImportYearBanner#ImportYearBanner": ImportYearBanner_1d28316acc630f9dcf8e10929e023102,
   "@/components/admin/AdminIcon#default": default_d500ae2ad98a0a33d640ae0ac1a3417c,
   "@/components/admin/AdminLogo#default": default_b80a86fce1072afc84cd6a430a965697,

@@ -12,6 +12,19 @@ import { getNewsList, getNewsCategories } from '@/lib/payload/queries'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * Single source of truth for pagination + grid layout.
+ *
+ * PAGE_SIZE is a multiple of the desktop column count (4 → `lg:grid-cols-4`) so
+ * every non-final page fills completely at the 4-up desktop and 2-up tablet
+ * breakpoints. It drives the query limit, the grid, and — via the query —
+ * totalPages, so the three can never drift out of sync. A previous "magazine"
+ * layout carved a 5-item featured block out of the page and rendered the
+ * remaining 7 in a 4-wide grid, leaving one slot empty on every page; a uniform
+ * grid removes that gap.
+ */
+const PAGE_SIZE = 12
+
 export const metadata: Metadata = buildMetadata({
   title: 'News',
   description: 'Latest news and announcements from the Catholic Eparchy of Segeneyti.',
@@ -39,10 +52,9 @@ export default async function NewsPage({
   const t = await getTranslations('news')
 
   const [{ docs, meta }, managedCategories] = await Promise.all([
-    getNewsList({ limit: 12, category, page: currentPage, locale }),
+    getNewsList({ limit: PAGE_SIZE, category, page: currentPage, locale }),
     getNewsCategories(),
   ])
-  const isFiltered = Boolean(category && category !== 'all')
 
   // Filter buttons come from the admin-managed News Categories collection.
   const filterOptions = [
@@ -79,39 +91,16 @@ export default async function NewsPage({
               title="No articles found"
               description="Check back soon for the latest news from the Eparchy."
             />
-          ) : isFiltered ? (
-            /* Filtered by category: show a plain list of every match. Promoting
-               one article to a "Featured" block here made the page look like it
-               was still showing the highlight rather than the filter results. */
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          ) : (
+            /* One uniform grid so every non-final page fills completely.
+               `auto-rows-fr` + `h-full` cards give equal-height rows even when
+               titles wrap to a different number of lines. `lg:grid-cols-4`
+               matches GRID_COLS; PAGE_SIZE is a multiple of it. */
+            <div className="grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {cards.map((item) => (
-                <NewsCard key={item.slug} news={item} variant="compact" />
+                <NewsCard key={item.slug} news={item} variant="compact" className="h-full" />
               ))}
             </div>
-          ) : (
-            <>
-              {/* Magazine block: one large lead story beside a 2×2 grid */}
-              <div className="mb-10 grid gap-6 lg:grid-cols-2">
-                <NewsCard news={cards[0]!} variant="lead" />
-
-                {cards.length > 1 && (
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    {cards.slice(1, 5).map((item) => (
-                      <NewsCard key={item.slug} news={item} variant="compact" />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Remaining stories in a denser row */}
-              {cards.length > 5 && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                  {cards.slice(5).map((item) => (
-                    <NewsCard key={item.slug} news={item} variant="compact" />
-                  ))}
-                </div>
-              )}
-            </>
           )}
 
           {/* Pagination */}

@@ -1155,12 +1155,12 @@ async function _getHomepageGlobal(locale?: string): Promise<HomepageGlobal> {
 export const getHomepageGlobal = cachedQuery(_getHomepageGlobal, 'getHomepageGlobal', ['globals'])
 
 export interface HeaderGlobal {
-  announcement?: {
+  /** Stored under the `header` global as the `announcementBanner` group. */
+  announcementBanner?: {
     enabled?: boolean
-    style?: 'info' | 'warning' | 'success'
+    style?: 'info' | 'warning' | 'urgent'
     message?: string
-    linkLabel?: string
-    linkUrl?: string
+    link?: string
   }
   utilityLinks?: Array<{ label: string; url: string }>
 }
@@ -1181,6 +1181,7 @@ export interface FooterGlobal {
     heading: string
     links: Array<{ label: string; url: string; newTab?: boolean }>
   }>
+  bottomLinks?: Array<{ label: string; url: string }>
   newsletterSignup?: { enabled?: boolean; heading?: string; placeholder?: string }
   showSocialLinks?: boolean
   socialLinks?: {
@@ -1202,6 +1203,44 @@ async function _getFooterGlobal(): Promise<FooterGlobal> {
   }
 }
 export const getFooterGlobal = cachedQuery(_getFooterGlobal, 'getFooterGlobal', ['globals'])
+
+export interface DonationSettingsPublic {
+  enabled?: boolean
+  provider?: 'manual' | 'stripe'
+  presetAmounts?: Array<{ amount: number }>
+  defaultCurrency?: string
+  minAmount?: number
+  maxAmount?: number
+  currencies?: Array<{ code: string; label?: string }>
+  allowCustomAmount?: boolean
+  allowRecurring?: boolean
+  intro?: string
+  manualInstructions?: string
+  thankYou?: string
+  stripePublishableKey?: string
+}
+
+async function _getDonationSettings(locale: string): Promise<DonationSettingsPublic> {
+  try {
+    const payload = await getPayload()
+    const data = (await payload.findGlobal({ slug: 'donation-settings', locale } as any)) as unknown as Record<
+      string,
+      unknown
+    >
+    // Never leak the private receiving account or any secret to the public site,
+    // even though the local API bypasses field access control by default.
+    delete data.receivingAccount
+    delete data.lastChangedBy
+    delete data.lastChangedAt
+    return data as unknown as DonationSettingsPublic
+  } catch {
+    return {}
+  }
+}
+export const getDonationSettings = cachedQuery(_getDonationSettings, 'getDonationSettings', [
+  'globals',
+  'donation-settings',
+])
 
 export interface NavigationGlobal {
   items?: Array<{

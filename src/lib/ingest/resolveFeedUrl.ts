@@ -13,13 +13,13 @@
  * Returns the resolved feed URL, or throws with a message the admin can act on.
  */
 
-import { safeFetch } from './safeFetch'
+import { safeFetchWithRetry, DEFAULT_USER_AGENT } from './safeFetch'
 
-const UA = 'EparchyOfSegeneyti-NewsBot/1.0 (+https://eparchy-of-segeheneyti-web.vercel.app)'
+const UA = DEFAULT_USER_AGENT
 
 async function looksLikeFeed(url: string): Promise<boolean> {
   try {
-    const res = await safeFetch(url, {
+    const res = await safeFetchWithRetry(url, {
       headers: { 'User-Agent': UA, Accept: 'application/rss+xml, application/xml;q=0.9, */*;q=0.8' },
       cache: 'no-store',
     })
@@ -35,7 +35,7 @@ async function looksLikeFeed(url: string): Promise<boolean> {
 }
 
 /** Extract the first RSS/Atom autodiscovery link from an HTML document. */
-function discoverFromHtml(html: string, baseUrl: string): string | null {
+export function discoverFromHtml(html: string, baseUrl: string): string | null {
   // Match <link ... rel="alternate" ... type="application/rss+xml|atom+xml" ... href="...">
   // in either attribute order.
   const linkTags = html.match(/<link\b[^>]*>/gi) ?? []
@@ -82,7 +82,7 @@ export async function resolveFeedUrl(input: string): Promise<{ url: string; chan
 
   // 3. Autodiscovery: read the page and follow its declared feed link.
   try {
-    const res = await safeFetch(raw, { headers: { 'User-Agent': UA }, cache: 'no-store' })
+    const res = await safeFetchWithRetry(raw, { headers: { 'User-Agent': UA }, cache: 'no-store' })
     if (res.ok) {
       const html = (await res.text()).slice(0, 200_000)
       const discovered = discoverFromHtml(html, raw)

@@ -28,7 +28,8 @@
     "contact": "ርክብ",
     "search": "ድለ",
     "apps": "መተግበሪታት",
-    "vicariates": "ቪካርያታት"
+    "vicariates": "ቪካርያታት",
+    "donate": "ወፈያ"
   },
   "common": {
     "readMore": "ዝያዳ ኣንብብ",
@@ -349,5 +350,30 @@
         "desc": "ናብ ዝቐረበኩም ሰበካ ርኸቡ"
       }
     }
+  },
+  "donate": {
+    "title": "ንኤጳርቅ ደግፉ",
+    "subtitle": "ልግስኹም ንተልእኾን ኣገልግሎታትን ናይ ካቶሊካዊ ኤጳርቅ ሰገነይቲ የደልድል።",
+    "amount": "መጠን",
+    "customAmount": "ካልእ መጠን",
+    "currency": "ባጤራ",
+    "frequency": "ድግግም",
+    "oneTime": "ሓደ ግዜ",
+    "monthly": "ወርሓዊ",
+    "name": "ሽምኩም",
+    "email": "ኢመይል",
+    "message": "መልእኽቲ (ኣማራጺ)",
+    "anonymous": "ብዘይ ሽም ወፍዩ",
+    "anonymousHint": "ሽምኩም ኣብ ህዝባዊ ስታቲስቲክስን ዝርዝራትን ኣይረአን።",
+    "donateButton": "ወፍዩ",
+    "submitting": "ይለኣኽ ኣሎ…",
+    "required": "ግድን",
+    "successTitle": "የቐንየልና!",
+    "successMessage": "ስለ ልግስኹም የቐንየልና። ቅብሊት ናብ ኢመይልኩም ተላኢኹ ኣሎ።",
+    "errorGeneric": "ይቕሬታ፡ ወፈያኹም ክንምዝግቦ ኣይከኣልናን። በጃኹም ደጊምኩም ፈትኑ።",
+    "howToTitle": "ወፈያኹም ከመይ ጌርኩም ትፍጽሙ",
+    "disabledTitle": "ወፈያ ግዝያዊ ተኣጊዱ ኣሎ",
+    "disabledMessage": "ሕጂ ኦንላይን ወፈያ ኣይንቕበልን ኣለና። በጃኹም ድሒርኩም ተመለሱ።",
+    "backHome": "ናብ መበገሲ ተመለስ"
   }
 }

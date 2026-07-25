@@ -28,7 +28,8 @@
     "contact": "Contact",
     "search": "Search",
     "apps": "Apps & Downloads",
-    "vicariates": "Vicariates"
+    "vicariates": "Vicariates",
+    "donate": "Donate"
   },
   "common": {
     "readMore": "Read More",
@@ -349,5 +350,30 @@
     "noParishes": "No parishes yet",
     "noParishesDescription": "Parishes assigned to this vicariate will appear here.",
     "allVicariates": "All vicariates"
+  },
+  "donate": {
+    "title": "Support the Eparchy",
+    "subtitle": "Your generosity sustains the mission and ministries of the Catholic Eparchy of Segeneyti.",
+    "amount": "Amount",
+    "customAmount": "Other amount",
+    "currency": "Currency",
+    "frequency": "Frequency",
+    "oneTime": "One-time",
+    "monthly": "Monthly",
+    "name": "Your name",
+    "email": "Email address",
+    "message": "Message (optional)",
+    "anonymous": "Give anonymously",
+    "anonymousHint": "Your name will not appear in public statistics or listings.",
+    "donateButton": "Donate",
+    "submitting": "Submitting…",
+    "required": "Required",
+    "successTitle": "Thank you!",
+    "successMessage": "Thank you for your generous gift. A receipt has been sent to your email.",
+    "errorGeneric": "Sorry, we could not record your donation. Please try again later.",
+    "howToTitle": "How to complete your donation",
+    "disabledTitle": "Donations are paused",
+    "disabledMessage": "Online donations are not being accepted right now. Please check back soon.",
+    "backHome": "Back to home"
   }
 }

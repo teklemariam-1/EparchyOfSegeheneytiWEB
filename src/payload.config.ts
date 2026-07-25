@@ -41,9 +41,11 @@ import { GeezCalendarEntries } from './collections/GeezCalendarEntries/index'
 import { GeezCalendarDays } from './collections/GeezCalendarDays/index'
 import { GeezMonthlyFeasts } from './collections/GeezMonthlyFeasts/index'
 import { ContactSubmissions } from './collections/ContactSubmissions/index'
+import { Donations } from './collections/Donations/index'
 
 // ── Globals ───────────────────────────────────────────────────────────────────
 import { SiteSettings } from './globals/SiteSettings/index'
+import { DonationSettings } from './globals/DonationSettings/index'
 import { Header } from './globals/Header/index'
 import { Footer } from './globals/Footer/index'
 import { Homepage } from './globals/Homepage/index'
@@ -152,6 +154,7 @@ export default buildConfig({
     GeezCalendarDays,
     GeezMonthlyFeasts,
     ContactSubmissions,
+    Donations,
   ],
 
   // ── Globals ───────────────────────────────────────────────────────────────────
@@ -163,6 +166,7 @@ export default buildConfig({
     Navigation,
     AboutPage,
     BannerSettings,
+    DonationSettings,
   ],
 
   // ── Editor ───────────────────────────────────────────────────────────────────

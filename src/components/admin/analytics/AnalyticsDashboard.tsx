@@ -13,11 +13,14 @@ import {
   getEngagementStats,
   getMediaStats,
   getUserSecurityStats,
+  getDonationStats,
 } from '@/lib/payload/analytics-queries'
 import { LineChart, DonutChart, BarList, CHART_COLORS } from './charts'
 import { DateRangeControls } from './DateRangeControls'
 import { ExportPdfButton } from './ExportPdfButton'
 import { CountryTable } from './CountryTable'
+import { GroupedTable } from '../shared/GroupedTable'
+import type { GroupFilter } from '@/lib/payload/aggregationConfig'
 
 function todayIsoAsmara(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Asmara' }).format(new Date())
@@ -85,13 +88,19 @@ export async function AnalyticsDashboard({
   const today = todayIsoAsmara()
   const range = resolveDateRange(p('range'), today, p('from'), p('to'))
 
-  const [visitors, content, engagement, media, security] = await Promise.all([
+  const [visitors, content, engagement, media, security, donations] = await Promise.all([
     getVisitorAnalytics(range.from, range.to),
     getContentStats(),
     getEngagementStats(range.from, range.to),
     getMediaStats(),
     getUserSecurityStats(),
+    getDonationStats(range.from, range.to, today),
   ])
+
+  const donationTotalLabel =
+    donations.totalsByCurrency.length > 0
+      ? donations.totalsByCurrency.map((t) => `${t.sum.toLocaleString()} ${t.currency}`).join(' · ')
+      : '—'
 
   const days = Math.max(visitors.daily.length, 1)
   const pagesPerVisit = visitors.sessions > 0 ? (visitors.pageViews / visitors.sessions).toFixed(1) : '—'
@@ -218,6 +227,23 @@ export async function AnalyticsDashboard({
         <CountryTable rows={countryRows} />
       </Section>
 
+      <Section
+        title="Group & aggregate"
+        hint="Pick one or more columns to group by (dimension, key, country, date). Rows shows the number of underlying records; the measure column sums visits/views. Respects the date range above."
+      >
+        <GroupedTable
+          collection="visitor-stats"
+          initialGroupBy={['dimension']}
+          initialBucket="month"
+          baseFilters={
+            [
+              { key: 'date', op: 'lte', value: `${range.to}T23:59:59.999Z` },
+              ...(range.from ? [{ key: 'date', op: 'gte', value: `${range.from}T00:00:00.000Z` }] : []),
+            ] as GroupFilter[]
+          }
+        />
+      </Section>
+
       <div style={grid(320)}>
         <Section title="Popular content areas" hint="Page views grouped by section.">
           <BarList color={CHART_COLORS[2]} items={visitors.byBucket.slice(0, 10).map((b) => ({ label: b.bucket, value: b.count }))} />
@@ -335,6 +361,86 @@ export async function AnalyticsDashboard({
           )}
         </Section>
       </div>
+
+      {/* ── Donations ────────────────────────────────────────────────────── */}
+      <div style={grid(150)}>
+        <StatCard label="Total raised (all-time)" value={donationTotalLabel} />
+        <StatCard label="Donations" value={donations.countAllTime.toLocaleString()} sub={`${donations.pendingCount} pending`} />
+        <StatCard label="This year" value={donations.countYear.toLocaleString()} />
+        <StatCard label="This month" value={donations.countMonth.toLocaleString()} sub={`${donations.countToday} today`} />
+        <StatCard label="Unique donors" value={donations.uniqueDonors.toLocaleString()} />
+        <StatCard
+          label="Average gift"
+          value={
+            donations.totalsByCurrency.length === 1 && donations.totalsByCurrency[0]!.count > 0
+              ? `${Math.round(donations.totalsByCurrency[0]!.sum / donations.totalsByCurrency[0]!.count).toLocaleString()} ${donations.totalsByCurrency[0]!.currency}`
+              : '—'
+          }
+          sub={donations.totalsByCurrency.length > 1 ? 'multiple currencies' : undefined}
+        />
+      </div>
+
+      {donations.daily.length > 0 && (
+        <Section title="Donations over time" hint="Daily donation count in the selected range.">
+          <LineChart
+            labels={donations.daily.map((d) => d.date)}
+            series={[{ label: 'Donations', color: CHART_COLORS[2]!, points: donations.daily.map((d) => d.count) }]}
+          />
+        </Section>
+      )}
+
+      <div style={grid(340)}>
+        <Section title="Recent donations" hint="Anonymous donors are shown as “Anonymous”.">
+          {donations.recent.length === 0 ? (
+            <p style={{ fontSize: 13, opacity: 0.6 }}>No donations recorded yet.</p>
+          ) : (
+            <div style={{ display: 'grid', gap: 4, fontSize: 13 }}>
+              {donations.recent.map((d, i) => (
+                <div
+                  key={i}
+                  style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '4px 0', borderBottom: '1px solid var(--theme-elevation-50)' }}
+                >
+                  <span style={{ color: 'var(--theme-elevation-700)' }}>
+                    {d.name}
+                    <span style={{ opacity: 0.55, marginLeft: 6 }}>
+                      {d.createdAt.slice(0, 10)}
+                      {d.status !== 'received' ? ` · ${d.status}` : ''}
+                    </span>
+                  </span>
+                  <b style={{ whiteSpace: 'nowrap' }}>
+                    {d.amount.toLocaleString()} {d.currency}
+                    {d.frequency === 'monthly' ? '/mo' : ''}
+                  </b>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        <Section title="Total raised by currency">
+          {donations.totalsByCurrency.length === 0 ? (
+            <p style={{ fontSize: 13, opacity: 0.6 }}>No donations recorded yet.</p>
+          ) : (
+            <div style={{ display: 'grid', gap: 6, fontSize: 13 }}>
+              {donations.totalsByCurrency.map((t) => (
+                <div key={t.currency} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>
+                    {t.currency} <span style={{ opacity: 0.55 }}>· {t.count} gift{t.count === 1 ? '' : 's'}</span>
+                  </span>
+                  <b>{t.sum.toLocaleString()}</b>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+      </div>
+
+      <Section
+        title="Donations — group & aggregate"
+        hint="Group by date, currency, method, status or frequency. Rows counts donations; Amount raised sums them (group by currency to keep currencies separate)."
+      >
+        <GroupedTable collection="donations" initialGroupBy={['currency']} initialBucket="month" />
+      </Section>
 
       <p style={{ fontSize: 11, color: 'var(--theme-elevation-400)', margin: 0, lineHeight: 1.6 }}>
         Tracking is anonymous by design: only daily aggregate counters are stored (no IPs, cookies or

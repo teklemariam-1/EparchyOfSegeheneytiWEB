@@ -76,6 +76,13 @@ export async function SiteFooter() {
   const [t, tn] = await Promise.all([getTranslations('footer'), getTranslations('nav')])
 
   const columns = footer.columns?.length ? footer.columns : defaultFooterColumns(tn)
+  const bottomLinks = footer.bottomLinks?.length
+    ? footer.bottomLinks
+    : [
+        { label: tn('contact'), url: '/contact' },
+        { label: tn('search'), url: '/search' },
+        { label: t('privacyPolicy'), url: '/privacy' },
+      ]
 
   return (
     <footer className="bg-maroon-950 text-charcoal-200">
@@ -178,21 +185,18 @@ export async function SiteFooter() {
           )}
         </div>
 
-        {/* Bottom bar */}
+        {/* Bottom bar — CMS-driven links, falling back to sensible defaults. */}
         <div className="mt-12 pt-6 border-t border-maroon-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-charcoal-500">
           <p>{footer.copyrightText ?? `© ${year} Catholic Eparchy of Segeneyti. All rights reserved.`}</p>
           <div className="flex gap-4">
-            <Link href="/contact" className="hover:text-charcoal-300 transition-colors">
-              {tn('contact')}
-            </Link>
-            <span aria-hidden="true">·</span>
-            <Link href="/search" className="hover:text-charcoal-300 transition-colors">
-              {tn('search')}
-            </Link>
-            <span aria-hidden="true">·</span>
-            <Link href="/privacy" className="hover:text-charcoal-300 transition-colors">
-              {t('privacyPolicy')}
-            </Link>
+            {bottomLinks.map((link, i) => (
+              <span key={`${link.url}-${i}`} className="flex items-center gap-4">
+                {i > 0 && <span aria-hidden="true">·</span>}
+                <Link href={link.url} className="hover:text-charcoal-300 transition-colors">
+                  {link.label}
+                </Link>
+              </span>
+            ))}
           </div>
         </div>
       </div>

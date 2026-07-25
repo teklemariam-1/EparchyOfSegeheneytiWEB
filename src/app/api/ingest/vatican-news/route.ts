@@ -2,7 +2,7 @@ import { timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { getPayload } from '@/lib/payload/client'
 import {
-  fetchFeedByUrl,
+  probeFeed,
   buildDraftBody,
   VATICAN_NEWS_FEEDS,
   type FeedItem,
@@ -60,6 +60,7 @@ interface ResolvedSource {
   target: 'news' | 'pope-messages'
   category: string
   documentType: string
+  consecutiveFailures: number
 }
 
 /**
@@ -70,22 +71,29 @@ interface ResolvedSource {
  * disabled them all — fall back to the built-in Vatican News feed so the job
  * still does something useful rather than silently importing nothing.
  */
+function builtInSource(key: VaticanFeedKey = 'all'): ResolvedSource {
+  return {
+    name: 'Vatican News',
+    url: VATICAN_NEWS_FEEDS[key],
+    target: 'news',
+    category: 'vatican',
+    documentType: 'message',
+    consecutiveFailures: 0,
+  }
+}
+
 async function resolveSources(
   payload: Awaited<ReturnType<typeof getPayload>>,
   feedParam: string | null,
 ): Promise<ResolvedSource[]> {
-  // An explicit ?feed=pope|world|all still targets the built-in feed, so the
-  // existing cron entry and any bookmarked URL keep working unchanged.
-  if (feedParam && feedParam in VATICAN_NEWS_FEEDS) {
-    return [
-      {
-        name: 'Vatican News',
-        url: VATICAN_NEWS_FEEDS[feedParam as VaticanFeedKey],
-        target: 'news',
-        category: 'vatican',
-        documentType: 'message',
-      },
-    ]
+  // `?feed=pope|world` still targets a specific built-in Vatican feed, so those
+  // bookmarked URLs keep working. Everything else — including `feed=all` (used
+  // by the cron and the admin button) and no param at all — now iterates the
+  // FeedSources collection. This is the core fix: previously `feed=all` mapped
+  // to the single built-in English feed and the configured sources (Tigrinya
+  // etc.) were NEVER fetched by any shipped trigger.
+  if (feedParam === 'pope' || feedParam === 'world') {
+    return [builtInSource(feedParam as VaticanFeedKey)]
   }
 
   try {
@@ -97,29 +105,25 @@ async function resolveSources(
       overrideAccess: true,
     } as any)
 
-    const sources = (result.docs as any[]).map((d) => ({
-      id: String(d.id),
-      name: d.name,
-      url: String(d.url ?? '').trim(),
-      target: (d.target === 'pope-messages' ? 'pope-messages' : 'news') as ResolvedSource['target'],
-      category: d.category ?? 'vatican',
-      documentType: d.documentType ?? 'message',
-    })).filter((s) => s.url)
+    const sources: ResolvedSource[] = (result.docs as any[])
+      .map((d) => ({
+        id: String(d.id),
+        name: d.name,
+        url: String(d.url ?? '').trim(),
+        target: (d.target === 'pope-messages' ? 'pope-messages' : 'news') as ResolvedSource['target'],
+        category: d.category ?? 'vatican',
+        documentType: d.documentType ?? 'message',
+        consecutiveFailures: Number(d.consecutiveFailures ?? 0),
+      }))
+      .filter((s) => s.url)
 
     if (sources.length > 0) return sources
   } catch {
     // Collection missing (pre-migration) — fall through to the built-in feed.
   }
 
-  return [
-    {
-      name: 'Vatican News',
-      url: VATICAN_NEWS_FEEDS.all,
-      target: 'news',
-      category: 'vatican',
-      documentType: 'message',
-    },
-  ]
+  // Fresh install / all sources disabled: still do something useful.
+  return [builtInSource('all')]
 }
 
 const MAX_IMAGE_BYTES = 10_000_000
@@ -224,32 +228,73 @@ export async function POST(req: Request) {
   const limit = Math.min(Number(url.searchParams.get('limit')) || 15, 50)
   const from = url.searchParams.get('from') ?? undefined
   const to = url.searchParams.get('to') ?? undefined
+  // Dry-run: probe every configured source and return a diagnostic report
+  // (status, format, item count, error) WITHOUT importing anything.
+  const diagnose = ['1', 'true', 'yes'].includes(
+    (url.searchParams.get('diagnose') ?? '').toLowerCase(),
+  )
 
   try {
     const payload = await getPayload()
     const sources = await resolveSources(payload, feedParam)
 
+    if (diagnose) {
+      const report = []
+      for (const source of sources) {
+        const probe = await probeFeed(source.url, limit, { from, to })
+        report.push({
+          source: source.name,
+          url: source.url,
+          finalUrl: probe.finalUrl !== source.url ? probe.finalUrl : undefined,
+          httpStatus: probe.httpStatus,
+          format: probe.format,
+          items: probe.itemCount,
+          ok: probe.ok,
+          error: probe.error,
+        })
+        await stampSource(payload, source, probe, { created: 0, skipped: 0 })
+      }
+      return NextResponse.json({ ok: true, diagnose: true, sources: report })
+    }
+
     let created = 0
     let skipped = 0
     const errors: string[] = []
-    const perSource: Array<{ source: string; created: number; skipped: number; error?: string }> = []
+    const perSource: Array<{
+      source: string
+      url?: string
+      httpStatus?: number | null
+      format?: string
+      items?: number
+      created: number
+      skipped: number
+      error?: string
+    }> = []
 
     for (const source of sources) {
-      let items: FeedItem[] = []
       let sourceCreated = 0
       let sourceSkipped = 0
 
       // One unreachable or malformed feed must not abort the others. Record the
       // failure against that source and carry on.
-      try {
-        items = await fetchFeedByUrl(source.url, limit, { from, to })
-      } catch (err) {
-        const msg = String(err).slice(0, 140)
+      const probe = await probeFeed(source.url, limit, { from, to })
+      if (!probe.ok) {
+        const msg = (probe.error ?? 'unknown error').slice(0, 140)
         errors.push(`${source.name}: ${msg}`)
-        perSource.push({ source: source.name, created: 0, skipped: 0, error: msg })
-        await stampSource(payload, source, `Failed: ${msg}`)
+        perSource.push({
+          source: source.name,
+          url: source.url,
+          httpStatus: probe.httpStatus,
+          format: probe.format,
+          items: 0,
+          created: 0,
+          skipped: 0,
+          error: msg,
+        })
+        await stampSource(payload, source, probe, { created: 0, skipped: 0 })
         continue
       }
+      const items: FeedItem[] = probe.items
 
       for (const item of items) {
         try {
@@ -336,8 +381,19 @@ export async function POST(req: Request) {
 
       created += sourceCreated
       skipped += sourceSkipped
-      perSource.push({ source: source.name, created: sourceCreated, skipped: sourceSkipped })
-      await stampSource(payload, source, `${sourceCreated} created, ${sourceSkipped} skipped`)
+      perSource.push({
+        source: source.name,
+        url: source.url,
+        httpStatus: probe.httpStatus,
+        format: probe.format,
+        items: probe.itemCount,
+        created: sourceCreated,
+        skipped: sourceSkipped,
+      })
+      await stampSource(payload, source, probe, {
+        created: sourceCreated,
+        skipped: sourceSkipped,
+      })
     }
 
     return NextResponse.json({
@@ -357,19 +413,40 @@ export async function POST(req: Request) {
   }
 }
 
-/** Record the outcome on the source so staff can see it in the admin. */
+/**
+ * Record the outcome on the source so staff can see per-source health in admin.
+ *
+ * Tracks consecutive failures so the health column distinguishes a one-off blip
+ * (degraded) from a source that is consistently broken (failing after 3).
+ */
 async function stampSource(
   payload: Awaited<ReturnType<typeof getPayload>>,
   source: ResolvedSource,
-  status: string,
+  probe: { ok: boolean; httpStatus: number | null; format: string; itemCount: number; error?: string },
+  counts: { created: number; skipped: number },
 ): Promise<void> {
   if (!source.id) return
+
+  const failures = probe.ok ? 0 : source.consecutiveFailures + 1
+  const healthStatus = probe.ok ? 'healthy' : failures >= 3 ? 'failing' : 'degraded'
+  const lastStatus = probe.ok
+    ? `${counts.created} created, ${counts.skipped} skipped (${probe.itemCount} in feed, ${probe.format.toUpperCase()})`
+    : `Failed: ${(probe.error ?? 'unknown error').slice(0, 140)}`
+
   try {
     await payload.update({
       collection: 'feed-sources',
       id: source.id,
       overrideAccess: true,
-      data: { lastFetchedAt: new Date().toISOString(), lastStatus: status } as any,
+      data: {
+        lastFetchedAt: new Date().toISOString(),
+        lastStatus,
+        lastError: probe.ok ? null : (probe.error ?? 'unknown error').slice(0, 200),
+        healthStatus,
+        consecutiveFailures: failures,
+        feedFormat: probe.format,
+        lastItemCount: probe.ok ? probe.itemCount : source.consecutiveFailures ? undefined : 0,
+      } as any,
     })
   } catch {
     // Reporting must never fail the import itself.

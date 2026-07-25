@@ -74,6 +74,10 @@ export async function assertPublicUrl(input: string): Promise<URL> {
   return url
 }
 
+/** Honest bot identifier sent on every ingest request unless a caller overrides it. */
+export const DEFAULT_USER_AGENT =
+  'EparchyOfSegeneyti-NewsBot/1.0 (+https://eparchy-of-segeheneyti-web.vercel.app)'
+
 /** fetch() after the SSRF guard, with a hard timeout (default 10s). */
 export async function safeFetch(
   input: string,
@@ -81,5 +85,50 @@ export async function safeFetch(
   timeoutMs = 10_000,
 ): Promise<Response> {
   await assertPublicUrl(input)
-  return fetch(input, { ...init, signal: AbortSignal.timeout(timeoutMs) })
+  // Guarantee a User-Agent — some feed hosts (and CDNs/WAFs) 403 requests that
+  // send none. Callers can still override by passing their own header.
+  const headers = new Headers(init.headers)
+  if (!headers.has('user-agent')) headers.set('User-Agent', DEFAULT_USER_AGENT)
+  return fetch(input, { ...init, headers, redirect: 'follow', signal: AbortSignal.timeout(timeoutMs) })
+}
+
+export interface RetryOptions {
+  timeoutMs?: number
+  /** Total attempts including the first. Default 3. */
+  attempts?: number
+  /** Base backoff in ms; doubles each retry. Default 400. */
+  backoffMs?: number
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+/**
+ * safeFetch with retry + exponential backoff.
+ *
+ * Retries transient failures — network errors, timeouts, 429 and 5xx — so a
+ * single slow response or blip doesn't mark an otherwise-healthy source as
+ * failing. 4xx (other than 429) are returned immediately: they won't fix
+ * themselves on retry. SSRF/validation errors from assertPublicUrl are never
+ * retried.
+ */
+export async function safeFetchWithRetry(
+  input: string,
+  init: RequestInit = {},
+  { timeoutMs = 10_000, attempts = 3, backoffMs = 400 }: RetryOptions = {},
+): Promise<Response> {
+  let lastError: unknown
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const res = await safeFetch(input, init, timeoutMs)
+      if (res.ok || (res.status !== 429 && res.status < 500)) return res
+      lastError = new Error(`HTTP ${res.status}`)
+    } catch (err) {
+      // A non-ret[r]yable SSRF/protocol rejection should surface immediately.
+      const msg = String((err as Error)?.message ?? err)
+      if (/Only http|private or reserved|local address|Invalid URL|resolve/i.test(msg)) throw err
+      lastError = err
+    }
+    if (attempt < attempts) await sleep(backoffMs * 2 ** (attempt - 1))
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError))
 }

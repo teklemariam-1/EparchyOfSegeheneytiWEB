@@ -13,7 +13,10 @@ export const News: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/news/${(doc as any).slug}`,
     components: {
       // On-demand Vatican News import, so staff need not wait for the 6-hourly cron.
-      beforeListTable: ['@/components/admin/news/FetchVaticanNews#FetchVaticanNews'],
+      beforeListTable: [
+        '@/components/admin/news/FetchVaticanNews#FetchVaticanNews',
+        '@/components/admin/news/NewsGrouping#NewsGrouping',
+      ],
     },
   },
   access: {
