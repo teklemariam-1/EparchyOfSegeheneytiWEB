@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { PERMISSIONS, PRESET_PERMISSIONS, isKnownPermission } from '../permissions'
+import { PERMISSIONS, PRESET_PERMISSIONS, isKnownPermission, permissionLabel } from '../permissions'
 import { getEffectivePermissions } from '../resolve'
 import { ROLES } from '../../constants/roles'
 
@@ -25,6 +25,33 @@ describe('the catalog', () => {
     for (const permission of PERMISSIONS) expect(isKnownPermission(permission)).toBe(true)
     expect(isKnownPermission('news.destroy')).toBe(false)
     expect(isKnownPermission('')).toBe(false)
+  })
+})
+
+describe('permissionLabel', () => {
+  it.each([
+    ['news.create', 'News · Create'],
+    ['media.view-restricted', 'Media · View Restricted'],
+    ['globals.about-page.edit', 'Globals · About Page · Edit'],
+    ['contact-submissions.publish-qa', 'Contact Submissions · Publish Q&A'],
+    ['geez-calendar.import', "Ge'ez Calendar · Import"],
+    ['small-christian-communities.manage-own', 'Small Christian Communities · Manage Own'],
+    ['system.maintenance-mode', 'System · Maintenance Mode'],
+  ])('renders %s as "%s"', (permission, expected) => {
+    expect(permissionLabel(permission)).toBe(expected)
+  })
+
+  it('produces a distinct label for every catalog entry', () => {
+    // Two permissions sharing a label would be indistinguishable in the picker.
+    const labels = PERMISSIONS.map(permissionLabel)
+    expect(new Set(labels).size).toBe(PERMISSIONS.length)
+  })
+
+  it('never leaves a raw separator in the output', () => {
+    for (const permission of PERMISSIONS) {
+      const label = permissionLabel(permission)
+      expect(label).not.toMatch(/[._-]/)
+    }
   })
 })
 

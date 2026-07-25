@@ -82,6 +82,29 @@ export function isKnownPermission(value: string): value is Permission {
   return PERMISSION_SET.has(value)
 }
 
+/** Words the plain title-casing would get wrong. */
+const WORD_OVERRIDES: Record<string, string> = { qa: 'Q&A', geez: "Ge'ez" }
+
+function titleize(segment: string): string {
+  return segment
+    .split(/[-_]/)
+    .map((word) => WORD_OVERRIDES[word] ?? word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+/**
+ * Human label for a permission — 'globals.about-page.edit' reads as
+ * "Globals · About page · Edit".
+ *
+ * Presentation only: the stored value is always the catalog string, so what the
+ * resolver checks is unchanged. Used by the per-user override pickers, where a
+ * flat list of raw dotted strings is hard to scan.
+ */
+export function permissionLabel(permission: Permission | string): string {
+  const parts = permission.split('.')
+  return parts.map(titleize).join(' · ')
+}
+
 /**
  * Every content permission a chancery-editor holds. Extracted so the preset stays
  * readable; equals "all content .create/.update/.delete/.publish that existed as

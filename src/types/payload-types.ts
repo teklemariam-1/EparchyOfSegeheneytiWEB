@@ -216,7 +216,7 @@ export interface User {
    */
   expiresAt?: string | null;
   /**
-   * Extra permissions on top of the role preset.
+   * Extra permissions this person gets on top of their role.
    */
   permissionsGrant?:
     | (
@@ -320,7 +320,7 @@ export interface User {
       )[]
     | null;
   /**
-   * Permissions taken away from the role preset. Revoke wins over grant.
+   * Permissions taken away from their role. Revoking beats granting, so listing the same permission in both leaves it denied.
    */
   permissionsRevoke?:
     | (

@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 import { can, canField, hideUnless } from '../../lib/permissions/access'
-import { PERMISSIONS } from '../../lib/permissions/permissions'
+import { PERMISSIONS, permissionLabel } from '../../lib/permissions/permissions'
 import { hasPermission, type AuthUser } from '../../lib/permissions/resolve'
 import {
   guardUserBeforeChange,
@@ -27,10 +27,12 @@ function assertStrongPassword(password: unknown): void {
 }
 
 /**
- * Override pickers list the catalog verbatim: the permission string IS the label,
- * so what an administrator picks is exactly what the resolver checks.
+ * Options for the override pickers, in catalog order — which groups them by area
+ * (content, then taxonomies, media, administration, globals) rather than
+ * alphabetically, so related permissions sit together in the list. The value is
+ * always the raw catalog string the resolver checks; only the label is dressed up.
  */
-const PERMISSION_OPTIONS = PERMISSIONS.map((p) => ({ label: p, value: p }))
+const PERMISSION_OPTIONS = PERMISSIONS.map((p) => ({ label: permissionLabel(p), value: p }))
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -141,24 +143,36 @@ export const Users: CollectionConfig = {
       },
     },
     {
-      name: 'permissionsGrant',
-      type: 'select',
-      hasMany: true,
-      options: PERMISSION_OPTIONS,
-      access: { update: canField('users.manage') },
+      type: 'collapsible',
+      label: 'Permission overrides',
       admin: {
-        description: 'Extra permissions on top of the role preset.',
+        initCollapsed: true,
+        description:
+          'Only needed when this person should differ from their role. Leave both empty and the role preset applies as-is.',
       },
-    },
-    {
-      name: 'permissionsRevoke',
-      type: 'select',
-      hasMany: true,
-      options: PERMISSION_OPTIONS,
-      access: { update: canField('users.manage') },
-      admin: {
-        description: 'Permissions taken away from the role preset. Revoke wins over grant.',
-      },
+      fields: [
+        {
+          name: 'permissionsGrant',
+          type: 'select',
+          hasMany: true,
+          options: PERMISSION_OPTIONS,
+          access: { update: canField('users.manage') },
+          admin: {
+            description: 'Extra permissions this person gets on top of their role.',
+          },
+        },
+        {
+          name: 'permissionsRevoke',
+          type: 'select',
+          hasMany: true,
+          options: PERMISSION_OPTIONS,
+          access: { update: canField('users.manage') },
+          admin: {
+            description:
+              'Permissions taken away from their role. Revoking beats granting, so listing the same permission in both leaves it denied.',
+          },
+        },
+      ],
     },
     {
       name: 'assignedParish',
