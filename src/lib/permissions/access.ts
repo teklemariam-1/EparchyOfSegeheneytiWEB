@@ -50,12 +50,36 @@ export function crud(
 }
 
 /**
+ * Normalizes a relationship value to a comparable id string. Payload hands the
+ * same field back as a bare id, a populated document, or a numeric id depending
+ * on depth and on whether the value came from REST or the local API — comparing
+ * those raw makes the scope check fail open or shut for the wrong reasons.
+ */
+function idOf(value: unknown): string | number | undefined {
+  if (value === null || value === undefined) return undefined
+  if (typeof value === 'object') {
+    const nested = (value as { id?: unknown }).id
+    return nested === null || nested === undefined ? undefined : (nested as string | number)
+  }
+  return value as string | number
+}
+
+/** Ids compare across representations ('7' from REST vs 7 from the local API). */
+function sameId(a: string | number | undefined, b: string | number | undefined): boolean {
+  return a !== undefined && b !== undefined && String(a) === String(b)
+}
+
+/**
  * Parish-scoped access: holders of `fullPermission` (chancery/super) get
  * everything; holders of only `ownPermission` (parish-editor) are constrained to
  * documents whose `parishField` equals their `assignedParish`. Others: denied.
  *
  * On create, checks the incoming data; on read/update/delete, returns a
  * where-constraint so Payload filters the list rather than returning a bare bool.
+ *
+ * An own-permission holder with no parish assigned is scoped to nothing, not to
+ * everything: without that guard, comparing two absent values matches, so an
+ * unassigned editor could create documents that carry no parish at all.
  */
 export function canManageOwnParish(
   fullPermission: Permission,
@@ -63,19 +87,21 @@ export function canManageOwnParish(
   parishField = 'parish',
 ): Access {
   return ({ req, id, data }) => {
-    const user = req.user as (AuthUser & { assignedParish?: string | null }) | null
+    const user = req.user as (AuthUser & { assignedParish?: unknown }) | null
     if (!user) return false
     if (hasPermission(user, fullPermission)) return true
     if (!hasPermission(user, ownPermission)) return false
 
+    const ownParish = idOf(user.assignedParish)
+    if (ownParish === undefined) return false
+
     // Create: validate the incoming parish matches the user's assignment.
     if (!id && data) {
-      const raw = (data as Record<string, unknown>)[parishField]
-      const parishId = raw && typeof raw === 'object' ? (raw as { id?: string }).id : raw
-      return parishId === user.assignedParish
+      return sameId(idOf((data as Record<string, unknown>)[parishField]), ownParish)
     }
-    // Read/update/delete: scope by where-clause.
-    return { [parishField]: { equals: user.assignedParish } } as unknown as boolean
+    // Read/update/delete: scope by where-clause. The id keeps its original type
+    // so the query still matches an integer column.
+    return { [parishField]: { equals: ownParish } } as unknown as boolean
   }
 }
 
