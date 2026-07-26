@@ -250,12 +250,19 @@ migration.
 
 ## Applying the migration to production
 
-`main` does not auto-deploy (`vercel.json` sets
-`git.deploymentEnabled.main = false`), so this ships only when a deploy is run
-deliberately.
+Vercel's own git integration is off for `main` (`vercel.json` sets
+`git.deploymentEnabled.main = false`). Deployment goes through GitHub Actions
+instead: pushing to `main` runs **CI** (lint, type-check, tests) and, only if
+that passes, the **Deploy** workflow, which runs `payload migrate` and then
+`vercel deploy --prod`. `npm run vercel-build` does *not* run migrations —
+`.github/workflows/deploy.yml` does.
 
-Production is **migrations only** — `push` is disabled outside development.
-`npm run vercel-build` runs `payload migrate` as part of the build.
+> ⚠ **Local development writes to the production database.** `DATABASE_URI` in
+> `.env.local` currently points at the same Neon database as production, and
+> `payload.config.ts` enables Drizzle's schema `push` whenever `NODE_ENV` is not
+> `production`. So `npm run dev` applies schema changes straight to production,
+> with no migration recorded. Point `.env.local` at a Neon branch or a local
+> Postgres before doing further schema work.
 
 The migration `20260726_054250_stripe_donations`:
 
