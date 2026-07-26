@@ -107,6 +107,16 @@ export const DonationSettings: GlobalConfig = {
     ],
   },
   fields: [
+    // Reports what the SERVER has, since Stripe credentials are environment
+    // variables rather than fields. Without this, choosing a card method below
+    // appears to do nothing and there is no way to tell why.
+    {
+      name: 'stripeStatus',
+      type: 'ui',
+      admin: {
+        components: { Field: '@/components/admin/donations/StripeStatus#StripeStatus' },
+      },
+    },
     {
       name: 'enabled',
       type: 'checkbox',
