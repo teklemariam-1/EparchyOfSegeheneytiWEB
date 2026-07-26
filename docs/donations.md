@@ -47,6 +47,12 @@ on in production:
 Until then, leave `STRIPE_SECRET_KEY` unset. The card option disappears
 automatically and donations fall back to manual transfer; nothing breaks.
 
+**[stripe-entity-options.md](./stripe-entity-options.md)** lays out the three
+realistic routes — a partner organisation's donate page, a diaspora support
+association, or fiscal sponsorship — with costs, timelines and a recommendation.
+Note that the integration can be exercised end to end **today** using Stripe
+test keys, which need no entity and no verification.
+
 ---
 
 ## Configuration (`donation-settings` global)
