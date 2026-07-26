@@ -2,10 +2,13 @@
 
 import { randomBytes } from 'crypto'
 import { getPayload } from '@/lib/payload/client'
+import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
 
 export interface NewsletterState {
   ok: boolean
   message: string
+  /** Key into the `forms` catalogue, when the message is a translatable rejection. */
+  messageKey?: FormRejectionKey
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -33,6 +36,21 @@ export async function subscribeToNewsletter(
   // Honeypot — a hidden field bots fill and humans never see.
   if (String(formData.get('company') ?? '').trim()) {
     return { ok: true, message: 'Please check your inbox to confirm your subscription.' }
+  }
+
+  // Tighter than the other forms because this one SENDS MAIL to an
+  // attacker-chosen address: unlimited, it is a way to bomb someone's inbox
+  // from our domain and burn the sending quota that carries our real email.
+  const guard = await guardFormSubmission({
+    action: 'newsletter',
+    limit: 3,
+    windowSeconds: 900,
+    formData,
+  })
+  if (!guard.ok) {
+    return guard.silent
+      ? { ok: true, message: 'Please check your inbox to confirm your subscription.' }
+      : { ok: false, message: guard.message, messageKey: guard.messageKey }
   }
 
   const email = String(formData.get('email') ?? '').trim().toLowerCase()

@@ -375,5 +375,10 @@
     "disabledTitle": "Donations are paused",
     "disabledMessage": "Online donations are not being accepted right now. Please check back soon.",
     "backHome": "Back to home"
+  },
+  "forms": {
+    "formExpired": "This form was open too long. Please reload the page and send it again.",
+    "rateLimited": "You have sent several messages already. Please wait a few minutes and try again.",
+    "challengeFailed": "We could not verify that you are human. Please reload the page and try again."
   }
 }

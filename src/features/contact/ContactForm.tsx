@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { submitContactForm, type ContactFormState } from '@/app/actions/contact'
+import { FormProtection } from '@/components/shared/FormProtection'
 
 // Value stays the stable English label (so stored submissions are consistent
 // across locales); only the displayed text is translated.
@@ -42,7 +43,12 @@ function SubmitButton() {
  */
 export function ContactForm({ privacyNotice }: { privacyNotice?: string }) {
   const t = useTranslations('contact')
+  // Rejections from the shared abuse guard come back as a catalogue key so they
+  // can be shown in the visitor's language; everything else is already-composed
+  // text from the action.
+  const tForms = useTranslations('forms')
   const [state, formAction] = useActionState(submitContactForm, initialState)
+  const errorText = state.messageKey ? tForms(state.messageKey) : state.message
 
   if (state.ok) {
     return (
@@ -70,13 +76,16 @@ export function ContactForm({ privacyNotice }: { privacyNotice?: string }) {
         />
       </div>
 
+      {/* Signed render timestamp + Turnstile widget (when staff enable it). */}
+      <FormProtection />
+
       {/* Error banner */}
       {state.message && !state.ok && (
         <div
           role="alert"
           className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
         >
-          {state.message}
+          {errorText}
         </div>
       )}
 

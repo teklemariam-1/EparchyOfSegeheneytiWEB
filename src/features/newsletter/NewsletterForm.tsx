@@ -1,7 +1,9 @@
 'use client'
 
 import { useActionState } from 'react'
+import { useTranslations } from 'next-intl'
 import { subscribeToNewsletter, type NewsletterState } from '@/app/actions/newsletter'
+import { FormProtection } from '@/components/shared/FormProtection'
 
 const initialState: NewsletterState = { ok: false, message: '' }
 
@@ -17,6 +19,9 @@ interface NewsletterFormProps {
  */
 export function NewsletterForm({ heading, placeholder, locale = 'en' }: NewsletterFormProps) {
   const [state, formAction, pending] = useActionState(subscribeToNewsletter, initialState)
+  // Abuse-guard rejections arrive as a catalogue key so the footer form can show
+  // them in the visitor's language.
+  const tForms = useTranslations('forms')
 
   return (
     <div>
@@ -35,7 +40,7 @@ export function NewsletterForm({ heading, placeholder, locale = 'en' }: Newslett
           }`}
           role={state.ok ? 'status' : 'alert'}
         >
-          {state.message}
+          {state.messageKey ? tForms(state.messageKey) : state.message}
         </p>
       ) : null}
 
@@ -47,6 +52,9 @@ export function NewsletterForm({ heading, placeholder, locale = 'en' }: Newslett
             <label htmlFor="nl-company">Company (leave empty)</label>
             <input id="nl-company" name="company" type="text" tabIndex={-1} autoComplete="off" />
           </div>
+
+          {/* Signed render timestamp + Turnstile widget (when staff enable it). */}
+          <FormProtection />
           <label htmlFor="nl-email" className="sr-only">
             Email address
           </label>

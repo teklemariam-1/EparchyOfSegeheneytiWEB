@@ -26,6 +26,14 @@ export const VisitorStats: CollectionConfig = {
     description: 'Anonymous daily visit aggregates. No personal data is stored.',
     hidden: hideUnless('visitor-stats.view'),
   },
+  indexes: [
+    // One row per (dimension, key, day) is the whole data model, but nothing
+    // enforced it — so the old read-then-write increment could insert a second
+    // row for the same bucket whenever two requests raced, losing counts under
+    // exactly the traffic spikes this table exists to measure. The unique index
+    // is what lets incrementStat use an atomic INSERT … ON CONFLICT.
+    { fields: ['dimension', 'key', 'date'], unique: true },
+  ],
   access: {
     read: can('visitor-stats.view'),
     create: can('visitor-stats.view'),

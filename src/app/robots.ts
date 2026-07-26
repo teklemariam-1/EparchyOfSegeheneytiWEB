@@ -9,6 +9,9 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         disallow: [
+          // Both forms: '/admin/' alone does not cover the bare '/admin' URL
+          // that the login page actually lives at.
+          '/admin',
           '/admin/',
           '/api/',
           '/_next/',

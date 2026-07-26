@@ -1,10 +1,13 @@
 'use server'
 
 import { getPayload } from '@/lib/payload/client'
+import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
 
 export interface ContactFormState {
   ok: boolean
   message: string
+  /** Key into the `forms` catalogue, when the message is a translatable rejection. */
+  messageKey?: FormRejectionKey
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -26,6 +29,22 @@ export async function submitContactForm(
   const honeypot = sanitize(formData.get('company'))
   if (honeypot) {
     return { ok: true, message: SUCCESS_MESSAGE }
+  }
+
+  // Timing check, per-client rate limit, and (when staff enable it) Turnstile.
+  // Runs before validation so a flood costs us one counter write, not a full
+  // parse and a database round-trip.
+  const guard = await guardFormSubmission({
+    action: 'contact',
+    limit: 5,
+    windowSeconds: 600,
+    formData,
+  })
+  if (!guard.ok) {
+    // Silent failures mimic success so an automated sender learns nothing.
+    return guard.silent
+      ? { ok: true, message: SUCCESS_MESSAGE }
+      : { ok: false, message: guard.message, messageKey: guard.messageKey }
   }
 
   const firstName = sanitize(formData.get('firstName'))

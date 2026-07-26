@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { can, canField } from '../../lib/permissions/access'
+import { encrypt, isEncrypted, isMasked, mask } from '../../lib/crypto/fieldEncryption'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -127,6 +128,74 @@ export const SiteSettings: GlobalConfig = {
       fields: [
         { name: 'googleAnalyticsId', type: 'text', admin: { description: 'GA4 Measurement ID (G-XXXXXXXXXX).' } },
         { name: 'googleTagManagerId', type: 'text', admin: { description: 'GTM Container ID (GTM-XXXXXXX).' } },
+      ],
+    },
+    // ── Bot protection ────────────────────────────────────────────────────────
+    {
+      name: 'security',
+      type: 'group',
+      label: 'Bot protection',
+      admin: {
+        description:
+          'Cloudflare Turnstile challenge on the contact, newsletter, and donation forms. Free, and unlike reCAPTCHA it does not report your visitors to Google. Leave it off until the keys are filled in.',
+      },
+      fields: [
+        {
+          name: 'turnstileEnabled',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            description:
+              'Turn on to challenge form submissions. Switch off at any time if visitors on slow connections have trouble — the honeypot, timing check, and rate limits stay active either way.',
+          },
+        },
+        {
+          name: 'turnstileSiteKey',
+          type: 'text',
+          admin: {
+            description: 'Public key from the Cloudflare dashboard. Safe to publish — it is rendered in the page.',
+            condition: (_, siblingData) => Boolean(siblingData?.turnstileEnabled),
+          },
+        },
+        {
+          name: 'turnstileSecretKey',
+          type: 'text',
+          // This global is PUBLICLY readable (read: () => true above), so the
+          // secret needs its own field-level gate — without it the key would be
+          // served to anyone requesting /api/globals/site-settings.
+          access: {
+            read: canField('globals.site-settings.edit'),
+            update: canField('globals.site-settings.edit'),
+          },
+          admin: {
+            description: 'Secret key from the Cloudflare dashboard. Stored encrypted; shows only the last 4 characters.',
+            condition: (_, siblingData) => Boolean(siblingData?.turnstileEnabled),
+          },
+          hooks: {
+            // Same pattern as the donation receiving account: encrypt on the way
+            // in, and never hand the plaintext back out — re-saving the masked
+            // placeholder keeps the stored ciphertext rather than overwriting it
+            // with asterisks.
+            beforeChange: [
+              ({ value, originalDoc }) => {
+                const original = originalDoc?.security?.turnstileSecretKey
+                if (value == null || value === '') return value
+                if (isMasked(value)) return original ?? ''
+                if (isEncrypted(value)) return value
+                return encrypt(String(value))
+              },
+            ],
+            // Masked for every reader EXCEPT the server-side verifier, which
+            // opts in explicitly via req.context. Without that escape hatch the
+            // only copy of the key would be one nobody — including us — can use.
+            afterRead: [
+              ({ value, req }) => {
+                if ((req?.context as { revealSecrets?: boolean } | undefined)?.revealSecrets) return value
+                return value ? mask(String(value)) : value
+              },
+            ],
+          },
+        },
       ],
     },
     {

@@ -37,10 +37,27 @@ const PERMISSION_OPTIONS = PERMISSIONS.map((p) => ({ label: permissionLabel(p), 
 export const Users: CollectionConfig = {
   slug: 'users',
   auth: {
-    // Brute-force protection: lock the account after repeated failures.
+    // Brute-force protection: lock the account after repeated failures. This
+    // protects ONE account; the per-client limit in lib/security/authGuard is
+    // what stops one password being sprayed across many accounts.
     maxLoginAttempts: 5,
     lockTime: 15 * 60 * 1000, // 15 minutes
     tokenExpiration: 2 * 60 * 60, // 2 hours (seconds)
+    // API keys are not used anywhere; leaving the default off means no user can
+    // hold a long-lived bearer credential that bypasses login entirely.
+    useAPIKey: false,
+    // Payload's defaults already set httpOnly and path; these are pinned
+    // explicitly so a future config change cannot quietly weaken them.
+    cookies: {
+      // Never sent over plain HTTP in production. Left off locally so the admin
+      // still works on http://localhost.
+      secure: process.env.NODE_ENV === 'production',
+      // 'Lax' rather than 'Strict': the admin relies on top-level navigations
+      // back to /admin after login and after a password-reset link, which
+      // 'Strict' would strip the cookie from, locking users out of their own
+      // reset email.
+      sameSite: 'Lax',
+    },
   },
   hooks: {
     // Enforce password complexity server-side — the admin login UI checks this

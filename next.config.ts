@@ -11,10 +11,32 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 // `unsafe-eval` is only needed by the Next.js dev runtime; the production client
 // bundle does not eval, so we drop it in production to harden against XSS.
 const isProd = process.env.NODE_ENV === 'production'
+
+// ── Third-party origins, grouped by the feature that needs them ───────────────
+//
+// STRIPE — NOT YET ENABLED. Donations run on manual transfer today (see
+// globals/DonationSettings); the `provider` field is the switch. When card
+// payments are turned on, Stripe.js and its 3-D Secure iframe need these
+// origins, and every one of them is required — a missing frame-src silently
+// breaks the payment modal with only a console error. Uncomment these three
+// constants and add them to the arrays marked below; nothing else in this file
+// needs to change.
+//
+//   const STRIPE_SCRIPT = 'https://js.stripe.com'
+//   const STRIPE_FRAME = 'https://js.stripe.com https://hooks.stripe.com'
+//   const STRIPE_CONNECT = 'https://api.stripe.com'
+//
+// Turnstile (bot challenge on public forms) is already wired below, since it is
+// toggleable at runtime from site-settings and must work the moment it is
+// switched on.
+const TURNSTILE_ORIGIN = 'https://challenges.cloudflare.com'
+
 const frontendScriptSrc = [
   "script-src 'self' 'unsafe-inline'",
   isProd ? '' : "'unsafe-eval'",
   'https://www.googletagmanager.com https://www.google.com https://maps.googleapis.com',
+  TURNSTILE_ORIGIN,
+  // + STRIPE_SCRIPT when Stripe is enabled
 ]
   .filter(Boolean)
   .join(' ')
@@ -29,10 +51,10 @@ const CSP = [
   "font-src 'self' https://fonts.gstatic.com",
   // Images: self + S3/R2 CDN + Google (maps tiles, GA pixel)
   `img-src 'self' data: blob: https://${process.env.S3_HOSTNAME ?? '*'} https://*.public.blob.vercel-storage.com https://www.google.com https://maps.gstatic.com https://maps.googleapis.com`,
-  // Frames: Google Maps embed only
-  "frame-src https://www.google.com https://maps.google.com",
-  // XHR/fetch: self + Payload API + Sentry
-  "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io",
+  // Frames: Google Maps embed + Turnstile widget (+ STRIPE_FRAME when enabled)
+  `frame-src https://www.google.com https://maps.google.com ${TURNSTILE_ORIGIN}`,
+  // XHR/fetch: self + Payload API + Sentry (+ STRIPE_CONNECT when enabled)
+  `connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io ${TURNSTILE_ORIGIN}`,
   // Media from S3/R2 + Vercel Blob
   `media-src 'self' https://${process.env.S3_HOSTNAME ?? '*'} https://*.public.blob.vercel-storage.com`,
   "object-src 'none'",
@@ -71,12 +93,20 @@ const ADMIN_CSP = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
+  "frame-ancestors 'none'",
 ].join('; ')
 
 const adminSecurityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Content-Security-Policy', value: ADMIN_CSP },
+  // robots.txt asks crawlers not to fetch /admin; this instructs them not to
+  // index it even if they arrive by a link or an already-known URL. Belt and
+  // braces, because a login page in search results invites credential stuffing.
+  { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+  // The admin must never be embedded, and it is exempt from the frontend
+  // header block above, so it needs its own clickjacking guard.
+  { key: 'X-Frame-Options', value: 'DENY' },
 ]
 
 const securityHeaders = [

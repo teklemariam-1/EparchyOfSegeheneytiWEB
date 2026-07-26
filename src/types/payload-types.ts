@@ -98,6 +98,7 @@ export interface Config {
     'contact-submissions': ContactSubmission;
     donations: Donation;
     'audit-log': AuditLog;
+    'rate-limits': RateLimit;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -136,6 +137,7 @@ export interface Config {
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     donations: DonationsSelect<false> | DonationsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
+    'rate-limits': RateLimitsSelect<false> | RateLimitsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -1971,6 +1973,29 @@ export interface AuditLog {
   createdAt: string;
 }
 /**
+ * Internal rate-limit counters. Written by the server only.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rate-limits".
+ */
+export interface RateLimit {
+  id: number;
+  /**
+   * action:hashedClient — never a raw IP address.
+   */
+  bucket: string;
+  /**
+   * Start of the fixed window this counter belongs to.
+   */
+  windowStart: string;
+  /**
+   * Requests seen in this window.
+   */
+  count: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -2117,6 +2142,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'audit-log';
         value: number | AuditLog;
+      } | null)
+    | ({
+        relationTo: 'rate-limits';
+        value: number | RateLimit;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -3014,6 +3043,17 @@ export interface AuditLogSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rate-limits_select".
+ */
+export interface RateLimitsSelect<T extends boolean = true> {
+  bucket?: T;
+  windowStart?: T;
+  count?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -3150,6 +3190,23 @@ export interface SiteSetting {
      * GTM Container ID (GTM-XXXXXXX).
      */
     googleTagManagerId?: string | null;
+  };
+  /**
+   * Cloudflare Turnstile challenge on the contact, newsletter, and donation forms. Free, and unlike reCAPTCHA it does not report your visitors to Google. Leave it off until the keys are filled in.
+   */
+  security?: {
+    /**
+     * Turn on to challenge form submissions. Switch off at any time if visitors on slow connections have trouble — the honeypot, timing check, and rate limits stay active either way.
+     */
+    turnstileEnabled?: boolean | null;
+    /**
+     * Public key from the Cloudflare dashboard. Safe to publish — it is rendered in the page.
+     */
+    turnstileSiteKey?: string | null;
+    /**
+     * Secret key from the Cloudflare dashboard. Stored encrypted; shows only the last 4 characters.
+     */
+    turnstileSecretKey?: string | null;
   };
   /**
    * Enable maintenance mode to show a holding page to visitors.
@@ -3705,6 +3762,13 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         googleAnalyticsId?: T;
         googleTagManagerId?: T;
+      };
+  security?:
+    | T
+    | {
+        turnstileEnabled?: T;
+        turnstileSiteKey?: T;
+        turnstileSecretKey?: T;
       };
   maintenanceMode?: T;
   updatedAt?: T;

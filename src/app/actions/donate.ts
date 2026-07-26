@@ -1,10 +1,13 @@
 'use server'
 
 import { getPayload } from '@/lib/payload/client'
+import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
 
 export interface DonateFormState {
   ok: boolean
   message: string
+  /** Key into the `forms` catalogue, when the message is a translatable rejection. */
+  messageKey?: FormRejectionKey
   /** Present on success so the page can show a confirmation panel with details. */
   receipt?: {
     amount: number
@@ -41,6 +44,20 @@ export async function submitDonation(
   // Honeypot — silently accept without persisting.
   if (sanitize(formData.get('company'))) {
     return { ok: true, message: 'Thank you for your generosity.' }
+  }
+
+  // This form also sends mail (the receipt) and creates a record staff have to
+  // reconcile by hand, so junk here costs real volunteer time.
+  const guard = await guardFormSubmission({
+    action: 'donate',
+    limit: 5,
+    windowSeconds: 900,
+    formData,
+  })
+  if (!guard.ok) {
+    return guard.silent
+      ? { ok: true, message: 'Thank you for your generosity.' }
+      : { ok: false, message: guard.message, messageKey: guard.messageKey }
   }
 
   const name = sanitize(formData.get('name'))

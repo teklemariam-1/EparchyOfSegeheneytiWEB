@@ -5,6 +5,7 @@ import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { submitDonation, type DonateFormState } from '@/app/actions/donate'
+import { FormProtection } from '@/components/shared/FormProtection'
 
 const initialState: DonateFormState = { ok: false, message: '' }
 
@@ -39,6 +40,9 @@ function SubmitButton() {
 
 export function DonateForm({ config }: { config: DonateFormConfig }) {
   const t = useTranslations('donate')
+  // Abuse-guard rejections arrive as a catalogue key so they can be shown in
+  // the visitor's language.
+  const tForms = useTranslations('forms')
   const [state, formAction] = useActionState(submitDonation, initialState)
 
   const currencyOptions =
@@ -79,9 +83,12 @@ export function DonateForm({ config }: { config: DonateFormConfig }) {
         <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
+      {/* Signed render timestamp + Turnstile widget (when staff enable it). */}
+      <FormProtection />
+
       {state.message && !state.ok && (
         <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          {state.message}
+          {state.messageKey ? tForms(state.messageKey) : state.message}
         </div>
       )}
 

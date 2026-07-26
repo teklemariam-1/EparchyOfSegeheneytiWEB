@@ -28,6 +28,7 @@ import * as migration_20260723_143752_hero_logo_toggle from './20260723_143752_h
 import * as migration_20260724_045544_events_start_date_index from './20260724_045544_events_start_date_index';
 import * as migration_20260725_041637_donations_and_feed_health from './20260725_041637_donations_and_feed_health';
 import * as migration_20260725_123704_permissions_and_audit_log from './20260725_123704_permissions_and_audit_log';
+import * as migration_20260726_041919_bot_protection_and_rate_limits from './20260726_041919_bot_protection_and_rate_limits';
 
 export const migrations = [
   {
@@ -178,6 +179,11 @@ export const migrations = [
   {
     up: migration_20260725_123704_permissions_and_audit_log.up,
     down: migration_20260725_123704_permissions_and_audit_log.down,
-    name: '20260725_123704_permissions_and_audit_log'
+    name: '20260725_123704_permissions_and_audit_log',
+  },
+  {
+    up: migration_20260726_041919_bot_protection_and_rate_limits.up,
+    down: migration_20260726_041919_bot_protection_and_rate_limits.down,
+    name: '20260726_041919_bot_protection_and_rate_limits'
   },
 ];
