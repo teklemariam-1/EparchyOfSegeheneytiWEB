@@ -39,6 +39,41 @@
 
 /* ── Reusable component utilities ───────────────────────────────────── */
 @layer components {
+  /* ── News headlines ───────────────────────────────────────────────────────
+     Sized here rather than with Tailwind text-* utilities so they can respect
+     the reader's font-size preference: `--content-scale` multiplies CONTENT
+     text only. Chrome — the view toggle, pagination, share buttons — keeps its
+     Tailwind sizing and never scales, so the controls stay put while the words
+     grow.
+
+     NOTE: no settings UI writes --content-scale yet; it defaults to 1, which
+     leaves rendering exactly as designed. Adding a control later means setting
+     the variable on :root — no component changes.
+
+     clamp() handles the responsive range (≈1.9rem mobile → 2.4rem desktop)
+     without breakpoint classes, so the scale multiplier composes cleanly. */
+  .news-headline-hero {
+    font-size: calc(clamp(1.9rem, 1.3rem + 1.8vw, 2.4rem) * var(--content-scale, 1));
+    line-height: 1.25;
+  }
+
+  .news-headline-card {
+    font-size: calc(1rem * var(--content-scale, 1));
+    line-height: 1.45;
+  }
+
+  /* Ge'ez needs markedly more room: its syllables carry ascenders and
+     descenders that collide at the leading which suits Latin text. Tigrinya
+     headlines get looser leading rather than a smaller size, so the hero panel
+     grows to fit instead of the text clipping. */
+  .news-headline-hero:lang(ti) {
+    line-height: 1.5;
+  }
+
+  .news-headline-card:lang(ti) {
+    line-height: 1.7;
+  }
+
   /* Card base */
   .card {
     @apply bg-white rounded-xl shadow-card border border-charcoal-100 overflow-hidden transition-shadow hover:shadow-card-hover;

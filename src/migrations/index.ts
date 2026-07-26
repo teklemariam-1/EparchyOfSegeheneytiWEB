@@ -29,7 +29,9 @@ import * as migration_20260724_045544_events_start_date_index from './20260724_0
 import * as migration_20260725_041637_donations_and_feed_health from './20260725_041637_donations_and_feed_health';
 import * as migration_20260725_123704_permissions_and_audit_log from './20260725_123704_permissions_and_audit_log';
 import * as migration_20260726_041919_bot_protection_and_rate_limits from './20260726_041919_bot_protection_and_rate_limits';
+import * as migration_20260726_045533_news_is_featured from './20260726_045533_news_is_featured';
 import * as migration_20260726_054250_stripe_donations from './20260726_054250_stripe_donations';
+import * as migration_20260726_060000_news_published_at_backfill from './20260726_060000_news_published_at_backfill';
 
 export const migrations = [
   {
@@ -185,11 +187,21 @@ export const migrations = [
   {
     up: migration_20260726_041919_bot_protection_and_rate_limits.up,
     down: migration_20260726_041919_bot_protection_and_rate_limits.down,
-    name: '20260726_041919_bot_protection_and_rate_limits'
+    name: '20260726_041919_bot_protection_and_rate_limits',
+  },
+  {
+    up: migration_20260726_045533_news_is_featured.up,
+    down: migration_20260726_045533_news_is_featured.down,
+    name: '20260726_045533_news_is_featured',
   },
   {
     up: migration_20260726_054250_stripe_donations.up,
     down: migration_20260726_054250_stripe_donations.down,
     name: '20260726_054250_stripe_donations',
+  },
+  {
+    up: migration_20260726_060000_news_published_at_backfill.up,
+    down: migration_20260726_060000_news_published_at_backfill.down,
+    name: '20260726_060000_news_published_at_backfill'
   },
 ];

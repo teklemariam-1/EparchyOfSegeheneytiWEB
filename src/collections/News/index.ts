@@ -31,7 +31,28 @@ export const News: CollectionConfig = {
   hooks: {
     // Publishing is a distinct permission from editing — gate the draft→published
     // transition on news.publish.
-    beforeChange: [requirePublishPermission('news.publish')],
+    beforeChange: [
+      requirePublishPermission('news.publish'),
+      // The listing hoists a pinned article with `sort: -isFeatured`, and
+      // Postgres orders NULLs FIRST under DESC. A null here would therefore
+      // take the hero slot ahead of the article staff actually pinned. The
+      // migration backfills existing rows; this stops any write path — the
+      // Vatican News ingest, a REST call, a seed script — from reintroducing one.
+      ({ data }) => {
+        const record = data as { isFeatured?: unknown; publishedAt?: unknown }
+        if (record.isFeatured === null || record.isFeatured === undefined) {
+          record.isFeatured = false
+        }
+        // Same hazard, same reason: the listing sorts on `-publishedAt`, so an
+        // article saved without a date would sort ahead of everything and take
+        // the hero slot. Imports without a date did exactly that until the
+        // 20260726_060000 backfill; defaulting here stops it recurring.
+        if (record.publishedAt === null || record.publishedAt === undefined || record.publishedAt === '') {
+          record.publishedAt = new Date().toISOString()
+        }
+        return data
+      },
+    ],
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('news')
@@ -65,6 +86,17 @@ export const News: CollectionConfig = {
       type: 'date',
       index: true,
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'isFeatured',
+      type: 'checkbox',
+      defaultValue: false,
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Pin this article to the large hero slot on the news page. If several are ticked, the most recent wins. Leave unticked and the newest article is used automatically.',
+      },
     },
     {
       // Options are managed in the News Categories collection (admin-editable),

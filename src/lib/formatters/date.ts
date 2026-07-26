@@ -20,6 +20,42 @@ export function formatDate(
   }
 }
 
+/**
+ * Numeric DD/MM/YYYY for article cards, in the reader's locale.
+ *
+ * Assembled from `formatToParts` rather than taken from the locale's own short
+ * pattern, because those patterns disagree with the design. ICU resolves BOTH
+ * `en` and `ti` to a MONTH-FIRST order (verified: `ti` → "07/19/2026"), so
+ * handing the locale straight to Intl would render Tigrinya dates as
+ * 07/19/2026 — the opposite of the day-first format the layout calls for, and
+ * wrong in a way nobody would notice until the 13th of a month.
+ *
+ * Taking the parts and ordering them ourselves keeps the day-first layout
+ * everywhere while still honouring the locale's digits and numbering system.
+ */
+export function formatShortDate(isoString: string, locale = 'en'): string {
+  try {
+    const date = new Date(isoString)
+    if (Number.isNaN(date.getTime())) return ''
+
+    const parts = new Intl.DateTimeFormat(locale, {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).formatToParts(date)
+
+    const find = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? ''
+    const day = find('day')
+    const month = find('month')
+    const year = find('year')
+    if (!day || !month || !year) return ''
+
+    return `${day}/${month}/${year}`
+  } catch {
+    return ''
+  }
+}
+
 /** Format a date as relative time — "3 days ago", "in 2 hours" */
 export function formatRelativeTime(isoString: string, locale = 'en'): string {
   const diff = Date.now() - new Date(isoString).getTime()
