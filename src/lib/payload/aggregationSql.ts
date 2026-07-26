@@ -52,6 +52,11 @@ export function buildAggregateSql(req: GroupByRequest): { text: string; values: 
   config.measures.forEach((m, j) => {
     selectParts.push(`COALESCE(SUM(${quoted(m.column)}), 0)::float8 AS m${j}`)
   })
+  // Distinct counts ("how many unique donors"). Only the count is selected —
+  // the underlying values never leave the database.
+  ;(config.distinctMeasures ?? []).forEach((m, j) => {
+    selectParts.push(`COUNT(DISTINCT ${quoted(m.column)})::int AS d${j}`)
+  })
   selectParts.push('COUNT(*)::int AS row_count')
 
   const whereParts: string[] = []
@@ -92,5 +97,13 @@ export function shapeRow(raw: Record<string, unknown>, req: GroupByRequest): Gro
   config.measures.forEach((m, j) => {
     sums[m.key] = Number(raw[`m${j}`] ?? 0)
   })
-  return { groups, rowCount: Number(raw.row_count ?? 0), sums }
+
+  const distinctMeasures = config.distinctMeasures ?? []
+  if (distinctMeasures.length === 0) return { groups, rowCount: Number(raw.row_count ?? 0), sums }
+
+  const distincts: Record<string, number> = {}
+  distinctMeasures.forEach((m, j) => {
+    distincts[m.key] = Number(raw[`d${j}`] ?? 0)
+  })
+  return { groups, rowCount: Number(raw.row_count ?? 0), sums, distincts }
 }

@@ -29,18 +29,25 @@ export async function groupByAggregate(req: GroupByRequest): Promise<GroupByResu
   const groupBy = dedupeGroupBy(req.groupBy)
   const rows = res.rows.map((r) => shapeRow(r, { ...req, groupBy }))
 
-  const grandTotal = { rowCount: 0, sums: {} as Record<string, number> }
+  const grandTotal: GroupByResult['grandTotal'] = { rowCount: 0, sums: {} }
   for (const m of config.measures) grandTotal.sums[m.key] = 0
   for (const row of rows) {
     grandTotal.rowCount += row.rowCount
     for (const m of config.measures) grandTotal.sums[m.key] += row.sums[m.key] ?? 0
   }
 
+  // Distinct counts are only meaningful as a total when the query produced a
+  // single row. Adding per-group counts would double-count anyone who appears
+  // in more than one group, so the total is omitted rather than approximated —
+  // a wrong "unique donors" figure is worse than none.
+  if (groupBy.length === 0 && rows[0]?.distincts) grandTotal.distincts = rows[0].distincts
+
   return {
     collection: req.collection,
     groupBy,
     bucket: req.bucket,
     measures: config.measures,
+    distinctMeasures: config.distinctMeasures,
     rows,
     grandTotal,
   }

@@ -25,6 +25,8 @@ import { TaxonomySelect as TaxonomySelect_8e6f1c6f8b0ab830480886ee3061d10c } fro
 import { FetchVaticanNews as FetchVaticanNews_ab252082b8339de15811e44cd8622977 } from '@/components/admin/news/FetchVaticanNews'
 import { NewsGrouping as NewsGrouping_2fe09784a677d00024f4080604a6310b } from '@/components/admin/news/NewsGrouping'
 import { ImportYearBanner as ImportYearBanner_1d28316acc630f9dcf8e10929e023102 } from '@/components/admin/calendar/ImportYearBanner'
+import { DonationsSummary as DonationsSummary_fd8358af7b83eb5a7827df0fd8a8d783 } from '@/components/admin/donations/DonationsSummary'
+import { DonationsGrouping as DonationsGrouping_8331eb3ede108a9a977e39f59a81187a } from '@/components/admin/donations/DonationsGrouping'
 import { default as default_d500ae2ad98a0a33d640ae0ac1a3417c } from '@/components/admin/AdminIcon'
 import { default as default_b80a86fce1072afc84cd6a430a965697 } from '@/components/admin/AdminLogo'
 import { CalendarImportNavLink as CalendarImportNavLink_be3345247c2e9fbd329edd1ebd59c072 } from '@/components/admin/calendar/CalendarImportNavLink'
@@ -63,6 +65,8 @@ export const importMap = {
   "@/components/admin/news/FetchVaticanNews#FetchVaticanNews": FetchVaticanNews_ab252082b8339de15811e44cd8622977,
   "@/components/admin/news/NewsGrouping#NewsGrouping": NewsGrouping_2fe09784a677d00024f4080604a6310b,
   "@/components/admin/calendar/ImportYearBanner#ImportYearBanner": ImportYearBanner_1d28316acc630f9dcf8e10929e023102,
+  "@/components/admin/donations/DonationsSummary#DonationsSummary": DonationsSummary_fd8358af7b83eb5a7827df0fd8a8d783,
+  "@/components/admin/donations/DonationsGrouping#DonationsGrouping": DonationsGrouping_8331eb3ede108a9a977e39f59a81187a,
   "@/components/admin/AdminIcon#default": default_d500ae2ad98a0a33d640ae0ac1a3417c,
   "@/components/admin/AdminLogo#default": default_b80a86fce1072afc84cd6a430a965697,
   "@/components/admin/calendar/CalendarImportNavLink#CalendarImportNavLink": CalendarImportNavLink_be3345247c2e9fbd329edd1ebd59c072,

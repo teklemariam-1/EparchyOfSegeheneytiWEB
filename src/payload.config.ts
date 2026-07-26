@@ -42,6 +42,7 @@ import { GeezCalendarDays } from './collections/GeezCalendarDays/index'
 import { GeezMonthlyFeasts } from './collections/GeezMonthlyFeasts/index'
 import { ContactSubmissions } from './collections/ContactSubmissions/index'
 import { Donations } from './collections/Donations/index'
+import { StripeEvents } from './collections/StripeEvents/index'
 import { AuditLog } from './collections/AuditLog/index'
 import { RateLimits } from './collections/RateLimits/index'
 
@@ -157,6 +158,7 @@ export default buildConfig({
     GeezMonthlyFeasts,
     ContactSubmissions,
     Donations,
+    StripeEvents,
     AuditLog,
     RateLimits,
   ],

@@ -36,6 +36,19 @@ export interface AggregatableCollection {
   columns: GroupColumn[]
   /** Numeric columns summed per group. Empty → groups are COUNT(*) only. */
   measures: Measure[]
+  /**
+   * Columns counted with COUNT(DISTINCT …) — "how many unique donors", not "how
+   * much". Kept separate from `measures` for one reason: distinct counts do not
+   * add up. A donor who gave in March and in April is one donor but appears in
+   * two groups, so summing the per-group counts would overstate the total.
+   * `groupByAggregate` therefore reports a grand-total distinct count only for
+   * an ungrouped query, where there is nothing to add.
+   *
+   * Only the count leaves the database — never the underlying values, which is
+   * what makes it safe to count donor emails that the collection's field access
+   * otherwise withholds.
+   */
+  distinctMeasures?: Measure[]
 }
 
 export type Bucket = 'day' | 'week' | 'month' | 'year'
@@ -65,6 +78,7 @@ export const AGGREGATIONS: Record<string, AggregatableCollection> = {
       { key: 'createdAt', column: 'created_at', label: 'Date', kind: 'date', groupable: true, filterable: true },
     ],
     measures: [{ key: 'amount', column: 'amount', label: 'Amount raised' }],
+    distinctMeasures: [{ key: 'donors', column: 'donor_email', label: 'Unique donors' }],
   },
   news: {
     table: 'news',
@@ -104,6 +118,8 @@ export interface GroupedRow {
   groups: Record<string, string | null>
   rowCount: number
   sums: Record<string, number>
+  /** COUNT(DISTINCT …) per group, when the collection declares any. */
+  distincts?: Record<string, number>
 }
 
 export interface GroupByResult {
@@ -112,5 +128,11 @@ export interface GroupByResult {
   bucket?: Bucket
   measures: Measure[]
   rows: GroupedRow[]
-  grandTotal: { rowCount: number; sums: Record<string, number> }
+  distinctMeasures?: Measure[]
+  /**
+   * `grandTotal.distincts` is present only for an ungrouped query — see the
+   * note on `distinctMeasures` for why per-group distinct counts cannot be
+   * added up.
+   */
+  grandTotal: { rowCount: number; sums: Record<string, number>; distincts?: Record<string, number> }
 }

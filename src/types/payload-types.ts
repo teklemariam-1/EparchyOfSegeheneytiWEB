@@ -97,6 +97,7 @@ export interface Config {
     'geez-monthly-feasts': GeezMonthlyFeast;
     'contact-submissions': ContactSubmission;
     donations: Donation;
+    'stripe-events': StripeEvent;
     'audit-log': AuditLog;
     'rate-limits': RateLimit;
     'payload-kv': PayloadKv;
@@ -136,6 +137,7 @@ export interface Config {
     'geez-monthly-feasts': GeezMonthlyFeastsSelect<false> | GeezMonthlyFeastsSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     donations: DonationsSelect<false> | DonationsSelect<true>;
+    'stripe-events': StripeEventsSelect<false> | StripeEventsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'rate-limits': RateLimitsSelect<false> | RateLimitsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -771,6 +773,10 @@ export interface News {
    */
   slug: string;
   publishedAt?: string | null;
+  /**
+   * Pin this article to the large hero slot on the news page. If several are ticked, the most recent wins. Leave unticked and the newest article is used automatically.
+   */
+  isFeatured?: boolean | null;
   category?: string | null;
   featuredImage?: (number | null) | Media;
   /**
@@ -1913,6 +1919,13 @@ export interface Donation {
   id: number;
   donorName: string;
   donorEmail: string;
+  /**
+   * Canonical amount as an integer, e.g. 5000 = 50.00 USD. Set by the payment flow.
+   */
+  amountMinor: number;
+  /**
+   * Display value, derived from the minor-unit amount.
+   */
   amount: number;
   currency: string;
   frequency?: ('one-time' | 'monthly') | null;
@@ -1924,21 +1937,86 @@ export interface Donation {
    * Hide the donor’s name in public statistics and lists.
    */
   anonymous?: boolean | null;
-  status: 'pending' | 'received' | 'cancelled';
+  /**
+   * Language the donor gave in — receipts are sent in it.
+   */
+  locale?: ('en' | 'ti') | null;
+  /**
+   * Card donations are promoted only by a verified Stripe webhook.
+   */
+  status: 'pending' | 'succeeded' | 'failed' | 'refunded' | 'disputed' | 'cancelled';
   provider?: ('manual' | 'stripe') | null;
   /**
-   * External payment/session id (for a PSP).
-   */
-  providerRef?: string | null;
-  /**
-   * Bank/transfer reference for reconciliation.
+   * Reference the donor quotes on a transfer.
    */
   reference?: string | null;
+  /**
+   * Checkout Session id (cs_…).
+   */
+  stripeSessionId?: string | null;
+  /**
+   * PaymentIntent id (pi_…) — search this in the Stripe dashboard.
+   */
+  stripePaymentIntentId?: string | null;
+  stripeChargeId?: string | null;
+  stripeCustomerId?: string | null;
+  /**
+   * Reserved for recurring giving via Stripe Billing, which is not enabled yet — the column exists so switching it on later is additive.
+   */
+  stripeSubscriptionId?: string | null;
+  /**
+   * The last Stripe event applied to this record.
+   */
+  stripeEventId?: string | null;
+  /**
+   * Amount refunded, in minor units. Partial refunds are possible.
+   */
+  refundedAmountMinor?: number | null;
+  /**
+   * Stripe’s decline reason. Never contains card details.
+   */
+  failureReason?: string | null;
   submittedAt?: string | null;
+  /**
+   * When the payment or transfer was confirmed.
+   */
+  confirmedAt?: string | null;
   /**
    * Internal notes (not visible to the donor).
    */
   adminNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Stripe webhook deliveries. Used to make payment processing idempotent.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stripe-events".
+ */
+export interface StripeEvent {
+  id: number;
+  /**
+   * Stripe event id (evt_…). Unique — this is the replay guard.
+   */
+  eventId: string;
+  /**
+   * e.g. checkout.session.completed
+   */
+  type: string;
+  status: 'received' | 'processed' | 'ignored' | 'failed';
+  /**
+   * The donation this event applied to, when it could be resolved.
+   */
+  donation?: (number | null) | Donation;
+  /**
+   * False for test-mode events.
+   */
+  livemode?: boolean | null;
+  /**
+   * Why processing failed, when it did. Never contains card data.
+   */
+  error?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2140,6 +2218,10 @@ export interface PayloadLockedDocument {
         value: number | Donation;
       } | null)
     | ({
+        relationTo: 'stripe-events';
+        value: number | StripeEvent;
+      } | null)
+    | ({
         relationTo: 'audit-log';
         value: number | AuditLog;
       } | null)
@@ -2322,6 +2404,7 @@ export interface NewsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   publishedAt?: T;
+  isFeatured?: T;
   category?: T;
   featuredImage?: T;
   gallery?:
@@ -3012,17 +3095,41 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
 export interface DonationsSelect<T extends boolean = true> {
   donorName?: T;
   donorEmail?: T;
+  amountMinor?: T;
   amount?: T;
   currency?: T;
   frequency?: T;
   message?: T;
   anonymous?: T;
+  locale?: T;
   status?: T;
   provider?: T;
-  providerRef?: T;
   reference?: T;
+  stripeSessionId?: T;
+  stripePaymentIntentId?: T;
+  stripeChargeId?: T;
+  stripeCustomerId?: T;
+  stripeSubscriptionId?: T;
+  stripeEventId?: T;
+  refundedAmountMinor?: T;
+  failureReason?: T;
   submittedAt?: T;
+  confirmedAt?: T;
   adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stripe-events_select".
+ */
+export interface StripeEventsSelect<T extends boolean = true> {
+  eventId?: T;
+  type?: T;
+  status?: T;
+  donation?: T;
+  livemode?: T;
+  error?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3623,9 +3730,13 @@ export interface DonationSetting {
    */
   enabled?: boolean | null;
   /**
-   * Manual transfer is the working flow. Stripe is a placeholder for later.
+   * Manual transfer is the only method available to donors inside Eritrea, so "Card only" hides giving from them entirely. Card requires STRIPE_SECRET_KEY on the server; without it the card option is suppressed automatically.
    */
-  provider?: ('manual' | 'stripe') | null;
+  provider?: ('manual' | 'stripe' | 'both') | null;
+  /**
+   * Comma-separated ISO country codes whose visitors see manual transfer first. Cards are unusable in Eritrea, so ER is the default.
+   */
+  preferManualForCountries?: string | null;
   /**
    * Quick-pick amounts shown as buttons.
    */
@@ -3670,7 +3781,22 @@ export interface DonationSetting {
    */
   intro?: string | null;
   /**
-   * Shown to donors explaining how to complete a manual transfer (bank name, public account/till, reference to quote). You decide what account detail to publish here — the stored account number below stays private.
+   * Published verbatim on the donate page and in the pledge email. Fill in at least an account name and number, or donors are told to contact the chancery instead. The private receiving account below is never published.
+   */
+  publicTransferDetails?: {
+    accountHolder?: string | null;
+    bankName?: string | null;
+    /**
+     * Exactly as a donor must type it. Publishing this is a deliberate choice.
+     */
+    accountNumber?: string | null;
+    /**
+     * For transfers from abroad.
+     */
+    swift?: string | null;
+  };
+  /**
+   * Optional notes shown under the account block (branch, opening hours, mobile-money steps). The account details and the reference code are rendered from the fields above — do not repeat them here.
    */
   manualInstructions?: string | null;
   /**
@@ -3696,9 +3822,29 @@ export interface DonationSetting {
     referenceNote?: string | null;
   };
   /**
-   * Publishable key only. The secret key lives in STRIPE_SECRET_KEY (env), never in the DB.
+   * Separate from the list above because Stripe cannot charge in ERN. A donor who picks a currency that is not here is offered manual transfer only. Leave empty to fall back to USD.
    */
-  stripePublishableKey?: string | null;
+  stripeCurrencies?:
+    | {
+        /**
+         * ISO code Stripe supports, e.g. USD, EUR, GBP.
+         */
+        code: string;
+        /**
+         * Optional display name.
+         */
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * What appears on the donor’s card statement (max 22 chars). If the Stripe account is held by a partner entity, this is how a donor recognises the charge — leave empty to use the Stripe account default.
+   */
+  stripeStatementDescriptor?: string | null;
+  /**
+   * Shown beside the card option. Use it to disclose which legal entity receives card gifts on the Eparchy’s behalf, since that name — not the Eparchy’s — appears on the Stripe page and the card statement.
+   */
+  stripeAccountNotice?: string | null;
   /**
    * Who last changed donation settings.
    */
@@ -4053,6 +4199,7 @@ export interface BannerSettingsSelect<T extends boolean = true> {
 export interface DonationSettingsSelect<T extends boolean = true> {
   enabled?: T;
   provider?: T;
+  preferManualForCountries?: T;
   presetAmounts?:
     | T
     | {
@@ -4072,6 +4219,14 @@ export interface DonationSettingsSelect<T extends boolean = true> {
   allowCustomAmount?: T;
   allowRecurring?: T;
   intro?: T;
+  publicTransferDetails?:
+    | T
+    | {
+        accountHolder?: T;
+        bankName?: T;
+        accountNumber?: T;
+        swift?: T;
+      };
   manualInstructions?: T;
   thankYou?: T;
   receivingAccount?:
@@ -4082,7 +4237,15 @@ export interface DonationSettingsSelect<T extends boolean = true> {
         accountNumber?: T;
         referenceNote?: T;
       };
-  stripePublishableKey?: T;
+  stripeCurrencies?:
+    | T
+    | {
+        code?: T;
+        label?: T;
+        id?: T;
+      };
+  stripeStatementDescriptor?: T;
+  stripeAccountNotice?: T;
   lastChangedBy?: T;
   lastChangedAt?: T;
   updatedAt?: T;

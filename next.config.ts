@@ -14,17 +14,23 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // ── Third-party origins, grouped by the feature that needs them ───────────────
 //
-// STRIPE — NOT YET ENABLED. Donations run on manual transfer today (see
-// globals/DonationSettings); the `provider` field is the switch. When card
-// payments are turned on, Stripe.js and its 3-D Secure iframe need these
-// origins, and every one of them is required — a missing frame-src silently
-// breaks the payment modal with only a console error. Uncomment these three
-// constants and add them to the arrays marked below; nothing else in this file
-// needs to change.
+// STRIPE — card donations. We use **hosted Checkout**: the donor is redirected
+// to checkout.stripe.com, enters their card on Stripe's own origin, and comes
+// back. That is what keeps card data off this site entirely (PCI SAQ-A), and it
+// also means the CSP below is doing less work than it looks — no Stripe script
+// runs on our pages today.
 //
-//   const STRIPE_SCRIPT = 'https://js.stripe.com'
-//   const STRIPE_FRAME = 'https://js.stripe.com https://hooks.stripe.com'
-//   const STRIPE_CONNECT = 'https://api.stripe.com'
+// The origins are listed anyway because they are needed the moment anything
+// embeds Stripe: Stripe.js, the Payment Element, or a 3-D Secure challenge
+// iframe. Every one is required for that — a missing frame-src silently breaks
+// the payment modal with nothing but a console error, which is a miserable thing
+// to debug from a donor's bug report. `form-action` matters right now: the
+// server action redirects the browser to Stripe, and a `form-action 'self'`
+// blocks that navigation.
+const STRIPE_SCRIPT = 'https://js.stripe.com'
+const STRIPE_FRAME = 'https://js.stripe.com https://hooks.stripe.com'
+const STRIPE_CONNECT = 'https://api.stripe.com'
+const STRIPE_FORM = 'https://checkout.stripe.com'
 //
 // Turnstile (bot challenge on public forms) is already wired below, since it is
 // toggleable at runtime from site-settings and must work the moment it is
@@ -36,7 +42,7 @@ const frontendScriptSrc = [
   isProd ? '' : "'unsafe-eval'",
   'https://www.googletagmanager.com https://www.google.com https://maps.googleapis.com',
   TURNSTILE_ORIGIN,
-  // + STRIPE_SCRIPT when Stripe is enabled
+  STRIPE_SCRIPT,
 ]
   .filter(Boolean)
   .join(' ')
@@ -51,15 +57,18 @@ const CSP = [
   "font-src 'self' https://fonts.gstatic.com",
   // Images: self + S3/R2 CDN + Google (maps tiles, GA pixel)
   `img-src 'self' data: blob: https://${process.env.S3_HOSTNAME ?? '*'} https://*.public.blob.vercel-storage.com https://www.google.com https://maps.gstatic.com https://maps.googleapis.com`,
-  // Frames: Google Maps embed + Turnstile widget (+ STRIPE_FRAME when enabled)
-  `frame-src https://www.google.com https://maps.google.com ${TURNSTILE_ORIGIN}`,
-  // XHR/fetch: self + Payload API + Sentry (+ STRIPE_CONNECT when enabled)
-  `connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io ${TURNSTILE_ORIGIN}`,
+  // Frames: Google Maps embed + Turnstile widget + Stripe's 3-D Secure iframe
+  `frame-src https://www.google.com https://maps.google.com ${TURNSTILE_ORIGIN} ${STRIPE_FRAME}`,
+  // XHR/fetch: self + Payload API + Sentry + Stripe
+  `connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io ${TURNSTILE_ORIGIN} ${STRIPE_CONNECT}`,
   // Media from S3/R2 + Vercel Blob
   `media-src 'self' https://${process.env.S3_HOSTNAME ?? '*'} https://*.public.blob.vercel-storage.com`,
   "object-src 'none'",
   "base-uri 'self'",
-  "form-action 'self'",
+  // The donate server action redirects to Stripe's hosted Checkout; with
+  // `'self'` alone the browser blocks that navigation and the donor is stranded
+  // on a blank form with no error.
+  `form-action 'self' ${STRIPE_FORM}`,
   "frame-ancestors 'none'",
   "upgrade-insecure-requests",
 ].join('; ')

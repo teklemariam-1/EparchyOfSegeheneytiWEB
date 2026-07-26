@@ -19,16 +19,30 @@ import type { AuthUser } from '../../lib/permissions/resolve'
  *     encrypted (never stored plaintext), masked to the last 4 in the admin UI,
  *     and readable only by super-admins. It is NOT sent to the public API. What
  *     donors see for a manual transfer is the separate, admin-curated
- *     `manualInstructions` text — so staff decide exactly what account detail (if
- *     any) is published, and the stored number stays protected.
+ *     `publicTransferDetails` group — so staff decide exactly what account
+ *     detail (if any) is published, and the stored number stays protected.
  *
- * Payment approach: "manual transfer + record" now, with a `provider` field so a
- * PSP (e.g. Stripe) can be switched on later without a schema change. Stripe is
- * not available to an Eritrea-registered entity, so live card processing is
- * stubbed behind the toggle rather than built.
+ * ── Two payment methods, both live ─────────────────────────────────────────
+ * `provider` selects which methods the donate page offers: manual transfer,
+ * Stripe card, or both. It is NOT an either/or in practice — donors inside
+ * Eritrea cannot use cards at all (no issuer, and ERN is not a currency Stripe
+ * can charge), so manual transfer can never be switched off. "Both" is the
+ * intended setting once a Stripe account exists.
+ *
+ * ── Stripe entity ──────────────────────────────────────────────────────────
+ * Stripe does not support Eritrea as a business or payout country. A live
+ * account requires a legal entity registered elsewhere (a diaspora support
+ * association, a partner diocese, or a fiscal sponsor) collecting on the
+ * Eparchy's behalf. Its country, settlement currency and payout schedule are
+ * properties of STRIPE_SECRET_KEY and of the settings below — nothing about
+ * that entity is hardcoded, so it can be changed without a code change.
  */
-/** Fields whose values must never reach the audit log — only the fact they changed. */
-const SECRET_FIELDS = new Set(['receivingAccount', 'stripePublishableKey'])
+/**
+ * Fields whose values must never reach the audit log — only the fact they
+ * changed. `publicTransferDetails` is deliberately absent: it is published on
+ * the website, so logging a change to it is a feature, not a leak.
+ */
+const SECRET_FIELDS = new Set(['receivingAccount'])
 
 /**
  * Names the top-level fields that changed, with before → after values for the
@@ -103,13 +117,26 @@ export const DonationSettings: GlobalConfig = {
       name: 'provider',
       type: 'select',
       defaultValue: 'manual',
+      label: 'Payment methods offered',
       options: [
-        { label: 'Manual transfer (record pledges)', value: 'manual' },
-        { label: 'Stripe (online card — requires keys, not available in Eritrea)', value: 'stripe' },
+        { label: 'Manual transfer only', value: 'manual' },
+        { label: 'Card only (Stripe)', value: 'stripe' },
+        { label: 'Both — manual transfer and card', value: 'both' },
       ],
       admin: {
         position: 'sidebar',
-        description: 'Manual transfer is the working flow. Stripe is a placeholder for later.',
+        description:
+          'Manual transfer is the only method available to donors inside Eritrea, so "Card only" hides giving from them entirely. Card requires STRIPE_SECRET_KEY on the server; without it the card option is suppressed automatically.',
+      },
+    },
+    {
+      name: 'preferManualForCountries',
+      type: 'text',
+      defaultValue: 'ER',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Comma-separated ISO country codes whose visitors see manual transfer first. Cards are unusable in Eritrea, so ER is the default.',
       },
     },
     // ── Amounts & currency (public) ──────────────────────────────────────────
@@ -158,13 +185,51 @@ export const DonationSettings: GlobalConfig = {
       localized: true,
       admin: { description: 'Short intro shown at the top of the donate page.' },
     },
+    // ── Manual transfer: what donors are actually told ───────────────────────
+    //
+    // These are structured rather than one free-text blob because the old blob
+    // was optional, frequently empty, and had no place for the reference code —
+    // so a donor could finish the form and be shown nothing about how to pay.
+    // The page now renders a labelled account block plus the donor's reference,
+    // and warns staff in the admin when the block is empty.
+    {
+      name: 'publicTransferDetails',
+      type: 'group',
+      label: 'Transfer details shown to donors (public)',
+      admin: {
+        description:
+          'Published verbatim on the donate page and in the pledge email. Fill in at least an account name and number, or donors are told to contact the chancery instead. The private receiving account below is never published.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'accountHolder', type: 'text', label: 'Account name' },
+            { name: 'bankName', type: 'text', label: 'Bank / provider' },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'accountNumber',
+              type: 'text',
+              label: 'Account number to publish',
+              admin: { description: 'Exactly as a donor must type it. Publishing this is a deliberate choice.' },
+            },
+            { name: 'swift', type: 'text', label: 'SWIFT / BIC', admin: { description: 'For transfers from abroad.' } },
+          ],
+        },
+      ],
+    },
     {
       name: 'manualInstructions',
       type: 'textarea',
       localized: true,
+      label: 'Extra transfer notes',
       admin: {
         description:
-          'Shown to donors explaining how to complete a manual transfer (bank name, public account/till, reference to quote). You decide what account detail to publish here — the stored account number below stays private.',
+          'Optional notes shown under the account block (branch, opening hours, mobile-money steps). The account details and the reference code are rendered from the fields above — do not repeat them here.',
       },
     },
     {
@@ -211,17 +276,44 @@ export const DonationSettings: GlobalConfig = {
         { name: 'referenceNote', type: 'text', admin: { description: 'Reference/memo to quote on transfers.' } },
       ],
     },
-    // ── Stripe (placeholder; secret key stays in env, never stored) ──────────
+    // ── Stripe (card) ────────────────────────────────────────────────────────
+    //
+    // No key material lives here. STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and
+    // NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY are env vars: rotating a compromised
+    // key must not require a database write, and a secret in a globals row is a
+    // secret in every backup.
     {
-      name: 'stripePublishableKey',
-      type: 'text',
-      // Incidental fix: add an update gate so a lower-privileged editor cannot
-      // write the key even though the global's update permission is broader.
-      access: { read: canField('donations.config'), update: canField('donations.config') },
+      name: 'stripeCurrencies',
+      type: 'array',
+      label: 'Currencies accepted by card',
       admin: {
-        position: 'sidebar',
-        condition: (data) => data?.provider === 'stripe',
-        description: 'Publishable key only. The secret key lives in STRIPE_SECRET_KEY (env), never in the DB.',
+        condition: (data) => data?.provider === 'stripe' || data?.provider === 'both',
+        description:
+          'Separate from the list above because Stripe cannot charge in ERN. A donor who picks a currency that is not here is offered manual transfer only. Leave empty to fall back to USD.',
+      },
+      fields: [
+        { name: 'code', type: 'text', required: true, admin: { description: 'ISO code Stripe supports, e.g. USD, EUR, GBP.' } },
+        { name: 'label', type: 'text', admin: { description: 'Optional display name.' } },
+      ],
+    },
+    {
+      name: 'stripeStatementDescriptor',
+      type: 'text',
+      maxLength: 22,
+      admin: {
+        condition: (data) => data?.provider === 'stripe' || data?.provider === 'both',
+        description:
+          'What appears on the donor’s card statement (max 22 chars). If the Stripe account is held by a partner entity, this is how a donor recognises the charge — leave empty to use the Stripe account default.',
+      },
+    },
+    {
+      name: 'stripeAccountNotice',
+      type: 'textarea',
+      localized: true,
+      admin: {
+        condition: (data) => data?.provider === 'stripe' || data?.provider === 'both',
+        description:
+          'Shown beside the card option. Use it to disclose which legal entity receives card gifts on the Eparchy’s behalf, since that name — not the Eparchy’s — appears on the Stripe page and the card statement.',
       },
     },
     // ── Audit (read-only) ────────────────────────────────────────────────────

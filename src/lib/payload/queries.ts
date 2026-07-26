@@ -6,6 +6,7 @@
  */
 
 import * as Sentry from '@sentry/nextjs'
+import { sql } from '@payloadcms/db-postgres'
 import { getPayload } from './client'
 import { cachedQuery } from './cache'
 import type { BannerSettingsData } from '../banner-themes'
@@ -59,6 +60,8 @@ export interface NewsListItem {
   publishedAt?: string
   featuredImage?: CMSImage | null
   tags?: string[]
+  /** Pinned by staff to the magazine hero slot. */
+  isFeatured?: boolean
 }
 
 /** One entry of a photo gallery: the image plus an optional caption. */
@@ -76,21 +79,55 @@ export interface NewsDetail extends NewsListItem {
   seo?: { title?: string; description?: string; ogImage?: CMSImage | null }
 }
 
+/**
+ * News ordering, in one place because the magazine and grid views must agree.
+ *
+ *  1. `-isFeatured` hoists a pinned story to position 0 of the WHOLE list, not
+ *     just of the current page. Doing it in the sort — rather than fetching the
+ *     pin separately and splicing it in — is what keeps pagination honest: the
+ *     pinned article occupies exactly one slot, is never rendered twice, and
+ *     every page still returns a full `limit` of articles.
+ *  2. `-publishedAt` is the real ordering: newest first.
+ *  3. `-createdAt` then `-id` break ties. `publishedAt` is stored to the
+ *     millisecond, but bulk imports (the Vatican News ingest writes a batch in
+ *     one pass) routinely land several articles on the same timestamp. Without
+ *     a tiebreak Postgres may return those in any order, so the same query can
+ *     produce different pages on different requests — which shows up as an
+ *     article appearing twice, or vanishing, as a reader pages through.
+ *
+ * MUST be an array, not a comma-separated string. Payload's REST layer accepts
+ * both, but the LOCAL API — which is what every page uses — silently drops all
+ * but one field from the string form: verified, `'-isFeatured,-publishedAt'`
+ * ignored the pin entirely while `['-isFeatured', '-publishedAt']` honoured it.
+ * A string here fails quietly; nothing errors, the order is simply wrong.
+ */
+const NEWS_SORT = ['-isFeatured', '-publishedAt', '-createdAt', '-id']
+
 async function _getNewsList(opts: {
   limit?: number
   category?: string
   page?: number
   locale?: string
+  /** Gregorian year, e.g. 2026. Filters to articles published in that year. */
+  year?: number
 } = {}): Promise<{ docs: NewsListItem[]; meta: PaginationMeta }> {
   try {
     const payload = await getPayload()
-    const { limit = 12, category, page = 1, locale } = opts
+    const { limit = 12, category, page = 1, locale, year } = opts
     const where: Record<string, unknown> = { _status: { equals: 'published' } }
     if (category && category !== 'all') where.category = { equals: category }
+    if (year && Number.isInteger(year)) {
+      // Half-open range on UTC boundaries so an article published at 23:59 on
+      // 31 December cannot fall into both years or neither.
+      where.publishedAt = {
+        greater_than_equal: new Date(Date.UTC(year, 0, 1)).toISOString(),
+        less_than: new Date(Date.UTC(year + 1, 0, 1)).toISOString(),
+      }
+    }
     const result = await payload.find({
       collection: 'news',
       where,
-      sort: '-publishedAt',
+      sort: NEWS_SORT,
       limit,
       page,
       depth: 1,
@@ -105,6 +142,7 @@ async function _getNewsList(opts: {
       publishedAt: d.publishedAt,
       featuredImage: imgOf(d.featuredImage),
       tags: Array.isArray(d.tags) ? d.tags.map((t: any) => t?.tag ?? t).filter(Boolean) : [],
+      isFeatured: Boolean(d.isFeatured),
     }))
     return {
       docs,
@@ -121,6 +159,36 @@ async function _getNewsList(opts: {
   }
 }
 export const getNewsList = cachedQuery(_getNewsList, 'getNewsList', ['news'])
+
+/**
+ * Distinct years that have published articles, newest first — drives the
+ * "Select the year" filter.
+ *
+ * Aggregated in SQL rather than by pulling every article and grouping in JS:
+ * the archive only grows, and the naive version would fetch the entire
+ * collection on every render of the news page.
+ */
+async function _getNewsYears(): Promise<number[]> {
+  try {
+    const payload = await getPayload()
+    const db = (payload.db as unknown as { drizzle: { execute: (q: unknown) => Promise<{ rows?: unknown[] }> } }).drizzle
+    const result = await db.execute(sql`
+      SELECT DISTINCT EXTRACT(YEAR FROM "published_at") AS year
+      FROM "news"
+      WHERE "_status" = 'published' AND "published_at" IS NOT NULL
+      ORDER BY year DESC
+    `)
+    return (result.rows ?? [])
+      // Drizzle returns numerics as strings.
+      .map((row) => Number((row as { year?: unknown }).year))
+      .filter((year) => Number.isInteger(year) && year > 1900)
+  } catch (err) {
+    logQueryError('getNewsYears', err)
+    // An empty list simply hides the filter — the page still works.
+    return []
+  }
+}
+export const getNewsYears = cachedQuery(_getNewsYears, 'getNewsYears', ['news'])
 
 export async function getNewsBySlug(slug: string, locale?: string): Promise<NewsDetail | null> {
   try {
@@ -1206,18 +1274,29 @@ export const getFooterGlobal = cachedQuery(_getFooterGlobal, 'getFooterGlobal', 
 
 export interface DonationSettingsPublic {
   enabled?: boolean
-  provider?: 'manual' | 'stripe'
+  provider?: 'manual' | 'stripe' | 'both'
+  preferManualForCountries?: string
   presetAmounts?: Array<{ amount: number }>
   defaultCurrency?: string
   minAmount?: number
   maxAmount?: number
   currencies?: Array<{ code: string; label?: string }>
+  /** Currencies Stripe can charge in — a strict subset, never including ERN. */
+  stripeCurrencies?: Array<{ code: string; label?: string }>
   allowCustomAmount?: boolean
   allowRecurring?: boolean
   intro?: string
+  /** Account details staff have chosen to publish for manual transfers. */
+  publicTransferDetails?: {
+    accountHolder?: string
+    bankName?: string
+    accountNumber?: string
+    swift?: string
+  }
   manualInstructions?: string
   thankYou?: string
-  stripePublishableKey?: string
+  stripeStatementDescriptor?: string
+  stripeAccountNotice?: string
 }
 
 async function _getDonationSettings(locale: string): Promise<DonationSettingsPublic> {

@@ -204,17 +204,39 @@ curl -i https://www.segeneyti.org/api/ingest/vatican-news   # expect 401
 
 ## 7. Environment variables
 
-No new variables were introduced by this work. The controls above rely on:
-
 | Variable | Used for | Notes |
 |---|---|---|
 | `PAYLOAD_SECRET` | JWT signing, field encryption, **IP hashing**, form-token signing | ≥32 chars, enforced at boot by `src/lib/env.ts` |
 | `CRON_SECRET` | Ingest bearer token | Absent = route refuses everything |
 | `NEXT_PUBLIC_SITE_URL` | Same-origin check on `/api/track` | Must match the live host or the check is skipped |
+| `STRIPE_SECRET_KEY` | Creating Checkout Sessions | Server-only. Absent = card donations are suppressed and the page falls back to manual transfer |
+| `STRIPE_WEBHOOK_SECRET` | Verifying webhook signatures | Server-only. Absent = `/api/webhooks/stripe` refuses everything with a 500 |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe.js, if it is ever embedded | The **only** Stripe value safe to expose; hosted Checkout does not need it |
 
 Rotating `PAYLOAD_SECRET` invalidates every session, every rate-limit bucket, and
 every outstanding form token, and makes encrypted fields unreadable. It is not a
 routine operation.
+
+No Stripe key is stored in the database — a secret in a globals row is a secret
+in every backup — so rotating one is an environment change and a redeploy.
+
+### Payment surface
+
+The site takes card donations through **hosted** Stripe Checkout: the donor is
+redirected to `checkout.stripe.com` and the card is entered on Stripe's origin.
+No card data reaches this application, which keeps it in the smallest PCI scope
+(SAQ-A). Nothing here stores, logs, or has access to a card number.
+
+The CSP allows `js.stripe.com`, `hooks.stripe.com` and `api.stripe.com`, and
+`form-action` allows `checkout.stripe.com` — the redirect is a form navigation
+and `form-action 'self'` alone blocks it. The script and frame origins are not
+strictly needed by hosted Checkout today; they are listed so that embedding the
+Payment Element or a 3-D Secure challenge iframe later does not fail with only a
+console error.
+
+The one rule that matters operationally: **a donation is marked paid only by a
+signature-verified webhook.** The browser returning to the success page is not
+evidence — see `docs/donations.md`.
 
 ---
 
