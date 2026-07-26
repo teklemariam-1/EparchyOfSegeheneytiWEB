@@ -42,7 +42,13 @@ export const Footer: GlobalConfig = {
           fields: [
             { name: 'label', type: 'text', required: true, localized: true },
             { name: 'url', type: 'text', required: true },
-            { name: 'newTab', type: 'checkbox', defaultValue: false },
+            {
+              name: 'newTab',
+              type: 'checkbox',
+              label: 'Open in new tab',
+              defaultValue: false,
+              admin: { description: 'Tick to open this link in a new browser tab.' },
+            },
           ],
         },
       ],
@@ -56,6 +62,13 @@ export const Footer: GlobalConfig = {
       fields: [
         { name: 'label', type: 'text', required: true, localized: true },
         { name: 'url', type: 'text', required: true },
+        {
+          name: 'newTab',
+          type: 'checkbox',
+          label: 'Open in new tab',
+          defaultValue: false,
+          admin: { description: 'Tick to open this link in a new browser tab.' },
+        },
       ],
     },
     {

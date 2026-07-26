@@ -3397,6 +3397,10 @@ export interface Footer {
     | {
         label: string;
         url: string;
+        /**
+         * Tick to open this link in a new browser tab.
+         */
+        newTab?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -3973,6 +3977,7 @@ export interface FooterSelect<T extends boolean = true> {
     | {
         label?: T;
         url?: T;
+        newTab?: T;
         id?: T;
       };
   showSocialLinks?: T;

@@ -1249,7 +1249,7 @@ export interface FooterGlobal {
     heading: string
     links: Array<{ label: string; url: string; newTab?: boolean }>
   }>
-  bottomLinks?: Array<{ label: string; url: string }>
+  bottomLinks?: Array<{ label: string; url: string; newTab?: boolean }>
   newsletterSignup?: { enabled?: boolean; heading?: string; placeholder?: string }
   showSocialLinks?: boolean
   socialLinks?: {

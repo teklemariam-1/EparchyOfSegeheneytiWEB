@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getTranslations, getLocale } from 'next-intl/server'
@@ -62,6 +63,22 @@ const SOCIAL_ICONS: Record<SocialKey, { label: string; letter: string }> = {
   twitter: { label: 'Twitter/X', letter: 'X' },
 }
 
+/** Columns longer than this get a double-width grid track and split their list
+ *  into two sub-columns, so one long column can't stretch the whole footer. */
+const LONG_COLUMN_LINKS = 8
+/** Above this many tracks the columns get too narrow to read, so fall back to
+ *  one track each. */
+const MAX_TRACKS = 6
+
+/** Work out how many grid tracks each link column should occupy. Long columns
+ *  take two so the footer stays roughly rectangular instead of leaving a tall
+ *  ragged gap under the short ones. */
+function columnSpans(columns: NonNullable<FooterGlobal['columns']>): number[] {
+  const spans = columns.map((col) => ((col.links?.length ?? 0) > LONG_COLUMN_LINKS ? 2 : 1))
+  const total = spans.reduce((sum, span) => sum + span, 0)
+  return total > MAX_TRACKS ? spans.map(() => 1) : spans
+}
+
 export async function SiteFooter() {
   const [footer, settings, locale] = await Promise.all([
     getFooterGlobal(),
@@ -84,15 +101,20 @@ export async function SiteFooter() {
         { label: t('privacyPolicy'), url: '/privacy' },
       ]
 
+  const spans = columnSpans(columns)
+  const tracks = spans.reduce((sum, span) => sum + span, 0)
+
   return (
     <footer className="bg-maroon-950 text-charcoal-200">
       {/* Gold top accent line */}
       <div className="h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+        {/* Left rail (brand + newsletter) beside a link region that fills the
+            remaining width — keeps the signup out of a half-empty second row. */}
+        <div className="grid items-start gap-x-10 gap-y-10 lg:grid-cols-12">
           {/* Brand column */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-3">
             <div className="flex items-center gap-3 mb-4">
               {logoUrl ? (
                 <Image
@@ -149,50 +171,63 @@ export async function SiteFooter() {
                 )}
               </div>
             )}
+
+            {/* Newsletter signup — enabled from the Footer global */}
+            {footer.newsletterSignup?.enabled !== false && (
+              <div className="mt-8 border-t border-maroon-900 pt-6 lg:border-0 lg:pt-0">
+                <NewsletterForm
+                  heading={footer.newsletterSignup?.heading ?? 'Stay updated'}
+                  placeholder={footer.newsletterSignup?.placeholder}
+                  locale={locale}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Link columns */}
-          {columns.map((col) => (
-            <div key={col.heading}>
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-gold-400 mb-4">
-                {col.heading}
-              </h3>
-              <ul className="space-y-2">
-                {col.links.map((link) => (
-                  <li key={link.url}>
-                    <Link
-                      href={link.url}
-                      {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className="text-sm text-charcoal-400 hover:text-white transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-
-          {/* Newsletter signup — enabled from the Footer global */}
-          {footer.newsletterSignup?.enabled !== false && (
-            <div className="sm:col-span-2 lg:col-span-1">
-              <NewsletterForm
-                heading={footer.newsletterSignup?.heading ?? 'Stay updated'}
-                placeholder={footer.newsletterSignup?.placeholder}
-                locale={locale}
-              />
-            </div>
-          )}
+          {/* Link columns. Track count is derived from the column lengths so a
+              long list widens instead of stretching the footer downwards. */}
+          <div
+            className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:col-span-9 lg:grid-cols-[repeat(var(--footer-tracks),minmax(0,1fr))]"
+            style={{ '--footer-tracks': tracks } as CSSProperties}
+          >
+            {columns.map((col, i) => {
+              const wide = spans[i] === 2
+              return (
+                <div key={col.heading} className={wide ? 'sm:col-span-2' : undefined}>
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-gold-400 mb-4">
+                    {col.heading}
+                  </h3>
+                  <ul className={wide ? 'sm:columns-2 sm:gap-x-8' : undefined}>
+                    {col.links.map((link) => (
+                      <li key={link.url} className="mb-2 break-inside-avoid">
+                        <Link
+                          href={link.url}
+                          {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                          className="text-sm leading-snug text-charcoal-400 hover:text-white transition-colors"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         {/* Bottom bar — CMS-driven links, falling back to sensible defaults. */}
-        <div className="mt-12 pt-6 border-t border-maroon-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-charcoal-500">
+        <div className="mt-10 pt-6 border-t border-maroon-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-charcoal-500">
           <p>{footer.copyrightText ?? `© ${year} Catholic Eparchy of Segeneyti. All rights reserved.`}</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             {bottomLinks.map((link, i) => (
               <span key={`${link.url}-${i}`} className="flex items-center gap-4">
                 {i > 0 && <span aria-hidden="true">·</span>}
-                <Link href={link.url} className="hover:text-charcoal-300 transition-colors">
+                <Link
+                  href={link.url}
+                  {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  className="hover:text-charcoal-300 transition-colors"
+                >
                   {link.label}
                 </Link>
               </span>
