@@ -26,8 +26,11 @@ describe('single sitting Eparch', () => {
   it('is enforced by a partial unique index in Postgres, not only by the hook', () => {
     // A hook cannot survive a race between two concurrent saves or a direct SQL
     // write; this index is the layer that actually holds.
+    // `IF NOT EXISTS` is optional here: the migration was made idempotent so it
+    // could complete against a production database that already had the bishops
+    // schema from a dev schema-push. What must not change is the index itself.
     expect(migration).toMatch(
-      /CREATE UNIQUE INDEX "bishops_single_active_idx" ON "bishops" \("is_active"\) WHERE "is_active" = true/,
+      /CREATE UNIQUE INDEX (?:IF NOT EXISTS )?"bishops_single_active_idx" ON "bishops" \("is_active"\) WHERE "is_active" = true/,
     )
   })
 
