@@ -97,7 +97,7 @@ describe('MainNav', () => {
     )
     expect(screen.getByRole('link', { name: 'Bishop' })).toHaveAttribute(
       'href',
-      '/about#bishop',
+      '/bishop',
     )
     expect(screen.getByRole('link', { name: 'History' })).toHaveAttribute(
       'href',

@@ -16,6 +16,7 @@ import {
   getLatestBishopMessage,
   getSiteSettings,
 } from '@/lib/payload/queries'
+import { getActiveBishop } from '@/lib/bishops/queries'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Catholic Eparchy of Segeneyti',
@@ -34,6 +35,7 @@ export default async function HomePage() {
   let events: Awaited<ReturnType<typeof getUpcomingEvents>> = []
   let bishopMessage: Awaited<ReturnType<typeof getLatestBishopMessage>> = null
   let settings: Awaited<ReturnType<typeof getSiteSettings>> = {}
+  let bishop: Awaited<ReturnType<typeof getActiveBishop>> = null
 
   try {
     homepage = await getHomepageGlobal(locale)
@@ -44,11 +46,15 @@ export default async function HomePage() {
       getUpcomingEvents(eventsLimit, locale),
       getLatestBishopMessage(locale),
       getSiteSettings(locale),
+      // Name, title and portrait of the sitting Eparch — no longer read from
+      // the homepage global, so a change of Eparch updates this section too.
+      getActiveBishop(locale),
     ])
     news = results[0].docs
     events = results[1]
     bishopMessage = results[2]
     settings = results[3]
+    bishop = results[4]
   } catch {
     // DB unavailable — render full page structure with empty data
   }
@@ -61,7 +67,11 @@ export default async function HomePage() {
       <JsonLd data={[websiteSchema(), organizationSchema()]} />
       <HeroSection hero={homepage.hero} logo={heroLogo} />
       <TodaysFeast />
-      <BishopMessageSection config={homepage.bishopMessage} message={bishopMessage} />
+      <BishopMessageSection
+        config={homepage.bishopMessage}
+        message={bishopMessage}
+        bishop={bishop}
+      />
       <LatestNewsSection config={homepage.latestNews} news={news} />
       <UpcomingEventsSection config={homepage.upcomingEvents} events={events} />
       <QuickLinksSection config={homepage.quickLinks} />

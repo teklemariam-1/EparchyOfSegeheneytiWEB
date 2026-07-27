@@ -24,6 +24,12 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { TaxonomySelect as TaxonomySelect_8e6f1c6f8b0ab830480886ee3061d10c } from '@/components/admin/TaxonomySelect'
 import { FetchVaticanNews as FetchVaticanNews_ab252082b8339de15811e44cd8622977 } from '@/components/admin/news/FetchVaticanNews'
 import { NewsGrouping as NewsGrouping_2fe09784a677d00024f4080604a6310b } from '@/components/admin/news/NewsGrouping'
+import { CompletenessIndicator as CompletenessIndicator_f5111c20fd311009dec3f27401225a4f } from '@/components/admin/bishops/CompletenessIndicator'
+import { MilestoneRowLabel as MilestoneRowLabel_99a1b2c7293fbc74b8dda77eb37ec673 } from '@/components/admin/bishops/RowLabels'
+import { TimelinePreview as TimelinePreview_5e951d0a5941ead0e8913a2dc2e91b4d } from '@/components/admin/bishops/TimelinePreview'
+import { HonorRowLabel as HonorRowLabel_99a1b2c7293fbc74b8dda77eb37ec673 } from '@/components/admin/bishops/RowLabels'
+import { EducationRowLabel as EducationRowLabel_99a1b2c7293fbc74b8dda77eb37ec673 } from '@/components/admin/bishops/RowLabels'
+import { GalleryRowLabel as GalleryRowLabel_99a1b2c7293fbc74b8dda77eb37ec673 } from '@/components/admin/bishops/RowLabels'
 import { ImportYearBanner as ImportYearBanner_1d28316acc630f9dcf8e10929e023102 } from '@/components/admin/calendar/ImportYearBanner'
 import { DonationsSummary as DonationsSummary_fd8358af7b83eb5a7827df0fd8a8d783 } from '@/components/admin/donations/DonationsSummary'
 import { DonationsGrouping as DonationsGrouping_8331eb3ede108a9a977e39f59a81187a } from '@/components/admin/donations/DonationsGrouping'
@@ -65,6 +71,12 @@ export const importMap = {
   "@/components/admin/TaxonomySelect#TaxonomySelect": TaxonomySelect_8e6f1c6f8b0ab830480886ee3061d10c,
   "@/components/admin/news/FetchVaticanNews#FetchVaticanNews": FetchVaticanNews_ab252082b8339de15811e44cd8622977,
   "@/components/admin/news/NewsGrouping#NewsGrouping": NewsGrouping_2fe09784a677d00024f4080604a6310b,
+  "@/components/admin/bishops/CompletenessIndicator#CompletenessIndicator": CompletenessIndicator_f5111c20fd311009dec3f27401225a4f,
+  "@/components/admin/bishops/RowLabels#MilestoneRowLabel": MilestoneRowLabel_99a1b2c7293fbc74b8dda77eb37ec673,
+  "@/components/admin/bishops/TimelinePreview#TimelinePreview": TimelinePreview_5e951d0a5941ead0e8913a2dc2e91b4d,
+  "@/components/admin/bishops/RowLabels#HonorRowLabel": HonorRowLabel_99a1b2c7293fbc74b8dda77eb37ec673,
+  "@/components/admin/bishops/RowLabels#EducationRowLabel": EducationRowLabel_99a1b2c7293fbc74b8dda77eb37ec673,
+  "@/components/admin/bishops/RowLabels#GalleryRowLabel": GalleryRowLabel_99a1b2c7293fbc74b8dda77eb37ec673,
   "@/components/admin/calendar/ImportYearBanner#ImportYearBanner": ImportYearBanner_1d28316acc630f9dcf8e10929e023102,
   "@/components/admin/donations/DonationsSummary#DonationsSummary": DonationsSummary_fd8358af7b83eb5a7827df0fd8a8d783,
   "@/components/admin/donations/DonationsGrouping#DonationsGrouping": DonationsGrouping_8331eb3ede108a9a977e39f59a81187a,

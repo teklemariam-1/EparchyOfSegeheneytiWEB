@@ -225,6 +225,51 @@
     "noMessages": "No messages found.",
     "downloadPDF": "Download PDF"
   },
+  "bishop": {
+    "title": "The Eparch",
+    "successionTitle": "Eparchs of Segeneyti",
+    "successionSubtitle": "The Eparchs who have led the Catholic Eparchy of Segeneyti.",
+    "sittingEparch": "Sitting Eparch",
+    "born": "Born",
+    "died": "Died",
+    "term": "Term",
+    "present": "present",
+    "appointedBy": "Appointed by",
+    "circa": "circa",
+    "ongoing": "ongoing",
+    "coatOfArms": "Coat of arms",
+    "print": "Print this biography",
+    "biography": "Biography",
+    "timeline": "Life & ministry",
+    "honours": "Honours & awards",
+    "galleries": "Photographs",
+    "writings": "Messages & publications",
+    "sources": "Sources & documents",
+    "moreInformation": "More information",
+    "seeGallery": "See photographs",
+    "period": {
+      "origins": "Origins",
+      "formation": "Formation",
+      "priesthood": "Priesthood",
+      "episcopacy": "Episcopacy"
+    },
+    "role": {
+      "principal-consecrator": "Principal consecrator",
+      "co-consecrator": "Co-consecrator",
+      "ordaining-bishop": "Ordaining bishop",
+      "appointing-pontiff": "Appointed by",
+      "presenter": "Presenter",
+      "predecessor": "Predecessor",
+      "other": "Also present"
+    },
+    "gallery": {
+      "close": "Close",
+      "previous": "Previous photograph",
+      "next": "Next photograph",
+      "photos": "photographs",
+      "untitled": "Photograph"
+    }
+  },
   "popeMessages": {
     "title": "Messages from the Holy Father",
     "subtitle": "Encyclicals, apostolic exhortations, and messages from the Successor of Saint Peter.",
@@ -374,7 +419,7 @@
     "oneTime": "One-time",
     "monthly": "Monthly",
     "name": "Your name",
-    "email": "Email address",
+    "emailLabel": "Email address",
     "message": "Message (optional)",
     "anonymous": "Give anonymously",
     "anonymousHint": "Your name will not appear in public statistics or listings.",

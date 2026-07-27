@@ -27,6 +27,13 @@ export const PERMISSIONS = [
   'pages.create', 'pages.update', 'pages.delete', 'pages.publish',
   'pope-messages.create', 'pope-messages.update', 'pope-messages.delete', 'pope-messages.publish',
   'bishop-messages.create', 'bishop-messages.update', 'bishop-messages.delete', 'bishop-messages.publish',
+  // Bishops uses `.view`/`.edit` rather than the `.update` used elsewhere, per
+  // the spec for this module. `.view` gates the admin sidebar only — public read
+  // of published records is open, as it is for all content.
+  // `.set_active` is deliberately absent from every preset: super-admin holds
+  // the whole catalog by short-circuit, so changing which Eparch the entire
+  // public site names is super-admin-only until explicitly granted.
+  'bishops.view', 'bishops.create', 'bishops.edit', 'bishops.delete', 'bishops.publish', 'bishops.set_active',
   'apps.create', 'apps.update', 'apps.delete', 'apps.publish',
   'offices.create', 'offices.update', 'offices.delete', 'offices.publish',
   'events.create', 'events.update', 'events.delete', 'events.publish', 'events.manage-own',
@@ -117,6 +124,8 @@ const CHANCERY: Permission[] = [
   'pages.create', 'pages.update', 'pages.delete', 'pages.publish',
   'pope-messages.create', 'pope-messages.update', 'pope-messages.delete', 'pope-messages.publish',
   'bishop-messages.create', 'bishop-messages.update', 'bishop-messages.delete', 'bishop-messages.publish',
+  // Chancery editors maintain the bishop records; only set_active is withheld.
+  'bishops.view', 'bishops.create', 'bishops.edit', 'bishops.delete', 'bishops.publish',
   'apps.create', 'apps.update', 'apps.delete', 'apps.publish',
   'offices.create', 'offices.update', 'offices.delete', 'offices.publish',
   'events.create', 'events.update', 'events.delete', 'events.publish',

@@ -146,6 +146,48 @@
     color: inherit !important;
     text-decoration: none !important;
   }
+
+  /* ── Printable bishop biography ─────────────────────────────────────────
+     The Eparchy already produces printed publications, and a clean profile is
+     genuinely useful for programmes and commemorative booklets. A stylesheet
+     rather than a PDF generator: same result on paper, nothing added to what
+     every visitor downloads.
+
+     Galleries and the related-content list carry `print:hidden` in the markup;
+     what remains is portrait, name, title, motto, biography, timeline, honours
+     and sources — which is the booklet page. */
+  .bishop-prose,
+  .bishop-milestone-title {
+    /* Reader font scaling is a screen affordance; on paper it would reflow the
+       layout unpredictably against a fixed page size. */
+    font-size: initial;
+  }
+
+  /* Timeline rail and markers are decorative and print as grey smudges. */
+  #timeline ol {
+    border-inline-start: none !important;
+    margin-inline-start: 0 !important;
+  }
+
+  #timeline ol li {
+    margin-inline-start: 0 !important;
+    break-inside: avoid;
+  }
+
+  #timeline ol li > span[aria-hidden='true'] {
+    display: none !important;
+  }
+
+  /* Keep an entry and its heading together across a page break. */
+  #honours li,
+  #sources li {
+    break-inside: avoid;
+  }
+
+  section {
+    background: transparent !important;
+    padding-block: 0.75rem !important;
+  }
 }
 
 @layer components {
@@ -175,6 +217,37 @@
 
   .badge-neutral {
     @apply badge bg-charcoal-100 text-charcoal-700;
+  }
+
+  /* ── Bishop profile content ───────────────────────────────────────────────
+     Biography, motto, timeline entries and honour descriptions are CONTENT, so
+     they respect the reader's font-size preference through --content-scale,
+     exactly as the news headlines do. Buttons, breadcrumbs and section headings
+     keep their Tailwind sizing so the page furniture stays put while the words
+     grow. (No settings UI writes --content-scale yet; it defaults to 1, so this
+     renders as designed today and scales the day a control is added.) */
+  .bishop-prose {
+    font-size: calc(1rem * var(--content-scale, 1));
+    line-height: 1.7;
+  }
+
+  .bishop-milestone-title {
+    font-size: calc(1.0625rem * var(--content-scale, 1));
+    line-height: 1.4;
+  }
+
+  /* Ge'ez needs markedly more room than Latin at the same size: its syllables
+     carry ascenders and descenders that collide at Latin leading. A long
+     Tigrinya biography or timeline description is where that bites hardest, so
+     these get looser leading rather than a smaller size. */
+  .bishop-prose:lang(ti),
+  .bishop-prose:lang(ti) p,
+  .bishop-prose:lang(ti) li {
+    line-height: 2.1;
+  }
+
+  .bishop-milestone-title:lang(ti) {
+    line-height: 1.75;
   }
 }
 

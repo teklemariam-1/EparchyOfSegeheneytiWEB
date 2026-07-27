@@ -10,9 +10,11 @@ export const BishopMessages: CollectionConfig = {
     hidden: hideUnless('bishop-messages.create', 'bishop-messages.update', 'bishop-messages.delete', 'bishop-messages.publish'),
     useAsTitle: 'title',
     group: 'Magisterium',
-    defaultColumns: ['_status', 'title', 'messageType', 'publishedAt'],
+    defaultColumns: ['_status', 'title', 'bishop', 'messageType', 'publishedAt'],
     description: 'Pastoral letters, homilies, and official messages from the Bishop.',
-    preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/publications/bishop-messages/${(doc as any).slug}`,
+    // The route is /bishop-messages/[slug]; this previously pointed at
+    // /publications/bishop-messages/…, which does not exist.
+    preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/bishop-messages/${(doc as any).slug}`,
   },
   access: {
     ...crud(isPublishedOrAuthenticated, 'bishop-messages.create', 'bishop-messages.update', 'bishop-messages.delete'),
@@ -23,8 +25,10 @@ export const BishopMessages: CollectionConfig = {
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('bishop-messages')
-        safeRevalidatePath(`/publications/bishop-messages/${doc.slug}`)
-        safeRevalidatePath('/publications/bishop-messages')
+        // These paths were /publications/bishop-messages/… — a route that does
+        // not exist — so publishing a message never invalidated its own page.
+        safeRevalidatePath(`/bishop-messages/${doc.slug}`)
+        safeRevalidatePath('/bishop-messages')
         safeRevalidatePath('/')
       },
     ],
@@ -50,6 +54,19 @@ export const BishopMessages: CollectionConfig = {
       type: 'date',
       index: true,
       admin: { position: 'sidebar' },
+    },
+    {
+      // Attribution is a relationship, not a copied author name: the byline,
+      // the portrait beside it and the link to his profile all resolve from the
+      // one record, so correcting a title in one place corrects it everywhere.
+      // Left blank, the message is attributed to the sitting Eparch.
+      name: 'bishop',
+      type: 'relationship',
+      relationTo: 'bishops',
+      admin: {
+        position: 'sidebar',
+        description: 'Who wrote this. Leave blank to attribute it to the sitting Eparch.',
+      },
     },
     {
       name: 'messageType',

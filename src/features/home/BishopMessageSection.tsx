@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import { Container } from '@/components/layout/Container'
 import type { HomepageGlobal, BishopMessageItem } from '@/lib/payload/queries'
+import type { BishopRecord } from '@/lib/bishops/queries'
 
 interface Props {
   config?: HomepageGlobal['bishopMessage']
   message?: BishopMessageItem | null
+  /** The sitting Eparch. Supplies name, title and portrait; null before one is set. */
+  bishop?: BishopRecord | null
 }
 
 /** Palette of the "sacred dawn" composition (see design SVG). */
@@ -125,16 +128,22 @@ function Stars() {
   )
 }
 
-export function BishopMessageSection({ config, message }: Props) {
+export function BishopMessageSection({ config, message, bishop }: Props) {
   if (config?.enabled === false) return null
 
-  const bishopName = config?.bishopName ?? 'Most Rev. [Bishop Name]'
-  const bishopTitle = config?.bishopTitle ?? 'Bishop of Segeneyti'
-  const photo = config?.photo
-  const excerpt =
-    config?.messageExcerpt ??
-    message?.excerpt ??
-    'Dear brothers and sisters in Christ, let us continue to walk together in faith, serving one another with love, and building the Kingdom of God in our communities and families throughout the Eparchy.'
+  // Identity comes from the sitting bishop record. The homepage global's own
+  // bishopName/bishopTitle/photo remain only as a fallback for a site that has
+  // not created a bishop record yet, and this section renders nothing at all
+  // rather than showing the literal "Most Rev. [Bishop Name]" placeholder that
+  // used to ship to production when both were empty.
+  const bishopName = bishop?.fullName ?? config?.bishopName
+  const bishopTitle = bishop?.formalTitle ?? config?.bishopTitle
+  const photo = bishop?.portrait ?? config?.photo
+  if (!bishopName) return null
+  // No invented fallback. This renders inside quotation marks attributed to the
+  // Eparch by name, so a stock paragraph here would publish words he never
+  // wrote — the quote block is simply omitted when there is nothing real.
+  const excerpt = config?.messageExcerpt ?? message?.excerpt ?? null
   const linkUrl = config?.linkUrl ?? (message?.slug ? `/bishop-messages/${message.slug}` : '/bishop-messages')
   const linkLabel = config?.linkLabel ?? 'Read Full Message'
 
@@ -174,18 +183,22 @@ export function BishopMessageSection({ config, message }: Props) {
               </span>
             </h2>
 
-            <p className="text-sm mb-7" style={{ color: C.rose }}>
-              {bishopTitle}
-            </p>
-
-            <blockquote
-              className="mb-8 pl-4 text-left mx-auto lg:mx-0 max-w-xl"
-              style={{ borderLeft: `3px solid ${C.gold}` }}
-            >
-              <p className="italic leading-relaxed text-sm sm:text-base" style={{ color: C.quote }}>
-                &ldquo;{excerpt}&rdquo;
+            {bishopTitle ? (
+              <p className="text-sm mb-7" style={{ color: C.rose }}>
+                {bishopTitle}
               </p>
-            </blockquote>
+            ) : null}
+
+            {excerpt ? (
+              <blockquote
+                className="mb-8 pl-4 text-left mx-auto lg:mx-0 max-w-xl"
+                style={{ borderLeft: `3px solid ${C.gold}` }}
+              >
+                <p className="italic leading-relaxed text-sm sm:text-base" style={{ color: C.quote }}>
+                  &ldquo;{excerpt}&rdquo;
+                </p>
+              </blockquote>
+            ) : null}
 
             <Link
               href={linkUrl}

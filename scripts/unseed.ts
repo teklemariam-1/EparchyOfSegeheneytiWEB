@@ -16,6 +16,10 @@ const SEED_SLUGS: Record<string, string[]> = {
   news: ['assumption-feast-2026', 'new-catechetical-program', 'bishop-visits-diaspora', 'caritas-aid-rural-parishes', 'youth-pilgrimage-debre-bizen'],
   events: ['feast-of-st-mary-2026', 'youth-convention-2026', 'easter-vigil-2026', 'catechist-training-2026'],
   'bishop-messages': ['christmas-message-2025', 'pastoral-letter-family-life', 'homily-assumption'],
+  // Listed after bishop-messages so the messages that reference him are gone
+  // first; the FK is ON DELETE SET NULL, but removing the dependants first
+  // keeps the log honest about what was actually deleted.
+  bishops: ['abune-mekonnen-tesfay'],
   'pope-messages': ['fratelli-tutti', 'world-day-of-peace-message'],
   'geez-calendar-entries': ['buhe-transfiguration', 'filseta-st-mary', 'fast-of-the-apostles', 'meskel-finding-cross', 'ldet-nativity'],
   publications: ['catechism-for-families', 'diocesan-prayer-book'],

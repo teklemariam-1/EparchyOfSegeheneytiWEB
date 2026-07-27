@@ -33,6 +33,7 @@ import * as migration_20260726_045533_news_is_featured from './20260726_045533_n
 import * as migration_20260726_054250_stripe_donations from './20260726_054250_stripe_donations';
 import * as migration_20260726_060000_news_published_at_backfill from './20260726_060000_news_published_at_backfill';
 import * as migration_20260726_070000_footer_bottom_links_new_tab from './20260726_070000_footer_bottom_links_new_tab';
+import * as migration_20260726_131455_bishops_collection from './20260726_131455_bishops_collection';
 
 export const migrations = [
   {
@@ -203,11 +204,16 @@ export const migrations = [
   {
     up: migration_20260726_060000_news_published_at_backfill.up,
     down: migration_20260726_060000_news_published_at_backfill.down,
-    name: '20260726_060000_news_published_at_backfill'
+    name: '20260726_060000_news_published_at_backfill',
   },
   {
     up: migration_20260726_070000_footer_bottom_links_new_tab.up,
     down: migration_20260726_070000_footer_bottom_links_new_tab.down,
     name: '20260726_070000_footer_bottom_links_new_tab',
+  },
+  {
+    up: migration_20260726_131455_bishops_collection.up,
+    down: migration_20260726_131455_bishops_collection.down,
+    name: '20260726_131455_bishops_collection'
   },
 ];

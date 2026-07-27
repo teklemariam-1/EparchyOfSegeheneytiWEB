@@ -16,7 +16,7 @@ function defaultFooterColumns(
       heading: tn('about'),
       links: [
         { label: tn('aboutEparchy'), url: '/about' },
-        { label: tn('bishop'), url: '/about#bishop' },
+        { label: tn('bishop'), url: '/bishop' },
         { label: tn('history'), url: '/about#history' },
         { label: tn('contact'), url: '/contact' },
       ],

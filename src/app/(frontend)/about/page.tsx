@@ -4,21 +4,25 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
+import Link from 'next/link'
 import { getHomepageGlobal, getAboutPageGlobal } from '@/lib/payload/queries'
+import { getActiveBishop } from '@/lib/bishops/queries'
 import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
   title: 'About the Eparchy',
   description:
-    'Learn about the Catholic Eparchy of Segeneyti — its history, mission, bishop, and pastoral vision for the faithful in Eritrea.',
+    'Learn about the Catholic Eparchy of Segeneyti — its history, mission, Eparch, and pastoral vision for the faithful in Eritrea.',
   path: '/about',
 })
 
 // ── Fallback content (used when the About Page global has no data) ──────────────
 const DEFAULT_MISSION = {
   heading: 'Our Mission',
+  // "eparchy", not "diocese": this is a Ge'ez-Rite eparchy of the Eritrean
+  // Catholic Church, one of its four, under the metropolitan see of Asmara.
   intro:
-    "The Catholic Eparchy of Segeneyti is an Oriental Catholic diocese of the Ge'ez rite, in full communion with the Bishop of Rome. Established in 1995, the Eparchy encompasses the southern and central regions of Eritrea, including the vicariates of Segeneyti, Adi Keyih, Dekemhare, and Mendefera, as well as a diaspora pastoral presence across Europe, North America, and the Gulf states.",
+    "The Catholic Eparchy of Segeneyti is an Eastern Catholic eparchy of the Ge'ez rite, in full communion with the Bishop of Rome and one of the four eparchies of the Eritrean Catholic Church, whose metropolitan see is Asmara. Established in 1995, the Eparchy encompasses the southern and central regions of Eritrea, including the vicariates of Segeneyti, Adi Keyih, Dekemhare, and Mendefera, as well as a diaspora pastoral presence across Europe, North America, and the Gulf states.",
   body:
     'Our mission is to proclaim the Good News of Jesus Christ, celebrate the sacraments, and build up the Body of Christ through integral human development — caring for the spiritual, educational, and physical well-being of everyone entrusted to our care.',
 }
@@ -53,11 +57,14 @@ const DEFAULT_GEEZ = {
 
 export default async function AboutPage() {
   const locale = await getLocale()
-  const [homepage, about] = await Promise.all([
+  const [homepage, about, bishop, tb] = await Promise.all([
     getHomepageGlobal(locale),
     getAboutPageGlobal(locale),
+    // Identity comes from the bishops collection, not the homepage global — so
+    // it changes everywhere the moment a new Eparch is set as sitting.
+    getActiveBishop(locale),
+    getTranslations('bishop'),
   ])
-  const bishop = homepage.bishopMessage
   const t = await getTranslations('about')
 
   // CMS-or-fallback for each section.
@@ -132,17 +139,21 @@ export default async function AboutPage() {
         </Container>
       </Section>
 
-      {/* ── Bishop's Profile ────────────────────────────────────────────── */}
+      {/* ── The Eparch ──────────────────────────────────────────────────────
+          Everything here resolves from the sitting bishop record. Rendered only
+          when one exists: an office with a single real occupant is better left
+          unmentioned than filled with an invented name. */}
+      {bishop ? (
       <Section id="bishop" className="bg-white">
         <Container>
           <div className="flex flex-col md:flex-row gap-10 items-start">
             {/* Photo */}
             <div className="shrink-0 mx-auto md:mx-0">
-              {bishop?.photo?.url ? (
+              {bishop.portrait?.url ? (
                 <div className="relative h-56 w-56 rounded-full overflow-hidden ring-4 ring-gold-300">
                   <Image
-                    src={bishop.photo.url}
-                    alt={bishop.photo.alt || bishop?.bishopName || 'Bishop'}
+                    src={bishop.portrait.url}
+                    alt={bishop.portrait.alt || bishop.fullName || ''}
                     fill
                     className="object-cover"
                     sizes="224px"
@@ -161,26 +172,26 @@ export default async function AboutPage() {
             <div className="flex-1">
               <div className="divider-gold mb-6" />
               <h2 className="text-2xl font-serif font-bold text-charcoal-900 mb-1">
-                {bishop?.bishopName ?? 'Most Rev. Bishop of Segeneyti'}
+                {bishop.fullName}
               </h2>
-              <p className="text-sm text-maroon-700 font-medium mb-4">
-                {bishop?.bishopTitle ?? 'Bishop of the Catholic Eparchy of Segeneyti'}
+              {bishop.formalTitle ? (
+                <p className="text-sm text-maroon-700 font-medium mb-4">{bishop.formalTitle}</p>
+              ) : null}
+              {/* The summary is written by staff in both languages. Two
+                  paragraphs of untranslatable English prose used to live here. */}
+              {bishop.biographySummary ? (
+                <p className="bishop-prose text-charcoal-700">{bishop.biographySummary}</p>
+              ) : null}
+              <p className="mt-4">
+                <Link href="/bishop" className="btn-secondary">
+                  {tb('biography')}
+                </Link>
               </p>
-              <div className="prose prose-eparchy">
-                <p>
-                  The Bishop leads the faithful of the Eparchy in their spiritual journey, presiding
-                  over the sacramental life of the Church, guiding its pastoral programmes, and
-                  representing the diocese in its relations with the Holy See and ecumenical partners.
-                </p>
-                <p>
-                  The full biography and latest messages from the Bishop are available in the
-                  <a href="/bishop-messages"> Bishop's Messages</a> section of this website.
-                </p>
-              </div>
             </div>
           </div>
         </Container>
       </Section>
+      ) : null}
 
       {/* ── Historical timeline ─────────────────────────────────────────── */}
       <Section id="history" className="bg-parchment-50">

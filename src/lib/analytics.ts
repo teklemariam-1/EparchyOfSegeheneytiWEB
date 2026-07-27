@@ -230,6 +230,7 @@ export const LANGUAGE_LABELS: Record<string, string> = {
 const KNOWN_ROUTE_SEGMENTS = new Set([
   'about', 'news', 'events', 'parishes', 'vicariates', 'ministries', 'offices',
   'bishop-messages', 'pope-messages', 'publications', 'apps', 'media',
+  'bishop', 'eparchs',
   'geez-calendar', 'calendar-subscriptions', 'search', 'contact', 'settings', 'privacy',
 ])
 
@@ -253,7 +254,11 @@ export function contentBucket(path: string): string {
   if (path.startsWith('/news')) return 'News'
   if (path.startsWith('/events')) return 'Events'
   if (path.startsWith('/parishes')) return 'Parishes'
+  // Order matters: '/bishop-messages' also starts with '/bishop', so the more
+  // specific prefix has to be tested first or every message would be bucketed
+  // as an Eparch profile view.
   if (path.startsWith('/bishop-messages')) return 'Bishop Messages'
+  if (path.startsWith('/bishop') || path.startsWith('/eparchs')) return 'The Eparch'
   if (path.startsWith('/pope-messages')) return 'Pope Messages'
   if (path.startsWith('/publications')) return 'Publications'
   if (path.startsWith('/media')) return 'Media Gallery'

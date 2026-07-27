@@ -49,6 +49,18 @@ async function main() {
     return
   }
 
+  /**
+   * `overrideAccess: true` skips ACCESS functions but NOT hooks, and every
+   * draft-enabled collection runs `requirePublishPermission` in beforeChange.
+   * With no user on the request that hook sees an anonymous caller and rejects
+   * every `_status: 'published'` document with a 403 — which silently broke
+   * seeding of news, events and both message collections when the permission
+   * system landed. Seeding acts with full authority by definition, so give the
+   * request an in-memory super-admin; the resolver grants that role the whole
+   * catalogue, and nothing is written to the users table.
+   */
+  const SEED_USER = { id: 0, role: 'super-admin', status: 'active', collection: 'users' }
+
   // Helper: create at 'en', then patch the Tigrinya locale for localized fields.
   const createLocalized = async (
     collection: string,
@@ -60,6 +72,7 @@ async function main() {
       collection: collection as any,
       locale: 'en',
       overrideAccess: true,
+      user: SEED_USER as any,
       data: { ...shared, ...en } as any,
     })
     if (Object.keys(ti).length) {
@@ -68,6 +81,7 @@ async function main() {
         id: doc.id,
         locale: 'ti',
         overrideAccess: true,
+        user: SEED_USER as any,
         data: { ...ti, ...(shared._status ? { _status: shared._status } : {}) } as any,
       })
     }
@@ -244,6 +258,166 @@ async function main() {
   ]
   for (const [shared, en, ti] of events) await createLocalized('events', shared, en, ti)
 
+  // ── The Eparch ─────────────────────────────────────────────────────────────────
+  // A full sample record: identity, a life's worth of milestones at mixed date
+  // precision, honours, education, tenure, a gallery and a source. The Tigrinya
+  // is real text rather than transliterated placeholder, because the timeline and
+  // the biography are exactly where Ge'ez line-height problems show up and lorem
+  // ipsum would hide them.
+  //
+  // ⚠ Arrays here are NOT localized as a whole — they hold localized subfields
+  // (title, location) alongside shared ones (milestoneType, date, isPublic).
+  // Payload REPLACES an array wholesale on update, so patching the 'ti' locale
+  // with rows that carry only the translated text wipes the dates, the types and
+  // the isPublic flags of every row. The rows below are therefore merged: each
+  // Tigrinya row is the English row with its text replaced. The admin UI does
+  // this for you — it loads and resubmits the whole document — so this caveat is
+  // specific to scripted seeding.
+  console.log('▸ bishops')
+
+  /**
+   * Build the Tigrinya rows for a non-localized array holding localized
+   * subfields. Two things must be carried or the patch is destructive:
+   *   - the shared values (type, date, isPublic), because Payload replaces the
+   *     array wholesale and anything omitted reverts to its default;
+   *   - each row's `id` from the created document, because without it Payload
+   *     treats every row as new, deletes the originals, and the English text
+   *     goes with them.
+   */
+  const localizeRows = (
+    rows: Array<Record<string, unknown>>,
+    translations: Array<Record<string, unknown>>,
+    created: Array<{ id?: unknown }> = [],
+  ) => rows.map((row, i) => ({ ...row, ...(translations[i] ?? {}), id: created[i]?.id }))
+
+  const bishopMilestones = [
+    { milestoneType: 'birth', title: 'Born at Adi Keyih', date: '1968-03-19T00:00:00.000Z', datePrecision: 'year', location: 'Adi Keyih', isPublic: true },
+    { milestoneType: 'minor-seminary', title: 'Entered the minor seminary', date: '1983-09-01T00:00:00.000Z', datePrecision: 'approximate', location: 'Asmara', isPublic: true },
+    { milestoneType: 'major-seminary', title: 'Studies in philosophy and theology', date: '1990-09-01T00:00:00.000Z', datePrecision: 'month', endDate: '1997-06-01T00:00:00.000Z', endDatePrecision: 'year', location: 'Asmara', isPublic: true },
+    { milestoneType: 'priestly-ordination', title: 'Ordained to the priesthood', date: '1998-06-14T00:00:00.000Z', datePrecision: 'exact', location: 'Segeneyti', isPublic: true },
+    { milestoneType: 'pastoral-assignment', title: 'Parish priest, Adi Keyih', date: '1998-09-01T00:00:00.000Z', datePrecision: 'month', endDate: '2004-01-01T00:00:00.000Z', endDatePrecision: 'year', isPublic: true },
+    { milestoneType: 'further-studies', title: 'Licentiate in Sacred Scripture, Rome', date: '2004-01-01T00:00:00.000Z', datePrecision: 'year', endDate: '2008-01-01T00:00:00.000Z', endDatePrecision: 'year', location: 'Rome', isPublic: true },
+    { milestoneType: 'academic-appointment', title: 'Lecturer in Sacred Scripture', date: '2008-01-01T00:00:00.000Z', datePrecision: 'year', endDatePrecision: 'ongoing', isPublic: true },
+    { milestoneType: 'curial-role', title: 'Chancellor of the Eparchy', date: '2016-01-01T00:00:00.000Z', datePrecision: 'year', endDate: '2024-01-01T00:00:00.000Z', endDatePrecision: 'year', isPublic: true },
+    { milestoneType: 'episcopal-appointment', title: 'Appointed Eparch of Segeneyti', date: '2024-02-11T00:00:00.000Z', datePrecision: 'exact', isPublic: true },
+    { milestoneType: 'episcopal-consecration', title: 'Episcopal consecration', date: '2024-04-06T00:00:00.000Z', datePrecision: 'exact', location: 'Asmara', isPublic: true },
+    { milestoneType: 'enthronement', title: 'Enthroned as Eparch of Segeneyti', date: '2024-04-14T00:00:00.000Z', datePrecision: 'exact', location: 'Segeneyti', galleryKey: 'enthronement-2024', isPublic: true },
+  ]
+
+  const bishopMilestonesTi = [
+    { title: 'ኣብ ዓዲ ቀይሕ ተወልዱ', location: 'ዓዲ ቀይሕ' },
+    { title: 'ናብ ንኡስ ሰሚናርዮ ኣተዉ', location: 'ኣስመራ' },
+    { title: 'ናይ ፍልስፍናን ስነ መለኮትን ትምህርቲ', location: 'ኣስመራ' },
+    { title: 'ናብ ክህነት ተሸሙ', location: 'ሰገነይቲ' },
+    { title: 'ኣብ ዓዲ ቀይሕ ሓላፊ ኣገልግሎት ቤተ ክርስቲያን' },
+    { title: 'ተወሳኺ ትምህርቲ ኣብ ቅዱስ መጽሓፍ፣ ሮማ', location: 'ሮማ' },
+    { title: 'መምህር ቅዱስ መጽሓፍ' },
+    { title: 'ጸሓፊ ሃገረ ስብከት' },
+    { title: 'ጳጳስ ሰገነይቲ ኮይኖም ተሸሙ' },
+    { title: 'ሲመተ ጵጵስና', location: 'ኣስመራ' },
+    { title: 'ኣብ መንበሮም ተቐመጡ', location: 'ሰገነይቲ' },
+  ]
+
+  const bishopHonors = [
+    { name: 'Honorary Doctorate in Sacred Theology', category: 'academic', awardingBody: 'Pontifical Urban University', date: '2019-01-01T00:00:00.000Z', datePrecision: 'year', place: 'Rome', isPublic: true },
+  ]
+  const bishopHonorsTi = [
+    { name: 'ናይ ክብሪ ዶክተሬት ብስነ መለኮት', awardingBody: 'ጳጳሳዊ ኡርባን ዩኒቨርሲቲ', place: 'ሮማ' },
+  ]
+
+  const bishopEducation = [
+    { institution: 'Major Seminary of Asmara', location: 'Asmara', fieldOfStudy: 'Philosophy and Theology', startYear: 1990, endYear: 1997, isPublic: true },
+    { institution: 'Pontifical Biblical Institute', location: 'Rome', fieldOfStudy: 'Sacred Scripture', degree: 'Licentiate', startYear: 2004, endYear: 2008, isPublic: true },
+  ]
+  const bishopEducationTi = [
+    { institution: 'ዓቢ ሰሚናርዮ ኣስመራ', location: 'ኣስመራ', fieldOfStudy: 'ፍልስፍናን ስነ መለኮትን' },
+    { institution: 'ጳጳሳዊ ትካል ቅዱስ መጽሓፍ', location: 'ሮማ', fieldOfStudy: 'ቅዱስ መጽሓፍ' },
+  ]
+
+  const bishopPriorities = [
+    { title: 'Seminary formation', description: 'Strengthening the formation of candidates for the priesthood.', status: 'ongoing', isPublic: true },
+    { title: 'Diaspora pastoral care', description: 'Sustained pastoral accompaniment of Eritrean Catholic communities abroad.', status: 'ongoing', isPublic: true },
+  ]
+  const bishopPrioritiesTi = [
+    { title: 'ስልጠና ሰሚናርዮ', description: 'ንክህነት ዝዳለዉ ሕጹያት ስልጠና ምሕያል።' },
+    { title: 'ኣብ ወጻኢ ንዘለዉ ምእመናን ኣገልግሎት', description: 'ኣብ ወጻኢ ንዝርከቡ ኤርትራውያን ካቶሊካውያን ማሕበራት ቀጻሊ ኣገልግሎት።' },
+  ]
+
+  const bishopGalleries = [
+    { title: 'Enthronement, 2024', key: 'enthronement-2024', date: '2024-04-14T00:00:00.000Z', coverImage: IMG, isPublic: true, images: [{ image: IMG, caption: 'Entering the cathedral', credit: 'Eparchy of Segeneyti', isPublic: true }] },
+  ]
+  const bishopGalleriesTi = [
+    { title: 'ኣብ መንበር ምቕማጥ፣ 2024', description: 'ስእልታት ናይታ ዕለት።' },
+  ]
+
+  const bishopLinks = [
+    { url: 'https://www.vatican.va/', label: 'Announcement of appointment', linkType: 'holy-see', sourceName: 'Holy See Press Office', date: '2024-02-11T00:00:00.000Z', isPublic: true },
+  ]
+  const bishopLinksTi = [{ label: 'ናይ ሽመት ኣዋጅ' }]
+
+  const bishopShared = {
+    slug: 'abune-mekonnen-tesfay',
+    isActive: true,
+    honorific: 'abune',
+    portrait: IMG,
+    dateOfBirth: '1968-03-19T00:00:00.000Z',
+    dateOfBirthPrecision: 'year',
+    nationality: 'Eritrean',
+    termStart: '2024-04-14T00:00:00.000Z',
+    appointingAuthority: 'roman-pontiff',
+    appointmentDate: '2024-02-11T00:00:00.000Z',
+    _status: 'published',
+  }
+  const bishopEn = {
+    fullName: 'Abune Mekonnen Tesfay',
+    formalTitle: 'Eparch of the Catholic Eparchy of Segeneyti',
+    motto: 'Serve one another in love',
+    mottoOriginal: 'Per caritatem servite invicem',
+    placeOfBirth: 'Adi Keyih, Eritrea',
+    appointingAuthorityName: 'Pope Francis',
+    biographySummary:
+      'Abune Mekonnen Tesfay has served the Eparchy of Segeneyti since 2024. Ordained a priest in 1998, he taught sacred scripture at the major seminary and served as chancellor of the Eparchy before his appointment as Eparch.',
+    milestones: bishopMilestones,
+    honors: bishopHonors,
+    education: bishopEducation,
+    pastoralPriorities: bishopPriorities,
+    galleries: bishopGalleries,
+    links: bishopLinks,
+  }
+
+  const bishop = await payload.create({
+    collection: 'bishops' as any,
+    locale: 'en',
+    overrideAccess: true,
+    user: SEED_USER as any,
+    data: { ...bishopShared, ...bishopEn } as any,
+  })
+  const bishopRows = bishop as unknown as Record<string, Array<{ id?: unknown }>>
+
+  await payload.update({
+    collection: 'bishops' as any,
+    id: bishop.id,
+    locale: 'ti',
+    overrideAccess: true,
+    user: SEED_USER as any,
+    data: {
+      _status: 'published',
+      fullName: 'ኣቡነ መኮንን ተስፋይ',
+      formalTitle: 'ጳጳስ ካቶሊካዊት ሃገረ ስብከት ሰገነይቲ',
+      motto: 'ብፍቕሪ ንሓድሕድኩም ተገልገሉ',
+      placeOfBirth: 'ዓዲ ቀይሕ፣ ኤርትራ',
+      appointingAuthorityName: 'ር.ሊ.ጳ ፍራንቸስኮስ',
+      biographySummary:
+        'ኣቡነ መኮንን ተስፋይ ካብ 2024 ጀሚሮም ንሃገረ ስብከት ሰገነይቲ የገልግሉ ኣለዉ። ኣብ 1998 ካህን ኮይኖም ተሸሙ፣ ኣብ ዓቢ ሰሚናርዮ ቅዱስ መጽሓፍ መሃሩ፣ ቅድሚ ናብ ጵጵስና ምስያሞም ድማ ጸሓፊ ሃገረ ስብከት ኮይኖም ኣገልጊሎም።',
+      milestones: localizeRows(bishopMilestones, bishopMilestonesTi, bishopRows.milestones),
+      honors: localizeRows(bishopHonors, bishopHonorsTi, bishopRows.honors),
+      education: localizeRows(bishopEducation, bishopEducationTi, bishopRows.education),
+      pastoralPriorities: localizeRows(bishopPriorities, bishopPrioritiesTi, bishopRows.pastoralPriorities),
+      galleries: localizeRows(bishopGalleries, bishopGalleriesTi, bishopRows.galleries),
+      links: localizeRows(bishopLinks, bishopLinksTi, bishopRows.links),
+    } as any,
+  })
+
   // ── Bishop messages ────────────────────────────────────────────────────────────
   console.log('▸ bishop-messages')
   const bishopMsgs: Array<[Record<string, unknown>, Record<string, unknown>, Record<string, unknown>]> = [
@@ -263,7 +437,10 @@ async function main() {
       { title: 'ናይ ዕርገተ ማርያም በዓል ስብከት', excerpt: 'ማርያም፣ ናብ ሰማይ ዝዓረገት፣ ናይ ርግጸኛ ተስፋና ምልክት እያ።', body: rt(['ኣብ ዕርገተ ማርያም ኩሎም ምእመናን ዝጽውዑሉ ዕድል ንርኢ።']) },
     ],
   ]
-  for (const [shared, en, ti] of bishopMsgs) await createLocalized('bishop-messages', shared, en, ti)
+  // Attribution is a relationship: the byline and the link to his profile both
+  // resolve from the one bishop record rather than a copied author name.
+  for (const [shared, en, ti] of bishopMsgs)
+    await createLocalized('bishop-messages', { ...shared, bishop: bishop.id }, en, ti)
 
   // ── Pope messages ──────────────────────────────────────────────────────────────
   console.log('▸ pope-messages')

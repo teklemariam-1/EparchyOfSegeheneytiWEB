@@ -8,6 +8,7 @@ import {
   getAllVicariateSlugs,
   getAllOfficeSlugs,
 } from '@/lib/payload/queries'
+import { getAllBishopSlugs } from '@/lib/bishops/queries'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim()
 
@@ -30,6 +31,10 @@ const STATIC_ROUTES: Array<{
   { url: '/geez-calendar', changeFrequency: 'monthly', priority: 0.6 },
   { url: '/calendar-subscriptions', changeFrequency: 'monthly', priority: 0.5 },
   { url: '/about', changeFrequency: 'monthly', priority: 0.7 },
+  { url: '/bishop', changeFrequency: 'monthly', priority: 0.8 },
+  // /eparchs 404s until there are two Eparchs to list, so it is deliberately
+  // absent here — advertising a URL that returns 404 is a crawl error, not a
+  // discovery aid. Individual profiles below are live from the first record.
   { url: '/contact', changeFrequency: 'monthly', priority: 0.7 },
   { url: '/search', changeFrequency: 'monthly', priority: 0.4 },
   { url: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
@@ -49,6 +54,7 @@ const DETAIL_GROUPS: Array<{
   { prefix: '/offices', load: getAllOfficeSlugs, changeFrequency: 'monthly', priority: 0.5 },
   { prefix: '/bishop-messages', load: getAllBishopMessageSlugs, changeFrequency: 'monthly', priority: 0.7 },
   { prefix: '/pope-messages', load: getAllPopeMessageSlugs, changeFrequency: 'monthly', priority: 0.6 },
+  { prefix: '/eparchs', load: getAllBishopSlugs, changeFrequency: 'monthly', priority: 0.7 },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

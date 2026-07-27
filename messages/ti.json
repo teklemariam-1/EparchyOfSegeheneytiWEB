@@ -225,6 +225,51 @@
     "noMessages": "ዝርከብ መልእኽቲ የለን።",
     "downloadPDF": "PDF ኣውርድ"
   },
+  "bishop": {
+    "title": "ጳጳስ ሃገረ ስብከት",
+    "successionTitle": "ጳጳሳት ሃገረ ስብከት ሰገነይቲ",
+    "successionSubtitle": "ንሃገረ ስብከት ሰገነይቲ ዝመርሑ ጳጳሳት።",
+    "sittingEparch": "ህሉው ጳጳስ",
+    "born": "ዕለተ ልደት",
+    "died": "ዕለተ ዕረፍቲ",
+    "term": "ዘመነ ኣገልግሎት",
+    "present": "ሕጂ",
+    "appointedBy": "ዝሸሞ",
+    "circa": "ኣስታት",
+    "ongoing": "ይቕጽል ኣሎ",
+    "coatOfArms": "ኣርማ",
+    "print": "ነዚ ታሪኽ ሕተም",
+    "biography": "ታሪኽ ህይወት",
+    "timeline": "ህይወትን ኣገልግሎትን",
+    "honours": "ክብርታትን ሽልማትን",
+    "galleries": "ስእልታት",
+    "writings": "መልእኽትታትን ሕታማትን",
+    "sources": "ምንጭታትን ሰነዳትን",
+    "moreInformation": "ተወሳኺ ሓበሬታ",
+    "seeGallery": "ስእልታት ርአ",
+    "period": {
+      "origins": "መበቆል",
+      "formation": "ስልጠና",
+      "priesthood": "ክህነት",
+      "episcopacy": "ጵጵስና"
+    },
+    "role": {
+      "principal-consecrator": "ቀንዲ ሰያሚ",
+      "co-consecrator": "ተሓባባሪ ሰያሚ",
+      "ordaining-bishop": "ሰያሚ ጳጳስ",
+      "appointing-pontiff": "ዝሸሞ",
+      "presenter": "ኣቕራቢ",
+      "predecessor": "ቀዳማይ",
+      "other": "ካልእ ተሳታፊ"
+    },
+    "gallery": {
+      "close": "ዕጸው",
+      "previous": "ዝሓለፈ ስእሊ",
+      "next": "ቀጻሊ ስእሊ",
+      "photos": "ስእልታት",
+      "untitled": "ስእሊ"
+    }
+  },
   "popeMessages": {
     "title": "መልእኽቲ ካብ ቅዱስ ኣቦ",
     "subtitle": "ኤንሳይክሊካታት፣ ሃዋርያዊ ማዕዳታትን መልእኽትታትን ካብ ወራሲ ቅዱስ ጴጥሮስ።",
@@ -374,7 +419,7 @@
     "oneTime": "ሓደ ግዜ",
     "monthly": "ወርሓዊ",
     "name": "ሽምኩም",
-    "email": "ኢመይል",
+    "emailLabel": "ኢመይል",
     "message": "መልእኽቲ (ኣማራጺ)",
     "anonymous": "ብዘይ ሽም ወፍዩ",
     "anonymousHint": "ሽምኩም ኣብ ህዝባዊ ስታቲስቲክስን ዝርዝራትን ኣይረአን።",

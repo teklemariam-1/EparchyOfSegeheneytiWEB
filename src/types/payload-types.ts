@@ -83,6 +83,7 @@ export interface Config {
     ministries: Ministry;
     priests: Priest;
     'pope-messages': PopeMessage;
+    bishops: Bishop;
     'bishop-messages': BishopMessage;
     publications: Publication;
     magazines: Magazine;
@@ -123,6 +124,7 @@ export interface Config {
     ministries: MinistriesSelect<false> | MinistriesSelect<true>;
     priests: PriestsSelect<false> | PriestsSelect<true>;
     'pope-messages': PopeMessagesSelect<false> | PopeMessagesSelect<true>;
+    bishops: BishopsSelect<false> | BishopsSelect<true>;
     'bishop-messages': BishopMessagesSelect<false> | BishopMessagesSelect<true>;
     publications: PublicationsSelect<false> | PublicationsSelect<true>;
     magazines: MagazinesSelect<false> | MagazinesSelect<true>;
@@ -240,6 +242,12 @@ export interface User {
         | 'bishop-messages.update'
         | 'bishop-messages.delete'
         | 'bishop-messages.publish'
+        | 'bishops.view'
+        | 'bishops.create'
+        | 'bishops.edit'
+        | 'bishops.delete'
+        | 'bishops.publish'
+        | 'bishops.set_active'
         | 'apps.create'
         | 'apps.update'
         | 'apps.delete'
@@ -344,6 +352,12 @@ export interface User {
         | 'bishop-messages.update'
         | 'bishop-messages.delete'
         | 'bishop-messages.publish'
+        | 'bishops.view'
+        | 'bishops.create'
+        | 'bishops.edit'
+        | 'bishops.delete'
+        | 'bishops.publish'
+        | 'bishops.set_active'
         | 'apps.create'
         | 'apps.update'
         | 'apps.delete'
@@ -1353,22 +1367,387 @@ export interface PopeMessage {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Pastoral letters, homilies, and official messages from the Bishop.
+ * Biographical records of the Eparchs of Segeneyti — life, ministry, honours, galleries and sources.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "bishop-messages".
+ * via the `definition` "bishops".
  */
-export interface BishopMessage {
+export interface Bishop {
   id: number;
-  title: string;
+  /**
+   * Ticking this makes him the Eparch shown across the whole website and automatically stands the previous one down. Only a super-admin can change it.
+   */
+  isActive?: boolean | null;
+  /**
+   * The name as it should appear publicly, including the honorific — e.g. "Abune …". Enter the Tigrinya form on the ትግርኛ tab.
+   */
+  fullName: string;
+  /**
+   * Web address for this profile. Generated from the English name; a Tigrinya-only name produces nothing, so type one in Latin letters.
+   */
   slug: string;
-  publishedAt?: string | null;
-  messageType?:
-    | ('pastoral-letter' | 'homily' | 'encyclical-response' | 'christmas' | 'easter' | 'extraordinary' | 'general')
+  /**
+   * How he is formally addressed. "Abune" is the Ge'ez-rite form.
+   */
+  honorific?: ('abune' | 'his-excellency-abune' | 'most-reverend' | 'his-eminence' | 'other') | null;
+  /**
+   * The name taken at episcopal consecration, if different from his birth name.
+   */
+  episcopalName?: string | null;
+  /**
+   * Full formal title, e.g. "Eparch of the Catholic Eparchy of Segeneyti". Shown under his name on every public page.
+   */
+  formalTitle?: string | null;
+  baptismalName?: string | null;
+  familyName?: string | null;
+  /**
+   * The name taken on religious profession, for members of an order.
+   */
+  nameInReligion?: string | null;
+  /**
+   * Official portrait. Add alt text on the media record — it is read aloud by screen readers.
+   */
+  portrait?: (number | null) | Media;
+  /**
+   * His episcopal coat of arms, if one has been granted.
+   */
+  coatOfArms?: (number | null) | Media;
+  /**
+   * The motto as it should read to visitors, in each language.
+   */
+  motto?: string | null;
+  /**
+   * The motto in its original language (Latin or Ge'ez), if it was chosen in one. Not translated — shown as written.
+   */
+  mottoOriginal?: string | null;
+  /**
+   * Optional note on the translation or the scriptural source.
+   */
+  mottoNote?: string | null;
+  /**
+   * Leave blank if unknown.
+   */
+  dateOfBirth?: string | null;
+  /**
+   * Choose "Year only" or "Approximate" rather than inventing a day you are not sure of.
+   */
+  dateOfBirthPrecision?: ('exact' | 'month' | 'year' | 'approximate') | null;
+  placeOfBirth?: string | null;
+  dateOfDeath?: string | null;
+  /**
+   * Choose "Year only" or "Approximate" rather than inventing a day you are not sure of.
+   */
+  dateOfDeathPrecision?: ('exact' | 'month' | 'year' | 'approximate') | null;
+  placeOfDeath?: string | null;
+  nationality?: string | null;
+  /**
+   * The parish he comes from. Pick from the list rather than typing it.
+   */
+  homeParish?: (number | null) | Parish;
+  homeVicariate?: (number | null) | Vicariate;
+  /**
+   * Everything from birth to the present, added as it happens. Order does not matter — the public timeline sorts by date. Only a type and a title are needed to save one.
+   */
+  milestones?:
+    | {
+        milestoneType:
+          | 'birth'
+          | 'baptism'
+          | 'chrismation'
+          | 'first-communion'
+          | 'minor-seminary'
+          | 'major-seminary'
+          | 'philosophy-theology-studies'
+          | 'religious-profession'
+          | 'diaconate-ordination'
+          | 'priestly-ordination'
+          | 'pastoral-assignment'
+          | 'further-studies'
+          | 'academic-appointment'
+          | 'curial-role'
+          | 'episcopal-appointment'
+          | 'episcopal-consecration'
+          | 'enthronement'
+          | 'synod-participation'
+          | 'pastoral-visit'
+          | 'pastoral-act'
+          | 'retirement'
+          | 'transfer'
+          | 'death'
+          | 'other';
+        isPublic?: boolean | null;
+        /**
+         * Only used to order entries that share the same date. Leave blank otherwise.
+         */
+        order?: number | null;
+        /**
+         * Short heading for the timeline, e.g. "Ordained to the priesthood".
+         */
+        title: string;
+        /**
+         * When it happened, as precisely as it is actually known.
+         */
+        date?: string | null;
+        /**
+         * Choose "Year only" or "Approximate" rather than inventing a day you are not sure of.
+         */
+        datePrecision?: ('exact' | 'month' | 'year' | 'approximate') | null;
+        /**
+         * Only for something that spanned a period — an assignment, a course of study.
+         */
+        endDate?: string | null;
+        /**
+         * Choose "Year only" or "Approximate" rather than inventing a day you are not sure of.
+         */
+        endDatePrecision?: ('exact' | 'month' | 'year' | 'approximate' | 'ongoing') | null;
+        /**
+         * Where it happened, in words. Add the parish or vicariate below if it is one of ours.
+         */
+        location?: string | null;
+        parish?: (number | null) | Parish;
+        vicariate?: (number | null) | Vicariate;
+        /**
+         * Optional fuller account. Ge'ez script is given extra line spacing on the public page.
+         */
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        /**
+         * Principal consecrator, co-consecrators, the ordaining bishop, the Pontiff who appointed him. Pick from our clergy list where the person is in it, otherwise just type the name.
+         */
+        people?:
+          | {
+              role?:
+                | (
+                    | 'principal-consecrator'
+                    | 'co-consecrator'
+                    | 'ordaining-bishop'
+                    | 'appointing-pontiff'
+                    | 'presenter'
+                    | 'predecessor'
+                    | 'other'
+                  )
+                | null;
+              /**
+               * If he is in our clergy records.
+               */
+              priest?: (number | null) | Priest;
+              /**
+               * Name as written — use this for anyone not in our clergy records, such as a Roman Pontiff.
+               */
+              name?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * A few photos shown inline with this milestone.
+         */
+        photos?: (number | Media)[] | null;
+        /**
+         * To link this milestone to a full gallery, type that gallery's Key exactly as it appears on the Galleries tab (e.g. "episcopal-consecration-2024"). Saving fails with a clear message if it does not match one.
+         */
+        galleryKey?: string | null;
+        /**
+         * Decrees, letters, or programmes connected to this event.
+         */
+        documents?:
+          | {
+              title: string;
+              documentType?:
+                | ('appointment-bull' | 'pastoral-letter' | 'decree' | 'homily' | 'academic-paper' | 'other')
+                | null;
+              date?: string | null;
+              /**
+               * Link to a catalogued publication, if this document is one.
+               */
+              publication?: (number | null) | Publication;
+              /**
+               * Or attach the file directly (PDF, scan).
+               */
+              file?: (number | null) | Media;
+              isPublic?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Announcements, news coverage, or video of this event.
+         */
+        links?:
+          | {
+              /**
+               * Full web address, including https://
+               */
+              url: string;
+              label: string;
+              linkType?:
+                | (
+                    | 'holy-see'
+                    | 'eritrean-catholic-church'
+                    | 'news-article'
+                    | 'video'
+                    | 'reference-database'
+                    | 'document'
+                    | 'other'
+                  )
+                | null;
+              /**
+               * Publication or site name, e.g. "Vatican News".
+               */
+              sourceName?: string | null;
+              date?: string | null;
+              /**
+               * Set when you last confirmed this link still works.
+               */
+              lastCheckedAt?: string | null;
+              isPublic?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
     | null;
-  featuredImage?: (number | null) | Media;
-  excerpt?: string | null;
-  body: {
+  /**
+   * Ecclesiastical honours, academic degrees, civil awards, and formal recognitions.
+   */
+  honors?:
+    | {
+        name: string;
+        category?: ('ecclesiastical' | 'academic' | 'civil' | 'recognition' | 'other') | null;
+        /**
+         * Who conferred it.
+         */
+        awardingBody?: string | null;
+        date?: string | null;
+        /**
+         * Choose "Year only" or "Approximate" rather than inventing a day you are not sure of.
+         */
+        datePrecision?: ('exact' | 'month' | 'year' | 'approximate') | null;
+        place?: string | null;
+        description?: string | null;
+        /**
+         * Photograph or scan of the certificate, if we have one.
+         */
+        certificate?: (number | null) | Media;
+        /**
+         * Or a catalogued document recording it.
+         */
+        publication?: (number | null) | Publication;
+        /**
+         * Full web address, including https://
+         */
+        url?: string | null;
+        isPublic?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Seminaries, universities, and academic qualifications, earliest first.
+   */
+  education?:
+    | {
+        institution: string;
+        location?: string | null;
+        /**
+         * e.g. Sacred Theology, Canon Law.
+         */
+        fieldOfStudy?: string | null;
+        /**
+         * Degree or qualification awarded, e.g. Licentiate in Sacred Theology.
+         */
+        degree?: string | null;
+        startYear?: number | null;
+        endYear?: number | null;
+        thesisTitle?: string | null;
+        notes?: string | null;
+        isPublic?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Usually the date of enthronement.
+   */
+  termStart?: string | null;
+  /**
+   * Leave blank while he is serving.
+   */
+  termEnd?: string | null;
+  termEndReason?: ('retired' | 'transferred' | 'deceased' | 'other') | null;
+  /**
+   * Eparchs of a Metropolitan Church sui iuris are appointed by the Roman Pontiff; the Council of Hierarchs proposes candidates.
+   */
+  appointingAuthority?: ('roman-pontiff' | 'council-of-hierarchs' | 'dicastery-eastern-churches' | 'other') | null;
+  /**
+   * The person by name, e.g. "Pope Francis".
+   */
+  appointingAuthorityName?: string | null;
+  appointmentDate?: string | null;
+  /**
+   * Offices held before Segeneyti — including another see, if he was transferred here.
+   */
+  previousAppointments?:
+    | {
+        title: string;
+        place?: string | null;
+        startYear?: number | null;
+        endYear?: number | null;
+        notes?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The Eparch before him, once that record exists.
+   */
+  predecessor?: (number | null) | Bishop;
+  successor?: (number | null) | Bishop;
+  /**
+   * If he is in our clergy records.
+   */
+  principalConsecrator?: (number | null) | Priest;
+  /**
+   * Otherwise his name as written.
+   */
+  principalConsecratorName?: string | null;
+  /**
+   * What his ministry is focused on — catechesis, seminary formation, diaspora care, and so on.
+   */
+  pastoralPriorities?:
+    | {
+        title: string;
+        description?: string | null;
+        status?: ('planned' | 'ongoing' | 'completed' | 'paused') | null;
+        startDate?: string | null;
+        endDate?: string | null;
+        isPublic?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * His pastoral letters and homilies.
+   */
+  relatedMessages?: (number | BishopMessage)[] | null;
+  relatedPublications?: (number | Publication)[] | null;
+  relatedNews?: (number | News)[] | null;
+  relatedEvents?: (number | Event)[] | null;
+  /**
+   * Two or three sentences. Used on cards, link previews, and in search results — write it as a standalone paragraph, not as an opening clause.
+   */
+  biographySummary?: string | null;
+  /**
+   * The full account. Tigrinya is rendered with extra line spacing on the public page, so long passages stay readable.
+   */
+  biography?: {
     root: {
       type: string;
       children: {
@@ -1382,15 +1761,125 @@ export interface BishopMessage {
       version: number;
     };
     [k: string]: unknown;
+  } | null;
+  /**
+   * Group photos by occasion. Milestones on the Life & ministry tab can point at a gallery using its Key.
+   */
+  galleries?:
+    | {
+        title: string;
+        /**
+         * Short identifier used to link a milestone to this gallery, e.g. "episcopal-consecration-2024". Generated from the English title if left blank.
+         */
+        key: string;
+        description?: string | null;
+        /**
+         * Shown as the gallery tile. Defaults to the first image.
+         */
+        coverImage?: (number | null) | Media;
+        date?: string | null;
+        isPublic?: boolean | null;
+        images?:
+          | {
+              image: number | Media;
+              /**
+               * Shown under the photo in the lightbox.
+               */
+              caption?: string | null;
+              date?: string | null;
+              /**
+               * Photographer or source.
+               */
+              credit?: string | null;
+              isPublic?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Where this record comes from, and where a reader can verify it — the Holy See announcement, news coverage, reference databases.
+   */
+  links?:
+    | {
+        /**
+         * Full web address, including https://
+         */
+        url: string;
+        label: string;
+        linkType?:
+          | (
+              | 'holy-see'
+              | 'eritrean-catholic-church'
+              | 'news-article'
+              | 'video'
+              | 'reference-database'
+              | 'document'
+              | 'other'
+            )
+          | null;
+        /**
+         * Publication or site name, e.g. "Vatican News".
+         */
+        sourceName?: string | null;
+        date?: string | null;
+        /**
+         * Set when you last confirmed this link still works.
+         */
+        lastCheckedAt?: string | null;
+        isPublic?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Documents belonging to him as a whole: the bull of appointment, collected pastoral letters, academic papers.
+   */
+  documents?:
+    | {
+        title: string;
+        documentType?:
+          | ('appointment-bull' | 'pastoral-letter' | 'decree' | 'homily' | 'academic-paper' | 'other')
+          | null;
+        date?: string | null;
+        /**
+         * Link to a catalogued publication, if this document is one.
+         */
+        publication?: (number | null) | Publication;
+        /**
+         * Or attach the file directly (PDF, scan).
+         */
+        file?: (number | null) | Media;
+        isPublic?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Working notes for chancery staff — sources still to verify, dates awaiting confirmation. Never shown publicly and never sent to the website.
+   */
+  internalNotes?: string | null;
+  /**
+   * Encrypted at rest. Visible only to staff who can edit bishop records.
+   */
+  privateContact?: {
+    phone?: string | null;
+    email?: string | null;
+    /**
+     * Secretary or assistant to contact first.
+     */
+    assistant?: string | null;
   };
   /**
-   * Optional PDF version of this message.
+   * Documents that must not be published. Upload them to Media with access level "Restricted" so the file itself is also protected — attaching a public file here still leaves it fetchable by its direct URL.
    */
-  document?: (number | null) | Media;
-  /**
-   * Show on homepage.
-   */
-  isFeatured?: boolean | null;
+  internalAttachments?:
+    | {
+        title: string;
+        file?: (number | null) | Media;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -1429,6 +1918,57 @@ export interface Publication {
   isFeatured?: boolean | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * Pastoral letters, homilies, and official messages from the Bishop.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bishop-messages".
+ */
+export interface BishopMessage {
+  id: number;
+  title: string;
+  slug: string;
+  publishedAt?: string | null;
+  /**
+   * Who wrote this. Leave blank to attribute it to the sitting Eparch.
+   */
+  bishop?: (number | null) | Bishop;
+  messageType?:
+    | ('pastoral-letter' | 'homily' | 'encyclical-response' | 'christmas' | 'easter' | 'extraordinary' | 'general')
+    | null;
+  featuredImage?: (number | null) | Media;
+  excerpt?: string | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Optional PDF version of this message.
+   */
+  document?: (number | null) | Media;
+  /**
+   * Show on homepage.
+   */
+  isFeatured?: boolean | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * Eparchy magazine issues (e.g. Tesfanet, Qal Hiwet).
@@ -2162,6 +2702,10 @@ export interface PayloadLockedDocument {
         value: number | PopeMessage;
       } | null)
     | ({
+        relationTo: 'bishops';
+        value: number | Bishop;
+      } | null)
+    | ({
         relationTo: 'bishop-messages';
         value: number | BishopMessage;
       } | null)
@@ -2761,12 +3305,228 @@ export interface PopeMessagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bishops_select".
+ */
+export interface BishopsSelect<T extends boolean = true> {
+  isActive?: T;
+  fullName?: T;
+  slug?: T;
+  honorific?: T;
+  episcopalName?: T;
+  formalTitle?: T;
+  baptismalName?: T;
+  familyName?: T;
+  nameInReligion?: T;
+  portrait?: T;
+  coatOfArms?: T;
+  motto?: T;
+  mottoOriginal?: T;
+  mottoNote?: T;
+  dateOfBirth?: T;
+  dateOfBirthPrecision?: T;
+  placeOfBirth?: T;
+  dateOfDeath?: T;
+  dateOfDeathPrecision?: T;
+  placeOfDeath?: T;
+  nationality?: T;
+  homeParish?: T;
+  homeVicariate?: T;
+  milestones?:
+    | T
+    | {
+        milestoneType?: T;
+        isPublic?: T;
+        order?: T;
+        title?: T;
+        date?: T;
+        datePrecision?: T;
+        endDate?: T;
+        endDatePrecision?: T;
+        location?: T;
+        parish?: T;
+        vicariate?: T;
+        description?: T;
+        people?:
+          | T
+          | {
+              role?: T;
+              priest?: T;
+              name?: T;
+              id?: T;
+            };
+        photos?: T;
+        galleryKey?: T;
+        documents?:
+          | T
+          | {
+              title?: T;
+              documentType?: T;
+              date?: T;
+              publication?: T;
+              file?: T;
+              isPublic?: T;
+              id?: T;
+            };
+        links?:
+          | T
+          | {
+              url?: T;
+              label?: T;
+              linkType?: T;
+              sourceName?: T;
+              date?: T;
+              lastCheckedAt?: T;
+              isPublic?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  honors?:
+    | T
+    | {
+        name?: T;
+        category?: T;
+        awardingBody?: T;
+        date?: T;
+        datePrecision?: T;
+        place?: T;
+        description?: T;
+        certificate?: T;
+        publication?: T;
+        url?: T;
+        isPublic?: T;
+        id?: T;
+      };
+  education?:
+    | T
+    | {
+        institution?: T;
+        location?: T;
+        fieldOfStudy?: T;
+        degree?: T;
+        startYear?: T;
+        endYear?: T;
+        thesisTitle?: T;
+        notes?: T;
+        isPublic?: T;
+        id?: T;
+      };
+  termStart?: T;
+  termEnd?: T;
+  termEndReason?: T;
+  appointingAuthority?: T;
+  appointingAuthorityName?: T;
+  appointmentDate?: T;
+  previousAppointments?:
+    | T
+    | {
+        title?: T;
+        place?: T;
+        startYear?: T;
+        endYear?: T;
+        notes?: T;
+        id?: T;
+      };
+  predecessor?: T;
+  successor?: T;
+  principalConsecrator?: T;
+  principalConsecratorName?: T;
+  pastoralPriorities?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        status?: T;
+        startDate?: T;
+        endDate?: T;
+        isPublic?: T;
+        id?: T;
+      };
+  relatedMessages?: T;
+  relatedPublications?: T;
+  relatedNews?: T;
+  relatedEvents?: T;
+  biographySummary?: T;
+  biography?: T;
+  galleries?:
+    | T
+    | {
+        title?: T;
+        key?: T;
+        description?: T;
+        coverImage?: T;
+        date?: T;
+        isPublic?: T;
+        images?:
+          | T
+          | {
+              image?: T;
+              caption?: T;
+              date?: T;
+              credit?: T;
+              isPublic?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  links?:
+    | T
+    | {
+        url?: T;
+        label?: T;
+        linkType?: T;
+        sourceName?: T;
+        date?: T;
+        lastCheckedAt?: T;
+        isPublic?: T;
+        id?: T;
+      };
+  documents?:
+    | T
+    | {
+        title?: T;
+        documentType?: T;
+        date?: T;
+        publication?: T;
+        file?: T;
+        isPublic?: T;
+        id?: T;
+      };
+  internalNotes?: T;
+  privateContact?:
+    | T
+    | {
+        phone?: T;
+        email?: T;
+        assistant?: T;
+      };
+  internalAttachments?:
+    | T
+    | {
+        title?: T;
+        file?: T;
+        note?: T;
+        id?: T;
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bishop-messages_select".
  */
 export interface BishopMessagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   publishedAt?: T;
+  bishop?: T;
   messageType?: T;
   featuredImage?: T;
   excerpt?: T;
@@ -3383,6 +4143,9 @@ export interface Footer {
           | {
               label: string;
               url: string;
+              /**
+               * Tick to open this link in a new browser tab.
+               */
               newTab?: boolean | null;
               id?: string | null;
             }[]

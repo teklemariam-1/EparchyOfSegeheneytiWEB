@@ -26,7 +26,7 @@ export async function MainNav() {
       href: '/about',
       children: [
         { label: t('aboutEparchy'), href: '/about' },
-        { label: t('bishop'), href: '/about#bishop' },
+        { label: t('bishop'), href: '/bishop' },
         { label: t('history'), href: '/about#history' },
       ],
     },

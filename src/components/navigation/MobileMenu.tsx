@@ -11,7 +11,7 @@ export function MobileMenu() {
   const MOBILE_NAV = [
     { label: t('home'), href: '/' },
     { label: t('about'), href: '/about' },
-    { label: t('bishop'), href: '/about#bishop' },
+    { label: t('bishop'), href: '/bishop' },
     { label: t('vicariates'), href: '/vicariates' },
     { label: t('parishes'), href: '/parishes' },
     { label: t('news'), href: '/news' },

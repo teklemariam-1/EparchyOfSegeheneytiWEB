@@ -323,7 +323,9 @@ export function DonateForm({ config }: { config: DonateFormConfig }) {
         </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-charcoal-700 mb-1">
-            {t('email')} <span className="text-red-500" aria-hidden>*</span>
+            {/* `donate.email` is the receipt-email namespace; this label lives at
+                `emailLabel` so the two no longer collide. */}
+            {t('emailLabel')} <span className="text-red-500" aria-hidden>*</span>
           </label>
           <input id="email" name="email" type="email" autoComplete="email" required maxLength={254} className={inputClass} />
         </div>

@@ -101,28 +101,62 @@ export function eventSchema({
   }
 }
 
-/** JSON-LD for a Person (priest) */
+/**
+ * JSON-LD for a Person — priests, and the Eparchs.
+ *
+ * `url` is optional so the original priest callers keep their anchor into the
+ * clergy listing, while a bishop passes his own profile path. `sameAs` carries
+ * the public reference links, which is what lets a search engine reconcile this
+ * page with the Holy See's own record of the same man; omitting it leaves two
+ * unconnected entities.
+ *
+ * Undefined keys are dropped before serialising: an `honorificPrefix: undefined`
+ * survives JSON.stringify as an absent key, but an explicit `null` would be
+ * emitted and read as an assertion that he has none.
+ */
 export function personSchema({
   name,
   jobTitle,
   imageUrl,
   slug,
+  url,
+  honorificPrefix,
+  description,
+  birthDate,
+  deathDate,
+  sameAs,
 }: {
   name: string
   jobTitle?: string
   imageUrl?: string
   slug: string
+  url?: string
+  honorificPrefix?: string
+  description?: string
+  birthDate?: string
+  deathDate?: string
+  sameAs?: string[]
 }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name,
+    honorificPrefix,
     jobTitle,
+    description,
+    birthDate,
+    deathDate,
     image: imageUrl,
-    url: `${SITE_URL}/ministries/priests-and-ministries#${slug}`,
+    url: url ? `${SITE_URL}${url}` : `${SITE_URL}/ministries/priests-and-ministries#${slug}`,
+    sameAs: sameAs?.length ? sameAs : undefined,
     affiliation: {
       '@type': 'ReligiousOrganization',
       name: SITE_NAME,
+    },
+    worksFor: {
+      '@type': 'ReligiousOrganization',
+      name: SITE_NAME,
+      url: SITE_URL,
     },
   }
 }

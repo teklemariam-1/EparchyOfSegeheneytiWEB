@@ -10,7 +10,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Contact',
-  description: 'Contact the Catholic Eparchy of Segeneyti — Chancery office, Bishop\'s secretariat, and parish finder.',
+  description: 'Contact the Catholic Eparchy of Segeneyti — Chancery office, the Eparch\'s secretariat, and parish finder.',
   path: '/contact',
 })
 
@@ -19,8 +19,8 @@ export const metadata: Metadata = buildMetadata({
 // CMS so the site never publishes an invented number a visitor could dial.
 const STATIC_OFFICES: OfficeContact[] = [
   {
-    name: "Bishop's Secretariat",
-    role: 'Appointments and correspondence for the Bishop.',
+    name: "Eparch's Secretariat",
+    role: 'Appointments and correspondence for the Eparch.',
     hours: 'Monday–Friday, 9:00 AM – 12:00 PM',
   },
   {
