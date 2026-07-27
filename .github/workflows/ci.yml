@@ -57,7 +57,7 @@ jobs:
     env:
       DATABASE_URI: postgresql://postgres:postgres@localhost:5432/eparchy_test
       PAYLOAD_SECRET: ci-test-secret-at-least-32-characters-long
-      NEXT_PUBLIC_SITE_URL: https://www.segeneyti.org
+      NEXT_PUBLIC_SITE_URL: https://eparchy-of-segeheneyti-web.vercel.app
       STORAGE_ADAPTER: local
 
     services:

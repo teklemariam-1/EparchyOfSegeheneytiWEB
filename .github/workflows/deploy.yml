@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 30
     environment:
       name: production
-      url: https://www.segeneyti.org
+      url: https://eparchy-of-segeheneyti-web.vercel.app
 
     steps:
       - name: Checkout
@@ -162,7 +162,9 @@ jobs:
           DEPLOYMENT_URL=$(echo "$OUTPUT" | grep -oE 'https://[a-zA-Z0-9._-]+\.vercel\.app' | tail -1)
           if [ -z "$DEPLOYMENT_URL" ]; then
             # Fallback: use production domain
-            DEPLOYMENT_URL="https://www.segeneyti.org"
+            # Real project URL. A placeholder domain here would point the
+            # smoke tests below at a host we do not control.
+            DEPLOYMENT_URL="https://eparchy-of-segeheneyti-web.vercel.app"
           fi
           echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $DEPLOYMENT_URL"

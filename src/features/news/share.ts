@@ -9,7 +9,12 @@
  * mobile users through a web page that then tries to hand off to the app.
  */
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.segeneyti.org').replace(/\/$/, '')
+// Falls back to the live Vercel URL, not to a custom domain that is not
+// connected: a share link is absolute and permanent once it reaches WhatsApp,
+// so a wrong fallback ships dead links that cannot be recalled.
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eparchy-of-segeheneyti-web.vercel.app'
+).replace(/\/$/, '')
 
 export type ShareTarget = 'whatsapp' | 'facebook' | 'x'
 
