@@ -49,6 +49,15 @@ function hostnameOf(url: string): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const article = await getNewsBySlug(slug)
+  // Bail out before fabricating metadata for an article that does not exist —
+  // without this the page advertises a title like "News — no-such-article".
+  //
+  // NOTE: this does NOT fix the response status. On Next 15.2.9 these pages
+  // answer a missing slug with the not-found UI but HTTP 200 (a soft 404),
+  // whether notFound() is called here or in the component below; it was tried
+  // in both places. Unmatched routes with no page at all still 404 correctly.
+  // See docs/known-issues.md for what has been ruled out.
+  if (!article) notFound()
   return buildMetadata({
     title: article?.seo?.title ?? article?.title ?? `News — ${slug}`,
     description: article?.seo?.description ?? article?.excerpt,
