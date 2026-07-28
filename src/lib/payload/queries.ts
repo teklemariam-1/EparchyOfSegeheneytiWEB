@@ -254,6 +254,8 @@ export interface EventListItem {
   parish?: { title?: string; slug?: string } | null
   featuredImage?: CMSImage | null
   excerpt?: string
+  /** Pasted stream/recording link. Parsed at render time; see lib/video/embed. */
+  videoUrl?: string | null
 }
 
 export interface EventDetail extends EventListItem {
@@ -336,12 +338,17 @@ async function _getEventsList(opts: {
   upcoming?: boolean
   eventType?: string
   locale?: string
+  /** Only events carrying a video link — drives the liturgy archive. */
+  withVideo?: boolean
 } = {}): Promise<{ docs: EventListItem[]; meta: PaginationMeta }> {
   try {
     const payload = await getPayload()
-    const { limit = 12, page = 1, upcoming, eventType, locale } = opts
+    const { limit = 12, page = 1, upcoming, eventType, locale, withVideo } = opts
     const where: Record<string, unknown> = { _status: { equals: 'published' } }
     if (upcoming) where.startDate = { greater_than: new Date().toISOString() }
+    // `exists` alone would match the empty string an editor leaves behind after
+    // clearing the field, putting a video-less event in the archive.
+    if (withVideo) where.videoUrl = { not_equals: '', exists: true }
     if (eventType && eventType !== 'all') where.eventType = { equals: eventType }
     const result = await payload.find({
       collection: 'events',
@@ -412,6 +419,7 @@ function mapEvent(d: any): EventListItem {
     parish: d.parish ? { title: d.parish.name ?? d.parish.title, slug: d.parish.slug } : null,
     featuredImage: imgOf(d.featuredImage),
     excerpt: d.excerpt,
+    videoUrl: d.videoUrl ?? null,
   }
 }
 
@@ -1558,33 +1566,111 @@ export interface PopeMessageItem {
   sourceUrl?: string
 }
 
+/**
+ * Newest-published first, to the second. `publishedAt` is a full timestamp, so
+ * two documents published moments apart already order correctly; the
+ * `-createdAt`/`-id` tie-breakers make the order deterministic even when two
+ * rows share the exact same `publishedAt` (bulk imports set identical values).
+ * MUST stay an array — see NEWS_SORT above for why a comma string fails quietly.
+ */
+const POPE_MESSAGES_SORT = ['-publishedAt', '-createdAt', '-id']
+
+function mapPopeMessage(d: any): PopeMessageItem {
+  return {
+    id: d.id,
+    slug: d.slug,
+    title: d.title,
+    documentType: d.documentType,
+    excerpt: d.excerpt,
+    publishedAt: d.publishedAt,
+    content: d.body,
+    pdfUrl: d.document?.url ?? null,
+    sourceUrl: d.sourceUrl,
+  }
+}
+
 async function _getPopeMessagesList(limit = 20, locale?: string): Promise<PopeMessageItem[]> {
   try {
     const payload = await getPayload()
     const result = await payload.find({
       collection: 'pope-messages',
       where: { _status: { equals: 'published' } },
-      sort: '-publishedAt',
+      sort: POPE_MESSAGES_SORT,
       limit,
       depth: 1,
       ...(locale ? { locale } : {}),
     } as any)
-    return (result.docs as any[]).map((d) => ({
-      id: d.id,
-      slug: d.slug,
-      title: d.title,
-      documentType: d.documentType,
-      excerpt: d.excerpt,
-      publishedAt: d.publishedAt,
-      content: d.body,
-      pdfUrl: d.document?.url ?? null,
-      sourceUrl: d.sourceUrl,
-    }))
+    return (result.docs as any[]).map(mapPopeMessage)
   } catch {
     return []
   }
 }
 export const getPopeMessagesList = cachedQuery(_getPopeMessagesList, 'getPopeMessagesList', ['pope-messages'])
+
+async function _getPopeMessagesPage(opts: {
+  limit?: number
+  page?: number
+  locale?: string
+} = {}): Promise<{ docs: PopeMessageItem[]; meta: PaginationMeta }> {
+  const { limit = 12, page = 1, locale } = opts
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'pope-messages',
+      where: { _status: { equals: 'published' } },
+      sort: POPE_MESSAGES_SORT,
+      limit,
+      page,
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)
+    return {
+      docs: (result.docs as any[]).map(mapPopeMessage),
+      meta: {
+        page: result.page ?? 1,
+        totalDocs: result.totalDocs,
+        totalPages: result.totalPages,
+        hasPrevPage: result.hasPrevPage,
+        hasNextPage: result.hasNextPage,
+      },
+    }
+  } catch {
+    return { docs: [], meta: { page: 1, totalDocs: 0, totalPages: 0, hasPrevPage: false, hasNextPage: false } }
+  }
+}
+export const getPopeMessagesPage = cachedQuery(_getPopeMessagesPage, 'getPopeMessagesPage', ['pope-messages'])
+
+/** Public shape of the Current Pope global shown on /pope-messages. */
+export interface PopeSettingsData {
+  name?: string
+  title?: string
+  electedAt?: string
+  bio?: string
+  vaticanUrl?: string
+  photo?: CMSImage | null
+}
+
+async function _getPopeSettings(locale?: string): Promise<PopeSettingsData> {
+  try {
+    const payload = await getPayload()
+    const data = (await payload.findGlobal({
+      slug: 'pope-settings',
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)) as any
+    return {
+      name: data?.name ?? undefined,
+      title: data?.title ?? undefined,
+      electedAt: data?.electedAt ?? undefined,
+      bio: data?.bio ?? undefined,
+      vaticanUrl: data?.vaticanUrl ?? undefined,
+      photo: imgOf(data?.photo),
+    }
+  } catch {
+    return {}
+  }
+}
+export const getPopeSettings = cachedQuery(_getPopeSettings, 'getPopeSettings', ['globals'])
 
 export interface PopeMessageDetail extends PopeMessageItem {
   featuredImage?: CMSImage | null

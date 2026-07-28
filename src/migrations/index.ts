@@ -34,6 +34,8 @@ import * as migration_20260726_054250_stripe_donations from './20260726_054250_s
 import * as migration_20260726_060000_news_published_at_backfill from './20260726_060000_news_published_at_backfill';
 import * as migration_20260726_070000_footer_bottom_links_new_tab from './20260726_070000_footer_bottom_links_new_tab';
 import * as migration_20260726_131455_bishops_collection from './20260726_131455_bishops_collection';
+import * as migration_20260728_165058_events_video_url from './20260728_165058_events_video_url';
+import * as migration_20260728_170747_pope_settings_and_permission from './20260728_170747_pope_settings_and_permission';
 
 export const migrations = [
   {
@@ -214,6 +216,16 @@ export const migrations = [
   {
     up: migration_20260726_131455_bishops_collection.up,
     down: migration_20260726_131455_bishops_collection.down,
-    name: '20260726_131455_bishops_collection'
+    name: '20260726_131455_bishops_collection',
+  },
+  {
+    up: migration_20260728_165058_events_video_url.up,
+    down: migration_20260728_165058_events_video_url.down,
+    name: '20260728_165058_events_video_url',
+  },
+  {
+    up: migration_20260728_170747_pope_settings_and_permission.up,
+    down: migration_20260728_170747_pope_settings_and_permission.down,
+    name: '20260728_170747_pope_settings_and_permission'
   },
 ];

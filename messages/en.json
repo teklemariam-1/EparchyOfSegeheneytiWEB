@@ -110,7 +110,15 @@
     "scheduled": "{count} scheduled",
     "timeInAsmara": "{time} Asmara",
     "timeYourLocal": "{time} your time",
-    "timeZoneNote": "Times are shown in Asmara time, with your local time alongside."
+    "timeZoneNote": "Times are shown in Asmara time, with your local time alongside.",
+    "watchTitle": "Watch",
+    "watchSubtitle": "Recorded liturgies and celebrations, for those who could not be there.",
+    "watchEmptyTitle": "No recordings yet",
+    "watchEmptyDescription": "Streamed liturgies will appear here once they have been celebrated.",
+    "watchOnProvider": "Watch on the original site",
+    "watchThisLiturgy": "Watch this liturgy",
+    "previous": "Previous",
+    "next": "Next"
   },
   "parishes": {
     "title": "Parishes",
@@ -276,7 +284,12 @@
   "popeMessages": {
     "title": "Messages from the Holy Father",
     "subtitle": "Encyclicals, apostolic exhortations, and messages from the Successor of Saint Peter.",
-    "noMessages": "No documents yet."
+    "noMessages": "No documents yet.",
+    "previous": "Previous",
+    "next": "Next",
+    "currentPopeHeading": "The Holy Father",
+    "since": "Holy Father since {date}",
+    "vaticanProfile": "Read more on vatican.va"
   },
   "calendar": {
     "title": "Ge'ez Calendar",

@@ -3,6 +3,7 @@ import createNextIntlPlugin from 'next-intl/plugin'
 import { withSentryConfig } from '@sentry/nextjs'
 import withBundleAnalyzer from '@next/bundle-analyzer'
 import type { NextConfig } from 'next'
+import { VIDEO_FRAME_ORIGINS } from './src/lib/video/embed'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
@@ -36,6 +37,13 @@ const STRIPE_FORM = 'https://checkout.stripe.com'
 // toggleable at runtime from site-settings and must work the moment it is
 // switched on.
 const TURNSTILE_ORIGIN = 'https://challenges.cloudflare.com'
+//
+// LITURGY VIDEO — streamed liturgies are embedded, not self-hosted. These
+// origins are imported from the parser that produces the embed URLs
+// (lib/video/embed) rather than retyped, so the two cannot drift: adding a
+// provider there without allowing it here fails silently with only a console
+// error, which is the worst kind of bug to receive as a user report.
+const VIDEO_FRAME = VIDEO_FRAME_ORIGINS.join(' ')
 
 const frontendScriptSrc = [
   "script-src 'self' 'unsafe-inline'",
@@ -58,7 +66,7 @@ const CSP = [
   // Images: self + S3/R2 CDN + Google (maps tiles, GA pixel)
   `img-src 'self' data: blob: https://${process.env.S3_HOSTNAME ?? '*'} https://*.public.blob.vercel-storage.com https://www.google.com https://maps.gstatic.com https://maps.googleapis.com`,
   // Frames: Google Maps embed + Turnstile widget + Stripe's 3-D Secure iframe
-  `frame-src https://www.google.com https://maps.google.com ${TURNSTILE_ORIGIN} ${STRIPE_FRAME}`,
+  `frame-src https://www.google.com https://maps.google.com ${TURNSTILE_ORIGIN} ${STRIPE_FRAME} ${VIDEO_FRAME}`,
   // XHR/fetch: self + Payload API + Sentry + Stripe
   `connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://o0.ingest.sentry.io https://*.ingest.sentry.io ${TURNSTILE_ORIGIN} ${STRIPE_CONNECT}`,
   // Media from S3/R2 + Vercel Blob

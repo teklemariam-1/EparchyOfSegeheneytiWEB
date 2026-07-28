@@ -160,6 +160,7 @@ export interface Config {
     'about-page': AboutPage;
     'banner-settings': BannerSetting;
     'donation-settings': DonationSetting;
+    'pope-settings': PopeSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -170,6 +171,7 @@ export interface Config {
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
     'banner-settings': BannerSettingsSelect<false> | BannerSettingsSelect<true>;
     'donation-settings': DonationSettingsSelect<false> | DonationSettingsSelect<true>;
+    'pope-settings': PopeSettingsSelect<false> | PopeSettingsSelect<true>;
   };
   locale: 'en' | 'ti';
   widgets: {
@@ -329,6 +331,7 @@ export interface User {
         | 'globals.about-page.edit'
         | 'globals.banner-settings.edit'
         | 'globals.donation-settings.edit'
+        | 'globals.pope-settings.edit'
       )[]
     | null;
   /**
@@ -439,6 +442,7 @@ export interface User {
         | 'globals.about-page.edit'
         | 'globals.banner-settings.edit'
         | 'globals.donation-settings.edit'
+        | 'globals.pope-settings.edit'
       )[]
     | null;
   /**
@@ -910,6 +914,10 @@ export interface Event {
   startDate: string;
   endDate?: string | null;
   isAllDay?: boolean | null;
+  /**
+   * Paste the link to the stream or recording — YouTube or Facebook. Both the address-bar link and the Share button link work. Leave empty if there is no video.
+   */
+  videoUrl?: string | null;
   location?: {
     name?: string | null;
     address?: string | null;
@@ -3009,6 +3017,7 @@ export interface EventsSelect<T extends boolean = true> {
   startDate?: T;
   endDate?: T;
   isAllDay?: T;
+  videoUrl?: T;
   location?:
     | T
     | {
@@ -4621,6 +4630,41 @@ export interface DonationSetting {
   createdAt?: string | null;
 }
 /**
+ * The reigning Holy Father — photo and basic information shown at the top of the "Messages from the Holy Father" page. Update this when a new pope is elected.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pope-settings".
+ */
+export interface PopeSetting {
+  id: number;
+  /**
+   * Official portrait of the Holy Father. Recommended: portrait orientation, at least 600×800px.
+   */
+  photo?: (number | null) | Media;
+  /**
+   * Papal name, e.g. "Pope Leo XIV". Leave empty to hide the whole section from the public page.
+   */
+  name?: string | null;
+  /**
+   * Title line shown under the name, e.g. "Bishop of Rome, Successor of Saint Peter".
+   */
+  title?: string | null;
+  /**
+   * Date of election to the papacy — shown as "Holy Father since …".
+   */
+  electedAt?: string | null;
+  /**
+   * Short biography or introduction (a few sentences).
+   */
+  bio?: string | null;
+  /**
+   * Link to the Holy Father's page on vatican.va (optional).
+   */
+  vaticanUrl?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -5016,6 +5060,21 @@ export interface DonationSettingsSelect<T extends boolean = true> {
   stripeAccountNotice?: T;
   lastChangedBy?: T;
   lastChangedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pope-settings_select".
+ */
+export interface PopeSettingsSelect<T extends boolean = true> {
+  photo?: T;
+  name?: T;
+  title?: T;
+  electedAt?: T;
+  bio?: T;
+  vaticanUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

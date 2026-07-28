@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge'
 import { formatDate, formatDateRange } from '@/lib/formatters/date'
 import { dateParts } from '@/lib/formatters/eventTime'
 import { EventTime } from '@/features/events/EventTime'
+import { LiturgyVideo } from '@/features/events/LiturgyVideo'
 import { RichText } from '@/components/shared/RichText'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { eventSchema } from '@/lib/seo/structuredData'
@@ -167,6 +168,16 @@ export default async function EventDetailPage({ params }: Props) {
                   </div>
                 </div>
               </div>
+
+              {/* The stream or recording, above the text: someone who came to
+                  watch should not have to scroll past the description to find
+                  it. Renders nothing at all when there is no usable link. */}
+              <LiturgyVideo
+                url={ev.videoUrl}
+                title={ev.title}
+                fallbackLabel={t('watchOnProvider')}
+                className="mb-6"
+              />
 
               {/* Rich text description */}
               {ev.description ? (

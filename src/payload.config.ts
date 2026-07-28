@@ -56,6 +56,7 @@ import { Homepage } from './globals/Homepage/index'
 import { Navigation } from './globals/Navigation/index'
 import { AboutPage } from './globals/AboutPage/index'
 import { BannerSettings } from './globals/BannerSettings/index'
+import { PopeSettings } from './globals/PopeSettings/index'
 import { buildEmailAdapter, validateEmailConfig } from './lib/payload/email'
 import { env } from './lib/env'
 
@@ -207,6 +208,7 @@ export default buildConfig({
     AboutPage,
     BannerSettings,
     DonationSettings,
+    PopeSettings,
   ],
 
   // ── Editor ───────────────────────────────────────────────────────────────────

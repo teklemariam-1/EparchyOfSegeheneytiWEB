@@ -3,6 +3,7 @@ import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalid
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { can, canManageOwnParish, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { isEmbeddableVideoUrl } from '../../lib/video/embed'
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -114,6 +115,22 @@ export const Events: CollectionConfig = {
       name: 'isAllDay',
       type: 'checkbox',
       defaultValue: false,
+    },
+    {
+      name: 'videoUrl',
+      type: 'text',
+      admin: {
+        description:
+          'Paste the link to the stream or recording — YouTube or Facebook. Both the address-bar link and the Share button link work. Leave empty if there is no video.',
+      },
+      // Validated at paste time rather than discovered by a visitor staring at a
+      // dead frame. The same parser that renders the embed decides this, so the
+      // admin cannot accept a URL the page will then refuse to play.
+      validate: (value: unknown) => {
+        if (value === null || value === undefined || value === '') return true
+        if (isEmbeddableVideoUrl(String(value))) return true
+        return 'That link cannot be embedded. Paste a YouTube or Facebook video link — for a shortened fb.watch link, open it first and copy the full address.'
+      },
     },
     {
       name: 'location',

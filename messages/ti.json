@@ -110,7 +110,15 @@
     "scheduled": "{count} ተመዲቦም",
     "timeInAsmara": "{time} ኣስመራ",
     "timeYourLocal": "{time} ናትካ ሰዓት",
-    "timeZoneNote": "ሰዓታት ብሰዓት ኣስመራ ይረኣዩ፣ ምስ ናትካ ከባቢያዊ ሰዓት።"
+    "timeZoneNote": "ሰዓታት ብሰዓት ኣስመራ ይረኣዩ፣ ምስ ናትካ ከባቢያዊ ሰዓት።",
+    "watchTitle": "ተመልከት",
+    "watchSubtitle": "ንዘይተረኸቡ ዝተቐድሑ ቅዳሴታትን በዓላትን።",
+    "watchEmptyTitle": "ገና ዝተቐድሐ የለን",
+    "watchEmptyDescription": "ዝተመሓላለፉ ቅዳሴታት ድሕሪ ምብዓሎም ኣብዚ ክረኣዩ እዮም።",
+    "watchOnProvider": "ኣብቲ በዓል ቤት መርበብ ተመልከት",
+    "watchThisLiturgy": "እዚ ቅዳሴ ተመልከት",
+    "previous": "ዝሓለፈ",
+    "next": "ዝቕጽል"
   },
   "parishes": {
     "title": "ሰበካት",
@@ -276,7 +284,12 @@
   "popeMessages": {
     "title": "መልእኽቲ ካብ ቅዱስ ኣቦ",
     "subtitle": "ኤንሳይክሊካታት፣ ሃዋርያዊ ማዕዳታትን መልእኽትታትን ካብ ወራሲ ቅዱስ ጴጥሮስ።",
-    "noMessages": "ጌና ሰነዳት የለዉን።"
+    "noMessages": "ጌና ሰነዳት የለዉን።",
+    "previous": "ዝሓለፈ",
+    "next": "ዝቕጽል",
+    "currentPopeHeading": "ቅዱስ ኣቦ",
+    "since": "ቅዱስ ኣቦ ካብ {date}",
+    "vaticanProfile": "ኣብ vatican.va ተወሳኺ ኣንብቡ"
   },
   "calendar": {
     "title": "ዕለታት ግዕዝ",

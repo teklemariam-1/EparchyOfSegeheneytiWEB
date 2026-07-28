@@ -47,3 +47,57 @@ reproduces on Vercel, since local `npm start` and Vercel's runtime differ.
 
 A middleware that checks existence and rewrites would work, but it duplicates
 every lookup and should be a last resort.
+
+---
+
+## A fabricated sample Eparch was written to the production database
+
+**Found:** 2026-07-28 · **Not yet verified or removed** — this environment has no
+outbound network, so neither the live site nor the Neon database could be
+reached to confirm.
+
+While producing the screenshots for the bishops module, a sample record was
+seeded through `--env-file=.env.local`. That file's `DATABASE_URI` points at the
+**production** Neon host (see [local-development.md](local-development.md)), so
+the record was almost certainly created on the live database rather than a local
+one:
+
+| Field | Value |
+|---|---|
+| `slug` | `abune-mekonnen-tesfay` |
+| `fullName` | Abune Mekonnen Tesfay *(invented)* |
+| `isActive` | `true` — marks him the **sitting Eparch** |
+| `_status` | `published` |
+
+Everything in it is invented: the biography, eleven milestones, an honorary
+doctorate, a gallery. It also carries a milestone titled `WITHHELD EXAMPLE`
+(deliberately `isPublic: false`, used to prove the withholding path).
+
+**Why it matters:** `isActive` is what every public surface reads. If this record
+is live, `/bishop`, the homepage block, the About page and the JSON-LD `Person`
+schema are all naming a bishop who does not exist, on the website of a real
+eparchy.
+
+### What to do
+
+Delete it through the admin UI — **Magisterium → Bishops → Abune Mekonnen
+Tesfay → Delete**. A deliberate human deletion is right here; it is one record on
+a live database.
+
+`npx tsx scripts/unseed.ts` already lists this slug, but it calls
+`assertLocalDatabase` and will refuse to run against Neon. That refusal is
+correct and should not be worked around.
+
+### Already fixed, so it cannot recur
+
+- `scripts/assertLocalDatabase.ts` now guards `seed` and `unseed`, and
+  `payload.config.ts` refuses dev schema-push against a non-local host
+  (`798a799`).
+- The unguarded throwaway script that did this (`scripts/tmp-seed-bishop.ts`) has
+  been deleted.
+
+### Still not fixed
+
+`.env.local` continues to point at the production host. Until it is repointed at
+`localhost`, `npm run dev` still reads and writes production data — the guard
+stops schema-push and seeding, not ordinary editing through the running app.

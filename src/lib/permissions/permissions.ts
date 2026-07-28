@@ -80,6 +80,7 @@ export const PERMISSIONS = [
   'globals.about-page.edit',
   'globals.banner-settings.edit',
   'globals.donation-settings.edit',
+  'globals.pope-settings.edit',
 ] as const
 
 export type Permission = (typeof PERMISSIONS)[number]
@@ -152,6 +153,7 @@ const CHANCERY: Permission[] = [
   'globals.site-settings.edit', 'globals.header.edit', 'globals.footer.edit',
   'globals.homepage.edit', 'globals.navigation.edit', 'globals.about-page.edit',
   'globals.banner-settings.edit', 'globals.donation-settings.edit',
+  'globals.pope-settings.edit',
 ]
 
 /**
