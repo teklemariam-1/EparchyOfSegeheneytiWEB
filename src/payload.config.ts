@@ -66,6 +66,38 @@ const storageAdapter = process.env.STORAGE_ADAPTER
 const isS3 = storageAdapter === 's3'
 const isVercelBlob = storageAdapter === 'vercel-blob' && Boolean(process.env.BLOB_READ_WRITE_TOKEN)
 
+/**
+ * Whether a connection string points at a database on this machine.
+ *
+ * Used to gate Drizzle's schema push, which rewrites the schema of whatever it
+ * is pointed at. Deliberately a strict allow-list of loopback hosts: anything
+ * unparseable, unset, or remote returns false, so the failure mode is "push is
+ * off" rather than "push runs against a host we did not expect".
+ */
+function isLocalDatabase(connectionString: string | undefined): boolean {
+  if (!connectionString) return false
+  let host: string
+  try {
+    host = new URL(connectionString).hostname.toLowerCase()
+  } catch {
+    return false
+  }
+  // `host.docker.internal` is included because the dev database is sometimes
+  // reached from inside a container; it still resolves to this machine.
+  return ['localhost', '127.0.0.1', '::1', '[::1]', 'host.docker.internal'].includes(host)
+}
+
+if (process.env.NODE_ENV !== 'production' && !isLocalDatabase(env.DATABASE_URI)) {
+  // Loud, because the alternative is a developer wondering for an hour why
+  // their schema changes are not appearing.
+  console.warn(
+    '[payload-db] ⚠ Schema push is DISABLED: DATABASE_URI is not a local database.\n' +
+      '            This guards the production database against dev-mode schema writes.\n' +
+      '            Point DATABASE_URI at localhost for local development, or run\n' +
+      '            `npm run migrate:create` and apply a migration instead.',
+  )
+}
+
 // Validate email config at startup
 const emailConfig = validateEmailConfig()
 if (emailConfig.warnings.length > 0) {
@@ -190,7 +222,18 @@ export default buildConfig({
     // proceed? (y/N)" prompt, hangs ~8 min on the non-interactive stdin, then
     // defaults to "No" and exits 0 WITHOUT applying migrations (silent schema
     // drift). Production is migration-driven only; local dev keeps push.
-    push: process.env.NODE_ENV !== 'production',
+    //
+    // NODE_ENV alone is not enough, and this has already cost us a deploy: the
+    // bishops schema reached the production database because `npm run dev` —
+    // which is not "production" — was run with .env.vercel.local loaded, whose
+    // DATABASE_URI points at Neon. Push happily created 17 enum types and 56
+    // tables in the live database, with no migration record, and the next real
+    // deploy then failed on "already exists".
+    //
+    // So push additionally requires the database to be a LOCAL one. The
+    // dangerous combination is a development NODE_ENV pointed at a remote host,
+    // and that is precisely what this refuses.
+    push: process.env.NODE_ENV !== 'production' && isLocalDatabase(env.DATABASE_URI),
   }),
 
   // ── Localization ──────────────────────────────────────────────────────────────

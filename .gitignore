@@ -53,3 +53,9 @@ scripts/deploy_log.txt
 
 # Claude Code personal settings (permissions allowlist)
 .claude/settings.local.json
+
+# Throwaway scripts kept out of history by name. These accumulate during
+# one-off work (seeding a record for screenshots, driving a browser) and are
+# easy to sweep in with `git add -A` without noticing.
+tmp-*
+scripts/tmp-*
