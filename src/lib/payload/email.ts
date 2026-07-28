@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer'
 import type { Transporter } from 'nodemailer'
 
 const defaultFromAddress = process.env.PAYLOAD_FROM_ADDRESS ?? 'noreply@segeneyti.org'
-const defaultFromName = process.env.PAYLOAD_FROM_NAME ?? 'Eparchy of Segeneyti CMS'
+const defaultFromName = process.env.PAYLOAD_FROM_NAME ?? 'Eparchy of Segheneyti CMS'
 
 function normalizeAddress(value: SendEmailOptions['to'] | SendEmailOptions['cc'] | SendEmailOptions['bcc'] | SendEmailOptions['replyTo'] | SendEmailOptions['from']): string[] {
   if (!value) {

@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Parishes',
-  description: 'Explore all parishes of the Catholic Eparchy of Segeneyti across Eritrea and the diaspora.',
+  description: 'Explore all parishes of the Catholic Eparchy of Segheneyti across Eritrea and the diaspora.',
   path: '/parishes',
 })
 

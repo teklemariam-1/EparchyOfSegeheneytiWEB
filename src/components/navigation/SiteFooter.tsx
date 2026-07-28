@@ -88,7 +88,7 @@ export async function SiteFooter() {
   // The footer sits on a dark maroon panel, so prefer the light-on-dark variant
   // when one is uploaded and fall back to the main logo.
   const logoUrl = settings.logoDark?.url ?? settings.logo?.url
-  const siteName = settings.siteName ?? 'Eparchy of Segeneyti'
+  const siteName = settings.siteName ?? 'Eparchy of Segheneyti'
   const year = new Date().getFullYear()
   const [t, tn] = await Promise.all([getTranslations('footer'), getTranslations('nav')])
 
@@ -218,7 +218,7 @@ export async function SiteFooter() {
 
         {/* Bottom bar — CMS-driven links, falling back to sensible defaults. */}
         <div className="mt-10 pt-6 border-t border-maroon-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-charcoal-500">
-          <p>{footer.copyrightText ?? `© ${year} Catholic Eparchy of Segeneyti. All rights reserved.`}</p>
+          <p>{footer.copyrightText ?? `© ${year} Catholic Eparchy of Segheneyti. All rights reserved.`}</p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             {bottomLinks.map((link, i) => (
               <span key={`${link.url}-${i}`} className="flex items-center gap-4">

@@ -143,7 +143,7 @@ async function importImage(
 ): Promise<string | null> {
   try {
     const res = await safeFetch(imageUrl, {
-      headers: { 'User-Agent': 'EparchyOfSegeneyti-NewsBot/1.0' },
+      headers: { 'User-Agent': 'EparchyOfSegheneyti-NewsBot/1.0' },
       cache: 'no-store',
     })
     if (!res.ok) return null

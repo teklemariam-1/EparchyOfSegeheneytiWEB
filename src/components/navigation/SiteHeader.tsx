@@ -42,7 +42,7 @@ export async function SiteHeader() {
             {logoUrl ? (
               <Image
                 src={logoUrl}
-                alt={settings.siteName ?? 'Eparchy of Segeneyti'}
+                alt={settings.siteName ?? 'Eparchy of Segheneyti'}
                 width={160}
                 height={40}
                 className="h-10 w-auto object-contain"
@@ -55,7 +55,7 @@ export async function SiteHeader() {
             )}
             <div className="hidden sm:block">
               <p className="text-sm font-bold text-maroon-900 leading-tight font-serif">
-                {settings.siteName ?? 'Eparchy of Segeneyti'}
+                {settings.siteName ?? 'Eparchy of Segheneyti'}
               </p>
               <p className="text-xs text-charcoal-500 leading-tight">Catholic Diocese · Eritrea</p>
             </div>

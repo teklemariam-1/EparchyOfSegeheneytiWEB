@@ -61,7 +61,7 @@ export function getStripe(): Stripe {
   cached = new Stripe(key, {
     apiVersion: API_VERSION,
     // Identifies this integration in the Stripe dashboard's request logs.
-    appInfo: { name: 'Eparchy of Segeneyti', url: 'https://segeneyti.org' },
+    appInfo: { name: 'Eparchy of Segheneyti', url: 'https://segeneyti.org' },
     // Two retries on network/5xx. Stripe's SDK attaches an idempotency key to
     // retried writes automatically, so a retried Checkout Session cannot become
     // two sessions (and therefore cannot become two charges).

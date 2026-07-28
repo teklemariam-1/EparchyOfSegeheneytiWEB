@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = buildMetadata({
   title: 'Apps & Downloads',
   description:
-    'Mobile applications and downloadable resources from the Catholic Eparchy of Segeneyti.',
+    'Mobile applications and downloadable resources from the Catholic Eparchy of Segheneyti.',
   path: '/apps',
 })
 

@@ -36,13 +36,39 @@ placeholders rather than as proposals.
 | **Syncellus** | not yet a select option | — | Same. |
 | **Episcopal motto** | Identity tab | `መሪሕ ቃል` (low confidence) | Only appears as a field label in the admin form. |
 
+## Confirmed by the chancery — 2026-07-28
+
+**The name of the eparchy.**
+
+- Tigrinya: **ሠገነይቲ** is correct. ሰገነይቲ (with ሰ rather than ሠ) is also
+  acceptable, so anything already written with ሰ is not wrong — but ሠገነይቲ is
+  the form to use going forward, and the codebase now uses it throughout.
+- English: **Segheneyti**, with the *gh*. The site previously read "Segeneyti"
+  everywhere; all 190 display occurrences have been corrected.
+
+Deliberately NOT changed, because they are identifiers rather than words:
+
+- `segeneyti.org` in email addresses — a registered domain, not a spelling.
+- Lowercase slugs such as `segeneyti-cathedral` and the `segeneyti` vicariate
+  slug — these are stored in the database and appear in public URLs, so
+  changing them would break existing links. Rename them deliberately, with
+  redirects, if the URLs should carry the corrected spelling.
+- `src/migrations/**` — a historical record of what was applied. Editing it
+  changes no database and only makes the record inaccurate.
+
+## Still outstanding
+
+The other terms flagged before coding are still unanswered: **Enthronement**,
+**Protosyncellus**, **Syncellus**, and the confidence of **መሪሕ ቃል** for
+*episcopal motto*.
+
 ## Terms used with medium confidence — worth a second opinion
 
 | English | Tigrinya used | Where |
 |---|---|---|
 | Eparchy | ሃገረ ስብከት | throughout |
 | Eparch / Bishop | ጳጳስ | `bishop.title`, nav |
-| Eparchs of Segeneyti | ጳጳሳት ሃገረ ስብከት ሰገነይቲ | `bishop.successionTitle` — **please confirm the spelling of ሰገነይቲ** |
+| Eparchs of Segheneyti | ጳጳሳት ሃገረ ስብከት ሠገነይቲ | `bishop.successionTitle` — **CONFIRMED 2026-07-28** (see note below) |
 | Sitting Eparch | ህሉው ጳጳስ | `bishop.sittingEparch` |
 | Term of office | ዘመነ ኣገልግሎት | `bishop.term` |
 | circa / approximately | ኣስታት | `bishop.circa` — printed before a year on imprecise dates, e.g. "ኣስታት 1998" |
@@ -60,7 +86,7 @@ they are the most-read strings in the module after the Eparch's own name.
 
 ## Canonical points already settled — recorded here so they are not re-litigated
 
-- **Segeneyti is one of the four eparchies of the Eritrean Catholic Church**, a
+- **Segheneyti is one of the four eparchies of the Eritrean Catholic Church**, a
   **Metropolitan Church *sui iuris*** whose metropolitan see is **Asmara**
   (confirmed by the Eparchy, 2026-07-26).
 - Consequently there is **no Patriarch and no Synod of Bishops** to model. Under

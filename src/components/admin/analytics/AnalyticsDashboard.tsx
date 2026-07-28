@@ -157,7 +157,7 @@ export async function AnalyticsDashboard({
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: '2px solid #911e1e', paddingBottom: 12, marginBottom: 8 }}>
           <span style={{ fontSize: 28 }}>✝</span>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>Catholic Eparchy of Segeneyti</div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>Catholic Eparchy of Segheneyti</div>
             <div style={{ fontSize: 13 }}>Website Analytics Report — {range.label}</div>
             <div style={{ fontSize: 11, opacity: 0.7 }}>
               Generated {generatedAt} (Asmara time) · eparchy-of-segeheneyti-web.vercel.app

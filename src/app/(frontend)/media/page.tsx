@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Media',
-  description: 'Photo gallery and media resources from the Catholic Eparchy of Segeneyti.',
+  description: 'Photo gallery and media resources from the Catholic Eparchy of Segheneyti.',
   path: '/media',
 })
 

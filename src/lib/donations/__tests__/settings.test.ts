@@ -8,7 +8,7 @@ const base: RawDonationSettings = {
   currencies: [{ code: 'ERN' }, { code: 'USD' }, { code: 'EUR' }],
   stripeCurrencies: [{ code: 'USD' }, { code: 'EUR' }],
   presetAmounts: [{ amount: 100 }, { amount: 500 }],
-  publicTransferDetails: { accountHolder: 'Eparchy of Segeneyti', accountNumber: '0123456789' },
+  publicTransferDetails: { accountHolder: 'Eparchy of Segheneyti', accountNumber: '0123456789' },
 }
 
 describe('resolveDonationConfig — payment methods', () => {

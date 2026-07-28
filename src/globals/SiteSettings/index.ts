@@ -23,7 +23,7 @@ export const SiteSettings: GlobalConfig = {
       name: 'siteName',
       type: 'text',
       required: true,
-      defaultValue: 'Eparchy of Segeneyti',
+      defaultValue: 'Eparchy of Segheneyti',
     },
     {
       name: 'tagline',
@@ -84,7 +84,7 @@ export const SiteSettings: GlobalConfig = {
           type: 'group',
           fields: [
             { name: 'street', type: 'text' },
-            { name: 'city', type: 'text', defaultValue: 'Segeneyti' },
+            { name: 'city', type: 'text', defaultValue: 'Segheneyti' },
             { name: 'region', type: 'text', defaultValue: 'Southern Debub' },
             { name: 'country', type: 'text', defaultValue: 'Eritrea' },
             { name: 'poBox', type: 'text' },

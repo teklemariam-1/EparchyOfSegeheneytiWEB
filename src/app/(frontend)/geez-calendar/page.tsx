@@ -26,7 +26,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = buildMetadata({
   title: "Ge'ez Calendar",
   description:
-    "The daily Ge'ez liturgical calendar of the Catholic Eparchy of Segeneyti — monthly view with feasts, readings, antiphons and commemorations, with corresponding Gregorian dates.",
+    "The daily Ge'ez liturgical calendar of the Catholic Eparchy of Segheneyti — monthly view with feasts, readings, antiphons and commemorations, with corresponding Gregorian dates.",
   path: '/geez-calendar',
 })
 

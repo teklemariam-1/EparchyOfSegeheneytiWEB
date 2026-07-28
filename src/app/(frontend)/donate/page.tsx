@@ -13,7 +13,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Donate',
-  description: 'Support the mission and ministries of the Catholic Eparchy of Segeneyti with a donation.',
+  description: 'Support the mission and ministries of the Catholic Eparchy of Segheneyti with a donation.',
   path: '/donate',
 })
 

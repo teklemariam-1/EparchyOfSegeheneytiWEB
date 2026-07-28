@@ -12,7 +12,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 export const metadata: Metadata = buildMetadata({
   title: 'About the Eparchy',
   description:
-    'Learn about the Catholic Eparchy of Segeneyti — its history, mission, Eparch, and pastoral vision for the faithful in Eritrea.',
+    'Learn about the Catholic Eparchy of Segheneyti — its history, mission, Eparch, and pastoral vision for the faithful in Eritrea.',
   path: '/about',
 })
 
@@ -22,7 +22,7 @@ const DEFAULT_MISSION = {
   // "eparchy", not "diocese": this is a Ge'ez-Rite eparchy of the Eritrean
   // Catholic Church, one of its four, under the metropolitan see of Asmara.
   intro:
-    "The Catholic Eparchy of Segeneyti is an Eastern Catholic eparchy of the Ge'ez rite, in full communion with the Bishop of Rome and one of the four eparchies of the Eritrean Catholic Church, whose metropolitan see is Asmara. Established in 1995, the Eparchy encompasses the southern and central regions of Eritrea, including the vicariates of Segeneyti, Adi Keyih, Dekemhare, and Mendefera, as well as a diaspora pastoral presence across Europe, North America, and the Gulf states.",
+    "The Catholic Eparchy of Segheneyti is an Eastern Catholic eparchy of the Ge'ez rite, in full communion with the Bishop of Rome and one of the four eparchies of the Eritrean Catholic Church, whose metropolitan see is Asmara. Established in 1995, the Eparchy encompasses the southern and central regions of Eritrea, including the vicariates of Segheneyti, Adi Keyih, Dekemhare, and Mendefera, as well as a diaspora pastoral presence across Europe, North America, and the Gulf states.",
   body:
     'Our mission is to proclaim the Good News of Jesus Christ, celebrate the sacraments, and build up the Body of Christ through integral human development — caring for the spiritual, educational, and physical well-being of everyone entrusted to our care.',
 }
@@ -40,9 +40,9 @@ const DEFAULT_PILLARS = {
 const DEFAULT_TIMELINE = {
   heading: 'Key Milestones',
   items: [
-    { year: '1995', label: 'Eparchy established', description: 'The Holy See erected the Eparchy of Segeneyti, separating it from the Eparchy of Asmara.' },
+    { year: '1995', label: 'Eparchy established', description: 'The Holy See erected the Eparchy of Segheneyti, separating it from the Eparchy of Asmara.' },
     { year: '2003', label: 'First synod', description: 'The first diocesan synod was held, setting pastoral priorities for the next decade.' },
-    { year: '2010', label: 'New cathedral', description: 'The Cathedral of Saint Michael in Segeneyti was consecrated, becoming the heart of eparchial life.' },
+    { year: '2010', label: 'New cathedral', description: 'The Cathedral of Saint Michael in Segheneyti was consecrated, becoming the heart of eparchial life.' },
     { year: '2018', label: 'Education expansion', description: 'The Eparchy opened three additional parish schools, now educating over 4 000 students.' },
     { year: '2024', label: 'Pastoral plan', description: 'A renewed five-year pastoral plan was launched, centred on family ministry and vocations promotion.' },
   ],
@@ -51,7 +51,7 @@ const DEFAULT_TIMELINE = {
 const DEFAULT_GEEZ = {
   heading: 'The Ge\'ez Liturgical Tradition',
   body:
-    "As an Oriental Catholic Church of the Ge'ez rite, the Eparchy of Segeneyti celebrates the ancient Alexandrian liturgy passed down through the centuries in both Ge'ez and Tigrinya. The Ge'ez calendar, with its 13 months, rich cycle of feasts and fasts, and distinctive liturgical colours, shapes the rhythm of prayer and community life throughout the year.",
+    "As an Oriental Catholic Church of the Ge'ez rite, the Eparchy of Segheneyti celebrates the ancient Alexandrian liturgy passed down through the centuries in both Ge'ez and Tigrinya. The Ge'ez calendar, with its 13 months, rich cycle of feasts and fasts, and distinctive liturgical colours, shapes the rhythm of prayer and community life throughout the year.",
   ctaLabel: 'Explore the Ge\'ez Calendar →',
 }
 

@@ -269,7 +269,7 @@ function AuthShell({
   // screen is branded without ever failing when no logo exists yet.
   const crest = logoUrl ? (
     // eslint-disable-next-line @next/next/no-img-element -- admin route: next/image is not configured here
-    <img src={logoUrl} alt="Eparchy of Segeneyti" className="admin-auth-shell__logoImg" />
+    <img src={logoUrl} alt="Eparchy of Segheneyti" className="admin-auth-shell__logoImg" />
   ) : (
     '✝'
   )
@@ -278,7 +278,7 @@ function AuthShell({
       <aside className="admin-auth-shell__brand" aria-hidden={variant === 'compact' ? 'true' : undefined}>
         <div className="admin-auth-shell__crest">{crest}</div>
         <p className="admin-auth-shell__eyebrow">Chancery Portal</p>
-        <h2 className="admin-auth-shell__brandTitle">Catholic Eparchy of Segeneyti</h2>
+        <h2 className="admin-auth-shell__brandTitle">Catholic Eparchy of Segheneyti</h2>
         <p className="admin-auth-shell__brandText">
           Secure editorial access for diocesan news, events, parishes, publications, ministries, and site-wide settings.
         </p>

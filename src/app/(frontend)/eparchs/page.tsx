@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic'
 /**
  * A succession list needs a succession. With one record it would read as a
  * page-length way of saying what /bishop already says, and "Eparchs of
- * Segeneyti" over a single card invites the reader to wonder who is missing.
+ * Segheneyti" over a single card invites the reader to wonder who is missing.
  *
  * So the list 404s until there are two records, while the individual profiles
  * stay live at /eparchs/[slug] the whole time — nothing is hidden, and the page
@@ -29,9 +29,9 @@ export async function generateMetadata(): Promise<Metadata> {
   if (bishops.length < MINIMUM_FOR_LIST) return { robots: { index: false, follow: false } }
 
   return buildMetadata({
-    title: 'Eparchs of Segeneyti',
+    title: 'Eparchs of Segheneyti',
     description:
-      'The Eparchs who have led the Catholic Eparchy of Segeneyti, one of the four eparchies of the Eritrean Catholic Church.',
+      'The Eparchs who have led the Catholic Eparchy of Segheneyti, one of the four eparchies of the Eritrean Catholic Church.',
     path: '/eparchs',
   })
 }

@@ -21,7 +21,7 @@ import { validateGalleryKeys } from './hooks/validateGalleryKeys'
 import { stripNonPublicEntries } from './hooks/stripNonPublic'
 
 /**
- * The Eparchs of Segeneyti — a living biographical record, not a one-time
+ * The Eparchs of Segheneyti — a living biographical record, not a one-time
  * biography. While an Eparch is serving, staff keep adding milestones, photos
  * and achievements as they happen.
  *
@@ -31,7 +31,7 @@ import { stripNonPublicEntries } from './hooks/stripNonPublic'
  * that could grow is an array rather than a fixed column.
  *
  * Ge'ez-Rite terminology throughout — eparchy not diocese, eparch not bishop,
- * enthronement not installation. Segeneyti is one of the four eparchies of the
+ * enthronement not installation. Segheneyti is one of the four eparchies of the
  * Eritrean Catholic Church, whose metropolitan see is Asmara.
  *
  * The admin form is tabbed because a single flat form of this size is unusable
@@ -47,7 +47,7 @@ export const Bishops: CollectionConfig = {
     group: 'Magisterium',
     defaultColumns: ['_status', 'fullName', 'isActive', 'termStart', 'termEnd'],
     description:
-      'Biographical records of the Eparchs of Segeneyti — life, ministry, honours, galleries and sources.',
+      'Biographical records of the Eparchs of Segheneyti — life, ministry, honours, galleries and sources.',
     preview: (doc) =>
       `${(process.env.NEXT_PUBLIC_SITE_URL ?? '').trim()}/eparchs/${(doc as { slug?: string }).slug ?? ''}`,
   },

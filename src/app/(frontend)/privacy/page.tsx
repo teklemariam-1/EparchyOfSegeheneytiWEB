@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = buildMetadata({
   title: 'Privacy & Cookies',
   description:
-    'How the Catholic Eparchy of Segeneyti website uses cookies and handles the information you send us.',
+    'How the Catholic Eparchy of Segheneyti website uses cookies and handles the information you send us.',
   path: '/privacy',
 })
 

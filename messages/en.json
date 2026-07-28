@@ -61,19 +61,19 @@
     "closeMenu": "Close menu",
     "mainNavigation": "Main navigation",
     "mobileNavigation": "Mobile navigation",
-    "logoAlt": "Eparchy of Segeneyti logo",
+    "logoAlt": "Eparchy of Segheneyti logo",
     "socialLinks": "Social media links",
     "breadcrumb": "Breadcrumb"
   },
   "home": {
-    "heroTitle": "Catholic Eparchy of Segeneyti",
+    "heroTitle": "Catholic Eparchy of Segheneyti",
     "heroSubtitle": "Serving God's people through faith, community, and mission in Eritrea.",
     "latestNews": "Latest News",
     "upcomingEvents": "Upcoming Events",
     "quickLinks": "Quick Links",
     "bishopMessage": "A Word from the Bishop",
-    "heroEyebrow": "Catholic Eparchy of Segeneyti",
-    "heroWelcome": "Welcome to the official website of the Catholic Eparchy of Segeneyti, Eritrea. Rooted in faith, united in mission, and open to all.",
+    "heroEyebrow": "Catholic Eparchy of Segheneyti",
+    "heroWelcome": "Welcome to the official website of the Catholic Eparchy of Segheneyti, Eritrea. Rooted in faith, united in mission, and open to all.",
     "readFullMessage": "Read Full Message"
   },
   "news": {
@@ -111,7 +111,7 @@
   },
   "parishes": {
     "title": "Parishes",
-    "subtitle": "Find a parish community near you within the Eparchy of Segeneyti.",
+    "subtitle": "Find a parish community near you within the Eparchy of Segheneyti.",
     "noParishes": "No parishes found.",
     "filterByVicariate": "Filter by vicariate",
     "allVicariates": "All Vicariates",
@@ -131,7 +131,7 @@
   },
   "contact": {
     "title": "Contact Us",
-    "subtitle": "Get in touch with the Eparchy of Segeneyti.",
+    "subtitle": "Get in touch with the Eparchy of Segheneyti.",
     "name": "Your Name",
     "email": "Email Address",
     "phone": "Phone (optional)",
@@ -227,8 +227,8 @@
   },
   "bishop": {
     "title": "The Eparch",
-    "successionTitle": "Eparchs of Segeneyti",
-    "successionSubtitle": "The Eparchs who have led the Catholic Eparchy of Segeneyti.",
+    "successionTitle": "Eparchs of Segheneyti",
+    "successionSubtitle": "The Eparchs who have led the Catholic Eparchy of Segheneyti.",
     "sittingEparch": "Sitting Eparch",
     "born": "Born",
     "died": "Died",
@@ -277,7 +277,7 @@
   },
   "calendar": {
     "title": "Ge'ez Calendar",
-    "subtitle": "The traditional Ge'ez (Ethiopic) liturgical calendar used by the Eparchy of Segeneyti.",
+    "subtitle": "The traditional Ge'ez (Ethiopic) liturgical calendar used by the Eparchy of Segheneyti.",
     "today": "Today",
     "month": "Month",
     "year": "Year",
@@ -320,12 +320,12 @@
   },
   "about": {
     "title": "About the Eparchy",
-    "subtitle": "Learn about the history, mission, and structure of the Catholic Eparchy of Segeneyti."
+    "subtitle": "Learn about the history, mission, and structure of the Catholic Eparchy of Segheneyti."
   },
   "privacy": {
     "title": "Privacy & Cookies",
     "subtitle": "How this website uses cookies and handles the information you send us.",
-    "intro": "This website is operated by the Catholic Eparchy of Segeneyti. We collect as little information as possible, and we never sell or share your information with third parties for advertising.",
+    "intro": "This website is operated by the Catholic Eparchy of Segheneyti. We collect as little information as possible, and we never sell or share your information with third parties for advertising.",
     "cookiesHeading": "Cookies we use",
     "cookiesBody": "We use a cookie named NEXT_LOCALE to remember whether you are reading the site in English or Tigrinya, and a cookie named cookie-consent to remember your answer to the cookie banner so we do not ask again. Both are strictly necessary for the site to work as you expect and are not used to track you. If you sign in to the administration area, a session cookie is also set to keep you signed in.",
     "formHeading": "The contact form",
@@ -392,7 +392,7 @@
   "vicariates": {
     "title": "Vicariates",
     "subtitle": "The Eparchy is organised into vicariates, each serving a group of parishes.",
-    "structureNote": "The Eparchy of Segeneyti is organised in three levels: the Eparchy, led by the Bishop; the vicariates, each overseeing a district; and the parishes that serve local communities. Select a vicariate to see the parishes that belong to it.",
+    "structureNote": "The Eparchy of Segheneyti is organised in three levels: the Eparchy, led by the Bishop; the vicariates, each overseeing a district; and the parishes that serve local communities. Select a vicariate to see the parishes that belong to it.",
     "empty": "No vicariates yet",
     "emptyDescription": "Vicariates will appear here once added in the CMS.",
     "seat": "Seat",
@@ -411,7 +411,7 @@
   },
   "donate": {
     "title": "Support the Eparchy",
-    "subtitle": "Your generosity sustains the mission and ministries of the Catholic Eparchy of Segeneyti.",
+    "subtitle": "Your generosity sustains the mission and ministries of the Catholic Eparchy of Segheneyti.",
     "amount": "Amount",
     "customAmount": "Other amount",
     "currency": "Currency",
@@ -489,17 +489,17 @@
       "generic": "Sorry, we could not record your donation. Please try again later."
     },
     "email": {
-      "receiptSubject": "Thank you for your donation — Eparchy of Segeneyti",
-      "pledgeSubject": "How to complete your donation — Eparchy of Segeneyti",
-      "refundSubject": "Your donation has been refunded — Eparchy of Segeneyti",
+      "receiptSubject": "Thank you for your donation — Eparchy of Segheneyti",
+      "pledgeSubject": "How to complete your donation — Eparchy of Segheneyti",
+      "refundSubject": "Your donation has been refunded — Eparchy of Segheneyti",
       "greeting": "Dear {name},",
-      "receiptBody": "Thank you for your generous gift of {amount} to the Catholic Eparchy of Segeneyti. Your payment has been confirmed.",
-      "pledgeBody": "Thank you for pledging {amount} to the Catholic Eparchy of Segeneyti. Your gift is not complete until your transfer reaches us.",
+      "receiptBody": "Thank you for your generous gift of {amount} to the Catholic Eparchy of Segheneyti. Your payment has been confirmed.",
+      "pledgeBody": "Thank you for pledging {amount} to the Catholic Eparchy of Segheneyti. Your gift is not complete until your transfer reaches us.",
       "pledgeAction": "Please make the transfer using the details below, and quote your reference code so we can match it to your gift.",
       "referenceLine": "Reference code: {reference}",
       "refundBody": "Your donation of {amount} has been refunded. If you were not expecting this, please contact us.",
       "blessing": "May God bless you for your support.",
-      "signature": "Catholic Eparchy of Segeneyti",
+      "signature": "Catholic Eparchy of Segheneyti",
       "notifySubject": "New donation: {amount} ({method})",
       "notifyPending": "A new pledge was recorded and is awaiting a bank transfer.",
       "notifySucceeded": "A card donation was confirmed by Stripe.",

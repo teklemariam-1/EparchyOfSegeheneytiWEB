@@ -76,7 +76,7 @@ export async function assertPublicUrl(input: string): Promise<URL> {
 
 /** Honest bot identifier sent on every ingest request unless a caller overrides it. */
 export const DEFAULT_USER_AGENT =
-  'EparchyOfSegeneyti-NewsBot/1.0 (+https://eparchy-of-segeheneyti-web.vercel.app)'
+  'EparchyOfSegheneyti-NewsBot/1.0 (+https://eparchy-of-segeheneyti-web.vercel.app)'
 
 /** fetch() after the SSRF guard, with a hard timeout (default 10s). */
 export async function safeFetch(

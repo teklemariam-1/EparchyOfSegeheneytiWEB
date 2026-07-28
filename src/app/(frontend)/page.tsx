@@ -19,9 +19,9 @@ import {
 import { getActiveBishop } from '@/lib/bishops/queries'
 
 export const metadata: Metadata = buildMetadata({
-  title: 'Catholic Eparchy of Segeneyti',
+  title: 'Catholic Eparchy of Segheneyti',
   description:
-    "The official website of the Catholic Eparchy of Segeneyti in Eritrea — serving God's people through faith, community, and mission.",
+    "The official website of the Catholic Eparchy of Segheneyti in Eritrea — serving God's people through faith, community, and mission.",
   isHome: true,
 })
 

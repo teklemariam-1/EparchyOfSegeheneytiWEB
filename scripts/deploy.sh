@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # deploy/deploy.sh
 # ─────────────────────────────────────────────────────────────────────────────
-# Remote deployment script for the Eparchy of Segeneyti website.
+# Remote deployment script for the Eparchy of Segheneyti website.
 # This script is executed ON THE SERVER by the GitHub Actions deploy workflow.
 #
 # Prerequisites on the server:

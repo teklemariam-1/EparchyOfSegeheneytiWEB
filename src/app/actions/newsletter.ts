@@ -103,14 +103,14 @@ export async function subscribeToNewsletter(
     const confirmUrl = `${siteUrl()}/api/newsletter/confirm?token=${confirmationToken}`
     await payload.sendEmail({
       to: email,
-      subject: 'Confirm your subscription — Eparchy of Segeneyti',
+      subject: 'Confirm your subscription — Eparchy of Segheneyti',
       html: `
-        <p>Thank you for subscribing to updates from the Catholic Eparchy of Segeneyti.</p>
+        <p>Thank you for subscribing to updates from the Catholic Eparchy of Segheneyti.</p>
         <p>Please confirm your subscription by clicking the link below:</p>
         <p><a href="${confirmUrl}">Confirm my subscription</a></p>
         <p>If you did not request this, you can safely ignore this email.</p>
       `,
-      text: `Confirm your subscription to the Eparchy of Segeneyti: ${confirmUrl}`,
+      text: `Confirm your subscription to the Eparchy of Segheneyti: ${confirmUrl}`,
     })
 
     return generic

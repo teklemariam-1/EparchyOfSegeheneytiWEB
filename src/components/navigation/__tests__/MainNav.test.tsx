@@ -24,7 +24,7 @@ vi.mock('next-intl/server', () => ({
         mobileNavigation: 'Mobile navigation',
         skipToMain: 'Skip to main content',
         openMenu: 'Open menu', closeMenu: 'Close menu',
-        logoAlt: 'Eparchy of Segeneyti logo',
+        logoAlt: 'Eparchy of Segheneyti logo',
         socialLinks: 'Social media links', breadcrumb: 'Breadcrumb',
       },
     }

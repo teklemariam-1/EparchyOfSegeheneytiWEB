@@ -56,7 +56,7 @@ describe('Breadcrumb', () => {
       <Breadcrumb
         items={[
           { label: 'Parishes', href: '/parishes' },
-          { label: 'Segeneyti', href: '/parishes/segeneyti' },
+          { label: 'Segheneyti', href: '/parishes/segeneyti' },
           { label: 'Contact' },
         ]}
       />,
@@ -65,7 +65,7 @@ describe('Breadcrumb', () => {
       'href',
       '/parishes',
     )
-    expect(screen.getByRole('link', { name: 'Segeneyti' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Segheneyti' })).toHaveAttribute(
       'href',
       '/parishes/segeneyti',
     )

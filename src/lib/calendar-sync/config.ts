@@ -11,7 +11,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eparchyofsegheneyti
 export const CALENDAR_CONFIG = {
   /** Organization name used in calendar titles and PRODID. */
   orgName: 'Catholic Eparchy of Segheneyti',
-  orgNameTi: 'ካቶሊካዊት ኤጳርቅና ሰገነይቲ',
+  orgNameTi: 'ካቶሊካዊት ኤጳርቅና ሠገነይቲ',
   /** Absolute site origin used for event URLs and feed URLs. */
   siteUrl,
   /** Domain part of every VEVENT UID. Stable forever — subscribed clients

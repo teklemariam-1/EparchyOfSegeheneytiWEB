@@ -111,7 +111,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     meta: {
-      titleSuffix: ' | Eparchy of Segeneyti Admin',
+      titleSuffix: ' | Eparchy of Segheneyti Admin',
       icons: [{ rel: 'icon', url: '/favicon.ico' }],
       openGraph: {
         images: [{ url: '/images/og-admin.png' }],

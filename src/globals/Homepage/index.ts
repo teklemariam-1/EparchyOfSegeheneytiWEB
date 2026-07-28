@@ -147,7 +147,7 @@ export const Homepage: GlobalConfig = {
           name: 'bishopTitle',
           type: 'text',
           localized: true,
-          admin: { description: 'e.g. "Bishop of the Catholic Eparchy of Segeneyti".' },
+          admin: { description: 'e.g. "Bishop of the Catholic Eparchy of Segheneyti".' },
         },
       ],
     },

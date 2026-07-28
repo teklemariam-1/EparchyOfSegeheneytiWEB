@@ -59,7 +59,7 @@ export const Vicariates: CollectionConfig = {
       type: 'text',
       required: true,
       localized: true,
-      admin: { description: 'e.g. "Segeneyti Vicariate"' },
+      admin: { description: 'e.g. "Segheneyti Vicariate"' },
     },
     {
       name: 'slug',

@@ -1,5 +1,5 @@
 /**
- * Role definitions for the Eparchy of Segeneyti platform.
+ * Role definitions for the Eparchy of Segheneyti platform.
  *
  * A role is only a preset — it names a bundle of permissions (see
  * lib/permissions/permissions.ts), and per-user grants/revokes layer on top.

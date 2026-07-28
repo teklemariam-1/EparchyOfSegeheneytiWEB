@@ -15,7 +15,7 @@ describe('websiteSchema', () => {
   })
 
   it('includes the site name', () => {
-    expect(websiteSchema().name).toBe('Catholic Eparchy of Segeneyti')
+    expect(websiteSchema().name).toBe('Catholic Eparchy of Segheneyti')
   })
 
   it('advertises English and Tigrinya languages', () => {
@@ -32,9 +32,9 @@ describe('organizationSchema', () => {
     expect(organizationSchema()['@type']).toBe('ReligiousOrganization')
   })
 
-  it('includes the Segeneyti address locality', () => {
+  it('includes the Segheneyti address locality', () => {
     const schema = organizationSchema()
-    expect((schema.address as { addressLocality: string }).addressLocality).toBe('Segeneyti')
+    expect((schema.address as { addressLocality: string }).addressLocality).toBe('Segheneyti')
   })
 
   it('uses country code ER (Eritrea)', () => {
@@ -91,7 +91,7 @@ describe('articleSchema', () => {
 
   it('includes publisher org name', () => {
     const schema = articleSchema(ARTICLE_BASE)
-    expect((schema.publisher as { name: string }).name).toBe('Catholic Eparchy of Segeneyti')
+    expect((schema.publisher as { name: string }).name).toBe('Catholic Eparchy of Segheneyti')
   })
 })
 
@@ -122,9 +122,9 @@ describe('eventSchema', () => {
   })
 
   it('maps location string to a Place object', () => {
-    const schema = eventSchema({ ...EVENT_BASE, location: 'Segeneyti Cathedral' })
+    const schema = eventSchema({ ...EVENT_BASE, location: 'Segheneyti Cathedral' })
     expect((schema.location as { '@type': string; name: string })['@type']).toBe('Place')
-    expect((schema.location as { name: string }).name).toBe('Segeneyti Cathedral')
+    expect((schema.location as { name: string }).name).toBe('Segheneyti Cathedral')
   })
 
   it('omits image when not provided', () => {
@@ -138,7 +138,7 @@ describe('eventSchema', () => {
 
   it('includes organizer org name', () => {
     const schema = eventSchema(EVENT_BASE)
-    expect((schema.organizer as { name: string }).name).toBe('Catholic Eparchy of Segeneyti')
+    expect((schema.organizer as { name: string }).name).toBe('Catholic Eparchy of Segheneyti')
   })
 })
 
@@ -172,6 +172,6 @@ describe('personSchema', () => {
 
   it('sets affiliation to the eparchy', () => {
     const schema = personSchema(PERSON_BASE)
-    expect((schema.affiliation as { name: string }).name).toBe('Catholic Eparchy of Segeneyti')
+    expect((schema.affiliation as { name: string }).name).toBe('Catholic Eparchy of Segheneyti')
   })
 })

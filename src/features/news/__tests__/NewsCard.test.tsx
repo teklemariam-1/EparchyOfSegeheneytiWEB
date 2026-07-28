@@ -35,7 +35,7 @@ vi.mock('next/image', () => ({
 const BASE_NEWS: NewsCardData = {
   slug: 'synod-announcement-2026',
   title: 'Synod of the Catholic Eparchy 2026',
-  excerpt: 'The annual synod will take place in Segeneyti this year...',
+  excerpt: 'The annual synod will take place in Segheneyti this year...',
   category: 'eparchy',
   publishedAt: '2026-03-24T12:00:00Z',
 }

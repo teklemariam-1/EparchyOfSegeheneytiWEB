@@ -8,7 +8,7 @@ describe('buildMetadata — title', () => {
     const meta = buildMetadata({ title: 'News & Events' })
     const title = meta.title as { absolute: string }
     expect(title.absolute).toContain('News & Events')
-    expect(title.absolute).toContain('Catholic Eparchy of Segeneyti')
+    expect(title.absolute).toContain('Catholic Eparchy of Segheneyti')
   })
 
   it('uses the plain title string for the home page', () => {

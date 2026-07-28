@@ -13,7 +13,7 @@ export const revalidate = 600
 
 export const metadata: Metadata = buildMetadata({
   title: 'Publications',
-  description: 'Magazines, pastoral documents, and archives from the Catholic Eparchy of Segeneyti.',
+  description: 'Magazines, pastoral documents, and archives from the Catholic Eparchy of Segheneyti.',
   path: '/publications',
 })
 

@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = buildMetadata({
   title: "Bishop's Messages",
   description:
-    "Pastoral letters, homilies, Christmas and Easter messages from the Bishop of the Catholic Eparchy of Segeneyti.",
+    "Pastoral letters, homilies, Christmas and Easter messages from the Bishop of the Catholic Eparchy of Segheneyti.",
   path: '/bishop-messages',
 })
 

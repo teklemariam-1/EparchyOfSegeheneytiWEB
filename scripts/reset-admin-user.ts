@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { getPayload } from '../src/lib/payload/client'
 
 function makeTempPassword() {
-  return `Segeneyti-${crypto.randomBytes(8).toString('hex')}!9a`
+  return `Segheneyti-${crypto.randomBytes(8).toString('hex')}!9a`
 }
 
 async function main() {

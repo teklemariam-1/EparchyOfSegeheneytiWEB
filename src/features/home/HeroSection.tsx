@@ -95,7 +95,7 @@ export async function HeroSection({ hero, logo }: Props) {
           <div className="md:h-44 md:w-44 lg:h-56 lg:w-56 xl:h-64 xl:w-64 rounded-full bg-white/95 p-2.5 shadow-2xl ring-2 ring-gold-400/80">
             <Image
               src={logo.url}
-              alt={logo.alt || 'Eparchy of Segeneyti emblem'}
+              alt={logo.alt || 'Eparchy of Segheneyti emblem'}
               width={256}
               height={256}
               className="h-full w-full rounded-full object-contain"

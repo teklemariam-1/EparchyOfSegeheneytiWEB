@@ -12,7 +12,7 @@ vi.mock('next-intl/server', () => ({
         closeMenu: 'Close menu',
         mainNavigation: 'Main navigation',
         mobileNavigation: 'Mobile navigation',
-        logoAlt: 'Eparchy of Segeneyti logo',
+        logoAlt: 'Eparchy of Segheneyti logo',
         socialLinks: 'Social media links',
         breadcrumb: 'Breadcrumb',
       },

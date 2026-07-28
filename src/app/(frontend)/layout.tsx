@@ -28,18 +28,18 @@ const notoSerifEthiopic = Noto_Serif_Ethiopic({
 export const metadata: Metadata = {
   metadataBase: new URL((process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim()),
   title: {
-    template: '%s | Eparchy of Segeneyti',
-    default: 'Catholic Eparchy of Segeneyti',
+    template: '%s | Eparchy of Segheneyti',
+    default: 'Catholic Eparchy of Segheneyti',
   },
   description:
-    "The official website of the Catholic Eparchy of Segeneyti in Eritrea — serving God's people through faith, community, and mission.",
-  keywords: ['Eparchy', 'Segeneyti', 'Catholic', 'Eritrea', 'Church', 'ካቶሊካዊ', 'ሰገነይቲ'],
-  authors: [{ name: 'Eparchy of Segeneyti' }],
-  creator: 'Eparchy of Segeneyti',
+    "The official website of the Catholic Eparchy of Segheneyti in Eritrea — serving God's people through faith, community, and mission.",
+  keywords: ['Eparchy', 'Segheneyti', 'Catholic', 'Eritrea', 'Church', 'ካቶሊካዊ', 'ሠገነይቲ'],
+  authors: [{ name: 'Eparchy of Segheneyti' }],
+  creator: 'Eparchy of Segheneyti',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'Catholic Eparchy of Segeneyti',
+    siteName: 'Catholic Eparchy of Segheneyti',
   },
   robots: {
     index: true,

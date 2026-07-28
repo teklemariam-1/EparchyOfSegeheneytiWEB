@@ -171,7 +171,7 @@ export async function submitDonation(
                 // Server-computed integer. The browser cannot influence this.
                 unit_amount: donation.amountMinor,
                 product_data: {
-                  name: 'Donation — Catholic Eparchy of Segeneyti',
+                  name: 'Donation — Catholic Eparchy of Segheneyti',
                   description: `Reference ${reference}`,
                 },
               },

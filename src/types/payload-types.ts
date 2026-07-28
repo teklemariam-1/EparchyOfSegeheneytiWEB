@@ -466,7 +466,7 @@ export interface User {
   collection: 'users';
 }
 /**
- * All parishes within the Eparchy of Segeneyti.
+ * All parishes within the Eparchy of Segheneyti.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "parishes".
@@ -561,7 +561,7 @@ export interface Parish {
 export interface Vicariate {
   id: number;
   /**
-   * e.g. "Segeneyti Vicariate"
+   * e.g. "Segheneyti Vicariate"
    */
   name: string;
   slug: string;
@@ -1367,7 +1367,7 @@ export interface PopeMessage {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Biographical records of the Eparchs of Segeneyti — life, ministry, honours, galleries and sources.
+ * Biographical records of the Eparchs of Segheneyti — life, ministry, honours, galleries and sources.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bishops".
@@ -1395,7 +1395,7 @@ export interface Bishop {
    */
   episcopalName?: string | null;
   /**
-   * Full formal title, e.g. "Eparch of the Catholic Eparchy of Segeneyti". Shown under his name on every public page.
+   * Full formal title, e.g. "Eparch of the Catholic Eparchy of Segheneyti". Shown under his name on every public page.
    */
   formalTitle?: string | null;
   baptismalName?: string | null;
@@ -1694,7 +1694,7 @@ export interface Bishop {
   appointingAuthorityName?: string | null;
   appointmentDate?: string | null;
   /**
-   * Offices held before Segeneyti — including another see, if he was transferred here.
+   * Offices held before Segheneyti — including another see, if he was transferred here.
    */
   previousAppointments?:
     | {
@@ -4133,7 +4133,7 @@ export interface Header {
 export interface Footer {
   id: number;
   /**
-   * Copyright notice (e.g. "© 2025 Eparchy of Segeneyti. All rights reserved.").
+   * Copyright notice (e.g. "© 2025 Eparchy of Segheneyti. All rights reserved.").
    */
   copyrightText?: string | null;
   columns?:
@@ -4240,7 +4240,7 @@ export interface Homepage {
      */
     bishopName?: string | null;
     /**
-     * e.g. "Bishop of the Catholic Eparchy of Segeneyti".
+     * e.g. "Bishop of the Catholic Eparchy of Segheneyti".
      */
     bishopTitle?: string | null;
   };

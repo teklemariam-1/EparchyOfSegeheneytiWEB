@@ -11,7 +11,7 @@ export const Parishes: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Church',
     defaultColumns: ['name', 'region', 'vicariate', 'pastor', 'slug'],
-    description: 'All parishes within the Eparchy of Segeneyti.',
+    description: 'All parishes within the Eparchy of Segheneyti.',
     preview: (doc) => `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/parishes/${(doc as any).slug}`,
   },
   access: {

@@ -109,7 +109,7 @@ export function MobileMenu() {
           >
             <div className="flex items-center justify-between px-4 py-4 border-b border-charcoal-100">
               <span className="font-serif font-bold text-maroon-900 text-base">
-                Eparchy of Segeneyti
+                Eparchy of Segheneyti
               </span>
               <button
                 type="button"
@@ -138,7 +138,7 @@ export function MobileMenu() {
 
             <div className="border-t border-charcoal-100 px-4 py-4">
               <p className="text-xs text-charcoal-400 text-center">
-                Catholic Eparchy of Segeneyti · Eritrea
+                Catholic Eparchy of Segheneyti · Eritrea
               </p>
             </div>
           </div>

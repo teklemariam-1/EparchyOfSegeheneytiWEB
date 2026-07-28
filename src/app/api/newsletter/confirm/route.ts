@@ -54,7 +54,7 @@ export async function GET(req: Request) {
 
     return page(
       'Subscription confirmed',
-      'Thank you — your email is confirmed. You will now receive news and updates from the Eparchy of Segeneyti.',
+      'Thank you — your email is confirmed. You will now receive news and updates from the Eparchy of Segheneyti.',
     )
   } catch (err) {
     console.error('[newsletter] confirm error', err)

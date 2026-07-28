@@ -11,7 +11,7 @@ import {
  * Two things worth explaining:
  *
  * 1. Appointment. Eritrea's is a Metropolitan Church sui iuris (metropolitan
- *    see: Asmara; Segeneyti is one of its four eparchies), so its eparchs are
+ *    see: Asmara; Segheneyti is one of its four eparchies), so its eparchs are
  *    appointed by the Roman Pontiff with the Council of Hierarchs proposing
  *    candidates. There is no patriarchal election to model.
  *
@@ -91,7 +91,7 @@ export const ministryTab: Field[] = [
     label: 'Previous appointments',
     admin: {
       initCollapsed: true,
-      description: 'Offices held before Segeneyti — including another see, if he was transferred here.',
+      description: 'Offices held before Segheneyti — including another see, if he was transferred here.',
     },
     fields: [
       { name: 'title', type: 'text', required: true, localized: true },

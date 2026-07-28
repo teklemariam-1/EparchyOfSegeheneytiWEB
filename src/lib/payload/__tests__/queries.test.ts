@@ -106,7 +106,7 @@ function makeEventDoc(overrides = {}) {
     endDate: '2026-04-05T02:00:00Z',
     isAllDay: false,
     eventType: 'liturgical',
-    location: { name: 'Cathedral', address: 'Segeneyti' },
+    location: { name: 'Cathedral', address: 'Segheneyti' },
     parish: null,
     featuredImage: null,
     excerpt: 'The great Easter Vigil.',
@@ -122,11 +122,11 @@ function makeParishDoc(overrides = {}) {
   return {
     id: 'p1',
     slug: 'segeneyti-cathedral',
-    name: 'Segeneyti Cathedral',
+    name: 'Segheneyti Cathedral',
     // vicariate is a relationship now, populated at depth >= 1
-    vicariate: { id: 'v1', slug: 'segeneyti', name: 'Segeneyti Vicariate' },
+    vicariate: { id: 'v1', slug: 'segeneyti', name: 'Segheneyti Vicariate' },
     patron: 'St. Peter and St. Paul',
-    region: 'Segeneyti',
+    region: 'Segheneyti',
     pastor: { fullName: 'Fr. Haile Tesfai' },
     featuredImage: null,
     history: null,
@@ -274,7 +274,7 @@ describe('getUpcomingEvents', () => {
     expect(events[0]).toMatchObject({
       slug: 'easter-vigil-2026',
       eventType: 'liturgical',
-      location: { venue: 'Cathedral', address: 'Segeneyti' },
+      location: { venue: 'Cathedral', address: 'Segheneyti' },
     })
   })
 
@@ -348,7 +348,7 @@ describe('getParishesList', () => {
     expect(result[0]).toMatchObject({
       slug: 'segeneyti-cathedral',
       pastor: 'Fr. Haile Tesfai',
-      vicariate: { id: 'v1', slug: 'segeneyti', name: 'Segeneyti Vicariate' },
+      vicariate: { id: 'v1', slug: 'segeneyti', name: 'Segheneyti Vicariate' },
     })
   })
 
@@ -426,7 +426,7 @@ describe('getMinistriesList', () => {
       type: 'youth-council',
       description: null,
       leader: { name: 'Dawit Gebru' },
-      parish: { name: 'Segeneyti Cathedral', slug: 'segeneyti-cathedral' },
+      parish: { name: 'Segheneyti Cathedral', slug: 'segeneyti-cathedral' },
       featuredImage: null,
       meetingInfo: { schedule: 'Every Sunday after Mass', venue: 'Hall' },
     }
@@ -605,14 +605,14 @@ describe('getBishopMessagesList', () => {
 describe('getSiteSettings', () => {
   it('returns a SiteSettingsGlobal object', async () => {
     const globalDoc = {
-      siteName: 'Catholic Eparchy of Segeneyti',
+      siteName: 'Catholic Eparchy of Segheneyti',
       contact: { phone: '+291-1-001', email: 'info@segeneyti.org' },
       socialLinks: {},
       analytics: {},
     }
     mockFindGlobal(globalDoc)
     const result = await getSiteSettings()
-    expect(result.siteName).toBe('Catholic Eparchy of Segeneyti')
+    expect(result.siteName).toBe('Catholic Eparchy of Segheneyti')
     expect(result.contact?.phone).toBe('+291-1-001')
   })
 })

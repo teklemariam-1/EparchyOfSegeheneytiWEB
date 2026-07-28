@@ -13,7 +13,7 @@ export const revalidate = 600
 export const metadata: Metadata = buildMetadata({
   title: 'Ministries',
   description:
-    'The various ministries and apostolates of the Catholic Eparchy of Segeneyti — serving together in every area of Church life.',
+    'The various ministries and apostolates of the Catholic Eparchy of Segheneyti — serving together in every area of Church life.',
   path: '/ministries',
 })
 
@@ -58,7 +58,7 @@ export default async function MinistriesPage() {
         <Container size="narrow">
           <div className="prose prose-eparchy text-center max-w-none">
             <p className="lead">
-              The Eparchy of Segeneyti is animated by the gifts of its lay faithful. Across all vicariates,
+              The Eparchy of Segheneyti is animated by the gifts of its lay faithful. Across all vicariates,
               hundreds of dedicated men and women serve in parish ministries, diocesan commissions, and outreach
               programmes. Each ministry is a participation in the threefold mission of Christ — priest, prophet, and king.
             </p>

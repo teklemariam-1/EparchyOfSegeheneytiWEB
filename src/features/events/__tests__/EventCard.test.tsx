@@ -31,7 +31,7 @@ const BASE_EVENT: EventCardData = {
   excerpt: 'Three deacons will be ordained at the cathedral in Asmara.',
   eventType: 'ordination',
   startDate: '2026-06-15T12:00:00Z', // June 15 — safe for all ±12 timezones
-  location: 'Segeneyti Cathedral',
+  location: 'Segheneyti Cathedral',
 }
 
 describe('EventCard', () => {
@@ -59,12 +59,12 @@ describe('EventCard', () => {
 
   it('renders the location when provided', () => {
     render(<EventCard event={BASE_EVENT} />)
-    expect(screen.getByText('Segeneyti Cathedral')).toBeInTheDocument()
+    expect(screen.getByText('Segheneyti Cathedral')).toBeInTheDocument()
   })
 
   it('does not render location when it is omitted', () => {
     render(<EventCard event={{ ...BASE_EVENT, location: undefined }} />)
-    expect(screen.queryByText('Segeneyti Cathedral')).toBeNull()
+    expect(screen.queryByText('Segheneyti Cathedral')).toBeNull()
   })
 
   it('renders the day number from startDate in the date badge', () => {

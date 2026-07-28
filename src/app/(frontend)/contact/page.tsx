@@ -10,7 +10,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Contact',
-  description: 'Contact the Catholic Eparchy of Segeneyti — Chancery office, the Eparch\'s secretariat, and parish finder.',
+  description: 'Contact the Catholic Eparchy of Segheneyti — Chancery office, the Eparch\'s secretariat, and parish finder.',
   path: '/contact',
 })
 
@@ -122,22 +122,22 @@ export default async function ContactPage() {
                 </div>
               ))}
 
-              {/* Google Maps embed — Segeneyti, Eritrea */}
+              {/* Google Maps embed — Segheneyti, Eritrea */}
               <div className="rounded-xl overflow-hidden border border-charcoal-100 shadow-sm">
                 <iframe
-                  title="Segeneyti, Eritrea map"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31344.93!2d39.0363!3d14.6528!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x166ab7b22f2d91b7%3A0x1!2sSegeneyti%2C%20Eritrea!5e0!3m2!1sen!2ser!4v1"
+                  title="Segheneyti, Eritrea map"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31344.93!2d39.0363!3d14.6528!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x166ab7b22f2d91b7%3A0x1!2sSegheneyti%2C%20Eritrea!5e0!3m2!1sen!2ser!4v1"
                   width="100%"
                   height="220"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  aria-label="Map showing Segeneyti, Eritrea"
+                  aria-label="Map showing Segheneyti, Eritrea"
                 />
                 <div className="px-4 py-2 bg-parchment-50 border-t border-charcoal-100">
                   <p className="text-xs text-charcoal-500 text-center">
-                    <span className="font-medium text-charcoal-700">Segeneyti</span>, Southern Zoba, Eritrea
+                    <span className="font-medium text-charcoal-700">Segheneyti</span>, Southern Zoba, Eritrea
                   </p>
                 </div>
               </div>

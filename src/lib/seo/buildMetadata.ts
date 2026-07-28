@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim()
-const SITE_NAME = 'Catholic Eparchy of Segeneyti'
+const SITE_NAME = 'Catholic Eparchy of Segheneyti'
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-default.jpg`
 
 interface BuildMetadataOptions {

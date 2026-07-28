@@ -1,5 +1,5 @@
 /**
- * Ge'ez-Rite terminology for the Eparchs of Segeneyti.
+ * Ge'ez-Rite terminology for the Eparchs of Segheneyti.
  *
  * This is an Eritrean Catholic (Ge'ez Rite) eparchy, so the vocabulary here is
  * deliberately NOT Latin-rite: eparchy not diocese, eparch not bishop,
@@ -15,7 +15,7 @@
  *
  * ── Canonical note on appointment ────────────────────────────────────────────
  * The Eritrean Catholic Church is a Metropolitan Church sui iuris (metropolitan
- * see: Asmara; Segeneyti is one of its four eparchies). Under CCEO a Synod of
+ * see: Asmara; Segheneyti is one of its four eparchies). Under CCEO a Synod of
  * Bishops and a Patriarch belong to patriarchal and major archiepiscopal
  * Churches — Eritrea has neither. Its eparchs are appointed by the Roman
  * Pontiff, with the Council of Hierarchs proposing candidates. The appointing

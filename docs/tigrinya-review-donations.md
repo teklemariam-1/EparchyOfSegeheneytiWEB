@@ -98,17 +98,17 @@ To correct a string, edit `messages/ti.json` — nothing else needs to change, a
 | **`errors.amountInvalid`** | Please enter a gift amount greater than zero. | በጃኹም ካብ ባዶ ዝዓበየ መጠን ወፈያ ኣእትዉ። |
 | **`errors.checkoutFailed`** | We could not start the card payment. Please try again, or give by bank transfer. | ናይ ካርድ ክፍሊት ክንጅምር ኣይከኣልናን። በጃኹም ደጊምኩም ፈትኑ፡ ወይ ብናይ ባንክ ምትሕልላፍ ውፈዩ። |
 | **`errors.generic`** | Sorry, we could not record your donation. Please try again later. | ይቕሬታ፡ ወፈያኹም ክንምዝግቦ ኣይከኣልናን። በጃኹም ደጊምኩም ፈትኑ። |
-| **`email.receiptSubject`** | Thank you for your donation — Eparchy of Segeneyti | ስለ ወፈያኹም የቐንየልና — ኤጳርቅ ሰገነይቲ |
-| **`email.pledgeSubject`** | How to complete your donation — Eparchy of Segeneyti | ወፈያኹም ብኸመይ ከም እትውድእዎ — ኤጳርቅ ሰገነይቲ |
-| **`email.refundSubject`** | Your donation has been refunded — Eparchy of Segeneyti | ወፈያኹም ተመሊሱ ኣሎ — ኤጳርቅ ሰገነይቲ |
+| **`email.receiptSubject`** | Thank you for your donation — Eparchy of Segheneyti | ስለ ወፈያኹም የቐንየልና — ኤጳርቅ ሠገነይቲ |
+| **`email.pledgeSubject`** | How to complete your donation — Eparchy of Segheneyti | ወፈያኹም ብኸመይ ከም እትውድእዎ — ኤጳርቅ ሠገነይቲ |
+| **`email.refundSubject`** | Your donation has been refunded — Eparchy of Segheneyti | ወፈያኹም ተመሊሱ ኣሎ — ኤጳርቅ ሠገነይቲ |
 | **`email.greeting`** | Dear {name}, | ዝኸበርኩም {name}፡ |
-| **`email.receiptBody`** | Thank you for your generous gift of {amount} to the Catholic Eparchy of Segeneyti. Your payment has been confirmed. | ናብ ካቶሊካዊ ኤጳርቅ ሰገነይቲ ብዘወፈኹምዎ ልግሲ ዝመልኦ {amount} የቐንየልና። ክፍሊትኩም ተረጋጊጹ ኣሎ። |
-| **`email.pledgeBody`** | Thank you for pledging {amount} to the Catholic Eparchy of Segeneyti. Your gift is not complete until your transfer reaches us. | ናብ ካቶሊካዊ ኤጳርቅ ሰገነይቲ {amount} ንምውፋይ ስለ ዝመብጻዕኩም የቐንየልና። ምትሕልላፍኩም ክሳብ ዝበጽሓና ወፈያኹም ኣይተዛዘመን። |
+| **`email.receiptBody`** | Thank you for your generous gift of {amount} to the Catholic Eparchy of Segheneyti. Your payment has been confirmed. | ናብ ካቶሊካዊ ኤጳርቅ ሠገነይቲ ብዘወፈኹምዎ ልግሲ ዝመልኦ {amount} የቐንየልና። ክፍሊትኩም ተረጋጊጹ ኣሎ። |
+| **`email.pledgeBody`** | Thank you for pledging {amount} to the Catholic Eparchy of Segheneyti. Your gift is not complete until your transfer reaches us. | ናብ ካቶሊካዊ ኤጳርቅ ሠገነይቲ {amount} ንምውፋይ ስለ ዝመብጻዕኩም የቐንየልና። ምትሕልላፍኩም ክሳብ ዝበጽሓና ወፈያኹም ኣይተዛዘመን። |
 | **`email.pledgeAction`** | Please make the transfer using the details below, and quote your reference code so we can match it to your gift. | በጃኹም ኣብ ታሕቲ ዘሎ ዝርዝር ተጠቒምኩም ኣመሓላልፉ፡ ምስ ወፈያኹም ከነተሓሕዞ ድማ መወከሲ ኮድኩም ጥቐሱ። |
 | **`email.referenceLine`** | Reference code: {reference} | መወከሲ ኮድ፦ {reference} |
 | **`email.refundBody`** | Your donation of {amount} has been refunded. If you were not expecting this, please contact us. | ናይ {amount} ወፈያኹም ተመሊሱ ኣሎ። እዚ ትጽበይዎ እንተዘይነይርኩም፡ በጃኹም ተወከሱና። |
 | **`email.blessing`** | May God bless you for your support. | ስለ ደገፍኩም እግዚኣብሔር ይባርኽኩም። |
-| **`email.signature`** | Catholic Eparchy of Segeneyti | ካቶሊካዊ ኤጳርቅ ሰገነይቲ |
+| **`email.signature`** | Catholic Eparchy of Segheneyti | ካቶሊካዊ ኤጳርቅ ሠገነይቲ |
 | **`email.notifySubject`** | New donation: {amount} ({method}) | ሓድሽ ወፈያ፦ {amount} ({method}) |
 | **`email.notifyPending`** | A new pledge was recorded and is awaiting a bank transfer. | ሓድሽ መብጽዓ ተመዝጊቡ፡ ናይ ባንክ ምትሕልላፍ ይጽበ ኣሎ። |
 | **`email.notifySucceeded`** | A card donation was confirmed by Stripe. | ናይ ካርድ ወፈያ ብStripe ተረጋጊጹ። |

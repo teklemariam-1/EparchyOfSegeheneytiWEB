@@ -1,5 +1,5 @@
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim()
-const SITE_NAME = 'Catholic Eparchy of Segeneyti'
+const SITE_NAME = 'Catholic Eparchy of Segheneyti'
 const SITE_LOGO = `${SITE_URL}/images/logo.png`
 
 /** JSON-LD for the WebSite root */
@@ -9,7 +9,7 @@ export function websiteSchema() {
     '@type': 'WebSite',
     name: SITE_NAME,
     url: SITE_URL,
-    description: 'Official website of the Catholic Eparchy of Segeneyti, Eritrea.',
+    description: 'Official website of the Catholic Eparchy of Segheneyti, Eritrea.',
     inLanguage: ['en', 'ti'],
   }
 }
@@ -24,7 +24,7 @@ export function organizationSchema() {
     logo: SITE_LOGO,
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Segeneyti',
+      addressLocality: 'Segheneyti',
       addressCountry: 'ER',
     },
   }

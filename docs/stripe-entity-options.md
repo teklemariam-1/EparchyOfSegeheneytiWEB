@@ -9,7 +9,7 @@ changes that.
 
 So the question is not "how do we make Stripe accept the Eparchy" — it is
 **"which legal body receives card gifts on the Eparchy's behalf, and how does
-the money reach Segeneyti?"** That is a governance decision for the Eparchy, not
+the money reach Segheneyti?"** That is a governance decision for the Eparchy, not
 a technical one. This document lays out the three real answers so it can be
 decided rather than deferred.
 
@@ -37,7 +37,7 @@ terms of service, which is a legal act.)
 ### A. Point the card option at a partner organisation
 
 The "Card" button links out to an existing Catholic charity's donation page,
-earmarked for Segeneyti. The Eparchy holds no Stripe account and takes on no
+earmarked for Segheneyti. The Eparchy holds no Stripe account and takes on no
 legal or financial exposure.
 
 **CNEWA** (Catholic Near East Welfare Association) is the obvious first
@@ -110,7 +110,7 @@ this into route A.
 network turns out to be strong enough to staff it.**
 
 Approach CNEWA first. That single conversation likely resolves both routes at
-once: they may take earmarked gifts for Segeneyti directly (route A, live in
+once: they may take earmarked gifts for Segheneyti directly (route A, live in
 weeks), and if not, they know which of their partner agencies does this kind of
 sponsorship (route C).
 

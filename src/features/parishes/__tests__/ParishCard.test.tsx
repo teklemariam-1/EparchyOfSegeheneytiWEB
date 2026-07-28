@@ -29,7 +29,7 @@ const BASE_PARISH: ParishCardData = {
   name: 'St. Mariam Parish',
   vicariate: 'segeneyti',
   patronSaint: 'Our Lady',
-  city: 'Segeneyti',
+  city: 'Segheneyti',
   priestName: 'Tesfamariam Haile',
 }
 
@@ -48,6 +48,9 @@ describe('ParishCard', () => {
 
   it('renders the vicariate badge with proper capitalisation', () => {
     render(<ParishCard parish={BASE_PARISH} />)
+    // Derived from the `segeneyti` SLUG above, not from the eparchy's name, so
+    // it keeps the slug's spelling. Slugs are stored in the database and appear
+    // in public URLs; renaming them is a separate, deliberate migration.
     expect(screen.getByText('Segeneyti Vicariate')).toBeInTheDocument()
   })
 
@@ -68,13 +71,13 @@ describe('ParishCard', () => {
 
   it('renders city name when provided', () => {
     render(<ParishCard parish={BASE_PARISH} />)
-    expect(screen.getByText('Segeneyti')).toBeInTheDocument()
+    expect(screen.getByText('Segheneyti')).toBeInTheDocument()
   })
 
   it('does not render city when omitted', () => {
     render(<ParishCard parish={{ ...BASE_PARISH, city: undefined }} />)
-    // Title is also "Segeneyti" in this fixture — use specific check
-    const texts = screen.queryAllByText('Segeneyti')
+    // Title is also "Segheneyti" in this fixture — use specific check
+    const texts = screen.queryAllByText('Segheneyti')
     // Only the badge text should remain
     expect(texts.every((el) => el.textContent?.includes('Vicariate'))).toBe(true)
   })

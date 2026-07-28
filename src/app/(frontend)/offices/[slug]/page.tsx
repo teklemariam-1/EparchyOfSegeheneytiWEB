@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!office) return {}
   return buildMetadata({
     title: office.name,
-    description: office.tagline ?? `${office.name} — Catholic Eparchy of Segeneyti.`,
+    description: office.tagline ?? `${office.name} — Catholic Eparchy of Segheneyti.`,
     path: `/offices/${slug}`,
     image: office.featuredImage?.url,
   })

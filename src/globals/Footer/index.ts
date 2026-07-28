@@ -22,7 +22,7 @@ export const Footer: GlobalConfig = {
       name: 'copyrightText',
       type: 'text',
       localized: true,
-      admin: { description: 'Copyright notice (e.g. "© 2025 Eparchy of Segeneyti. All rights reserved.").' },
+      admin: { description: 'Copyright notice (e.g. "© 2025 Eparchy of Segheneyti. All rights reserved.").' },
     },
     {
       name: 'columns',

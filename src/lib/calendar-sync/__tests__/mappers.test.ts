@@ -36,12 +36,12 @@ describe('eventDocToCalendarEvent', () => {
         endDate: '2025-10-07T00:00:00.000Z',
         isCancelled: true,
         locationName: 'Cathedral',
-        locationAddress: 'Segeneyti',
+        locationAddress: 'Segheneyti',
       }),
     )
     expect(c.end).toBe('2025-10-07')
     expect(c.cancelled).toBe(true)
-    expect(c.location).toBe('Cathedral, Segeneyti')
+    expect(c.location).toBe('Cathedral, Segheneyti')
   })
 })
 

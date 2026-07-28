@@ -8,7 +8,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Settings',
-  description: 'Manage your language and display preferences for the Eparchy of Segeneyti website.',
+  description: 'Manage your language and display preferences for the Eparchy of Segheneyti website.',
 })
 
 export default async function SettingsPage() {

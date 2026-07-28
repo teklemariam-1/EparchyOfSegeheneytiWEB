@@ -8,6 +8,7 @@
  * Run:  npx tsx scripts/unseed.ts        (with DATABASE_URI etc. in the env)
  */
 import { getPayload } from '../src/lib/payload/client'
+import { assertLocalDatabase } from './assertLocalDatabase'
 
 const SEED_SLUGS: Record<string, string[]> = {
   priests: ['fr-tesfamariam-weldegabir', 'fr-ghirmay-habte', 'msgr-yohannes-tekle'],
@@ -26,6 +27,9 @@ const SEED_SLUGS: Record<string, string[]> = {
 }
 
 async function main() {
+  // Refuses to touch a non-local database — see ./assertLocalDatabase.
+  assertLocalDatabase('unseed')
+
   const payload = await getPayload()
 
   // Delete content collections first (they reference media), then media.

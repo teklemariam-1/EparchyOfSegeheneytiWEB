@@ -36,7 +36,7 @@ const PAGE_SIZE = 12
 
 export const metadata: Metadata = buildMetadata({
   title: 'News',
-  description: 'Latest news and announcements from the Catholic Eparchy of Segeneyti.',
+  description: 'Latest news and announcements from the Catholic Eparchy of Segheneyti.',
   path: '/news',
 })
 

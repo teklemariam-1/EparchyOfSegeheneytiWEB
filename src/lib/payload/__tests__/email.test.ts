@@ -160,6 +160,6 @@ describe('buildEmailAdapter', () => {
 
     expect(adapter.name).toBe('eparchy-email')
     expect(adapter.defaultFromAddress).toBe('noreply@segeneyti.org')
-    expect(adapter.defaultFromName).toBe('Eparchy of Segeneyti CMS')
+    expect(adapter.defaultFromName).toBe('Eparchy of Segheneyti CMS')
   })
 })

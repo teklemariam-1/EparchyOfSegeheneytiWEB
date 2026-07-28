@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = buildMetadata({
   title: 'Messages from the Holy Father',
   description:
-    'Papal encyclicals, apostolic exhortations, letters, and messages from the Holy Father, shared with the faithful of the Catholic Eparchy of Segeneyti.',
+    'Papal encyclicals, apostolic exhortations, letters, and messages from the Holy Father, shared with the faithful of the Catholic Eparchy of Segheneyti.',
   path: '/pope-messages',
 })
 

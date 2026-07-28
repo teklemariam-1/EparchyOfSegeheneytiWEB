@@ -18,7 +18,7 @@ export default function AdminLogo() {
       </div>
       <div>
         <p style={{ color: '#fff', fontSize: '14px', fontWeight: 700, lineHeight: 1.25, margin: 0 }}>
-          Eparchy of Segeneyti
+          Eparchy of Segheneyti
         </p>
         <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', lineHeight: 1.25, margin: 0 }}>
           Content Management

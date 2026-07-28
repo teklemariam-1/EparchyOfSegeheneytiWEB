@@ -1,5 +1,5 @@
 /**
- * Sample content seed for the Eparchy of Segeneyti site.
+ * Sample content seed for the Eparchy of Segheneyti site.
  *
  * Populates the core collections with realistic, bilingual (English + Tigrinya)
  * sample data so the site can be viewed and tested fully populated.
@@ -11,6 +11,7 @@
  */
 import sharp from 'sharp'
 import { getPayload } from '../src/lib/payload/client'
+import { assertLocalDatabase } from './assertLocalDatabase'
 
 // ── Lexical rich-text helper ────────────────────────────────────────────────
 function rt(paragraphs: string[]) {
@@ -38,6 +39,9 @@ function rt(paragraphs: string[]) {
 const daysFromNow = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString()
 
 async function main() {
+  // Refuses to touch a non-local database — see ./assertLocalDatabase.
+  assertLocalDatabase('seed')
+
   const payload = await getPayload()
   const force = process.env.FORCE_SEED === '1'
 
@@ -99,7 +103,7 @@ async function main() {
   const image = await payload.create({
     collection: 'media',
     overrideAccess: true,
-    data: { alt: 'Catholic Eparchy of Segeneyti', category: 'general', accessLevel: 'public' } as any,
+    data: { alt: 'Catholic Eparchy of Segheneyti', category: 'general', accessLevel: 'public' } as any,
     file: { data: imgBuf, mimetype: 'image/jpeg', name: 'seed-cover.jpg', size: imgBuf.length },
   })
   const IMG = image.id
@@ -130,16 +134,16 @@ async function main() {
   const parish1 = await createLocalized(
     'parishes',
     {
-      slug: 'st-mary-cathedral', vicariate: 'segeneyti', region: 'Segeneyti', featuredImage: IMG,
+      slug: 'st-mary-cathedral', vicariate: 'segeneyti', region: 'Segheneyti', featuredImage: IMG,
       feastDate: '16 Nehase', pastor: priest1.id,
-      contact: { phone: '+291 1 650 000', email: 'cathedral@segeneyti.org', address: 'Segeneyti, Debub Region, Eritrea' },
+      contact: { phone: '+291 1 650 000', email: 'cathedral@segeneyti.org', address: 'Segheneyti, Debub Region, Eritrea' },
       massTimes: [
         { day: 'Sunday', time: '07:00', language: 'Tigrinya' },
         { day: 'Sunday', time: '09:30', language: 'Tigrinya' },
         { day: 'Wednesday', time: '06:30', language: 'Tigrinya' },
       ],
     },
-    { name: 'St. Mary Cathedral', patron: 'St. Mary, Mother of God', description: rt(['The cathedral church of the Eparchy of Segeneyti and seat of the Bishop.']) },
+    { name: 'St. Mary Cathedral', patron: 'St. Mary, Mother of God', description: rt(['The cathedral church of the Eparchy of Segheneyti and seat of the Bishop.']) },
     { name: 'ቅድስቲ ማርያም ካቴድራል', patron: 'ቅድስቲ ድንግል ማርያም', description: rt(['እታ ካቴድራላዊት ቤተ ክርስቲያን ናይ ኤፓርኪ ሰገነይትን መንበር ጳጳስን።']) },
   )
   const parish2 = await createLocalized(
@@ -170,8 +174,8 @@ async function main() {
   const ministries: Array<[Record<string, unknown>, Record<string, unknown>, Record<string, unknown>]> = [
     [
       { slug: 'youth-council-segeneyti', type: 'youth-council', status: 'active', featuredImage: IMG, leader: { name: 'Michael Berhe' } },
-      { name: 'Youth Council of Segeneyti', mission: 'Forming young disciples through faith, fellowship, and service.' },
-      { name: 'ምኽሪ መንእሰያት ሰገነይቲ', mission: 'ንመንእሰያት ብእምነት፣ ሕብረትን ኣገልግሎትን ምስልጣን።' },
+      { name: 'Youth Council of Segheneyti', mission: 'Forming young disciples through faith, fellowship, and service.' },
+      { name: 'ምኽሪ መንእሰያት ሠገነይቲ', mission: 'ንመንእሰያት ብእምነት፣ ሕብረትን ኣገልግሎትን ምስልጣን።' },
     ],
     [
       { slug: 'catechists-association', type: 'catechists', status: 'active', featuredImage: IMG },
@@ -190,8 +194,8 @@ async function main() {
     ],
     [
       { slug: 'caritas-segeneyti', type: 'caritas', status: 'active', featuredImage: IMG, leader: { name: 'Sr. Letebrhan' } },
-      { name: 'Caritas Segeneyti', mission: 'Serving the poor and vulnerable in the name of Christ.' },
-      { name: 'ካሪታስ ሰገነይቲ', mission: 'ንድኻታትን ተነቀፍትን ብስም ክርስቶስ ምግልጋል።' },
+      { name: 'Caritas Segheneyti', mission: 'Serving the poor and vulnerable in the name of Christ.' },
+      { name: 'ካሪታስ ሠገነይቲ', mission: 'ንድኻታትን ተነቀፍትን ብስም ክርስቶስ ምግልጋል።' },
     ],
     [
       { slug: 'cathedral-choir', type: 'choir', status: 'active', parish: parish1.id },
@@ -206,8 +210,8 @@ async function main() {
   const news: Array<[Record<string, unknown>, Record<string, unknown>, Record<string, unknown>]> = [
     [
       { slug: 'assumption-feast-2026', category: 'eparchy', publishedAt: daysFromNow(-2), featuredImage: IMG, _status: 'published', status: 'published' },
-      { title: 'Eparchy Celebrates the Feast of the Assumption', excerpt: 'Thousands gathered at St. Mary Cathedral to celebrate the Feast of the Assumption of the Blessed Virgin Mary.', body: rt(['The Eparchy of Segeneyti marked the Feast of the Assumption with solemn liturgies across all parishes.']) },
-      { title: 'ኤፓርኪ በዓል ዕርገተ ማርያም ኣኽበረ', excerpt: 'ኣብ ቅድስቲ ማርያም ካቴድራል ኣሽሓት ህዝቢ ተኣኪቦም በዓል ዕርገተ ማርያም ኣኽበሩ።', body: rt(['ኤፓርኪ ሰገነይቲ በዓል ዕርገተ ማርያም ኣብ ኩለን ሰበካታት ብድሙቕ ስርዓተ ኣምልኾ ኣኽበረ።']) },
+      { title: 'Eparchy Celebrates the Feast of the Assumption', excerpt: 'Thousands gathered at St. Mary Cathedral to celebrate the Feast of the Assumption of the Blessed Virgin Mary.', body: rt(['The Eparchy of Segheneyti marked the Feast of the Assumption with solemn liturgies across all parishes.']) },
+      { title: 'ኤፓርኪ በዓል ዕርገተ ማርያም ኣኽበረ', excerpt: 'ኣብ ቅድስቲ ማርያም ካቴድራል ኣሽሓት ህዝቢ ተኣኪቦም በዓል ዕርገተ ማርያም ኣኽበሩ።', body: rt(['ኤፓርኪ ሠገነይቲ በዓል ዕርገተ ማርያም ኣብ ኩለን ሰበካታት ብድሙቕ ስርዓተ ኣምልኾ ኣኽበረ።']) },
     ],
     [
       { slug: 'new-catechetical-program', category: 'pastoral', publishedAt: daysFromNow(-6), featuredImage: IMG, _status: 'published', status: 'published' },
@@ -221,8 +225,8 @@ async function main() {
     ],
     [
       { slug: 'caritas-aid-rural-parishes', category: 'social', publishedAt: daysFromNow(-20), featuredImage: IMG, _status: 'published', status: 'published' },
-      { title: 'Caritas Distributes Aid in Rural Parishes', excerpt: 'Caritas Segeneyti reached hundreds of families with food and support.', body: rt(['The outreach reflects the Church’s commitment to the poor.']) },
-      { title: 'ካሪታስ ኣብ ገጠራዊ ሰበካታት ሓገዝ ዓደለ', excerpt: 'ካሪታስ ሰገነይቲ ንኣማኢት ስድራቤታት ብምግብን ሓገዝን በጽሐ።', body: rt(['እቲ ኣገልግሎት ናይ ቤተ ክርስቲያን ንድኻታት ዘለዋ ተወፋይነት የንጸባርቕ።']) },
+      { title: 'Caritas Distributes Aid in Rural Parishes', excerpt: 'Caritas Segheneyti reached hundreds of families with food and support.', body: rt(['The outreach reflects the Church’s commitment to the poor.']) },
+      { title: 'ካሪታስ ኣብ ገጠራዊ ሰበካታት ሓገዝ ዓደለ', excerpt: 'ካሪታስ ሠገነይቲ ንኣማኢት ስድራቤታት ብምግብን ሓገዝን በጽሐ።', body: rt(['እቲ ኣገልግሎት ናይ ቤተ ክርስቲያን ንድኻታት ዘለዋ ተወፋይነት የንጸባርቕ።']) },
     ],
     [
       { slug: 'youth-pilgrimage-debre-bizen', category: 'community', publishedAt: daysFromNow(-30), featuredImage: IMG, _status: 'published', status: 'published' },
@@ -237,12 +241,12 @@ async function main() {
   const events: Array<[Record<string, unknown>, Record<string, unknown>, Record<string, unknown>]> = [
     [
       { slug: 'feast-of-st-mary-2026', eventType: 'feast', startDate: daysFromNow(20), featuredImage: IMG, parish: parish1.id, _status: 'published', status: 'published' },
-      { title: 'Feast of St. Mary (Filseta)', excerpt: 'Solemn celebration of the Feast of the Dormition of the Blessed Virgin Mary.', description: rt(['Join the whole Eparchy for the solemn Filseta celebration at the Cathedral.']), location: { name: 'St. Mary Cathedral', address: 'St. Mary Cathedral, Segeneyti' } },
+      { title: 'Feast of St. Mary (Filseta)', excerpt: 'Solemn celebration of the Feast of the Dormition of the Blessed Virgin Mary.', description: rt(['Join the whole Eparchy for the solemn Filseta celebration at the Cathedral.']), location: { name: 'St. Mary Cathedral', address: 'St. Mary Cathedral, Segheneyti' } },
       { title: 'በዓል ቅድስቲ ማርያም (ፍልሰታ)', excerpt: 'ድሙቕ ብዓል ፍልሰታ ናይ ቅድስቲ ድንግል ማርያም።', description: rt(['ምስ ብዘሎ ኤፓርኪ ኣብ ካቴድራል ንዝግበር ድሙቕ ብዓል ፍልሰታ ተሳተፉ።']), location: { name: 'ቅድስቲ ማርያም ካቴድራል' } },
     ],
     [
       { slug: 'youth-convention-2026', eventType: 'youth', startDate: daysFromNow(40), featuredImage: IMG, _status: 'published', status: 'published' },
-      { title: 'Eparchial Youth Convention 2026', excerpt: 'A gathering of young Catholics for prayer, formation, and fellowship.', description: rt(['Three days of talks, workshops, and worship for the youth of the Eparchy.']), location: { name: 'Pastoral Center', address: 'Segeneyti Pastoral Center' } },
+      { title: 'Eparchial Youth Convention 2026', excerpt: 'A gathering of young Catholics for prayer, formation, and fellowship.', description: rt(['Three days of talks, workshops, and worship for the youth of the Eparchy.']), location: { name: 'Pastoral Center', address: 'Segheneyti Pastoral Center' } },
       { title: 'ኤፓርካዊ ኣኼባ መንእሰያት 2026', excerpt: 'ናይ መንእሰያት ካቶሊካውያን ንጸሎት፣ ስልጠናን ሕብረትን ምትእኽኻብ።', description: rt(['ንመንእሰያት ኤፓርኪ ሰለስተ መዓልታት ዘረባታት፣ ዎርክሾፓትን ኣምልኾን።']), location: { name: 'ናይ ሰበካ ማእከል' } },
     ],
     [
@@ -294,28 +298,28 @@ async function main() {
     { milestoneType: 'birth', title: 'Born at Adi Keyih', date: '1968-03-19T00:00:00.000Z', datePrecision: 'year', location: 'Adi Keyih', isPublic: true },
     { milestoneType: 'minor-seminary', title: 'Entered the minor seminary', date: '1983-09-01T00:00:00.000Z', datePrecision: 'approximate', location: 'Asmara', isPublic: true },
     { milestoneType: 'major-seminary', title: 'Studies in philosophy and theology', date: '1990-09-01T00:00:00.000Z', datePrecision: 'month', endDate: '1997-06-01T00:00:00.000Z', endDatePrecision: 'year', location: 'Asmara', isPublic: true },
-    { milestoneType: 'priestly-ordination', title: 'Ordained to the priesthood', date: '1998-06-14T00:00:00.000Z', datePrecision: 'exact', location: 'Segeneyti', isPublic: true },
+    { milestoneType: 'priestly-ordination', title: 'Ordained to the priesthood', date: '1998-06-14T00:00:00.000Z', datePrecision: 'exact', location: 'Segheneyti', isPublic: true },
     { milestoneType: 'pastoral-assignment', title: 'Parish priest, Adi Keyih', date: '1998-09-01T00:00:00.000Z', datePrecision: 'month', endDate: '2004-01-01T00:00:00.000Z', endDatePrecision: 'year', isPublic: true },
     { milestoneType: 'further-studies', title: 'Licentiate in Sacred Scripture, Rome', date: '2004-01-01T00:00:00.000Z', datePrecision: 'year', endDate: '2008-01-01T00:00:00.000Z', endDatePrecision: 'year', location: 'Rome', isPublic: true },
     { milestoneType: 'academic-appointment', title: 'Lecturer in Sacred Scripture', date: '2008-01-01T00:00:00.000Z', datePrecision: 'year', endDatePrecision: 'ongoing', isPublic: true },
     { milestoneType: 'curial-role', title: 'Chancellor of the Eparchy', date: '2016-01-01T00:00:00.000Z', datePrecision: 'year', endDate: '2024-01-01T00:00:00.000Z', endDatePrecision: 'year', isPublic: true },
-    { milestoneType: 'episcopal-appointment', title: 'Appointed Eparch of Segeneyti', date: '2024-02-11T00:00:00.000Z', datePrecision: 'exact', isPublic: true },
+    { milestoneType: 'episcopal-appointment', title: 'Appointed Eparch of Segheneyti', date: '2024-02-11T00:00:00.000Z', datePrecision: 'exact', isPublic: true },
     { milestoneType: 'episcopal-consecration', title: 'Episcopal consecration', date: '2024-04-06T00:00:00.000Z', datePrecision: 'exact', location: 'Asmara', isPublic: true },
-    { milestoneType: 'enthronement', title: 'Enthroned as Eparch of Segeneyti', date: '2024-04-14T00:00:00.000Z', datePrecision: 'exact', location: 'Segeneyti', galleryKey: 'enthronement-2024', isPublic: true },
+    { milestoneType: 'enthronement', title: 'Enthroned as Eparch of Segheneyti', date: '2024-04-14T00:00:00.000Z', datePrecision: 'exact', location: 'Segheneyti', galleryKey: 'enthronement-2024', isPublic: true },
   ]
 
   const bishopMilestonesTi = [
     { title: 'ኣብ ዓዲ ቀይሕ ተወልዱ', location: 'ዓዲ ቀይሕ' },
     { title: 'ናብ ንኡስ ሰሚናርዮ ኣተዉ', location: 'ኣስመራ' },
     { title: 'ናይ ፍልስፍናን ስነ መለኮትን ትምህርቲ', location: 'ኣስመራ' },
-    { title: 'ናብ ክህነት ተሸሙ', location: 'ሰገነይቲ' },
+    { title: 'ናብ ክህነት ተሸሙ', location: 'ሠገነይቲ' },
     { title: 'ኣብ ዓዲ ቀይሕ ሓላፊ ኣገልግሎት ቤተ ክርስቲያን' },
     { title: 'ተወሳኺ ትምህርቲ ኣብ ቅዱስ መጽሓፍ፣ ሮማ', location: 'ሮማ' },
     { title: 'መምህር ቅዱስ መጽሓፍ' },
     { title: 'ጸሓፊ ሃገረ ስብከት' },
-    { title: 'ጳጳስ ሰገነይቲ ኮይኖም ተሸሙ' },
+    { title: 'ጳጳስ ሠገነይቲ ኮይኖም ተሸሙ' },
     { title: 'ሲመተ ጵጵስና', location: 'ኣስመራ' },
-    { title: 'ኣብ መንበሮም ተቐመጡ', location: 'ሰገነይቲ' },
+    { title: 'ኣብ መንበሮም ተቐመጡ', location: 'ሠገነይቲ' },
   ]
 
   const bishopHonors = [
@@ -344,7 +348,7 @@ async function main() {
   ]
 
   const bishopGalleries = [
-    { title: 'Enthronement, 2024', key: 'enthronement-2024', date: '2024-04-14T00:00:00.000Z', coverImage: IMG, isPublic: true, images: [{ image: IMG, caption: 'Entering the cathedral', credit: 'Eparchy of Segeneyti', isPublic: true }] },
+    { title: 'Enthronement, 2024', key: 'enthronement-2024', date: '2024-04-14T00:00:00.000Z', coverImage: IMG, isPublic: true, images: [{ image: IMG, caption: 'Entering the cathedral', credit: 'Eparchy of Segheneyti', isPublic: true }] },
   ]
   const bishopGalleriesTi = [
     { title: 'ኣብ መንበር ምቕማጥ፣ 2024', description: 'ስእልታት ናይታ ዕለት።' },
@@ -370,13 +374,13 @@ async function main() {
   }
   const bishopEn = {
     fullName: 'Abune Mekonnen Tesfay',
-    formalTitle: 'Eparch of the Catholic Eparchy of Segeneyti',
+    formalTitle: 'Eparch of the Catholic Eparchy of Segheneyti',
     motto: 'Serve one another in love',
     mottoOriginal: 'Per caritatem servite invicem',
     placeOfBirth: 'Adi Keyih, Eritrea',
     appointingAuthorityName: 'Pope Francis',
     biographySummary:
-      'Abune Mekonnen Tesfay has served the Eparchy of Segeneyti since 2024. Ordained a priest in 1998, he taught sacred scripture at the major seminary and served as chancellor of the Eparchy before his appointment as Eparch.',
+      'Abune Mekonnen Tesfay has served the Eparchy of Segheneyti since 2024. Ordained a priest in 1998, he taught sacred scripture at the major seminary and served as chancellor of the Eparchy before his appointment as Eparch.',
     milestones: bishopMilestones,
     honors: bishopHonors,
     education: bishopEducation,
@@ -403,12 +407,12 @@ async function main() {
     data: {
       _status: 'published',
       fullName: 'ኣቡነ መኮንን ተስፋይ',
-      formalTitle: 'ጳጳስ ካቶሊካዊት ሃገረ ስብከት ሰገነይቲ',
+      formalTitle: 'ጳጳስ ካቶሊካዊት ሃገረ ስብከት ሠገነይቲ',
       motto: 'ብፍቕሪ ንሓድሕድኩም ተገልገሉ',
       placeOfBirth: 'ዓዲ ቀይሕ፣ ኤርትራ',
       appointingAuthorityName: 'ር.ሊ.ጳ ፍራንቸስኮስ',
       biographySummary:
-        'ኣቡነ መኮንን ተስፋይ ካብ 2024 ጀሚሮም ንሃገረ ስብከት ሰገነይቲ የገልግሉ ኣለዉ። ኣብ 1998 ካህን ኮይኖም ተሸሙ፣ ኣብ ዓቢ ሰሚናርዮ ቅዱስ መጽሓፍ መሃሩ፣ ቅድሚ ናብ ጵጵስና ምስያሞም ድማ ጸሓፊ ሃገረ ስብከት ኮይኖም ኣገልጊሎም።',
+        'ኣቡነ መኮንን ተስፋይ ካብ 2024 ጀሚሮም ንሃገረ ስብከት ሠገነይቲ የገልግሉ ኣለዉ። ኣብ 1998 ካህን ኮይኖም ተሸሙ፣ ኣብ ዓቢ ሰሚናርዮ ቅዱስ መጽሓፍ መሃሩ፣ ቅድሚ ናብ ጵጵስና ምስያሞም ድማ ጸሓፊ ሃገረ ስብከት ኮይኖም ኣገልጊሎም።',
       milestones: localizeRows(bishopMilestones, bishopMilestonesTi, bishopRows.milestones),
       honors: localizeRows(bishopHonors, bishopHonorsTi, bishopRows.honors),
       education: localizeRows(bishopEducation, bishopEducationTi, bishopRows.education),
@@ -513,7 +517,7 @@ async function main() {
     overrideAccess: true,
     data: {
       hero: {
-        headline: 'Catholic Eparchy of Segeneyti',
+        headline: 'Catholic Eparchy of Segheneyti',
         subheading: 'Serving God’s people through faith, community, and mission in Eritrea.',
         backgroundImage: IMG,
         primaryCta: { label: 'Explore Parishes', url: '/parishes' },
@@ -531,7 +535,7 @@ async function main() {
     overrideAccess: true,
     data: {
       hero: {
-        headline: 'ካቶሊካዊ ኤፓርኪ ሰገነይቲ',
+        headline: 'ካቶሊካዊ ኤፓርኪ ሠገነይቲ',
         subheading: 'ንሕዝቢ ኣምላኽ ብእምነት፣ ሕብረተሰብን ተልእኾን ኣብ ኤርትራ ምግልጋል።',
         primaryCta: { label: 'ሰበካታት ርአ' },
         secondaryCta: { label: 'ዝቐረቡ ዜናታት' },

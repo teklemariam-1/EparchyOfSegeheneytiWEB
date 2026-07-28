@@ -48,7 +48,7 @@ export async function GET(req: Request) {
 
     return page(
       'Unsubscribed',
-      'You have been removed from the Eparchy of Segeneyti mailing list and will no longer receive emails.',
+      'You have been removed from the Eparchy of Segheneyti mailing list and will no longer receive emails.',
     )
   } catch (err) {
     console.error('[newsletter] unsubscribe error', err)

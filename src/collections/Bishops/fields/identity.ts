@@ -65,7 +65,7 @@ export const identityTab: Field[] = [
     localized: true,
     admin: {
       description:
-        'Full formal title, e.g. "Eparch of the Catholic Eparchy of Segeneyti". Shown under his name on every public page.',
+        'Full formal title, e.g. "Eparch of the Catholic Eparchy of Segheneyti". Shown under his name on every public page.',
     },
   },
   {
