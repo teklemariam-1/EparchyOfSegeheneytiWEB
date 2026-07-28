@@ -107,7 +107,10 @@
     "allDay": "ምሉእ መዓልቲ",
     "sectionUpcoming": "ዝቕጽሉ ኣጋጣሚታት",
     "sectionPast": "ዝሓለፉ ኣጋጣሚታት",
-    "scheduled": "{count} ተመዲቦም"
+    "scheduled": "{count} ተመዲቦም",
+    "timeInAsmara": "{time} ኣስመራ",
+    "timeYourLocal": "{time} ናትካ ሰዓት",
+    "timeZoneNote": "ሰዓታት ብሰዓት ኣስመራ ይረኣዩ፣ ምስ ናትካ ከባቢያዊ ሰዓት።"
   },
   "parishes": {
     "title": "ሰበካት",

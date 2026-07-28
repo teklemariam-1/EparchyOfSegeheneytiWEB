@@ -8,6 +8,8 @@ import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
 import { formatDate, formatDateRange } from '@/lib/formatters/date'
+import { dateParts } from '@/lib/formatters/eventTime'
+import { EventTime } from '@/features/events/EventTime'
 import { RichText } from '@/components/shared/RichText'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { eventSchema } from '@/lib/seo/structuredData'
@@ -51,7 +53,7 @@ export default async function EventDetailPage({ params }: Props) {
   const typeLabel = ev.eventType
     ? ev.eventType.charAt(0).toUpperCase() + ev.eventType.slice(1).replace(/-/g, ' ')
     : 'Event'
-  const start = new Date(ev.startDate)
+  const startParts = dateParts(ev.startDate, locale)
   const dateLabel = ev.endDate ? formatDateRange(ev.startDate, ev.endDate) : formatDate(ev.startDate)
   const ventue = ev.location?.venue ?? ev.location?.city ?? ''
   const address = ev.location?.address ?? ''
@@ -99,11 +101,14 @@ export default async function EventDetailPage({ params }: Props) {
               <div className="mb-8 rounded-xl bg-parchment-50 border border-parchment-200 p-6 flex flex-col sm:flex-row gap-6 items-start">
                 {/* Big date */}
                 <div className="shrink-0 flex flex-col items-center rounded-xl bg-maroon-800 text-white px-6 py-4 min-w-[80px] text-center">
+                  {/* Eparchy-zone parts. getDate()/getFullYear() read the
+                      RENDERER's zone, which put a 01:00 Asmara liturgy on the
+                      previous day and disagreed with the ICS feed. */}
                   <span className="text-xs font-medium uppercase tracking-wide text-maroon-200">
-                    {start.toLocaleDateString('en-US', { month: 'short' })}
+                    {startParts?.month}
                   </span>
-                  <span className="text-4xl font-bold leading-none my-1">{start.getDate()}</span>
-                  <span className="text-xs text-maroon-200">{start.getFullYear()}</span>
+                  <span className="text-4xl font-bold leading-none my-1">{startParts?.day}</span>
+                  <span className="text-xs text-maroon-200">{startParts?.year}</span>
                 </div>
 
                 <div>
@@ -113,9 +118,18 @@ export default async function EventDetailPage({ params }: Props) {
                   </div>
                   <p className="text-sm font-medium text-charcoal-700">
                     📅 {dateLabel}
+                    {/* All-day events carry no meaningful instant, so they are
+                        never converted to a reader's zone — that is what shifts
+                        a feast to the wrong date. */}
                     {!ev.isAllDay && (
                       <span className="text-charcoal-400">
-                        {' '}at {start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        {' '}
+                        <EventTime
+                          iso={ev.startDate}
+                          locale={locale}
+                          anchorLabel={(time) => t('timeInAsmara', { time })}
+                          viewerLabel={(time) => t('timeYourLocal', { time })}
+                        />
                       </span>
                     )}
                   </p>

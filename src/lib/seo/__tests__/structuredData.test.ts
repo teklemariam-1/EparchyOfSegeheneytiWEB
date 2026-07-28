@@ -117,6 +117,15 @@ describe('eventSchema', () => {
     expect(schema.url).toContain('/events/easter-vigil-2026')
   })
 
+  it('emits a zone-qualified startDate, so search engines cannot guess wrong', () => {
+    // An ISO datetime with no offset ("2026-04-04T20:00:00") is interpreted in
+    // the reader's own zone, which for an Eritrean liturgy read from Toronto is
+    // a different day. Payload stores timestamptz, so the value arrives with a
+    // Z; this pins that rather than assuming it.
+    const { startDate } = eventSchema(EVENT_BASE)
+    expect(startDate).toMatch(/(Z|[+-]\d{2}:?\d{2})$/)
+  })
+
   it('omits location when not provided', () => {
     expect(eventSchema(EVENT_BASE).location).toBeUndefined()
   })

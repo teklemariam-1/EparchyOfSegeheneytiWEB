@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/Badge'
 import { formatDate } from '@/lib/formatters/date'
+import { dateParts } from '@/lib/formatters/eventTime'
 import { cn } from '@/lib/utils'
 
 const TYPE_VARIANTS: Record<string, 'maroon' | 'gold' | 'neutral' | 'green' | 'red'> = {
@@ -33,9 +34,14 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, className }: EventCardProps) {
-  const start = new Date(event.startDate)
-  const month = start.toLocaleDateString('en-US', { month: 'short' })
-  const day = start.getDate()
+  // Resolved in the eparchy's timezone, not the renderer's. `new Date(...)` plus
+  // getDate() returned the day in whichever zone the code ran in — UTC on the
+  // server, the reader's zone in the browser — so a 01:00 Asmara liturgy showed
+  // the previous day, and showed it differently depending on where the reader
+  // was. It also disagreed with the ICS feed, which has always pinned Asmara.
+  const parts = dateParts(event.startDate)
+  const month = parts?.month ?? ''
+  const day = parts?.day ?? ''
 
   return (
     <article

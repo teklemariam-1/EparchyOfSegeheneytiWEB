@@ -107,7 +107,10 @@
     "allDay": "All day",
     "sectionUpcoming": "Upcoming Events",
     "sectionPast": "Past Events",
-    "scheduled": "{count} scheduled"
+    "scheduled": "{count} scheduled",
+    "timeInAsmara": "{time} Asmara",
+    "timeYourLocal": "{time} your time",
+    "timeZoneNote": "Times are shown in Asmara time, with your local time alongside."
   },
   "parishes": {
     "title": "Parishes",
