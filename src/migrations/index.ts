@@ -36,6 +36,7 @@ import * as migration_20260726_070000_footer_bottom_links_new_tab from './202607
 import * as migration_20260726_131455_bishops_collection from './20260726_131455_bishops_collection';
 import * as migration_20260728_165058_events_video_url from './20260728_165058_events_video_url';
 import * as migration_20260728_170747_pope_settings_and_permission from './20260728_170747_pope_settings_and_permission';
+import * as migration_20260728_174404_sacramental_requests from './20260728_174404_sacramental_requests';
 
 export const migrations = [
   {
@@ -226,6 +227,11 @@ export const migrations = [
   {
     up: migration_20260728_170747_pope_settings_and_permission.up,
     down: migration_20260728_170747_pope_settings_and_permission.down,
-    name: '20260728_170747_pope_settings_and_permission'
+    name: '20260728_170747_pope_settings_and_permission',
+  },
+  {
+    up: migration_20260728_174404_sacramental_requests.up,
+    down: migration_20260728_174404_sacramental_requests.down,
+    name: '20260728_174404_sacramental_requests'
   },
 ];

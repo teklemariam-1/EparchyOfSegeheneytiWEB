@@ -66,6 +66,10 @@ export const PERMISSIONS = [
   'subscribers.view', 'subscribers.manage', 'subscribers.delete',
   'visitor-stats.view', 'visitor-stats.delete',
   'contact-submissions.view', 'contact-submissions.manage', 'contact-submissions.publish-qa', 'contact-submissions.delete',
+  // Sacramental record requests hold personal data about named individuals and
+  // their parents, so `.view` gates reading at all — there is no public read to
+  // fall back on, unlike the content collections.
+  'sacramental-requests.view', 'sacramental-requests.manage', 'sacramental-requests.delete',
   'donations.view', 'donations.manage', 'donations.config', 'donations.delete',
   'users.view', 'users.manage',
   'audit-log.view',
@@ -148,6 +152,9 @@ const CHANCERY: Permission[] = [
   'subscribers.view', 'subscribers.manage',
   'visitor-stats.view',
   'contact-submissions.view', 'contact-submissions.manage', 'contact-submissions.publish-qa',
+  // Not `.delete`: removing a request destroys the only evidence that someone
+  // asked, which matters when the answer was "we could not find it".
+  'sacramental-requests.view', 'sacramental-requests.manage',
   'donations.view', 'donations.manage',
   'users.view',
   'globals.site-settings.edit', 'globals.header.edit', 'globals.footer.edit',

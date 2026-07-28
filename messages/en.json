@@ -526,5 +526,41 @@
     "formExpired": "This form was open too long. Please reload the page and send it again.",
     "rateLimited": "You have sent several messages already. Please wait a few minutes and try again.",
     "challengeFailed": "We could not verify that you are human. Please reload the page and try again."
+  },
+  "sacramental": {
+    "title": "Sacramental Records & Certificates",
+    "subtitle": "Request a baptism, confirmation or marriage record from the Eparchy.",
+    "beforeYouStart": "Before you start",
+    "beforeYouStartBody": "Older records are held only in handwritten parish registers, so the more detail you can give — the parish, an approximate year, and the parents' names — the more likely the entry can be found. If you are not sure of something, leave it blank rather than guessing.",
+    "whichRecord": "Which record do you need?",
+    "choosePlaceholder": "Choose a record…",
+    "aboutPerson": "About the person the record concerns",
+    "subjectName": "Their full name",
+    "parish": "Parish, if known",
+    "approximateDate": "Approximate date",
+    "approximateDatePlaceholder": "e.g. around Easter 1994",
+    "fatherName": "Father's name",
+    "motherName": "Mother's name",
+    "parentsHelp": "Parents' names are often what makes an entry findable in an older register.",
+    "aboutYou": "About you",
+    "yourName": "Your name",
+    "yourEmail": "Your email",
+    "yourPhone": "Phone (optional)",
+    "relationship": "Your relationship to them",
+    "relationshipPlaceholder": "e.g. myself, my mother",
+    "purpose": "Why the record is needed",
+    "purposeHelp": "Usually a marriage abroad. This helps the parish judge urgency.",
+    "privacyNote": "What you send here is used only to find and issue the record. It is never published.",
+    "submit": "Send request",
+    "submitting": "Sending…",
+    "successTitle": "Request received",
+    "sacraments": {
+      "baptism": "Baptism certificate",
+      "confirmation": "Confirmation (Chrismation) record",
+      "first-communion": "First Communion record",
+      "marriage": "Marriage certificate",
+      "freedom-to-marry": "Certificate of freedom to marry",
+      "other": "Something else"
+    }
   }
 }

@@ -97,6 +97,7 @@ export interface Config {
     'geez-calendar-days': GeezCalendarDay;
     'geez-monthly-feasts': GeezMonthlyFeast;
     'contact-submissions': ContactSubmission;
+    'sacramental-requests': SacramentalRequest;
     donations: Donation;
     'stripe-events': StripeEvent;
     'audit-log': AuditLog;
@@ -138,6 +139,7 @@ export interface Config {
     'geez-calendar-days': GeezCalendarDaysSelect<false> | GeezCalendarDaysSelect<true>;
     'geez-monthly-feasts': GeezMonthlyFeastsSelect<false> | GeezMonthlyFeastsSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
+    'sacramental-requests': SacramentalRequestsSelect<false> | SacramentalRequestsSelect<true>;
     donations: DonationsSelect<false> | DonationsSelect<true>;
     'stripe-events': StripeEventsSelect<false> | StripeEventsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
@@ -315,6 +317,9 @@ export interface User {
         | 'contact-submissions.manage'
         | 'contact-submissions.publish-qa'
         | 'contact-submissions.delete'
+        | 'sacramental-requests.view'
+        | 'sacramental-requests.manage'
+        | 'sacramental-requests.delete'
         | 'donations.view'
         | 'donations.manage'
         | 'donations.config'
@@ -426,6 +431,9 @@ export interface User {
         | 'contact-submissions.manage'
         | 'contact-submissions.publish-qa'
         | 'contact-submissions.delete'
+        | 'sacramental-requests.view'
+        | 'sacramental-requests.manage'
+        | 'sacramental-requests.delete'
         | 'donations.view'
         | 'donations.manage'
         | 'donations.config'
@@ -2458,6 +2466,52 @@ export interface ContactSubmission {
   createdAt: string;
 }
 /**
+ * Requests for baptism, confirmation and marriage records. "New" means nobody has picked it up yet. Contains personal data — never published.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sacramental-requests".
+ */
+export interface SacramentalRequest {
+  id: number;
+  /**
+   * Moving this to a new state emails the requester, except for internal states.
+   */
+  status: 'new' | 'in-progress' | 'waiting' | 'completed' | 'declined';
+  sacrament: 'baptism' | 'confirmation' | 'first-communion' | 'marriage' | 'freedom-to-marry' | 'other';
+  /**
+   * Full name of the person the record is about, as it would appear in the register.
+   */
+  subjectName: string;
+  /**
+   * Parish where it took place, if known. A text field, not a picker — the parish may no longer exist under that name.
+   */
+  parish?: string | null;
+  /**
+   * Free text on purpose: "around Easter 1994" is a usable answer, and a date picker would force invented precision.
+   */
+  approximateDate?: string | null;
+  fatherName?: string | null;
+  motherName?: string | null;
+  requesterName: string;
+  requesterEmail: string;
+  requesterPhone?: string | null;
+  /**
+   * e.g. "myself", "my mother", "the parish of ..."
+   */
+  relationship?: string | null;
+  /**
+   * Why the record is needed — usually a marriage abroad. Helps the parish judge urgency.
+   */
+  purpose?: string | null;
+  /**
+   * Internal. Never sent to the requester.
+   */
+  staffNotes?: string | null;
+  submittedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Donations and pledges received through the website.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2764,6 +2818,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contact-submissions';
         value: number | ContactSubmission;
+      } | null)
+    | ({
+        relationTo: 'sacramental-requests';
+        value: number | SacramentalRequest;
       } | null)
     | ({
         relationTo: 'donations';
@@ -3854,6 +3912,28 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
         publishedAt?: T;
       };
   adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sacramental-requests_select".
+ */
+export interface SacramentalRequestsSelect<T extends boolean = true> {
+  status?: T;
+  sacrament?: T;
+  subjectName?: T;
+  parish?: T;
+  approximateDate?: T;
+  fatherName?: T;
+  motherName?: T;
+  requesterName?: T;
+  requesterEmail?: T;
+  requesterPhone?: T;
+  relationship?: T;
+  purpose?: T;
+  staffNotes?: T;
+  submittedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
