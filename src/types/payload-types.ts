@@ -749,6 +749,10 @@ export interface Priest {
  */
 export interface Page {
   id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
   title: string;
   /**
    * URL path segment (e.g. "about", "history").
@@ -793,6 +797,10 @@ export interface Page {
  */
 export interface News {
   id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
   title: string;
   /**
    * Auto-generated from the title if left blank. Used in the URL.
@@ -895,6 +903,10 @@ export interface NewsCategory {
  */
 export interface Event {
   id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
   title: string;
   slug: string;
   /**
@@ -1039,6 +1051,10 @@ export interface EventType {
  */
 export interface Office {
   id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
   /**
    * e.g. "Youth Council"
    */
@@ -1331,6 +1347,10 @@ export interface Ministry {
  */
 export interface PopeMessage {
   id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
   title: string;
   slug: string;
   publishedAt?: string | null;
@@ -1390,6 +1410,10 @@ export interface PopeMessage {
  */
 export interface Bishop {
   id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
   /**
    * Ticking this makes him the Eparch shown across the whole website and automatically stands the previous one down. Only a super-admin can change it.
    */
@@ -1943,6 +1967,10 @@ export interface Publication {
  */
 export interface BishopMessage {
   id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
   title: string;
   slug: string;
   publishedAt?: string | null;
@@ -2070,6 +2098,10 @@ export interface Archive {
  */
 export interface App {
   id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
   title: string;
   slug: string;
   resourceType: 'android-app' | 'ios-app' | 'download';
@@ -2983,6 +3015,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
+  publishAt?: T;
   title?: T;
   slug?: T;
   heroImage?: T;
@@ -3011,6 +3044,7 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "news_select".
  */
 export interface NewsSelect<T extends boolean = true> {
+  publishAt?: T;
   title?: T;
   slug?: T;
   publishedAt?: T;
@@ -3065,6 +3099,7 @@ export interface NewsCategoriesSelect<T extends boolean = true> {
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
+  publishAt?: T;
   title?: T;
   slug?: T;
   isCancelled?: T;
@@ -3135,6 +3170,7 @@ export interface VicariatesSelect<T extends boolean = true> {
  * via the `definition` "offices_select".
  */
 export interface OfficesSelect<T extends boolean = true> {
+  publishAt?: T;
   name?: T;
   slug?: T;
   order?: T;
@@ -3351,6 +3387,7 @@ export interface PriestsSelect<T extends boolean = true> {
  * via the `definition` "pope-messages_select".
  */
 export interface PopeMessagesSelect<T extends boolean = true> {
+  publishAt?: T;
   title?: T;
   slug?: T;
   publishedAt?: T;
@@ -3375,6 +3412,7 @@ export interface PopeMessagesSelect<T extends boolean = true> {
  * via the `definition` "bishops_select".
  */
 export interface BishopsSelect<T extends boolean = true> {
+  publishAt?: T;
   isActive?: T;
   fullName?: T;
   slug?: T;
@@ -3590,6 +3628,7 @@ export interface BishopsSelect<T extends boolean = true> {
  * via the `definition` "bishop-messages_select".
  */
 export interface BishopMessagesSelect<T extends boolean = true> {
+  publishAt?: T;
   title?: T;
   slug?: T;
   publishedAt?: T;
@@ -3688,6 +3727,7 @@ export interface ArchivesSelect<T extends boolean = true> {
  * via the `definition` "apps_select".
  */
 export interface AppsSelect<T extends boolean = true> {
+  publishAt?: T;
   title?: T;
   slug?: T;
   resourceType?: T;

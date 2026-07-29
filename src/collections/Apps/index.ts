@@ -3,6 +3,7 @@ import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalid
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { publishAtField } from '../../lib/payload/scheduledPublish'
 
 /** Optional URL field validator — empty is allowed, otherwise must be http(s). */
 const optionalUrl = (value: unknown) => {
@@ -37,6 +38,7 @@ export const Apps: CollectionConfig = {
     ],
   },
   fields: [
+    publishAtField('apps.publish'),
     {
       name: 'title',
       type: 'text',

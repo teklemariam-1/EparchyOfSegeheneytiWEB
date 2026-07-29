@@ -3,6 +3,7 @@ import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalid
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { publishAtField } from '../../lib/payload/scheduledPublish'
 
 export const BishopMessages: CollectionConfig = {
   slug: 'bishop-messages',
@@ -34,6 +35,7 @@ export const BishopMessages: CollectionConfig = {
     ],
   },
   fields: [
+    publishAtField('bishop-messages.publish'),
     {
       name: 'title',
       type: 'text',

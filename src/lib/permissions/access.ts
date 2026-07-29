@@ -113,6 +113,14 @@ export function canManageOwnParish(
  */
 export function requirePublishPermission(permission: Permission): CollectionBeforeChangeHook {
   return ({ data, req, originalDoc }) => {
+    // The scheduled publisher runs from a cron with no req.user. Its authority
+    // is not being waved through here — it was checked when the schedule was
+    // SET: the publishAt field's own access gate requires this same publish
+    // permission. `context` can only be set by server-side code (a request
+    // cannot smuggle it in), so this is trust in our own cron, not in a caller.
+    if ((req.context as { scheduledPublish?: boolean } | undefined)?.scheduledPublish === true) {
+      return data
+    }
     const target = (data as { _status?: string } | undefined)?._status
     const wasPublished = (originalDoc as { _status?: string } | undefined)?._status === 'published'
     if (target === 'published' && !wasPublished && !hasPermission(req.user as AuthUser | null, permission)) {

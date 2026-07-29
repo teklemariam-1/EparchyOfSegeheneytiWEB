@@ -3,6 +3,7 @@ import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalid
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { can, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { publishAtField } from '../../lib/payload/scheduledPublish'
 
 export const News: CollectionConfig = {
   slug: 'news',
@@ -63,6 +64,7 @@ export const News: CollectionConfig = {
     ],
   },
   fields: [
+    publishAtField('news.publish'),
     {
       name: 'title',
       type: 'text',

@@ -37,6 +37,7 @@ import * as migration_20260726_131455_bishops_collection from './20260726_131455
 import * as migration_20260728_165058_events_video_url from './20260728_165058_events_video_url';
 import * as migration_20260728_170747_pope_settings_and_permission from './20260728_170747_pope_settings_and_permission';
 import * as migration_20260728_174404_sacramental_requests from './20260728_174404_sacramental_requests';
+import * as migration_20260729_132402_scheduled_publish from './20260729_132402_scheduled_publish';
 
 export const migrations = [
   {
@@ -232,6 +233,11 @@ export const migrations = [
   {
     up: migration_20260728_174404_sacramental_requests.up,
     down: migration_20260728_174404_sacramental_requests.down,
-    name: '20260728_174404_sacramental_requests'
+    name: '20260728_174404_sacramental_requests',
+  },
+  {
+    up: migration_20260729_132402_scheduled_publish.up,
+    down: migration_20260729_132402_scheduled_publish.down,
+    name: '20260729_132402_scheduled_publish'
   },
 ];

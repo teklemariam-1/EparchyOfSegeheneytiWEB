@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { can, canField, hideUnless, requirePublishPermission } from '../../lib/permissions/access'
+import { publishAtField } from '../../lib/payload/scheduledPublish'
 import { identityTab } from './fields/identity'
 import { milestonesTab } from './fields/milestones'
 import { honorsTab } from './fields/honors'
@@ -90,6 +91,7 @@ export const Bishops: CollectionConfig = {
     ],
   },
   fields: [
+    publishAtField('bishops.publish'),
     /**
      * Sidebar — the two flags that decide what the rest of the site shows.
      *

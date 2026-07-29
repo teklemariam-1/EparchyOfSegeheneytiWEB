@@ -3,6 +3,7 @@ import { safeRevalidatePath } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { publishAtField } from '../../lib/payload/scheduledPublish'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -28,6 +29,7 @@ export const Pages: CollectionConfig = {
     ],
   },
   fields: [
+    publishAtField('pages.publish'),
     {
       name: 'title',
       type: 'text',

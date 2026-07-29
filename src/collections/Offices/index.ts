@@ -3,6 +3,7 @@ import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalid
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { publishAtField } from '../../lib/payload/scheduledPublish'
 
 /**
  * Offices & councils of the Eparchy — e.g. the Youth Council.
@@ -39,6 +40,7 @@ export const Offices: CollectionConfig = {
     ],
   },
   fields: [
+    publishAtField('offices.publish'),
     {
       name: 'name',
       type: 'text',

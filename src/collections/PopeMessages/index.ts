@@ -3,6 +3,7 @@ import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalid
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { publishAtField } from '../../lib/payload/scheduledPublish'
 
 export const PopeMessages: CollectionConfig = {
   slug: 'pope-messages',
@@ -28,6 +29,7 @@ export const PopeMessages: CollectionConfig = {
     ],
   },
   fields: [
+    publishAtField('pope-messages.publish'),
     {
       name: 'title',
       type: 'text',

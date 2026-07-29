@@ -3,6 +3,7 @@ import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalid
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { can, canManageOwnParish, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { publishAtField } from '../../lib/payload/scheduledPublish'
 import { isEmbeddableVideoUrl } from '../../lib/video/embed'
 
 export const Events: CollectionConfig = {
@@ -34,6 +35,7 @@ export const Events: CollectionConfig = {
     ],
   },
   fields: [
+    publishAtField('events.publish'),
     {
       name: 'title',
       type: 'text',
