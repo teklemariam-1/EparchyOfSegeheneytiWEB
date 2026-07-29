@@ -570,5 +570,35 @@
       "freedom-to-marry": "ናይ ናጽነት ንመርዓ ምስክር ወረቐት",
       "other": "ካልእ"
     }
+  },
+  "massIntentions": {
+    "title": "ሕሊና መስዋእቲ ቅዳሴ",
+    "subtitle": "ቅዳሴ ክቐርብ ሕተት — ንዝዓረፉ፡ ንሕሙማት፡ ወይ ንምስጋና።",
+    "howItWorks": "ከመይ ከም ዝሰርሕ",
+    "howItWorksBody": "እቲ ቅዳሴ ንመን ምዃኑ፡ እንተደሊኻ ድማ ኣበይን መዓስን ንገረና። ቤት ጽሕፈት ምስ ቤተ ክርስትያን ኣዋዲዱ፡ ዕለቱ ምስ ተወሰነ ብኢመይል ይሕብረካ — ካብ ዓድኻ ርሒቕካ ኮለኻ እውን፡ እቲ ቅዳሴ መዓስ ከም ዝቐርብ ክትፈልጥ ኢኻ።",
+    "intentionType": "እቲ ቅዳሴ ንምንታይ እዩ",
+    "choosePlaceholder": "ምረጽ…",
+    "forWhom": "ስም ወይ ሕሊና",
+    "forWhomPlaceholder": "ንኣብነት፡ ንዕረፍቲ ነፍሲ …",
+    "parish": "ዝመረጽካያ ቤተ ክርስትያን (ኣማራጺ)",
+    "preferredDate": "ዝመረጽካዮ ዕለት (ኣማራጺ)",
+    "preferredDatePlaceholder": "ንኣብነት፡ ናብ 12 መጋቢት ዝቐረበ ሰንበት",
+    "details": "ካልእ ዝውሰኽ (ኣማራጺ)",
+    "aboutYou": "ብዛዕባኻ",
+    "yourName": "ስምካ",
+    "yourEmail": "ኢመይልካ",
+    "yourPhone": "ስልኪ (ኣማራጺ)",
+    "privacyNote": "ኣብዚ እትልእኮ ነቲ ቅዳሴ ንምውዳብ ጥራይ እዩ ዝውዕል። ፈጺሙ ኣይሕተምን።",
+    "submit": "ሕሊና ስደድ",
+    "submitting": "ይለኣኽ ኣሎ…",
+    "successTitle": "ሕሊናኻ ተቐቢልናዮ",
+    "offeringLink": "ምስ ሕሊናኻ ወፈያ ግበር",
+    "types": {
+      "repose": "ንዕረፍቲ ነፍሲ (ዝዓረፉ)",
+      "anniversary": "ዝኽሪ ዕለተ ዕረፍቲ",
+      "healing": "ንፈውሲ — ንሕሙም ሰብ",
+      "thanksgiving": "ንምስጋና",
+      "special": "ፍሉይ ሕሊና"
+    }
   }
 }

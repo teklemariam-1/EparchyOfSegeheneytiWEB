@@ -570,5 +570,35 @@
       "freedom-to-marry": "Certificate of freedom to marry",
       "other": "Something else"
     }
+  },
+  "massIntentions": {
+    "title": "Mass Intentions",
+    "subtitle": "Ask that a Mass be offered — for the departed, the sick, or in thanksgiving.",
+    "howItWorks": "How it works",
+    "howItWorksBody": "Tell us who the Mass is for and, if you wish, where and roughly when. The chancery arranges it with a parish and emails you the date once it is set — so even far from home, you will know when the Mass is being offered.",
+    "intentionType": "The Mass is for",
+    "choosePlaceholder": "Choose…",
+    "forWhom": "Name or intention",
+    "forWhomPlaceholder": "e.g. the repose of the soul of …",
+    "parish": "Preferred parish (optional)",
+    "preferredDate": "Preferred date (optional)",
+    "preferredDatePlaceholder": "e.g. the Sunday nearest 12 March",
+    "details": "Anything else (optional)",
+    "aboutYou": "About you",
+    "yourName": "Your name",
+    "yourEmail": "Your email",
+    "yourPhone": "Phone (optional)",
+    "privacyNote": "What you send here is used only to arrange the Mass. It is never published.",
+    "submit": "Send intention",
+    "submitting": "Sending…",
+    "successTitle": "Intention received",
+    "offeringLink": "Make an offering with your intention",
+    "types": {
+      "repose": "The repose of a soul (deceased)",
+      "anniversary": "An anniversary of death",
+      "healing": "Healing — for someone who is sick",
+      "thanksgiving": "Thanksgiving",
+      "special": "A special intention"
+    }
   }
 }

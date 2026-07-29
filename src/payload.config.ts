@@ -43,6 +43,7 @@ import { GeezCalendarDays } from './collections/GeezCalendarDays/index'
 import { GeezMonthlyFeasts } from './collections/GeezMonthlyFeasts/index'
 import { ContactSubmissions } from './collections/ContactSubmissions/index'
 import { SacramentalRequests } from './collections/SacramentalRequests/index'
+import { MassIntentions } from './collections/MassIntentions/index'
 import { Donations } from './collections/Donations/index'
 import { StripeEvents } from './collections/StripeEvents/index'
 import { AuditLog } from './collections/AuditLog/index'
@@ -194,6 +195,7 @@ export default buildConfig({
     GeezMonthlyFeasts,
     ContactSubmissions,
     SacramentalRequests,
+    MassIntentions,
     Donations,
     StripeEvents,
     AuditLog,

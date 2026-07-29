@@ -70,6 +70,9 @@ export const PERMISSIONS = [
   // their parents, so `.view` gates reading at all — there is no public read to
   // fall back on, unlike the content collections.
   'sacramental-requests.view', 'sacramental-requests.manage', 'sacramental-requests.delete',
+  // Mass intentions name the dead and the sick — same privacy shape as
+  // sacramental requests: `.view` gates reading entirely, no public read.
+  'mass-intentions.view', 'mass-intentions.manage', 'mass-intentions.delete',
   'donations.view', 'donations.manage', 'donations.config', 'donations.delete',
   'users.view', 'users.manage',
   'audit-log.view',
@@ -155,6 +158,7 @@ const CHANCERY: Permission[] = [
   // Not `.delete`: removing a request destroys the only evidence that someone
   // asked, which matters when the answer was "we could not find it".
   'sacramental-requests.view', 'sacramental-requests.manage',
+  'mass-intentions.view', 'mass-intentions.manage',
   'donations.view', 'donations.manage',
   'users.view',
   'globals.site-settings.edit', 'globals.header.edit', 'globals.footer.edit',

@@ -98,6 +98,7 @@ export interface Config {
     'geez-monthly-feasts': GeezMonthlyFeast;
     'contact-submissions': ContactSubmission;
     'sacramental-requests': SacramentalRequest;
+    'mass-intentions': MassIntention;
     donations: Donation;
     'stripe-events': StripeEvent;
     'audit-log': AuditLog;
@@ -140,6 +141,7 @@ export interface Config {
     'geez-monthly-feasts': GeezMonthlyFeastsSelect<false> | GeezMonthlyFeastsSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'sacramental-requests': SacramentalRequestsSelect<false> | SacramentalRequestsSelect<true>;
+    'mass-intentions': MassIntentionsSelect<false> | MassIntentionsSelect<true>;
     donations: DonationsSelect<false> | DonationsSelect<true>;
     'stripe-events': StripeEventsSelect<false> | StripeEventsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
@@ -320,6 +322,9 @@ export interface User {
         | 'sacramental-requests.view'
         | 'sacramental-requests.manage'
         | 'sacramental-requests.delete'
+        | 'mass-intentions.view'
+        | 'mass-intentions.manage'
+        | 'mass-intentions.delete'
         | 'donations.view'
         | 'donations.manage'
         | 'donations.config'
@@ -434,6 +439,9 @@ export interface User {
         | 'sacramental-requests.view'
         | 'sacramental-requests.manage'
         | 'sacramental-requests.delete'
+        | 'mass-intentions.view'
+        | 'mass-intentions.manage'
+        | 'mass-intentions.delete'
         | 'donations.view'
         | 'donations.manage'
         | 'donations.config'
@@ -2544,6 +2552,50 @@ export interface SacramentalRequest {
   createdAt: string;
 }
 /**
+ * Requests for Masses to be offered. "New" means not yet scheduled. Contains personal data — never published.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mass-intentions".
+ */
+export interface MassIntention {
+  id: number;
+  /**
+   * Moving to "Scheduled" emails the requester the date below — set the date FIRST, then the status.
+   */
+  status: 'new' | 'scheduled' | 'celebrated' | 'declined';
+  /**
+   * The date the Mass will be (or was) offered. Included in the email to the requester.
+   */
+  scheduledFor?: string | null;
+  intentionType: 'repose' | 'anniversary' | 'healing' | 'thanksgiving' | 'special';
+  /**
+   * Who the Mass is for — a name, or "the souls of the faithful departed".
+   */
+  forWhom: string;
+  /**
+   * Where they would like it offered, if they have a preference. Free text — coordination happens by email.
+   */
+  parish?: string | null;
+  /**
+   * Free text on purpose: "the Sunday nearest 12 March" and "40th day" are real answers a date picker cannot hold.
+   */
+  preferredDate?: string | null;
+  /**
+   * Anything else the requester said about the intention.
+   */
+  details?: string | null;
+  requesterName: string;
+  requesterEmail: string;
+  requesterPhone?: string | null;
+  /**
+   * Internal. Never sent to the requester.
+   */
+  staffNotes?: string | null;
+  submittedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Donations and pledges received through the website.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2854,6 +2906,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sacramental-requests';
         value: number | SacramentalRequest;
+      } | null)
+    | ({
+        relationTo: 'mass-intentions';
+        value: number | MassIntention;
       } | null)
     | ({
         relationTo: 'donations';
@@ -3972,6 +4028,26 @@ export interface SacramentalRequestsSelect<T extends boolean = true> {
   requesterPhone?: T;
   relationship?: T;
   purpose?: T;
+  staffNotes?: T;
+  submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mass-intentions_select".
+ */
+export interface MassIntentionsSelect<T extends boolean = true> {
+  status?: T;
+  scheduledFor?: T;
+  intentionType?: T;
+  forWhom?: T;
+  parish?: T;
+  preferredDate?: T;
+  details?: T;
+  requesterName?: T;
+  requesterEmail?: T;
+  requesterPhone?: T;
   staffNotes?: T;
   submittedAt?: T;
   updatedAt?: T;
