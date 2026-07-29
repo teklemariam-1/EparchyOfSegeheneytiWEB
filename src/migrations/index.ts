@@ -40,6 +40,7 @@ import * as migration_20260728_174404_sacramental_requests from './20260728_1744
 import * as migration_20260729_132402_scheduled_publish from './20260729_132402_scheduled_publish';
 import * as migration_20260729_135854_mass_intentions from './20260729_135854_mass_intentions';
 import * as migration_20260729_150227_parish_mass_start_time from './20260729_150227_parish_mass_start_time';
+import * as migration_20260729_154500_mass_time_leading_zero_meridiem from './20260729_154500_mass_time_leading_zero_meridiem';
 
 export const migrations = [
   {
@@ -251,5 +252,10 @@ export const migrations = [
     up: migration_20260729_150227_parish_mass_start_time.up,
     down: migration_20260729_150227_parish_mass_start_time.down,
     name: '20260729_150227_parish_mass_start_time'
+  },
+  {
+    up: migration_20260729_154500_mass_time_leading_zero_meridiem.up,
+    down: migration_20260729_154500_mass_time_leading_zero_meridiem.down,
+    name: '20260729_154500_mass_time_leading_zero_meridiem'
   },
 ];

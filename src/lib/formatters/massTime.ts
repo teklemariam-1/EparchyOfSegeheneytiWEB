@@ -44,8 +44,10 @@ export function isValidTimeOfDay(value: unknown): boolean {
  * Best-effort parse of the free text staff have already entered — "9:00 AM",
  * "07.30", "17:00" — into "HH:MM". Returns null rather than guessing at
  * anything else ("after sunrise" stays free text, which is correct: it is a
- * real liturgical answer, not dirty data). Shared by the backfill migration
- * and admin validation so the two can never disagree about what parses.
+ * real liturgical answer, not dirty data). Used by admin-side tooling; the
+ * migration backfill is separate SQL, and the two HAVE disagreed once — the
+ * SQL missed "06:00 am" (leading-zero meridiem) in production, fixed by the
+ * 20260729_154500 follow-up. If either side changes, re-check the other.
  */
 export function parseTimeOfDay(text: unknown): string | null {
   if (typeof text !== 'string') return null
