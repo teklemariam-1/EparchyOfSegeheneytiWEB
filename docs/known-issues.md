@@ -42,19 +42,46 @@ All 23 pages that call `notFound()` also set `export const dynamic =
 'force-dynamic'`, so the two could not be separated without changing rendering
 behaviour. The remaining suspicion is that the dynamic render has already
 committed the response by the time `notFound()` is raised. Worth testing against
-a newer Next.js before building a workaround — and worth checking whether this
-reproduces on Vercel, since local `npm start` and Vercel's runtime differ.
+a newer Next.js before building a workaround.
+
+**Confirmed on Vercel, 2026-07-29** — this is not a local-runtime artefact:
+
+```
+curl -o /dev/null -w '%{http_code}' \
+  https://eparchy-of-segeheneyti-web.vercel.app/news/no-such-article
+200
+```
+
+So production is serving missing articles as 200 with the not-found UI, and
+search engines will index them. That closes the one open question in this entry;
+trying a newer Next.js is the next step.
 
 A middleware that checks existence and rewrites would work, but it duplicates
 every lookup and should be a last resort.
 
 ---
 
-## A fabricated sample Eparch was written to the production database
+## ~~A fabricated sample Eparch was written to the production database~~ — RESOLVED
 
-**Found:** 2026-07-28 · **Not yet verified or removed** — this environment has no
-outbound network, so neither the live site nor the Neon database could be
-reached to confirm.
+**Found:** 2026-07-28 · **Confirmed live:** 2026-07-28 · **Resolved:** 2026-07-29
+
+It was real, and it was public. Production served this in the JSON-LD on
+`/bishop`, which is the structured data search engines read:
+
+```
+"@type":"Person","name":"Abune Mekonnen Tesfay"
+```
+
+It has since been deleted and replaced with the actual sitting Eparch. The
+`bishops` table now holds one record — `abune-fqremariam-hagos`, active and
+published — and the live page reads `"name":"Abune Fkremariam Hagos"`.
+
+The account below is kept because the mechanism that allowed it is only partly
+closed; see "Still not fixed".
+
+(The original note said this could not be verified because the environment had
+no outbound network. That was wrong — both the live site and the Neon database
+were reachable, which is how the record was confirmed and later verified gone.)
 
 While producing the screenshots for the bishops module, a sample record was
 seeded through `--env-file=.env.local`. That file's `DATABASE_URI` points at the
