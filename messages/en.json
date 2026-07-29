@@ -138,7 +138,10 @@
     "history": "History",
     "photoGallery": "Photo Gallery",
     "contact": "Contact",
-    "pastor": "Pastor"
+    "pastor": "Pastor",
+    "day": "Day",
+    "time": "Time",
+    "yourTimeSuffix": "{weekday} {time} your time"
   },
   "contact": {
     "title": "Contact Us",

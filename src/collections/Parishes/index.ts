@@ -118,7 +118,30 @@ export const Parishes: CollectionConfig = {
           type: 'select',
           options: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         },
-        { name: 'time', type: 'text' },
+        {
+          // The structured time that lets a viewer abroad see "· Sat 19:00
+          // your time". Optional on purpose: "after sunrise" is a real
+          // liturgical answer that belongs in the free-text field below, and
+          // forcing a fake number would be worse than showing no conversion.
+          name: 'startTime',
+          type: 'text',
+          validate: (value: unknown) => {
+            if (value === null || value === undefined || value === '') return true
+            return typeof value === 'string' && /^([01]?\d|2[0-3]):([0-5]\d)$/.test(value.trim())
+              ? true
+              : 'Use 24-hour HH:MM, e.g. 07:30 — or leave empty and use the text field for times like "after sunrise".'
+          },
+          admin: {
+            description: '24-hour local time, e.g. 07:30. Lets visitors abroad see it in their own timezone.',
+          },
+        },
+        {
+          name: 'time',
+          type: 'text',
+          admin: {
+            description: 'Free text, shown as-is when no structured time is set — e.g. "after sunrise".',
+          },
+        },
         { name: 'language', type: 'select', options: ['Tigrinya', 'English', 'Arabic', 'Other'] },
         { name: 'notes', type: 'text' },
       ],

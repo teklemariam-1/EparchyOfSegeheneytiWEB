@@ -482,7 +482,7 @@ export interface ParishListItem {
 
 export interface ParishDetail extends ParishListItem {
   history?: unknown
-  massTimes?: Array<{ day: string; time: string; language?: string; notes?: string }>
+  massTimes?: Array<{ day: string; time?: string; startTime?: string | null; language?: string; notes?: string }>
   address?: string
   phone?: string
   email?: string

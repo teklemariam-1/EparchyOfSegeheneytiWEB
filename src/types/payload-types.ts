@@ -552,6 +552,13 @@ export interface Parish {
   massTimes?:
     | {
         day?: ('Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday') | null;
+        /**
+         * 24-hour local time, e.g. 07:30. Lets visitors abroad see it in their own timezone.
+         */
+        startTime?: string | null;
+        /**
+         * Free text, shown as-is when no structured time is set — e.g. "after sunrise".
+         */
         time?: string | null;
         language?: ('Tigrinya' | 'English' | 'Arabic' | 'Other') | null;
         notes?: string | null;
@@ -3349,6 +3356,7 @@ export interface ParishesSelect<T extends boolean = true> {
     | T
     | {
         day?: T;
+        startTime?: T;
         time?: T;
         language?: T;
         notes?: T;

@@ -39,6 +39,7 @@ import * as migration_20260728_170747_pope_settings_and_permission from './20260
 import * as migration_20260728_174404_sacramental_requests from './20260728_174404_sacramental_requests';
 import * as migration_20260729_132402_scheduled_publish from './20260729_132402_scheduled_publish';
 import * as migration_20260729_135854_mass_intentions from './20260729_135854_mass_intentions';
+import * as migration_20260729_150227_parish_mass_start_time from './20260729_150227_parish_mass_start_time';
 
 export const migrations = [
   {
@@ -244,6 +245,11 @@ export const migrations = [
   {
     up: migration_20260729_135854_mass_intentions.up,
     down: migration_20260729_135854_mass_intentions.down,
-    name: '20260729_135854_mass_intentions'
+    name: '20260729_135854_mass_intentions',
+  },
+  {
+    up: migration_20260729_150227_parish_mass_start_time.up,
+    down: migration_20260729_150227_parish_mass_start_time.down,
+    name: '20260729_150227_parish_mass_start_time'
   },
 ];

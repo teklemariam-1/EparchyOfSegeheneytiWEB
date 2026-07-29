@@ -138,7 +138,10 @@
     "history": "ታሪኽ",
     "photoGallery": "ፎቶ ማሕደር",
     "contact": "ርክብ",
-    "pastor": "ሓላፊ ሰበካ"
+    "pastor": "ሓላፊ ሰበካ",
+    "day": "መዓልቲ",
+    "time": "ሰዓት",
+    "yourTimeSuffix": "{weekday} {time} ብሰዓትካ"
   },
   "contact": {
     "title": "ርኸቡና",

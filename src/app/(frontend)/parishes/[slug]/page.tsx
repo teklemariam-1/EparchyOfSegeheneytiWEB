@@ -7,6 +7,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { Badge } from '@/components/ui/Badge'
+import { MassTimesTable } from '@/features/parishes/MassTimesTable'
 import { RichText } from '@/components/shared/RichText'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { getParishBySlug, getAllParishSlugs } from '@/lib/payload/queries'
@@ -89,28 +90,18 @@ export default async function ParishDetailPage({ params }: Props) {
               {parish.massTimes && parish.massTimes.length > 0 && (
                 <div>
                   <h2 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">{t('massSchedule')}</h2>
-                  <div className="overflow-hidden rounded-xl border border-charcoal-100">
-                    <table className="w-full text-sm">
-                      <thead className="bg-maroon-800 text-white">
-                        <tr>
-                          <th className="text-left px-4 py-3 font-medium">Day</th>
-                          <th className="text-left px-4 py-3 font-medium">Time</th>
-                          <th className="text-left px-4 py-3 font-medium">{t('language')}</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-charcoal-100">
-                        {parish.massTimes.map((mt, i) => (
-                          <tr key={i} className="hover:bg-parchment-50 transition-colors">
-                            <td className="px-4 py-3 font-medium text-charcoal-800">{mt.day}</td>
-                            <td className="px-4 py-3 text-charcoal-700">{mt.time}</td>
-                            <td className="px-4 py-3">
-                              {mt.language && <Badge variant="neutral" size="sm">{mt.language}</Badge>}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {/* Client component: rows with a structured startTime gain the
+                      viewer's local equivalent after mount — including the
+                      shifted weekday, which is the part people get wrong. */}
+                  <MassTimesTable
+                    rows={parish.massTimes}
+                    labels={{
+                      day: t('day'),
+                      time: t('time'),
+                      language: t('language'),
+                      yourTimeSuffix: t.raw('yourTimeSuffix'),
+                    }}
+                  />
                 </div>
               )}
 
