@@ -6,6 +6,7 @@ import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { DonateForm, type DonateFormConfig } from '@/features/donate/DonateForm'
+import { GivingStatementForm } from '@/features/donate/GivingStatementForm'
 import { getDonationSettings } from '@/lib/payload/queries'
 import { resolveDonationConfig } from '@/lib/donations/settings'
 import { isStripeConfigured, isStripeTestMode } from '@/lib/donations/stripe'
@@ -141,6 +142,17 @@ export default async function DonatePage() {
                 </div>
               )}
             </aside>
+          </div>
+
+          {/* Annual statement self-service. Placed under the form rather than on
+              its own page: the donor who wants it is the donor who was already
+              here to give, and January is when they come looking. */}
+          <div className="mt-12 max-w-xl rounded-xl border border-parchment-200 bg-parchment-50 p-5">
+            <h2 className="mb-1 font-serif text-base font-semibold text-charcoal-900">
+              {t('statementTitle')}
+            </h2>
+            <p className="mb-4 text-sm text-charcoal-600">{t('statementIntro')}</p>
+            <GivingStatementForm />
           </div>
         </Container>
       </Section>

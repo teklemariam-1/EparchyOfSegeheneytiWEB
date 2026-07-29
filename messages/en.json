@@ -520,7 +520,15 @@
       "notifyPending": "A new pledge was recorded and is awaiting a bank transfer.",
       "notifySucceeded": "A card donation was confirmed by Stripe.",
       "viewInAdmin": "Open in the admin panel"
-    }
+    },
+    "statementTitle": "Annual giving statement",
+    "statementIntro": "A yearly record of your donations, for your own files or your tax return. It is emailed to the address you gave when donating — nothing is shown on this page.",
+    "statementEmail": "Email you donated with",
+    "statementYear": "Year",
+    "statementRequest": "Email my statement",
+    "statementSending": "Sending…",
+    "statementSent": "If donations were recorded for that address in that year, a statement is on its way to it.",
+    "statementPrivacy": "The statement is sent only to the address itself, so only its owner can read it. Whether a gift is tax-deductible depends on the laws of your country."
   },
   "forms": {
     "formExpired": "This form was open too long. Please reload the page and send it again.",
