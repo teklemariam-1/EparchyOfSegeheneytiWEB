@@ -246,7 +246,21 @@
     "title": "Bishop's Messages",
     "subtitle": "Pastoral letters, homilies, and public addresses from the Bishop.",
     "noMessages": "No messages found.",
-    "downloadPDF": "Download PDF"
+    "downloadPDF": "Download PDF",
+    "all": "All",
+    "filterLabel": "Filter messages by type",
+    "featured": "Featured",
+    "previous": "Previous",
+    "next": "Next",
+    "types": {
+      "pastoral-letter": "Pastoral Letter",
+      "homily": "Homily",
+      "encyclical-response": "Encyclical Response",
+      "christmas": "Christmas Message",
+      "easter": "Easter Message",
+      "extraordinary": "Extraordinary Announcement",
+      "general": "General Message"
+    }
   },
   "bishop": {
     "title": "The Eparch",
@@ -301,7 +315,19 @@
     "next": "Next",
     "currentPopeHeading": "The Holy Father",
     "since": "Holy Father since {date}",
-    "vaticanProfile": "Read more on vatican.va"
+    "vaticanProfile": "Read more on vatican.va",
+    "all": "All",
+    "filterLabel": "Filter documents by type",
+    "types": {
+      "encyclical": "Encyclical",
+      "apostolic-exhortation": "Apostolic Exhortation",
+      "apostolic-letter": "Apostolic Letter",
+      "apostolic-constitution": "Apostolic Constitution",
+      "message": "Message",
+      "homily": "Homily",
+      "audience": "Audience Address",
+      "other": "Other Documents"
+    }
   },
   "calendar": {
     "title": "Ge'ez Calendar",

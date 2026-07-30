@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import Image from 'next/image'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { SegmentedFilter, type Segment } from '@/components/shared/SegmentedFilter'
+import { MagazineCard } from '@/components/shared/MagazineCard'
 import { getLocale, getTranslations } from 'next-intl/server'
 import {
   getPopeMessagesPage,
+  getPopeMessageTypeCounts,
   getPopeSettings,
-  type PopeMessageItem,
   type PopeSettingsData,
 } from '@/lib/payload/queries'
 
@@ -20,11 +21,8 @@ import {
 // published messages invisible here while detail pages showed them.
 export const dynamic = 'force-dynamic'
 
-/**
- * 12 fills both breakpoints of the card grid completely (md 2-up, lg 3-up),
- * so no page ends with a ragged row except the last.
- */
-const PAGE_SIZE = 12
+/** Full-width magazine cards — 8 per page keeps the page a comfortable length. */
+const PAGE_SIZE = 8
 
 export const metadata: Metadata = buildMetadata({
   title: 'Messages from the Holy Father',
@@ -33,16 +31,17 @@ export const metadata: Metadata = buildMetadata({
   path: '/pope-messages',
 })
 
-const DOCUMENT_TYPE_LABELS: Record<string, string> = {
-  encyclical: 'Encyclical',
-  'apostolic-exhortation': 'Apostolic Exhortation',
-  'apostolic-letter': 'Apostolic Letter',
-  'apostolic-constitution': 'Apostolic Constitution',
-  message: 'Message',
-  homily: 'Homily',
-  audience: 'Audience Address',
-  other: 'Document',
-}
+/** Order fixed by the collection's select options; the filter follows it. */
+const DOCUMENT_TYPES = [
+  'encyclical',
+  'apostolic-exhortation',
+  'apostolic-letter',
+  'apostolic-constitution',
+  'message',
+  'homily',
+  'audience',
+  'other',
+] as const
 
 function formatDate(iso?: string) {
   if (!iso) return null
@@ -56,19 +55,41 @@ function formatDate(iso?: string) {
 export default async function PopeMessagesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; type?: string }>
 }) {
-  const { page: pageParam } = await searchParams
+  const { page: pageParam, type: typeParam } = await searchParams
   const currentPage = Number(pageParam) || 1
+  // Only known types filter; an unknown ?type falls back to "all" instead of 404ing.
+  const activeType = DOCUMENT_TYPES.includes(typeParam as any) ? typeParam : undefined
   const locale = await getLocale()
   const t = await getTranslations('popeMessages')
 
-  const [{ docs: messages, meta }, pope] = await Promise.all([
-    getPopeMessagesPage({ limit: PAGE_SIZE, page: currentPage, locale }),
+  const [{ docs: messages, meta }, typeCounts, pope] = await Promise.all([
+    getPopeMessagesPage({ limit: PAGE_SIZE, page: currentPage, locale, documentType: activeType }),
+    getPopeMessageTypeCounts(),
     getPopeSettings(locale),
   ])
 
-  const pageHref = (page: number) => (page > 1 ? `/pope-messages?page=${page}` : '/pope-messages')
+  const href = (opts: { type?: string; page?: number }) => {
+    const params = new URLSearchParams()
+    if (opts.type) params.set('type', opts.type)
+    if (opts.page && opts.page > 1) params.set('page', String(opts.page))
+    const qs = params.toString()
+    return qs ? `/pope-messages?${qs}` : '/pope-messages'
+  }
+
+  const totalCount = Object.values(typeCounts).reduce((a, b) => a + b, 0)
+  const segments: Segment[] = [
+    { value: 'all', label: t('all'), count: totalCount, href: href({}), active: !activeType },
+    // Only types that actually have published documents get a segment.
+    ...DOCUMENT_TYPES.filter((type) => (typeCounts[type] ?? 0) > 0).map((type) => ({
+      value: type,
+      label: t(`types.${type}`),
+      count: typeCounts[type],
+      href: href({ type }),
+      active: activeType === type,
+    })),
+  ]
 
   return (
     <>
@@ -82,15 +103,32 @@ export default async function PopeMessagesPage({
         <Container>
           {pope.name && <CurrentPopeCard pope={pope} t={t} />}
 
+          <SegmentedFilter segments={segments} ariaLabel={t('filterLabel')} />
+
           {messages.length === 0 ? (
             <EmptyState
               title="No documents yet"
               description="Papal documents and messages will appear here once published in the CMS."
             />
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="mx-auto max-w-5xl space-y-5">
               {messages.map((msg) => (
-                <MessageCard key={msg.id} message={msg} />
+                <MagazineCard
+                  key={msg.id}
+                  href={`/pope-messages/${msg.slug}`}
+                  badge={
+                    msg.documentType && DOCUMENT_TYPES.includes(msg.documentType as any)
+                      ? t(`types.${msg.documentType}`)
+                      : (msg.documentType ?? 'Document')
+                  }
+                  title={msg.title}
+                  excerpt={msg.excerpt}
+                  dateISO={msg.publishedAt}
+                  dateLabel={formatDate(msg.publishedAt)}
+                  image={msg.featuredImage}
+                  hasPdf={Boolean(msg.pdfUrl)}
+                  tone="gold"
+                />
               ))}
             </div>
           )}
@@ -99,7 +137,7 @@ export default async function PopeMessagesPage({
             <div className="mt-10 flex justify-center gap-2">
               {meta.hasPrevPage && (
                 <a
-                  href={pageHref(meta.page - 1)}
+                  href={href({ type: activeType, page: meta.page - 1 })}
                   className="rounded border border-charcoal-200 px-4 py-2 text-sm text-charcoal-500 hover:border-maroon-300 hover:text-maroon-700 transition-colors"
                 >
                   ← {t('previous')}
@@ -110,7 +148,7 @@ export default async function PopeMessagesPage({
               </span>
               {meta.hasNextPage && (
                 <a
-                  href={pageHref(meta.page + 1)}
+                  href={href({ type: activeType, page: meta.page + 1 })}
                   className="rounded border border-charcoal-200 px-4 py-2 text-sm text-charcoal-500 hover:border-maroon-300 hover:text-maroon-700 transition-colors"
                 >
                   {t('next')} →
@@ -171,50 +209,5 @@ function CurrentPopeCard({
         )}
       </div>
     </div>
-  )
-}
-
-// ─── Local card component ──────────────────────────────────────────────────────
-
-function MessageCard({ message }: { message: PopeMessageItem }) {
-  const typeLabel = message.documentType
-    ? (DOCUMENT_TYPE_LABELS[message.documentType] ?? message.documentType)
-    : 'Document'
-
-  return (
-    <Link
-      href={`/pope-messages/${message.slug}`}
-      className="group flex flex-col rounded-2xl border border-charcoal-100 bg-white p-6 transition hover:shadow-md hover:border-maroon-200"
-    >
-      <span className="inline-block self-start rounded-full bg-gold-50 border border-gold-200 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-gold-800 mb-3">
-        {typeLabel}
-      </span>
-
-      <h2 className="font-serif text-lg font-semibold text-charcoal-900 group-hover:text-maroon-800 transition-colors line-clamp-2 mb-2">
-        {message.title}
-      </h2>
-
-      {message.excerpt && (
-        <p className="text-sm text-charcoal-500 line-clamp-3 mb-3">{message.excerpt}</p>
-      )}
-
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-charcoal-100">
-        {message.publishedAt ? (
-          <time dateTime={message.publishedAt} className="text-xs text-charcoal-400">
-            {formatDate(message.publishedAt)}
-          </time>
-        ) : (
-          <span />
-        )}
-        {message.pdfUrl && (
-          <span className="text-xs text-maroon-600 flex items-center gap-1">
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            PDF
-          </span>
-        )}
-      </div>
-    </Link>
   )
 }

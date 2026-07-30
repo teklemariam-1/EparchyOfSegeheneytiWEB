@@ -246,7 +246,21 @@
     "title": "መልእኽቲ ጳጳስ",
     "subtitle": "ናይ ሰበካ ደብዳቤታት፣ ምስባካትን ናይ ጳጳስ ናይ ልዝብ ቃልኪዳናት።",
     "noMessages": "ዝርከብ መልእኽቲ የለን።",
-    "downloadPDF": "PDF ኣውርድ"
+    "downloadPDF": "PDF ኣውርድ",
+    "all": "ኩሉ",
+    "filterLabel": "መልእኽትታት ብዓይነት ምረጽ",
+    "featured": "ፍሉይ",
+    "previous": "ዝሓለፈ",
+    "next": "ዝቕጽል",
+    "types": {
+      "pastoral-letter": "ጓሳዊ ደብዳበ",
+      "homily": "ስብከት",
+      "encyclical-response": "መልሲ ንኤንሳይክሊካ",
+      "christmas": "መልእኽቲ ልደት",
+      "easter": "መልእኽቲ ትንሳኤ",
+      "extraordinary": "ፍሉይ ኣዋጅ",
+      "general": "ሓፈሻዊ መልእኽቲ"
+    }
   },
   "bishop": {
     "title": "ጳጳስ ሃገረ ስብከት",
@@ -301,7 +315,19 @@
     "next": "ዝቕጽል",
     "currentPopeHeading": "ቅዱስ ኣቦ",
     "since": "ቅዱስ ኣቦ ካብ {date}",
-    "vaticanProfile": "ኣብ vatican.va ተወሳኺ ኣንብቡ"
+    "vaticanProfile": "ኣብ vatican.va ተወሳኺ ኣንብቡ",
+    "all": "ኩሉ",
+    "filterLabel": "ሰነዳት ብዓይነት ምረጽ",
+    "types": {
+      "encyclical": "ኤንሳይክሊካ",
+      "apostolic-exhortation": "ሃዋርያዊ ማዕዳ",
+      "apostolic-letter": "ሃዋርያዊ ደብዳበ",
+      "apostolic-constitution": "ሃዋርያዊ ቅዋም",
+      "message": "መልእኽቲ",
+      "homily": "ስብከት",
+      "audience": "መደረ ኣውድየንስ",
+      "other": "ካልኦት ሰነዳት"
+    }
   },
   "calendar": {
     "title": "ዕለታት ግዕዝ",
