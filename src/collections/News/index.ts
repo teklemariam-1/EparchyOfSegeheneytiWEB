@@ -240,6 +240,42 @@ export const News: CollectionConfig = {
       },
     },
     {
+      name: 'translationStatus',
+      type: 'select',
+      options: [
+        { label: 'Auto-translated to Tigrinya', value: 'auto' },
+        { label: 'Translation failed — imported in English', value: 'failed' },
+        { label: 'Imported in source language', value: 'source' },
+      ],
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        condition: (data) => Boolean(data?.translationStatus),
+        description:
+          'Set by the feed import. "Failed" drafts still need a human translation before publishing.',
+      },
+    },
+    {
+      name: 'sourceTitle',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        condition: (data) => Boolean(data?.sourceTitle),
+        description: 'Original title as published by the feed, kept for cross-checking the translation.',
+      },
+    },
+    {
+      name: 'sourceSummary',
+      type: 'textarea',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        condition: (data) => Boolean(data?.sourceSummary),
+        description: 'Original summary as published by the feed, kept for cross-checking the translation.',
+      },
+    },
+    {
       name: 'seo',
       type: 'group',
       label: 'SEO',

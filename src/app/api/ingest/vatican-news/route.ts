@@ -5,9 +5,12 @@ import {
   probeFeed,
   buildDraftBody,
   VATICAN_NEWS_FEEDS,
+  ATTRIBUTION_EN,
+  ATTRIBUTION_TI,
   type FeedItem,
   type VaticanFeedKey,
 } from '@/lib/ingest/vaticanNews'
+import { getTranslationProvider, isGeezText } from '@/lib/translate'
 import { slugify } from '@/lib/formatters/slug'
 import { safeFetch } from '@/lib/ingest/safeFetch'
 import { hasPermission, type AuthUser } from '@/lib/permissions/resolve'
@@ -61,6 +64,7 @@ interface ResolvedSource {
   target: 'news' | 'pope-messages'
   category: string
   documentType: string
+  autoTranslate: boolean
   consecutiveFailures: number
 }
 
@@ -79,6 +83,7 @@ function builtInSource(key: VaticanFeedKey = 'all'): ResolvedSource {
     target: 'news',
     category: 'vatican',
     documentType: 'message',
+    autoTranslate: true,
     consecutiveFailures: 0,
   }
 }
@@ -114,6 +119,8 @@ async function resolveSources(
         target: (d.target === 'pope-messages' ? 'pope-messages' : 'news') as ResolvedSource['target'],
         category: d.category ?? 'vatican',
         documentType: d.documentType ?? 'message',
+        // Missing on sources saved before the field existed — treat as on.
+        autoTranslate: d.autoTranslate !== false,
         consecutiveFailures: Number(d.consecutiveFailures ?? 0),
       }))
       .filter((s) => s.url)
@@ -125,6 +132,42 @@ async function resolveSources(
 
   // Fresh install / all sources disabled: still do something useful.
   return [builtInSource('all')]
+}
+
+/** Outcome of the EN→TI machine-translation step for one imported item. */
+interface TranslatedItem {
+  title: string
+  summary: string
+  /** 'auto' = translated, 'failed' = English kept and flagged, 'source' = no translation wanted/needed. */
+  status: 'auto' | 'failed' | 'source'
+}
+
+/**
+ * Translate an item's title and summary to Tigrinya before the draft is
+ * created, so editors review Tigrinya text — see src/lib/translate.
+ *
+ * Never throws: any failure (no provider configured, API error, incomplete
+ * result) keeps the English text and flags the draft `failed`, so an import is
+ * never lost to a translation outage. Items already in Ge'ez script (Tigrinya
+ * feeds) are passed through untouched.
+ */
+async function translateItem(item: FeedItem, wanted: boolean): Promise<TranslatedItem> {
+  const passthrough: TranslatedItem = { title: item.title, summary: item.summary, status: 'source' }
+  if (!wanted) return passthrough
+  if (isGeezText(`${item.title} ${item.summary}`)) return passthrough
+
+  const provider = getTranslationProvider()
+  if (!provider) return { ...passthrough, status: 'failed' }
+
+  try {
+    // The summary can be empty (some feeds ship title-only items) — the
+    // provider rejects empty inputs, so only send what exists.
+    const texts = item.summary ? [item.title, item.summary] : [item.title]
+    const out = await provider.translate(texts, { from: 'en', to: 'ti' })
+    return { title: out[0], summary: item.summary ? out[1] : '', status: 'auto' }
+  } catch {
+    return { ...passthrough, status: 'failed' }
+  }
 }
 
 const MAX_IMAGE_BYTES = 10_000_000
@@ -326,18 +369,36 @@ export async function POST(req: Request) {
             ? await importImage(payload, item.imageUrl, item.title)
             : null
 
+          // Machine-translate to Tigrinya (the site's audience language) so
+          // the draft an editor reviews is already in Tigrinya. The original
+          // English is preserved on sourceTitle/sourceSummary.
+          const translated = await translateItem(item, source.autoTranslate)
+          const body = buildDraftBody(
+            translated.summary,
+            item.link,
+            source.name,
+            translated.status === 'auto' ? ATTRIBUTION_TI : ATTRIBUTION_EN,
+          )
+
           // Papal documents and news articles have different shapes; only the
           // fields each collection actually defines are sent.
           const shared = {
-            title: item.title,
-            // Pass the derived slug explicitly. The collection's slug hook only
-            // auto-fills from the (Latin) title, which is empty for Tigrinya, so
-            // without this the required field stays blank and validation fails.
+            title: translated.title,
+            // Pass the derived slug explicitly (derived from the English feed
+            // title/URL before translation). The collection's slug hook only
+            // auto-fills from the (Latin) title, which is empty for Tigrinya,
+            // so without this the required field stays blank and validation
+            // fails.
             slug,
-            excerpt: item.summary,
+            excerpt: translated.summary,
             publishedAt: item.publishedAt,
             ...(featuredImage ? { featuredImage } : {}),
             sourceUrl: item.link,
+            translationStatus: translated.status,
+            // Keep the English original retrievable when it was replaced.
+            ...(translated.status === 'auto'
+              ? { sourceTitle: item.title, sourceSummary: item.summary }
+              : {}),
             _status: 'draft',
           }
 
@@ -345,12 +406,12 @@ export async function POST(req: Request) {
             collection === 'pope-messages'
               ? {
                   ...shared,
-                  body: buildDraftBody(item.summary, item.link, source.name),
+                  body,
                   documentType: source.documentType,
                 }
               : {
                   ...shared,
-                  body: buildDraftBody(item.summary, item.link, source.name),
+                  body,
                   category: source.category,
                   sourceName: source.name,
                   isImported: true,
@@ -358,13 +419,36 @@ export async function POST(req: Request) {
                   reviewStatus: 'pending',
                 }
 
-          await payload.create({
+          const createdDoc = await payload.create({
             collection,
             locale: 'en',
             overrideAccess: true,
             draft: true,
             data: data as any,
           })
+
+          // Mirror the Tigrinya text into the ti locale so the Tigrinya site
+          // renders it natively rather than through the en fallback (and so it
+          // survives an editor later restoring English in the en locale).
+          if (translated.status === 'auto') {
+            try {
+              await payload.update({
+                collection,
+                id: createdDoc.id,
+                locale: 'ti',
+                overrideAccess: true,
+                draft: true,
+                data: {
+                  title: translated.title,
+                  excerpt: translated.summary,
+                  body,
+                } as any,
+              })
+            } catch {
+              // The en-locale draft already holds the Tigrinya text; a failed
+              // mirror write must not fail the import.
+            }
+          }
           sourceCreated++
         } catch (err) {
           // A unique-constraint hit means an equivalent item already exists —

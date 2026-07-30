@@ -162,6 +162,16 @@ export const FeedSources: CollectionConfig = {
       },
     },
     {
+      name: 'autoTranslate',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Machine-translate imported items to Tigrinya (ትግርኛ). Applies to English-language feeds only; items already in Ge\'ez script are imported as-is.',
+      },
+    },
+    {
       name: 'healthStatus',
       type: 'select',
       defaultValue: 'unknown',

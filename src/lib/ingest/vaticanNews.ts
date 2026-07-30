@@ -32,10 +32,28 @@ function textNode(text: string) {
 }
 
 /**
+ * Attribution sentence around the source link: `{before}{source link}{after}`.
+ * Overridable per language so machine-translated drafts carry a Tigrinya
+ * attribution instead of an English one.
+ */
+export interface Attribution {
+  before: string
+  after: string
+}
+
+export const ATTRIBUTION_EN: Attribution = { before: 'Read the full article at ', after: '.' }
+export const ATTRIBUTION_TI: Attribution = { before: 'ምሉእ ጽሑፍ ኣብ ', after: ' ኣንብቡ።' }
+
+/**
  * Build the draft body: the feed's own summary, followed by a clear attribution
  * line linking to the original article. We never copy full article text.
  */
-export function buildDraftBody(summary: string, link: string, sourceName = 'Vatican News') {
+export function buildDraftBody(
+  summary: string,
+  link: string,
+  sourceName = 'Vatican News',
+  attribution: Attribution = ATTRIBUTION_EN,
+) {
   return {
     root: {
       type: 'root',
@@ -59,7 +77,7 @@ export function buildDraftBody(summary: string, link: string, sourceName = 'Vati
           version: 1,
           direction: 'ltr',
           children: [
-            textNode('Read the full article at '),
+            textNode(attribution.before),
             {
               type: 'link',
               version: 1,
@@ -69,7 +87,7 @@ export function buildDraftBody(summary: string, link: string, sourceName = 'Vati
               fields: { url: link, newTab: true, linkType: 'custom' },
               children: [textNode(sourceName)],
             },
-            textNode('.'),
+            textNode(attribution.after),
           ],
         },
       ],

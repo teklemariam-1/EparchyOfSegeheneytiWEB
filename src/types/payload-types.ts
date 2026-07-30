@@ -884,6 +884,18 @@ export interface News {
    * Editorial triage for imported items. This does NOT publish the article — use Publish for that. Marking Rejected keeps a record so the item is never re-imported.
    */
   reviewStatus?: ('pending' | 'approved' | 'rejected') | null;
+  /**
+   * Set by the feed import. "Failed" drafts still need a human translation before publishing.
+   */
+  translationStatus?: ('auto' | 'failed' | 'source') | null;
+  /**
+   * Original title as published by the feed, kept for cross-checking the translation.
+   */
+  sourceTitle?: string | null;
+  /**
+   * Original summary as published by the feed, kept for cross-checking the translation.
+   */
+  sourceSummary?: string | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -1212,6 +1224,10 @@ export interface FeedSource {
    */
   enabled?: boolean | null;
   /**
+   * Machine-translate imported items to Tigrinya (ትግርኛ). Applies to English-language feeds only; items already in Ge'ez script are imported as-is.
+   */
+  autoTranslate?: boolean | null;
+  /**
    * Set automatically from the last fetch. Degraded after 1 failure, failing after 3.
    */
   healthStatus?: ('unknown' | 'healthy' | 'degraded' | 'failing') | null;
@@ -1411,6 +1427,18 @@ export interface PopeMessage {
    * Link to the original Vatican document (vatican.va).
    */
   sourceUrl?: string | null;
+  /**
+   * Set by the feed import. "Failed" drafts still need a human translation before publishing.
+   */
+  translationStatus?: ('auto' | 'failed' | 'source') | null;
+  /**
+   * Original title as published by the feed, kept for cross-checking the translation.
+   */
+  sourceTitle?: string | null;
+  /**
+   * Original summary as published by the feed, kept for cross-checking the translation.
+   */
+  sourceSummary?: string | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -3171,6 +3199,9 @@ export interface NewsSelect<T extends boolean = true> {
   isImported?: T;
   importedAt?: T;
   reviewStatus?: T;
+  translationStatus?: T;
+  sourceTitle?: T;
+  sourceSummary?: T;
   seo?:
     | T
     | {
@@ -3326,6 +3357,7 @@ export interface FeedSourcesSelect<T extends boolean = true> {
   category?: T;
   documentType?: T;
   enabled?: T;
+  autoTranslate?: T;
   healthStatus?: T;
   feedFormat?: T;
   lastItemCount?: T;
@@ -3496,6 +3528,9 @@ export interface PopeMessagesSelect<T extends boolean = true> {
   body?: T;
   document?: T;
   sourceUrl?: T;
+  translationStatus?: T;
+  sourceTitle?: T;
+  sourceSummary?: T;
   seo?:
     | T
     | {
