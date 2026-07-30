@@ -25,11 +25,11 @@ export const metadata: Metadata = buildMetadata({
  * now?", which the parish pages answer one at a time but nothing answered in
  * one place.
  *
- * NO CONTACT DETAILS, by decision-pending default: the collection holds email
- * and phone per priest, but publishing a contact directory of clergy is the
- * chancery's call. Until they make it, reaching a priest goes through the
- * parish page or the contact form — the card links to the parish for exactly
- * that reason.
+ * The cards carry no contact details and the list query does not fetch them.
+ * Whether a given priest publishes an email or phone is decided per record by
+ * the visibility switches and shown on his own profile — a directory that put
+ * every number on one page would be a scraping target regardless of what each
+ * priest agreed to individually.
  */
 export default async function PriestsPage() {
   const locale = await getLocale()
@@ -64,8 +64,23 @@ export default async function PriestsPage() {
         )}
       </div>
       <h2 className="font-serif text-base font-semibold text-charcoal-900">
-        {priest.title ? `${priest.title} ` : ''}
-        {priest.fullName}
+        {priest.slug ? (
+          // Stretched link: the whole card is the target, but only the name is
+          // the accessible label — so a screen reader announces one link per
+          // priest rather than "link, link, link".
+          <Link
+            href={`/priests/${priest.slug}`}
+            className="after:absolute after:inset-0 after:rounded-[inherit] group-hover:text-maroon-800"
+          >
+            {priest.title ? `${priest.title} ` : ''}
+            {priest.fullName}
+          </Link>
+        ) : (
+          <>
+            {priest.title ? `${priest.title} ` : ''}
+            {priest.fullName}
+          </>
+        )}
       </h2>
       {priest.assignment && (
         <p className="mt-1 text-sm leading-snug text-charcoal-600">{priest.assignment}</p>
@@ -73,7 +88,8 @@ export default async function PriestsPage() {
       {priest.parish?.slug && (
         <Link
           href={`/parishes/${priest.parish.slug}`}
-          className="mt-2 text-xs font-semibold text-maroon-700 transition-colors hover:text-maroon-900"
+          // Above the stretched link, so the parish stays separately clickable.
+          className="relative z-10 mt-2 text-xs font-semibold text-maroon-700 transition-colors hover:text-maroon-900"
         >
           {priest.parish.name ?? t('viewParish')} →
         </Link>

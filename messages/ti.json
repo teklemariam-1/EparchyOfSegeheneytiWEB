@@ -29,7 +29,8 @@
     "search": "ድለ",
     "apps": "መተግበሪታት",
     "vicariates": "ቪካርያታት",
-    "donate": "ወፈያ"
+    "donate": "ወፈያ",
+    "clergy": "ካህናትና"
   },
   "common": {
     "readMore": "ዝያዳ ኣንብብ",
@@ -660,6 +661,18 @@
     "status": {
       "retired": "ጡረታ ዝወጸ",
       "on-leave": "ኣብ ዕረፍቲ"
-    }
+    },
+    "viewProfile": "ሙሉእ ሓበሬታ ርአ",
+    "ordained": "ዝተሸመሉ",
+    "serves": "ዘገልግለሉ",
+    "contactHeading": "ኣድራሻ",
+    "biography": "ሓጺር ታሪኽ",
+    "ministryHistory": "ታሪኽ ኣገልግሎት",
+    "education": "ትምህርቲ",
+    "galleries": "ስእልታት",
+    "photos": "ስእልታት",
+    "untitledPhoto": "ስእሊ",
+    "circa": "ኣስታት",
+    "sparseProfile": "ብዛዕባ እዚ ኣገልጋሊ ተወሳኺ ሓበሬታ ኣይተሓትመን።"
   }
 }

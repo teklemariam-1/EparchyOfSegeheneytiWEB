@@ -192,6 +192,7 @@ export const getNewsYears = cachedQuery(_getNewsYears, 'getNewsYears', ['news'])
 
 export interface PriestListItem {
   id: string
+  slug?: string
   fullName: string
   title?: string
   status?: string
@@ -201,14 +202,20 @@ export interface PriestListItem {
   ordinationDate?: string | null
 }
 
+/** `parish` is hasMany, so a record may carry several; the card shows the first. */
+function firstParish(value: any): { name?: string; slug?: string } | null {
+  const parish = Array.isArray(value) ? value[0] : value
+  if (!parish || typeof parish !== 'object') return null
+  return { name: parish.name, slug: parish.slug }
+}
+
 /**
  * Clergy for the public directory, active first.
  *
- * DELIBERATELY EXCLUDES contact details. The collection holds each priest's
- * email and phone, but whether those belong on the public internet is the
- * chancery's call, not a default — clergy get enough unsolicited contact as it
- * is. Until that decision is made, the directory shows who serves and where;
- * reaching them goes through the parish or the chancery contact page.
+ * Contact details are absent here and stay absent: what a priest publishes is
+ * decided per record by the visibility switches, and the afterRead hook removes
+ * whatever is switched off before this code ever sees it. This query simply
+ * does not ask for contact at all — the directory shows who serves and where.
  */
 async function _getPriestsList(locale?: string): Promise<PriestListItem[]> {
   try {
@@ -225,12 +232,13 @@ async function _getPriestsList(locale?: string): Promise<PriestListItem[]> {
     } as any)
     return (result.docs as any[]).map((d) => ({
       id: d.id,
+      slug: d.slug,
       fullName: d.fullName,
       title: d.title,
       status: d.status,
       assignment: d.assignment,
       photo: imgOf(d.photo),
-      parish: d.parish ? { name: d.parish.name, slug: d.parish.slug } : null,
+      parish: firstParish(d.parish),
       ordinationDate: d.ordinationDate ?? null,
     }))
   } catch (err) {
@@ -239,6 +247,115 @@ async function _getPriestsList(locale?: string): Promise<PriestListItem[]> {
   }
 }
 export const getPriestsList = cachedQuery(_getPriestsList, 'getPriestsList', ['priests'])
+
+export interface PriestMilestone {
+  milestoneType?: string | null
+  title?: string | null
+  description?: string | null
+  date?: string | null
+  datePrecision?: string | null
+  parish?: { name?: string; slug?: string } | null
+}
+
+export interface PriestGallery {
+  title?: string | null
+  images?: Array<{ image: CMSImage | null; caption?: string | null }> | null
+}
+
+export interface PriestDetail {
+  id: string
+  slug: string
+  fullName: string
+  title?: string
+  status?: string
+  assignment?: string
+  photo?: CMSImage | null
+  bio?: unknown
+  ordinationDate?: string | null
+  education?: Array<{ institution?: string; degree?: string; year?: number }> | null
+  contact?: { email?: string; phone?: string } | null
+  milestones?: PriestMilestone[] | null
+  galleries?: PriestGallery[] | null
+  parishes?: Array<{ name?: string; slug?: string }> | null
+}
+
+/**
+ * One priest's public profile.
+ *
+ * Every optional field here is genuinely optional: most records will be a name,
+ * a photograph and an assignment, and the page has to look deliberate rather
+ * than broken when that is all there is.
+ *
+ * Nothing filters visibility in this function. The afterRead hook has already
+ * deleted whatever the chancery switched off, so a section that arrives
+ * `undefined` here is one the record does not publish — which is exactly what
+ * the page should render nothing for. Keeping the check in one place means the
+ * REST API and this query cannot disagree about what is public.
+ */
+async function _getPriestBySlug(slug: string, locale?: string): Promise<PriestDetail | null> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'priests',
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 2,
+      ...(locale ? { locale } : {}),
+    } as any)
+    const d = (result.docs as any[])[0]
+    if (!d) return null
+
+    return {
+      id: d.id,
+      slug: d.slug,
+      fullName: d.fullName,
+      title: d.title,
+      status: d.status,
+      assignment: d.assignment,
+      photo: imgOf(d.photo),
+      bio: d.bio ?? null,
+      ordinationDate: d.ordinationDate ?? null,
+      education: Array.isArray(d.education) ? d.education : null,
+      contact: d.contact?.email || d.contact?.phone ? d.contact : null,
+      milestones: Array.isArray(d.milestones)
+        ? d.milestones.map((m: any) => ({
+            milestoneType: m?.milestoneType ?? null,
+            title: m?.title ?? null,
+            description: m?.description ?? null,
+            date: m?.date ?? null,
+            datePrecision: m?.datePrecision ?? null,
+            parish: firstParish(m?.parish),
+          }))
+        : null,
+      galleries: Array.isArray(d.galleries)
+        ? d.galleries
+            .map((g: any) => ({
+              title: g?.title ?? null,
+              images: (g?.images ?? [])
+                .map((entry: any) => {
+                  const image = imgOf(entry?.image)
+                  return image ? { image, caption: entry?.caption ?? null } : null
+                })
+                .filter(Boolean),
+            }))
+            // A gallery whose every photograph was withheld would otherwise
+            // render as a heading with nothing under it.
+            .filter((g: any) => g.images.length > 0)
+        : null,
+      parishes: Array.isArray(d.parish)
+        ? d.parish
+            .filter((p: any) => p && typeof p === 'object')
+            .map((p: any) => ({ name: p.name, slug: p.slug }))
+        : firstParish(d.parish)
+          ? [firstParish(d.parish)!]
+          : null,
+    }
+  } catch (err) {
+    logQueryError('getPriestBySlug', err)
+    return null
+  }
+}
+export const getPriestBySlug = cachedQuery(_getPriestBySlug, 'getPriestBySlug', ['priests'])
 
 export async function getNewsBySlug(slug: string, locale?: string): Promise<NewsDetail | null> {
   try {

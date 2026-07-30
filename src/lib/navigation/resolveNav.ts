@@ -54,6 +54,10 @@ export function defaultMainNav(t: NavTranslate): NavItem[] {
       href: '/ministries',
       children: [
         { label: t('allMinistries'), href: '/ministries' },
+        // This is the FALLBACK nav only — it renders when the Navigation global
+        // is empty. Once staff have built a menu there, adding /priests to the
+        // live site is an admin edit, not a deploy. See docs/content-admin.md.
+        { label: t('clergy'), href: '/priests' },
         { label: t('youthCouncil'), href: '/offices/youth-council' },
         { label: t('catechists'), href: '/ministries#catechists' },
         { label: t('childrenMinistry'), href: '/ministries#children' },
@@ -89,6 +93,7 @@ export function defaultMobileNav(t: NavTranslate): MobileNavItem[] {
     { label: t('news'), href: '/news' },
     { label: t('events'), href: '/events' },
     { label: t('ministries'), href: '/ministries' },
+    { label: t('clergy'), href: '/priests' },
     { label: t('youthCouncil'), href: '/offices/youth-council' },
     { label: t('catechists'), href: '/ministries#catechists' },
     { label: t('bishopMessages'), href: '/bishop-messages' },

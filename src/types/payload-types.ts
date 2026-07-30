@@ -740,6 +740,72 @@ export interface Priest {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Controls what appears on this priest’s public page. Anything switched off is removed from the website and from the public API — not just hidden from view.
+   */
+  visibility?: {
+    showBio?: boolean | null;
+    showMilestones?: boolean | null;
+    showEducation?: boolean | null;
+    showGalleries?: boolean | null;
+    /**
+     * Birth date is never published — see the field itself.
+     */
+    showDates?: boolean | null;
+    /**
+     * Off by default. Publishing a priest’s email or phone invites unsolicited contact.
+     */
+    showContact?: boolean | null;
+  };
+  /**
+   * What happened, and when. Add entries as they happen — the page orders them by date, so they need not be entered in order.
+   */
+  milestones?:
+    | {
+        milestoneType:
+          | 'birth'
+          | 'baptism'
+          | 'seminary'
+          | 'diaconate-ordination'
+          | 'priestly-ordination'
+          | 'pastoral-assignment'
+          | 'further-studies'
+          | 'curial-role'
+          | 'retirement'
+          | 'other';
+        isPublic?: boolean | null;
+        /**
+         * e.g. “Appointed Pastor of St Mary, Segheneyti”.
+         */
+        title: string;
+        date?: string | null;
+        datePrecision?: ('exact' | 'month' | 'year' | 'approximate') | null;
+        description?: string | null;
+        /**
+         * If this entry concerns a particular parish.
+         */
+        parish?: (number | null) | Parish;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Photographs grouped by occasion — an ordination, a jubilee, parish life.
+   */
+  galleries?:
+    | {
+        title: string;
+        isPublic?: boolean | null;
+        images?:
+          | {
+              image: number | Media;
+              caption?: string | null;
+              isPublic?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   parish?: (number | Parish)[] | null;
   ordinationDate?: string | null;
   birthDate?: string | null;
@@ -3512,6 +3578,43 @@ export interface PriestsSelect<T extends boolean = true> {
   photo?: T;
   assignment?: T;
   bio?: T;
+  visibility?:
+    | T
+    | {
+        showBio?: T;
+        showMilestones?: T;
+        showEducation?: T;
+        showGalleries?: T;
+        showDates?: T;
+        showContact?: T;
+      };
+  milestones?:
+    | T
+    | {
+        milestoneType?: T;
+        isPublic?: T;
+        title?: T;
+        date?: T;
+        datePrecision?: T;
+        description?: T;
+        parish?: T;
+        id?: T;
+      };
+  galleries?:
+    | T
+    | {
+        title?: T;
+        isPublic?: T;
+        images?:
+          | T
+          | {
+              image?: T;
+              caption?: T;
+              isPublic?: T;
+              id?: T;
+            };
+        id?: T;
+      };
   parish?: T;
   ordinationDate?: T;
   birthDate?: T;

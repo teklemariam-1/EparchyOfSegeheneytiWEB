@@ -3,6 +3,9 @@ import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalid
 import { isPublicRead } from '../../lib/permissions/readAccess'
 import { crud, hideUnless } from '../../lib/permissions/access'
 import { slugFieldHook } from '../../lib/payload/slugField'
+import { visibilityGroup } from './fields/visibility'
+import { milestonesField, galleriesField } from './fields/ministry'
+import { stripNonPublicPriestData } from './hooks/stripNonPublic'
 
 export const Priests: CollectionConfig = {
   slug: 'priests',
@@ -17,6 +20,10 @@ export const Priests: CollectionConfig = {
     ...crud(isPublicRead, 'priests.create', 'priests.update', 'priests.delete'),
   },
   hooks: {
+    // Strips sections and entries the chancery has switched off, for anonymous
+    // callers only. The real enforcement point — see the hook's own note on why
+    // field access cannot do this job.
+    afterRead: [stripNonPublicPriestData],
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('parishes')
@@ -91,6 +98,9 @@ export const Priests: CollectionConfig = {
       type: 'richText',
       localized: true,
     },
+    visibilityGroup,
+    milestonesField,
+    galleriesField,
     {
       name: 'parish',
       type: 'relationship',

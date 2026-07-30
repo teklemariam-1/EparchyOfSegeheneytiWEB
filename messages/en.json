@@ -29,7 +29,8 @@
     "search": "Search",
     "apps": "Apps & Downloads",
     "vicariates": "Vicariates",
-    "donate": "Donate"
+    "donate": "Donate",
+    "clergy": "Our Clergy"
   },
   "common": {
     "readMore": "Read More",
@@ -660,6 +661,18 @@
     "status": {
       "retired": "Retired",
       "on-leave": "On leave"
-    }
+    },
+    "viewProfile": "View profile",
+    "ordained": "Ordained",
+    "serves": "Serving",
+    "contactHeading": "Contact",
+    "biography": "Biography",
+    "ministryHistory": "Ministry history",
+    "education": "Education",
+    "galleries": "Photographs",
+    "photos": "photographs",
+    "untitledPhoto": "Photograph",
+    "circa": "circa",
+    "sparseProfile": "No further details have been published for this member of the clergy."
   }
 }
