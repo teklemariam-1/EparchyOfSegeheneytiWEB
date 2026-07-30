@@ -6,6 +6,8 @@ import { useEffect, useId, useRef, useState } from 'react'
 interface Child {
   label: string
   href: string
+  newTab?: boolean
+  description?: string
 }
 
 /**
@@ -100,14 +102,18 @@ export function NavDropdown({ label, items }: { label: string; items: Child[] })
       >
         {items.map((child) => (
           <Link
-            key={child.href}
+            key={`${child.label}-${child.href}`}
             href={child.href}
             role="menuitem"
             tabIndex={open ? 0 : -1}
             onClick={() => setOpen(false)}
+            {...(child.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             className="block px-4 py-2 text-sm text-charcoal-700 hover:bg-parchment hover:text-maroon-800 transition-colors focus-visible:bg-parchment focus-visible:text-maroon-800 focus-visible:outline-none"
           >
             {child.label}
+            {child.description && (
+              <span className="mt-0.5 block text-xs text-charcoal-400">{child.description}</span>
+            )}
           </Link>
         ))}
       </div>

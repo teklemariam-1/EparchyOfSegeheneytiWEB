@@ -6,15 +6,23 @@ import { MobileMenu } from './MobileMenu'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { AnnouncementBanner } from './AnnouncementBanner'
 import { DonateCTA } from '@/features/donate/DonateCTA'
-import { getHeaderGlobal, getSiteSettings } from '@/lib/payload/queries'
+import { getHeaderGlobal, getSiteSettings, getNavigationGlobal } from '@/lib/payload/queries'
+import { resolveMobileNav } from '@/lib/navigation/resolveNav'
 
 export async function SiteHeader() {
-  const [header, settings, locale, tc] = await Promise.all([
+  const [header, settings, locale, tc, tn] = await Promise.all([
     getHeaderGlobal(),
     getSiteSettings(),
     getLocale(),
     getTranslations('common'),
+    getTranslations('nav'),
   ])
+
+  // Admin-managed navigation (falls back to the built-in structure when the
+  // global is empty). MobileMenu is a client component, so the resolved list
+  // is passed down as serializable props.
+  const navGlobal = await getNavigationGlobal(locale)
+  const mobileItems = resolveMobileNav(navGlobal, tn)
 
   const logoUrl = settings.logo?.url ?? settings.logoDark?.url
   const announcement = header.announcementBanner
@@ -87,7 +95,7 @@ export async function SiteHeader() {
             </Link>
 
             {/* Mobile menu toggle */}
-            <MobileMenu />
+            <MobileMenu items={mobileItems} />
           </div>
         </div>
       </div>

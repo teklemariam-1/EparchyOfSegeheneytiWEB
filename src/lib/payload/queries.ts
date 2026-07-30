@@ -1379,20 +1379,33 @@ export const getDonationSettings = cachedQuery(_getDonationSettings, 'getDonatio
   'donation-settings',
 ])
 
+// Mirrors src/globals/Navigation — the previous shape (`items`) never matched
+// the global's actual field (`mainNav`), which is why nothing consumed it.
 export interface NavigationGlobal {
-  items?: Array<{
+  mainNav?: Array<{
     label: string
     url?: string
     openInNewTab?: boolean
-    children?: Array<{ label: string; url: string }>
-    mobileHighlight?: boolean
+    children?: Array<{
+      label: string
+      url: string
+      description?: string
+      icon?: string
+      openInNewTab?: boolean
+    }>
   }>
+  mobileExtra?: Array<{ label: string; url: string; highlight?: boolean }>
 }
 
-async function _getNavigationGlobal(): Promise<NavigationGlobal> {
+async function _getNavigationGlobal(locale?: string): Promise<NavigationGlobal> {
   try {
     const payload = await getPayload()
-    const data = await payload.findGlobal({ slug: 'navigation' } as any)
+    // Labels are localized fields; the locale must be passed (and is folded
+    // into the cache key) so each language caches its own labels.
+    const data = await payload.findGlobal({
+      slug: 'navigation',
+      ...(locale ? { locale } : {}),
+    } as any)
     return data as unknown as NavigationGlobal
   } catch {
     return {}
@@ -1491,6 +1504,7 @@ export interface BishopMessageItem {
   isFeatured?: boolean
   content?: unknown
   pdfUrl?: string
+  featuredImage?: CMSImage | null
 }
 
 async function _getLatestBishopMessage(locale?: string): Promise<BishopMessageItem | null> {
@@ -1523,6 +1537,21 @@ async function _getLatestBishopMessage(locale?: string): Promise<BishopMessageIt
 }
 export const getLatestBishopMessage = cachedQuery(_getLatestBishopMessage, 'getLatestBishopMessage', ['bishop-messages'])
 
+function mapBishopMessage(d: any): BishopMessageItem {
+  return {
+    id: d.id,
+    slug: d.slug,
+    title: d.title,
+    messageType: d.messageType,
+    excerpt: d.excerpt,
+    publishedAt: d.publishedAt,
+    isFeatured: d.isFeatured,
+    content: d.body,
+    pdfUrl: d.document?.url ?? null,
+    featuredImage: imgOf(d.featuredImage),
+  }
+}
+
 async function _getBishopMessagesList(limit = 20, locale?: string): Promise<BishopMessageItem[]> {
   try {
     const payload = await getPayload()
@@ -1534,22 +1563,82 @@ async function _getBishopMessagesList(limit = 20, locale?: string): Promise<Bish
       depth: 1,
       ...(locale ? { locale } : {}),
     } as any)
-    return (result.docs as any[]).map((d) => ({
-      id: d.id,
-      slug: d.slug,
-      title: d.title,
-      messageType: d.messageType,
-      excerpt: d.excerpt,
-      publishedAt: d.publishedAt,
-      isFeatured: d.isFeatured,
-      content: d.body,
-      pdfUrl: d.document?.url ?? null,
-    }))
+    return (result.docs as any[]).map(mapBishopMessage)
   } catch {
     return []
   }
 }
 export const getBishopMessagesList = cachedQuery(_getBishopMessagesList, 'getBishopMessagesList', ['bishop-messages'])
+
+async function _getBishopMessagesPage(opts: {
+  limit?: number
+  page?: number
+  locale?: string
+  /** Filter to one messageType (the listing's segmented control). */
+  messageType?: string
+} = {}): Promise<{ docs: BishopMessageItem[]; meta: PaginationMeta }> {
+  const { limit = 8, page = 1, locale, messageType } = opts
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'bishop-messages',
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          ...(messageType ? [{ messageType: { equals: messageType } }] : []),
+        ],
+      },
+      // Featured messages lead the magazine layout, newest first within each group.
+      sort: ['-isFeatured', '-publishedAt', '-createdAt', '-id'],
+      limit,
+      page,
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)
+    return {
+      docs: (result.docs as any[]).map(mapBishopMessage),
+      meta: {
+        page: result.page ?? 1,
+        totalDocs: result.totalDocs,
+        totalPages: result.totalPages,
+        hasPrevPage: result.hasPrevPage,
+        hasNextPage: result.hasNextPage,
+      },
+    }
+  } catch {
+    return { docs: [], meta: { page: 1, totalDocs: 0, totalPages: 0, hasPrevPage: false, hasNextPage: false } }
+  }
+}
+export const getBishopMessagesPage = cachedQuery(_getBishopMessagesPage, 'getBishopMessagesPage', ['bishop-messages'])
+
+/**
+ * Which messageTypes actually have published messages, with counts — the
+ * segmented filter only offers types that lead somewhere.
+ */
+async function _getBishopMessageTypeCounts(): Promise<Record<string, number>> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'bishop-messages',
+      where: { _status: { equals: 'published' } },
+      limit: 1000,
+      depth: 0,
+    } as any)
+    const counts: Record<string, number> = {}
+    for (const d of result.docs as any[]) {
+      const type = d.messageType ?? 'general'
+      counts[type] = (counts[type] ?? 0) + 1
+    }
+    return counts
+  } catch {
+    return {}
+  }
+}
+export const getBishopMessageTypeCounts = cachedQuery(
+  _getBishopMessageTypeCounts,
+  'getBishopMessageTypeCounts',
+  ['bishop-messages'],
+)
 
 export interface BishopMessageDetail extends BishopMessageItem {
   featuredImage?: CMSImage | null
@@ -1614,6 +1703,7 @@ export interface PopeMessageItem {
   content?: unknown
   pdfUrl?: string | null
   sourceUrl?: string
+  featuredImage?: CMSImage | null
 }
 
 /**
@@ -1636,6 +1726,7 @@ function mapPopeMessage(d: any): PopeMessageItem {
     content: d.body,
     pdfUrl: d.document?.url ?? null,
     sourceUrl: d.sourceUrl,
+    featuredImage: imgOf(d.featuredImage),
   }
 }
 
@@ -1661,13 +1752,20 @@ async function _getPopeMessagesPage(opts: {
   limit?: number
   page?: number
   locale?: string
+  /** Filter to one documentType (the listing's segmented control). */
+  documentType?: string
 } = {}): Promise<{ docs: PopeMessageItem[]; meta: PaginationMeta }> {
-  const { limit = 12, page = 1, locale } = opts
+  const { limit = 12, page = 1, locale, documentType } = opts
   try {
     const payload = await getPayload()
     const result = await payload.find({
       collection: 'pope-messages',
-      where: { _status: { equals: 'published' } },
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          ...(documentType ? [{ documentType: { equals: documentType } }] : []),
+        ],
+      },
       sort: POPE_MESSAGES_SORT,
       limit,
       page,
@@ -1689,6 +1787,35 @@ async function _getPopeMessagesPage(opts: {
   }
 }
 export const getPopeMessagesPage = cachedQuery(_getPopeMessagesPage, 'getPopeMessagesPage', ['pope-messages'])
+
+/**
+ * Which documentTypes actually have published documents, with counts — the
+ * segmented filter only offers types that lead somewhere.
+ */
+async function _getPopeMessageTypeCounts(): Promise<Record<string, number>> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'pope-messages',
+      where: { _status: { equals: 'published' } },
+      limit: 1000,
+      depth: 0,
+    } as any)
+    const counts: Record<string, number> = {}
+    for (const d of result.docs as any[]) {
+      const type = d.documentType ?? 'other'
+      counts[type] = (counts[type] ?? 0) + 1
+    }
+    return counts
+  } catch {
+    return {}
+  }
+}
+export const getPopeMessageTypeCounts = cachedQuery(
+  _getPopeMessageTypeCounts,
+  'getPopeMessageTypeCounts',
+  ['pope-messages'],
+)
 
 /** Public shape of the Current Pope global shown on /pope-messages. */
 export interface PopeSettingsData {

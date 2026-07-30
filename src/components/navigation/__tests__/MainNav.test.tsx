@@ -2,8 +2,15 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MainNav } from '../MainNav'
 
+// MainNav now reads the admin-managed Navigation global; an empty global must
+// fall back to the built-in structure these tests assert on.
+vi.mock('@/lib/payload/queries', () => ({
+  getNavigationGlobal: vi.fn().mockResolvedValue({}),
+}))
+
 // MainNav is an async server component — mock next-intl/server
 vi.mock('next-intl/server', () => ({
+  getLocale: vi.fn().mockResolvedValue('en'),
   getTranslations: vi.fn().mockImplementation(async (ns: string) => {
     const messages: Record<string, Record<string, string>> = {
       nav: {

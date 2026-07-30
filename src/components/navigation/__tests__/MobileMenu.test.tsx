@@ -43,6 +43,24 @@ vi.mock('next/link', () => ({
   ),
 }))
 
+const NAV_ITEMS = [
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/about' },
+  { label: 'Bishop', href: '/bishop' },
+  { label: 'Parishes', href: '/parishes' },
+  { label: 'News', href: '/news' },
+  { label: 'Events', href: '/events' },
+  { label: 'Ministries', href: '/ministries' },
+  { label: 'Youth Council', href: '/offices/youth-council' },
+  { label: 'Catechists', href: '/ministries#catechists' },
+  { label: "Bishop's Messages", href: '/bishop-messages' },
+  { label: 'Pope Messages', href: '/pope-messages' },
+  { label: "Ge'ez Calendar", href: '/geez-calendar' },
+  { label: 'Publications', href: '/publications' },
+  { label: 'Media', href: '/media' },
+  { label: 'Contact', href: '/contact' },
+]
+
 afterEach(() => {
   vi.clearAllMocks()
   // Reset body overflow in case a test leaves it set
@@ -51,12 +69,12 @@ afterEach(() => {
 
 describe('MobileMenu — closed state', () => {
   it('renders the open-menu toggle button', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     expect(screen.getByRole('button', { name: 'Open menu' })).toBeInTheDocument()
   })
 
   it('toggle button has aria-expanded="false" initially', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute(
       'aria-expanded',
       'false',
@@ -64,26 +82,26 @@ describe('MobileMenu — closed state', () => {
   })
 
   it('drawer dialog is not visible initially', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 })
 
 describe('MobileMenu — open state', () => {
   it('clicking the toggle button opens the drawer', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
   it('drawer has aria-modal="true"', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true')
   })
 
   it('toggle button aria-expanded becomes "true" when open', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute(
       'aria-expanded',
@@ -92,7 +110,7 @@ describe('MobileMenu — open state', () => {
   })
 
   it('renders all expected nav links in the drawer', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     const expectedLabels = [
       'Home', 'About', 'Bishop', 'Parishes', 'News', 'Events',
@@ -105,13 +123,13 @@ describe('MobileMenu — open state', () => {
   })
 
   it('renders a visible close button', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     expect(screen.getByRole('button', { name: 'Close menu' })).toBeInTheDocument()
   })
 
   it('locks body scroll when open', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     expect(document.body.style.overflow).toBe('hidden')
   })
@@ -119,7 +137,7 @@ describe('MobileMenu — open state', () => {
 
 describe('MobileMenu — closing', () => {
   it('close button dismisses the drawer', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     fireEvent.click(screen.getByRole('button', { name: 'Close menu' }))
     expect(screen.queryByRole('dialog')).toBeNull()
@@ -127,7 +145,7 @@ describe('MobileMenu — closing', () => {
 
   it('pressing Escape closes the drawer', async () => {
     const user = userEvent.setup()
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     await user.keyboard('{Escape}')
@@ -135,21 +153,21 @@ describe('MobileMenu — closing', () => {
   })
 
   it('clicking a nav link closes the drawer', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     fireEvent.click(screen.getByRole('link', { name: 'News' }))
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
   it('restores body scroll after closing', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     fireEvent.click(screen.getByRole('button', { name: 'Close menu' }))
     expect(document.body.style.overflow).toBe('')
   })
 
   it('clicking the backdrop closes the drawer', () => {
-    render(<MobileMenu />)
+    render(<MobileMenu items={NAV_ITEMS} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     fireEvent.click(screen.getByTestId('mobile-backdrop'))
     expect(screen.queryByRole('dialog')).toBeNull()

@@ -3,30 +3,15 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import type { MobileNavItem } from '@/lib/navigation/resolveNav'
 
-export function MobileMenu() {
-  const t = useTranslations('nav')
+/**
+ * Items are resolved server-side (Navigation global with built-in fallback)
+ * in SiteHeader and passed down, so this client component stays free of
+ * Payload imports.
+ */
+export function MobileMenu({ items }: { items: MobileNavItem[] }) {
   const ta = useTranslations('a11y')
-
-  const MOBILE_NAV = [
-    { label: t('home'), href: '/' },
-    { label: t('about'), href: '/about' },
-    { label: t('bishop'), href: '/bishop' },
-    { label: t('vicariates'), href: '/vicariates' },
-    { label: t('parishes'), href: '/parishes' },
-    { label: t('news'), href: '/news' },
-    { label: t('events'), href: '/events' },
-    { label: t('ministries'), href: '/ministries' },
-    { label: t('youthCouncil'), href: '/offices/youth-council' },
-    { label: t('catechists'), href: '/ministries#catechists' },
-    { label: t('bishopMessages'), href: '/bishop-messages' },
-    { label: t('apps'), href: '/apps' },
-    { label: t('popeMessages'), href: '/pope-messages' },
-    { label: t('geezCalendar'), href: '/geez-calendar' },
-    { label: t('publications'), href: '/publications' },
-    { label: t('media'), href: '/media' },
-    { label: t('contact'), href: '/contact' },
-  ]
 
   const [open, setOpen] = useState(false)
   const drawerRef = useRef<HTMLDivElement>(null)
@@ -124,12 +109,17 @@ export function MobileMenu() {
             </div>
 
             <nav className="flex-1 px-2 py-4 space-y-0.5" aria-label={ta('mobileNavigation')}>
-              {MOBILE_NAV.map((item) => (
+              {items.map((item) => (
                 <Link
-                  key={item.href}
+                  key={`${item.label}-${item.href}`}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-lg px-4 py-2.5 text-sm font-medium text-charcoal-700 hover:bg-parchment hover:text-maroon-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-maroon-700"
+                  {...(item.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  className={
+                    item.highlight
+                      ? 'block rounded-lg px-4 py-2.5 text-sm font-semibold text-white bg-maroon-800 hover:bg-maroon-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold-400'
+                      : 'block rounded-lg px-4 py-2.5 text-sm font-medium text-charcoal-700 hover:bg-parchment hover:text-maroon-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-maroon-700'
+                  }
                 >
                   {item.label}
                 </Link>
