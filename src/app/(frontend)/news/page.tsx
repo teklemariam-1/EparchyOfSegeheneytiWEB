@@ -34,11 +34,18 @@ export const dynamic = 'force-dynamic'
  */
 const PAGE_SIZE = 12
 
-export const metadata: Metadata = buildMetadata({
-  title: 'News',
-  description: 'Latest news and announcements from the Catholic Eparchy of Segheneyti.',
-  path: '/news',
-})
+export const metadata: Metadata = {
+  ...buildMetadata({
+    title: 'News',
+    description: 'Latest news and announcements from the Catholic Eparchy of Segheneyti.',
+    path: '/news',
+  }),
+  // Feed autodiscovery: readers and browser extensions find /news/rss.xml from
+  // this <link rel="alternate"> without anyone pasting the URL.
+  alternates: {
+    types: { 'application/rss+xml': '/news/rss.xml' },
+  },
+}
 
 /** Fallback if the News Categories collection is empty/unreachable. */
 const DEFAULT_CATEGORIES = [
