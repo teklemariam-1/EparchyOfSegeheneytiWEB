@@ -84,6 +84,10 @@
 		flex-direction: column;
 		gap: 18px;
 		justify-content: center;
+		/* The crest below is the dominant element; centring the whole column is
+		   what makes a large mark read as identity rather than decoration. */
+		align-items: center;
+		text-align: center;
 	}
 
 	.admin-auth-shell__brand::after {
@@ -98,16 +102,22 @@
 	}
 
 	.admin-auth-shell__crest {
-		width: 68px;
-		height: 68px;
+		/* Half the brand panel, per the design brief: the eparchy's mark IS the
+		   identity of this screen. aspect-ratio keeps the circle a circle at
+		   every width; the clamp keeps it sane from laptop to ultrawide. */
+		width: clamp(160px, 50%, 280px);
+		aspect-ratio: 1;
+		height: auto;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
-		border: 1px solid rgba(255, 255, 255, 0.24);
-		background: rgba(255, 255, 255, 0.08);
-		font-size: 1.6rem;
-		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+		border: 2px solid rgba(228, 197, 125, 0.45);
+		background: rgba(255, 255, 255, 0.1);
+		font-size: clamp(3rem, 8vw, 5rem);
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.12),
+			0 12px 40px rgba(0, 0, 0, 0.25);
 		overflow: hidden;
 	}
 
@@ -117,7 +127,8 @@
 		width: 100%;
 		height: 100%;
 		object-fit: contain;
-		padding: 8px;
+		/* Proportional breathing room — 8px looked right at 68px, not at 280px. */
+		padding: 8%;
 		background: #fff;
 	}
 
@@ -155,6 +166,10 @@
 		list-style: none;
 		display: grid;
 		gap: 12px;
+		/* The column is centred; the list keeps left-aligned text inside a
+		   centred block so the bullets still line up. */
+		text-align: left;
+		max-width: 34ch;
 	}
 
 	.admin-auth-shell__highlights li {
@@ -191,8 +206,8 @@
 	}
 
 	.admin-auth-shell__badge {
-		width: 48px;
-		height: 48px;
+		width: 60px;
+		height: 60px;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -514,6 +529,17 @@
 		.admin-auth-shell__brand {
 			padding-bottom: 28px;
 		}
+
+		/* Stacked above the card now: the crest stays prominent but must not
+		   push the form below the fold on a tablet. */
+		.admin-auth-shell__crest {
+			width: clamp(110px, 28vw, 160px);
+		}
+
+		/* The brand text is secondary on small screens — the form is the job. */
+		.admin-auth-shell__highlights {
+			display: none;
+		}
 	}
 
 	@media (max-width: 640px) {
@@ -541,6 +567,16 @@
 
 		.admin-auth-shell__brandTitle {
 			font-size: 2rem;
+		}
+
+		/* 360px phones: identity mark, then straight to the form. */
+		.admin-auth-shell__crest {
+			width: clamp(88px, 30vw, 120px);
+			font-size: 2.4rem;
+		}
+
+		.admin-auth-shell__brandText {
+			display: none;
 		}
 
 		.admin-auth-links--spread {
