@@ -613,3 +613,145 @@
 		margin: 14mm 12mm;
 	}
 }
+
+/* ── Media library view modes ─────────────────────────────────────────────────
+ * The MediaViewToggle component (beforeListTable on the Media collection)
+ * stamps data-media-view on the list wrapper; these rules re-style Payload's
+ * table into thumbnail grids of three densities. "details" (or no attribute)
+ * leaves the native table untouched.
+ */
+@layer payload {
+	.media-view-toggle {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin-bottom: 12px;
+	}
+	.media-view-toggle__label {
+		font-size: 12px;
+		color: var(--theme-elevation-500);
+		margin-right: 2px;
+	}
+	.media-view-toggle__btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 5px 11px;
+		font-size: 12px;
+		border: 1px solid var(--theme-elevation-150);
+		border-radius: 999px;
+		background: var(--theme-elevation-0);
+		color: var(--theme-elevation-650);
+		cursor: pointer;
+		transition: background 0.15s, color 0.15s, border-color 0.15s;
+	}
+	.media-view-toggle__btn:hover {
+		border-color: var(--theme-elevation-300);
+		color: var(--theme-elevation-800);
+	}
+	.media-view-toggle__btn--active {
+		background: var(--theme-elevation-800);
+		border-color: var(--theme-elevation-800);
+		color: var(--theme-elevation-0);
+	}
+
+	/* Tile sizing per density */
+	[data-media-view='large'] {
+		--media-tile: 240px;
+		--media-tile-h: 200px;
+	}
+	[data-media-view='medium'] {
+		--media-tile: 165px;
+		--media-tile-h: 130px;
+	}
+	[data-media-view='small'] {
+		--media-tile: 110px;
+		--media-tile-h: 84px;
+	}
+
+	/* Turn the table into a grid of cards in the three grid modes */
+	[data-media-view='large'] .table table,
+	[data-media-view='medium'] .table table,
+	[data-media-view='small'] .table table {
+		display: block;
+	}
+	[data-media-view='large'] .table thead,
+	[data-media-view='medium'] .table thead,
+	[data-media-view='small'] .table thead {
+		display: none;
+	}
+	[data-media-view='large'] .table tbody,
+	[data-media-view='medium'] .table tbody,
+	[data-media-view='small'] .table tbody {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(var(--media-tile), 1fr));
+		gap: 12px;
+	}
+	[data-media-view='large'] .table tbody tr,
+	[data-media-view='medium'] .table tbody tr,
+	[data-media-view='small'] .table tbody tr {
+		display: block;
+		border: 1px solid var(--theme-elevation-100);
+		border-radius: 8px;
+		overflow: hidden;
+		background: var(--theme-elevation-0);
+		transition: box-shadow 0.15s, border-color 0.15s;
+	}
+	[data-media-view='large'] .table tbody tr:hover,
+	[data-media-view='medium'] .table tbody tr:hover,
+	[data-media-view='small'] .table tbody tr:hover {
+		border-color: var(--theme-elevation-250);
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+	}
+	/* Hide every cell except the file cell (thumbnail + filename) */
+	[data-media-view='large'] .table tbody td,
+	[data-media-view='medium'] .table tbody td,
+	[data-media-view='small'] .table tbody td {
+		display: none;
+	}
+	[data-media-view='large'] .table tbody td.cell-filename,
+	[data-media-view='medium'] .table tbody td.cell-filename,
+	[data-media-view='small'] .table tbody td.cell-filename {
+		display: block;
+		padding: 0;
+		border: none;
+	}
+	[data-media-view='large'] .cell-filename .file,
+	[data-media-view='medium'] .cell-filename .file,
+	[data-media-view='small'] .cell-filename .file {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0;
+	}
+	[data-media-view='large'] .cell-filename .file .thumbnail,
+	[data-media-view='medium'] .cell-filename .file .thumbnail,
+	[data-media-view='small'] .cell-filename .file .thumbnail {
+		width: 100%;
+		height: var(--media-tile-h);
+		border-radius: 0;
+		background: var(--theme-elevation-50);
+	}
+	[data-media-view='large'] .cell-filename .file .thumbnail img,
+	[data-media-view='medium'] .cell-filename .file .thumbnail img,
+	[data-media-view='small'] .cell-filename .file .thumbnail img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	[data-media-view='large'] .cell-filename .file__filename,
+	[data-media-view='medium'] .cell-filename .file__filename,
+	[data-media-view='small'] .cell-filename .file__filename {
+		font-size: 11.5px;
+		line-height: 1.35;
+		padding: 6px 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		color: var(--theme-elevation-650);
+	}
+	/* Small tiles: thumbnails only, filename on hover via title attr */
+	[data-media-view='small'] .cell-filename .file__filename {
+		display: none;
+	}
+}

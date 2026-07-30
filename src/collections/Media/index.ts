@@ -43,6 +43,11 @@ export const Media: CollectionConfig = {
     group: 'Content',
     useAsTitle: 'filename',
     description: 'Images, documents, and other media assets.',
+    components: {
+      // View-style buttons (Details / Large / Medium / Small) above the list;
+      // the grid styling lives in admin/custom.css under [data-media-view].
+      beforeListTable: ['@/components/admin/MediaViewToggle#MediaViewToggle'],
+    },
   },
   access: {
     // Public visitors and editors without media.view-restricted can only read
