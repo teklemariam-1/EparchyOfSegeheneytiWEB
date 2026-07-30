@@ -374,7 +374,9 @@
   },
   "about": {
     "title": "About the Eparchy",
-    "subtitle": "Learn about the history, mission, and structure of the Catholic Eparchy of Segheneyti."
+    "subtitle": "Learn about the history, mission, and structure of the Catholic Eparchy of Segheneyti.",
+    "structureTitle": "Structure of the Eparchy",
+    "structureIntro": "The offices of the eparchy and how they serve under the Eparch. Select an office for its work, announcements and contacts."
   },
   "privacy": {
     "title": "Privacy & Cookies",

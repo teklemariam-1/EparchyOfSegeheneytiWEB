@@ -7,6 +7,7 @@ import { buildMetadata } from '@/lib/seo/buildMetadata'
 import Link from 'next/link'
 import { getHomepageGlobal, getAboutPageGlobal } from '@/lib/payload/queries'
 import { getActiveBishop } from '@/lib/bishops/queries'
+import { EparchyStructure } from '@/features/about/EparchyStructure'
 import { getLocale, getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = buildMetadata({
@@ -218,6 +219,11 @@ export default async function AboutPage() {
           </ol>
         </Container>
       </Section>
+
+      {/* ── Structure of the Eparchy ────────────────────────────────────────
+          Admin-shaped office tree; renders nothing until staff configure the
+          Structure fields on Offices. */}
+      <EparchyStructure />
 
       {/* ── Ge'ez Rite note ─────────────────────────────────────────────── */}
       <Section className="bg-maroon-800 text-white">

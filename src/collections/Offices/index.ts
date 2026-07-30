@@ -81,6 +81,44 @@ export const Offices: CollectionConfig = {
       admin: { description: 'Main description of the office and its work.' },
     },
     {
+      // ── Where this office sits in the eparchy's structure ──────────────────
+      // Drives the "Structure of the Eparchy" tree on the About page. Optional
+      // on purpose: an office with no parent set and no children simply stays
+      // out of the tree, so nothing half-configured shows publicly.
+      name: 'structure',
+      type: 'group',
+      label: 'Structure of the Eparchy',
+      admin: {
+        description:
+          'Where this office sits in the organisational tree shown on the About page. Leave empty to keep it out of the tree.',
+      },
+      fields: [
+        {
+          name: 'parent',
+          type: 'relationship',
+          relationTo: 'offices',
+          admin: {
+            description:
+              'The office this one answers to. The top office (the Eparch’s) has no parent.',
+          },
+          // A self-parent is the smallest possible cycle; refuse it at entry.
+          // Longer cycles (A→B→A) cannot be validated field-locally and are
+          // handled by the tree builder, which detects and breaks them.
+          validate: (value: unknown, { id }: { id?: unknown }) => {
+            if (value !== null && value !== undefined && id !== undefined && String(value) === String(id)) {
+              return 'An office cannot answer to itself.'
+            }
+            return true
+          },
+        },
+        {
+          name: 'structureOrder',
+          type: 'number',
+          admin: { description: 'Order among siblings. Lower numbers first.' },
+        },
+      ],
+    },
+    {
       name: 'leader',
       type: 'group',
       label: 'Coordinator / Contact',

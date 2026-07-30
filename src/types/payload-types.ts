@@ -1119,6 +1119,19 @@ export interface Office {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Where this office sits in the organisational tree shown on the About page. Leave empty to keep it out of the tree.
+   */
+  structure?: {
+    /**
+     * The office this one answers to. The top office (the Eparch’s) has no parent.
+     */
+    parent?: (number | null) | Office;
+    /**
+     * Order among siblings. Lower numbers first.
+     */
+    structureOrder?: number | null;
+  };
   leader?: {
     name?: string | null;
     role?: string | null;
@@ -3306,6 +3319,12 @@ export interface OfficesSelect<T extends boolean = true> {
   featuredImage?: T;
   tagline?: T;
   about?: T;
+  structure?:
+    | T
+    | {
+        parent?: T;
+        structureOrder?: T;
+      };
   leader?:
     | T
     | {

@@ -2292,6 +2292,42 @@ function mapOfficeBase(d: any): OfficeListItem {
   }
 }
 
+/**
+ * Offices with their structure links, for the About page's tree. Raw rows —
+ * the tree itself is built by lib/offices/structureTree, which owns the
+ * cycle handling.
+ */
+async function _getOfficesStructure(locale?: string): Promise<import('../offices/structureTree').StructureOffice[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'offices',
+      where: { _status: { equals: 'published' } },
+      limit: 100,
+      depth: 0,
+      ...(locale ? { locale } : {}),
+    } as any)
+    return (result.docs as any[]).map((d) => {
+      const rawParent = d.structure?.parent
+      const parentId = rawParent == null ? null : String(typeof rawParent === 'object' ? rawParent.id : rawParent)
+      return {
+        id: String(d.id),
+        slug: d.slug,
+        name: d.name ?? d.slug,
+        leaderName: d.leader?.name ?? undefined,
+        leaderRole: d.leader?.role ?? undefined,
+        parentId,
+        structureOrder: d.structure?.structureOrder ?? null,
+        inStructure: parentId !== null || d.structure?.structureOrder != null,
+      }
+    })
+  } catch (err) {
+    logQueryError('getOfficesStructure', err)
+    return []
+  }
+}
+export const getOfficesStructure = cachedQuery(_getOfficesStructure, 'getOfficesStructure', ['offices'])
+
 async function _getOfficesList(locale?: string): Promise<OfficeListItem[]> {
   try {
     const payload = await getPayload()

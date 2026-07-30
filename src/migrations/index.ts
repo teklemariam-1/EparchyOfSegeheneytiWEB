@@ -45,6 +45,7 @@ import * as migration_20260730_050054_newsletter_sends from './20260730_050054_n
 import * as migration_20260730_060939_translation_fields from './20260730_060939_translation_fields';
 import * as migration_20260730_120000_navigation_seed from './20260730_120000_navigation_seed';
 import * as migration_20260730_132149_banner_theme_colors from './20260730_132149_banner_theme_colors';
+import * as migration_20260730_154412_office_structure from './20260730_154412_office_structure';
 
 export const migrations = [
   {
@@ -280,6 +281,11 @@ export const migrations = [
   {
     up: migration_20260730_132149_banner_theme_colors.up,
     down: migration_20260730_132149_banner_theme_colors.down,
-    name: '20260730_132149_banner_theme_colors'
+    name: '20260730_132149_banner_theme_colors',
+  },
+  {
+    up: migration_20260730_154412_office_structure.up,
+    down: migration_20260730_154412_office_structure.down,
+    name: '20260730_154412_office_structure'
   },
 ];
