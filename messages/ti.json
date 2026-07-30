@@ -619,5 +619,19 @@
       "thanksgiving": "ንምስጋና",
       "special": "ፍሉይ ሕሊና"
     }
+  },
+  "clergy": {
+    "title": "ካህናትና",
+    "subtitle": "ንሃገረ ስብከትን ኣብያተ ክርስትያናቱን ዘገልግሉ ካህናትን ዲያቆናትን።",
+    "emptyTitle": "መዝገብ ኣብ ቀረባ እዋን",
+    "emptyDescription": "መዝገብ ካህናት ኣብ ምድላው ይርከብ።",
+    "formerHeading": "ጡረታ ዝወጹን ኣብ ዕረፍቲ ዘለዉን",
+    "viewParish": "ቤተ ክርስትያን ርአ",
+    "contactNote": "ንሓደ ካህን ንምርካብ፡ በጃኹም ብቤተ ክርስትያኑ ወይ ብቤት ጽሕፈት ሃገረ ስብከት ተወከሱ ብ",
+    "contactLink": "ገጽ መወከሲ።",
+    "status": {
+      "retired": "ጡረታ ዝወጸ",
+      "on-leave": "ኣብ ዕረፍቲ"
+    }
   }
 }

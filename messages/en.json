@@ -619,5 +619,19 @@
       "thanksgiving": "Thanksgiving",
       "special": "A special intention"
     }
+  },
+  "clergy": {
+    "title": "Our Clergy",
+    "subtitle": "The priests and deacons serving the Eparchy and its parishes.",
+    "emptyTitle": "Directory coming soon",
+    "emptyDescription": "The clergy directory is being prepared.",
+    "formerHeading": "Retired & on leave",
+    "viewParish": "View parish",
+    "contactNote": "To reach a member of the clergy, please contact their parish or the chancery through the",
+    "contactLink": "contact page.",
+    "status": {
+      "retired": "Retired",
+      "on-leave": "On leave"
+    }
   }
 }

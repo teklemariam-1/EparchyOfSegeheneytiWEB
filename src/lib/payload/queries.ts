@@ -190,6 +190,56 @@ async function _getNewsYears(): Promise<number[]> {
 }
 export const getNewsYears = cachedQuery(_getNewsYears, 'getNewsYears', ['news'])
 
+export interface PriestListItem {
+  id: string
+  fullName: string
+  title?: string
+  status?: string
+  assignment?: string
+  photo?: CMSImage | null
+  parish?: { name?: string; slug?: string } | null
+  ordinationDate?: string | null
+}
+
+/**
+ * Clergy for the public directory, active first.
+ *
+ * DELIBERATELY EXCLUDES contact details. The collection holds each priest's
+ * email and phone, but whether those belong on the public internet is the
+ * chancery's call, not a default — clergy get enough unsolicited contact as it
+ * is. Until that decision is made, the directory shows who serves and where;
+ * reaching them goes through the parish or the chancery contact page.
+ */
+async function _getPriestsList(locale?: string): Promise<PriestListItem[]> {
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'priests',
+      // Deceased clergy belong to parish history pages, not a directory of
+      // who currently serves.
+      where: { status: { not_equals: 'deceased' } },
+      sort: 'fullName',
+      limit: 200,
+      depth: 1,
+      ...(locale ? { locale } : {}),
+    } as any)
+    return (result.docs as any[]).map((d) => ({
+      id: d.id,
+      fullName: d.fullName,
+      title: d.title,
+      status: d.status,
+      assignment: d.assignment,
+      photo: imgOf(d.photo),
+      parish: d.parish ? { name: d.parish.name, slug: d.parish.slug } : null,
+      ordinationDate: d.ordinationDate ?? null,
+    }))
+  } catch (err) {
+    logQueryError('getPriestsList', err)
+    return []
+  }
+}
+export const getPriestsList = cachedQuery(_getPriestsList, 'getPriestsList', ['priests'])
+
 export async function getNewsBySlug(slug: string, locale?: string): Promise<NewsDetail | null> {
   try {
     const payload = await getPayload()

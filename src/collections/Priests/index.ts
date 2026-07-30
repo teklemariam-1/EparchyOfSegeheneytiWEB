@@ -20,7 +20,10 @@ export const Priests: CollectionConfig = {
     afterChange: [
       ({ doc }) => {
         safeRevalidateTag('parishes')
+        // The clergy directory caches under its own tag.
+        safeRevalidateTag('priests')
         safeRevalidatePath(`/parishes`)
+        safeRevalidatePath('/priests')
       },
     ],
   },
