@@ -53,7 +53,16 @@
     "previous": "ቐዲሙ",
     "page": "ገጽ",
     "of": "ካብ",
-    "downloadPDF": "PDF ኣውርድ"
+    "downloadPDF": "PDF ኣውርድ",
+    "shareThisPage": "እዚ ገጽ ኣካፍል",
+    "shareFacebook": "ብፌስቡክ ኣካፍል",
+    "shareX": "ብX ኣካፍል",
+    "shareWhatsApp": "ብዋትስኣፕ ኣካፍል",
+    "shareTelegram": "ብቴሌግራም ኣካፍል",
+    "shareEmail": "ብኢመይል ስደድ",
+    "sharePrint": "ሕተም",
+    "shareCopyLink": "መላግቦ ቅዳሕ",
+    "shareCopied": "ተቐዲሑ!"
   },
   "a11y": {
     "skipToMain": "ናብ ቀንዲ ትሕዝቶ ስዓር",
@@ -426,7 +435,14 @@
         "label": "ሰበካ ርኸቡ",
         "desc": "ናብ ዝቐረበኩም ሰበካ ርኸቡ"
       }
-    }
+    },
+    "textSize": "ዓቐን ፊደል",
+    "textSizeHelp": "ዓንቀጻትን መልእኽትታትን ንምንባብ ዝቐለለ ግበሮም።",
+    "textSizeLabel": "ዓቐን ፊደል ንንባብ",
+    "textSizeNote": "ንዓንቀጻትን መልእኽትታትን እዩ ዝምልከት። መምረጺታትን መልጎማትን ከምዘለዉ ይጸንሑ።",
+    "textSize_normal": "ንቡር",
+    "textSize_large": "ዓቢ",
+    "textSize_larger": "ዝዓበየ"
   },
   "donate": {
     "title": "ንኤጳርቅ ደግፉ",

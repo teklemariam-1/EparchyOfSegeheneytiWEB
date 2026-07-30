@@ -53,7 +53,16 @@
     "previous": "Previous",
     "page": "Page",
     "of": "of",
-    "downloadPDF": "Download PDF"
+    "downloadPDF": "Download PDF",
+    "shareThisPage": "Share this page",
+    "shareFacebook": "Share on Facebook",
+    "shareX": "Share on X",
+    "shareWhatsApp": "Share on WhatsApp",
+    "shareTelegram": "Share on Telegram",
+    "shareEmail": "Share by email",
+    "sharePrint": "Print",
+    "shareCopyLink": "Copy link",
+    "shareCopied": "Copied!"
   },
   "a11y": {
     "skipToMain": "Skip to main content",
@@ -406,7 +415,14 @@
         "label": "Find a Parish",
         "desc": "Locate your nearest parish"
       }
-    }
+    },
+    "textSize": "Text size",
+    "textSizeHelp": "Make articles and messages easier to read.",
+    "textSizeLabel": "Reading text size",
+    "textSizeNote": "Applies to articles and messages. Menus and buttons stay the same size.",
+    "textSize_normal": "Normal",
+    "textSize_large": "Large",
+    "textSize_larger": "Larger"
   },
   "vicariates": {
     "title": "Vicariates",

@@ -3,6 +3,8 @@ import React from 'react'
 import { Inter, Noto_Serif_Ethiopic } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
+import { cookies } from 'next/headers'
+import { TEXT_SCALE_COOKIE, parseTextScale } from '@/lib/textScale'
 import { SiteHeader } from '@/components/navigation/SiteHeader'
 import { SiteFooter } from '@/components/navigation/SiteFooter'
 import { SkipNav } from '@/components/shared/SkipNav'
@@ -57,11 +59,12 @@ export default async function FrontendLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [locale, settings, messages, bannerSettings] = await Promise.all([
+  const [locale, settings, messages, bannerSettings, cookieStore] = await Promise.all([
     getLocale(),
     getSiteSettings(),
     getMessages(),
     getBannerSettings(),
+    cookies(),
   ])
   const ga4Id = settings.analytics?.ga4Id
   const gtmId = settings.analytics?.gtmId
@@ -83,13 +86,19 @@ export default async function FrontendLayout({
       : {}),
   } as React.CSSProperties
 
+  // Reader text-size preference. Server-read so the chosen size is in the
+  // first byte of HTML — no flash, no hydration shift. parseTextScale is an
+  // allow-list; a crafted cookie value cannot reach this style attribute.
+  const contentScale = parseTextScale(cookieStore.get(TEXT_SCALE_COOKIE)?.value)
+  const rootVars = { ...bannerVars, '--content-scale': contentScale } as React.CSSProperties
+
   return (
     <html
       lang={locale}
       className={`${inter.variable} ${notoSerifEthiopic.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-parchment text-charcoal-800 antialiased" style={bannerVars}>
+      <body className="bg-parchment text-charcoal-800 antialiased" style={rootVars}>
         <NextIntlClientProvider messages={messages}>
           {/* Cookie consent — also owns the analytics scripts, so GTM/GA4 are
               only ever injected after the visitor explicitly accepts. */}

@@ -1,13 +1,19 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 /**
- * Social share row for articles: Facebook, X, WhatsApp, Telegram, email,
- * copy-link and print. Uses the current page URL at click time, so it works
- * on any article without prop drilling the absolute URL.
+ * Social share row for articles and events: Facebook, X, WhatsApp, Telegram,
+ * email, copy-link and print. Uses the current page URL at click time, so it
+ * works on any page without prop drilling the absolute URL.
+ *
+ * Labels come from the `common` catalogue: this renders on Tigrinya pages, and
+ * the hardcoded English aria-labels were the one part of the row a
+ * screen-reader user in Tigrinya would hit.
  */
 export function ShareButtons({ title }: { title: string }) {
+  const t = useTranslations('common')
   const [copied, setCopied] = useState(false)
 
   const url = () => (typeof window !== 'undefined' ? window.location.href : '')
@@ -17,16 +23,16 @@ export function ShareButtons({ title }: { title: string }) {
   const open = (href: string) => window.open(href, '_blank', 'noopener,noreferrer,width=640,height=540')
 
   const buttons: Array<{ label: string; icon: string; onClick: () => void }> = [
-    { label: 'Share on Facebook', icon: 'f', onClick: () => open(`https://www.facebook.com/sharer/sharer.php?u=${enc()}`) },
-    { label: 'Share on X', icon: '𝕏', onClick: () => open(`https://twitter.com/intent/tweet?url=${enc()}&text=${encTitle}`) },
-    { label: 'Share on WhatsApp', icon: '✆', onClick: () => open(`https://wa.me/?text=${encTitle}%20${enc()}`) },
-    { label: 'Share on Telegram', icon: '➤', onClick: () => open(`https://t.me/share/url?url=${enc()}&text=${encTitle}`) },
-    { label: 'Share by email', icon: '✉', onClick: () => { window.location.href = `mailto:?subject=${encTitle}&body=${enc()}` } },
-    { label: 'Print', icon: '⎙', onClick: () => window.print() },
+    { label: t('shareFacebook'), icon: 'f', onClick: () => open(`https://www.facebook.com/sharer/sharer.php?u=${enc()}`) },
+    { label: t('shareX'), icon: '𝕏', onClick: () => open(`https://twitter.com/intent/tweet?url=${enc()}&text=${encTitle}`) },
+    { label: t('shareWhatsApp'), icon: '✆', onClick: () => open(`https://wa.me/?text=${encTitle}%20${enc()}`) },
+    { label: t('shareTelegram'), icon: '➤', onClick: () => open(`https://t.me/share/url?url=${enc()}&text=${encTitle}`) },
+    { label: t('shareEmail'), icon: '✉', onClick: () => { window.location.href = `mailto:?subject=${encTitle}&body=${enc()}` } },
+    { label: t('sharePrint'), icon: '⎙', onClick: () => window.print() },
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-2 print:hidden" aria-label="Share this article">
+    <div className="flex flex-wrap items-center gap-2 print:hidden" aria-label={t('shareThisPage')}>
       {buttons.map((b) => (
         <button
           key={b.label}
@@ -53,7 +59,7 @@ export function ShareButtons({ title }: { title: string }) {
         className="flex h-9 items-center gap-1.5 rounded-full border border-charcoal-200 px-3 text-xs font-medium text-charcoal-500 transition-colors hover:border-maroon-400 hover:bg-maroon-50 hover:text-maroon-800"
       >
         <span aria-hidden="true">🔗</span>
-        {copied ? 'Copied!' : 'Copy link'}
+        {copied ? t('shareCopied') : t('shareCopyLink')}
       </button>
     </div>
   )

@@ -46,9 +46,8 @@
      Tailwind sizing and never scales, so the controls stay put while the words
      grow.
 
-     NOTE: no settings UI writes --content-scale yet; it defaults to 1, which
-     leaves rendering exactly as designed. Adding a control later means setting
-     the variable on :root — no component changes.
+     The /settings text-size control writes the cookie; the layout sets the
+     variable on <body>. Default 1 leaves rendering exactly as designed.
 
      clamp() handles the responsive range (≈1.9rem mobile → 2.4rem desktop)
      without breakpoint classes, so the scale multiplier composes cleanly. */
@@ -72,6 +71,16 @@
 
   .news-headline-card:lang(ti) {
     line-height: 1.7;
+  }
+
+  /* ── Reader text-size preference ──────────────────────────────────────────
+     --content-scale is set on <body> by the layout, from the cookie the
+     /settings control writes. Article bodies scale from their root font-size —
+     the typography plugin sizes everything else in em, so one rule scales the
+     whole reading column. Chrome (nav, buttons, forms) deliberately keeps its
+     fixed sizes: the aim is comfortable reading, not a zoomed interface. */
+  .prose {
+    font-size: calc(1rem * var(--content-scale, 1));
   }
 
   /* Card base */

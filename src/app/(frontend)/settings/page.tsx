@@ -4,6 +4,9 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { Container } from '@/components/layout/Container'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { LanguageSwitcher } from '@/components/navigation/LanguageSwitcher'
+import { TextSizeControl } from '@/components/shared/TextSizeControl'
+import { cookies } from 'next/headers'
+import { TEXT_SCALE_COOKIE } from '@/lib/textScale'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 
 export const metadata: Metadata = buildMetadata({
@@ -13,6 +16,8 @@ export const metadata: Metadata = buildMetadata({
 
 export default async function SettingsPage() {
   const locale = await getLocale()
+  // The active choice, so the control can mark its button on first paint.
+  const textScale = (await cookies()).get(TEXT_SCALE_COOKIE)?.value
   const [t, tn] = await Promise.all([getTranslations('settings'), getTranslations('nav')])
 
   const quickLinks = [
@@ -50,6 +55,21 @@ export default async function SettingsPage() {
                   </p>
                 </div>
                 <LanguageSwitcher currentLocale={locale} />
+              </div>
+            </div>
+
+            {/* Text size */}
+            <div className="bg-white rounded-2xl shadow-card border border-charcoal-100 overflow-hidden">
+              <div className="px-6 py-4 border-b border-charcoal-100 bg-maroon-50">
+                <h2 className="text-base font-semibold text-maroon-900 font-serif">{t('textSize')}</h2>
+                <p className="text-sm text-charcoal-500 mt-0.5">{t('textSizeHelp')}</p>
+              </div>
+              <div className="px-6 py-5 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-charcoal-700">{t('textSizeLabel')}</p>
+                  <p className="text-xs text-charcoal-400 mt-0.5">{t('textSizeNote')}</p>
+                </div>
+                <TextSizeControl current={textScale} />
               </div>
             </div>
 

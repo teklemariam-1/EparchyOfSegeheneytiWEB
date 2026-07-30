@@ -11,6 +11,7 @@ import { formatDate, formatDateRange } from '@/lib/formatters/date'
 import { dateParts } from '@/lib/formatters/eventTime'
 import { EventTime } from '@/features/events/EventTime'
 import { LiturgyVideo } from '@/features/events/LiturgyVideo'
+import { ShareButtons } from '@/components/shared/ShareButtons'
 import { RichText } from '@/components/shared/RichText'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { eventSchema } from '@/lib/seo/structuredData'
@@ -167,6 +168,13 @@ export default async function EventDetailPage({ params }: Props) {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Sharing an event — "come to the Fasika liturgy", with the
+                  watch link — is the diaspora share that matters most, and the
+                  message pages already carry this same row. */}
+              <div className="mb-6">
+                <ShareButtons title={ev.title} />
               </div>
 
               {/* The stream or recording, above the text: someone who came to
