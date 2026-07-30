@@ -129,8 +129,8 @@ export default async function EventDetailPage({ params }: Props) {
                         <EventTime
                           iso={ev.startDate}
                           locale={locale}
-                          anchorLabel={(time) => t('timeInAsmara', { time })}
-                          viewerLabel={(time) => t('timeYourLocal', { time })}
+                          anchorTemplate={t.raw('timeInAsmara')}
+                          viewerTemplate={t.raw('timeYourLocal')}
                         />
                       </span>
                     )}

@@ -54,7 +54,9 @@ export default async function EventsPage({
   const t = await getTranslations('events')
   const [{ docs: upcoming }, { docs: past }, managedTypes] = await Promise.all([
     getEventsList({ upcoming: true, limit: 12, eventType: type, locale }),
-    getEventsList({ upcoming: false, limit: 8, eventType: type, locale }),
+    // Filtered server-side: `upcoming: false` used to return ALL events newest
+    // first, so the 8-row archive budget was mostly eaten by upcoming events.
+    getEventsList({ past: true, limit: 8, eventType: type, locale }),
     getEventTypes(),
   ])
 
@@ -66,11 +68,7 @@ export default async function EventsPage({
   const isFiltered = Boolean(type && type !== 'all')
 
   const upcomingCards = upcoming.map((ev) => toCard(ev, false))
-  // Past = events with startDate in the past
-  const now = new Date()
-  const pastCards = past
-    .filter((ev) => new Date(ev.startDate) < now)
-    .map((ev) => toCard(ev, true))
+  const pastCards = past.map((ev) => toCard(ev, true))
 
   return (
     <>
@@ -99,7 +97,7 @@ export default async function EventsPage({
           </div>
 
           {upcomingCards.length > 0 ? (
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {upcomingCards.map((ev) => (
                 <EventCard key={ev.slug} event={ev} />
               ))}
@@ -124,7 +122,7 @@ export default async function EventsPage({
             <h2 className="text-xl font-serif font-semibold text-charcoal-900 mb-6">
               {t('sectionPast')}
             </h2>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {pastCards.map((ev) => (
                 <EventCard key={ev.slug} event={ev} />
               ))}

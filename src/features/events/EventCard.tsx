@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/Badge'
-import { formatDate } from '@/lib/formatters/date'
 import { dateParts } from '@/lib/formatters/eventTime'
 import { cn } from '@/lib/utils'
 
@@ -33,6 +32,12 @@ interface EventCardProps {
   className?: string
 }
 
+/**
+ * Image-forward event card: the featured image (or a quiet parchment wash when
+ * none is set) crowns the card, with the Asmara-zone date badge anchored on
+ * it, and the details below. Past events render dimmed and desaturated so the
+ * archive section reads as history at a glance.
+ */
 export function EventCard({ event, className }: EventCardProps) {
   // Resolved in the eparchy's timezone, not the renderer's. `new Date(...)` plus
   // getDate() returned the day in whichever zone the code ran in — UTC on the
@@ -42,6 +47,7 @@ export function EventCard({ event, className }: EventCardProps) {
   const parts = dateParts(event.startDate)
   const month = parts?.month ?? ''
   const day = parts?.day ?? ''
+  const year = parts?.year ?? ''
 
   return (
     <article
@@ -49,33 +55,58 @@ export function EventCard({ event, className }: EventCardProps) {
         // `relative` contains the title's `after:absolute after:inset-0`
         // stretched link to this card; without it the overlay escapes and can
         // sit over other controls (see ParishCard for the same fix).
-        'card group relative flex gap-4 p-4 transition-shadow hover:shadow-md',
-        event.isPast && 'opacity-70',
+        'card group relative flex flex-col overflow-hidden p-0 transition-shadow hover:shadow-md',
         className,
       )}
     >
-      {/* Date badge */}
-      <div className="flex shrink-0 flex-col items-center justify-start rounded-lg bg-maroon-800 px-3 py-2 text-white min-w-[56px]">
-        <span className="text-xs font-medium uppercase tracking-wide text-maroon-200">{month}</span>
-        <span className="text-2xl font-bold leading-none">{day}</span>
+      {/* Featured image (or fallback wash) with the date badge anchored on it */}
+      <div className={cn('relative aspect-[16/9] w-full overflow-hidden', event.isPast && 'grayscale-[0.4]')}>
+        {event.imageUrl ? (
+          <Image
+            src={event.imageUrl}
+            alt=""
+            aria-hidden="true"
+            fill
+            sizes="(min-width: 640px) 50vw, 100vw"
+            className={cn(
+              'object-cover transition-transform duration-300 group-hover:scale-[1.03]',
+              event.isPast && 'opacity-80',
+            )}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-maroon-800 via-maroon-700 to-maroon-900">
+            {/* A faint cross keeps imageless cards from looking broken. */}
+            <svg
+              className="absolute right-4 top-1/2 h-24 w-24 -translate-y-1/2 text-white/10"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z" />
+            </svg>
+          </div>
+        )}
+
+        {/* Date badge */}
+        <div className="absolute left-4 top-4 flex flex-col items-center rounded-lg bg-white/95 px-3 py-1.5 text-center shadow-sm backdrop-blur-sm">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-maroon-700">{month}</span>
+          <span className="text-xl font-bold leading-none text-charcoal-900">{day}</span>
+          {event.isPast && year && (
+            <span className="text-[10px] leading-tight text-charcoal-400">{year}</span>
+          )}
+        </div>
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col min-w-0">
-        <div className="mb-1 flex flex-wrap items-center gap-2">
-          <Badge
-            variant={TYPE_VARIANTS[event.eventType] ?? 'neutral'}
-            size="sm"
-          >
+      <div className={cn('flex flex-1 flex-col p-4', event.isPast && 'opacity-80')}>
+        <div className="mb-1.5 flex flex-wrap items-center gap-2">
+          <Badge variant={TYPE_VARIANTS[event.eventType] ?? 'neutral'} size="sm">
             {event.eventType.charAt(0).toUpperCase() + event.eventType.slice(1).replace(/-/g, ' ')}
           </Badge>
         </div>
 
         <h3 className="font-serif font-semibold text-charcoal-900 leading-snug text-base mb-1 group-hover:text-maroon-700 transition-colors">
-          <Link
-            href={`/events/${event.slug}`}
-            className="after:absolute after:inset-0"
-          >
+          <Link href={`/events/${event.slug}`} className="after:absolute after:inset-0">
             {event.title}
           </Link>
         </h3>

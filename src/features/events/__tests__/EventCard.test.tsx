@@ -73,16 +73,28 @@ describe('EventCard', () => {
     expect(screen.getByText('15')).toBeInTheDocument()
   })
 
-  it('applies opacity-70 for past events', () => {
+  it('dims and desaturates past events', () => {
     const { container } = render(
       <EventCard event={{ ...BASE_EVENT, isPast: true }} />,
     )
-    expect(container.querySelector('article')).toHaveClass('opacity-70')
+    expect(container.querySelector('article')!.innerHTML).toContain('grayscale')
   })
 
-  it('does not apply opacity-70 for current/upcoming events', () => {
+  it('does not dim current/upcoming events', () => {
     const { container } = render(<EventCard event={BASE_EVENT} />)
-    expect(container.querySelector('article')).not.toHaveClass('opacity-70')
+    expect(container.querySelector('article')!.innerHTML).not.toContain('grayscale')
+  })
+
+  it('renders the featured image when imageUrl is set', () => {
+    const { container } = render(
+      <EventCard event={{ ...BASE_EVENT, imageUrl: '/media/ordination.jpg' }} />,
+    )
+    expect(container.querySelector('img')).toHaveAttribute('src', '/media/ordination.jpg')
+  })
+
+  it('renders the fallback backdrop (no <img>) when imageUrl is missing', () => {
+    const { container } = render(<EventCard event={BASE_EVENT} />)
+    expect(container.querySelector('img')).toBeNull()
   })
 
   it('renders as an <article> element', () => {

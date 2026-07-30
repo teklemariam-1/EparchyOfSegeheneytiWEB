@@ -386,6 +386,8 @@ async function _getEventsList(opts: {
   limit?: number
   page?: number
   upcoming?: boolean
+  /** Only events that have already started — the listing's archive section. */
+  past?: boolean
   eventType?: string
   locale?: string
   /** Only events carrying a video link — drives the liturgy archive. */
@@ -393,9 +395,10 @@ async function _getEventsList(opts: {
 } = {}): Promise<{ docs: EventListItem[]; meta: PaginationMeta }> {
   try {
     const payload = await getPayload()
-    const { limit = 12, page = 1, upcoming, eventType, locale, withVideo } = opts
+    const { limit = 12, page = 1, upcoming, past, eventType, locale, withVideo } = opts
     const where: Record<string, unknown> = { _status: { equals: 'published' } }
     if (upcoming) where.startDate = { greater_than: new Date().toISOString() }
+    else if (past) where.startDate = { less_than_equal: new Date().toISOString() }
     // `exists` alone would match the empty string an editor leaves behind after
     // clearing the field, putting a video-less event in the archive.
     if (withVideo) where.videoUrl = { not_equals: '', exists: true }
@@ -1929,42 +1932,63 @@ function mapVicariate(d: any): VicariateItem {
   }
 }
 
+/**
+ * Deliberately throws on failure instead of returning [] — see
+ * getVicariatesList below for why.
+ */
 async function _getVicariatesList(locale?: string): Promise<VicariateItem[]> {
-  try {
-    const payload = await getPayload()
-    const result = await payload.find({
-      collection: 'vicariates',
-      sort: 'order',
-      limit: 100,
-      depth: 1,
-      ...(locale ? { locale } : {}),
-    } as any)
+  const payload = await getPayload()
+  const result = await payload.find({
+    collection: 'vicariates',
+    sort: 'order',
+    limit: 100,
+    depth: 1,
+    ...(locale ? { locale } : {}),
+  } as any)
 
-    // Count parishes per vicariate so the listing can show "N parishes".
-    const vicariates = (result.docs as any[]).map(mapVicariate)
-    await Promise.all(
-      vicariates.map(async (v) => {
-        try {
-          const c = await payload.count({
-            collection: 'parishes',
-            where: { 'vicariate.slug': { equals: v.slug } },
-          } as any)
-          v.parishCount = c.totalDocs
-        } catch {
-          v.parishCount = 0
-        }
-      }),
-    )
-    return vicariates
+  // Count parishes per vicariate so the listing can show "N parishes".
+  const vicariates = (result.docs as any[]).map(mapVicariate)
+  await Promise.all(
+    vicariates.map(async (v) => {
+      try {
+        const c = await payload.count({
+          collection: 'parishes',
+          where: { 'vicariate.slug': { equals: v.slug } },
+        } as any)
+        v.parishCount = c.totalDocs
+      } catch {
+        v.parishCount = 0
+      }
+    }),
+  )
+  return vicariates
+}
+const cachedVicariatesList = cachedQuery(_getVicariatesList, 'getVicariatesList', ['vicariates'])
+
+/**
+ * The old version caught every error INSIDE the cached function and returned
+ * [] — so a transient DB blip was cached as "there are no vicariates" and
+ * served to every visitor until the TTL expired. Saving in admin is exactly
+ * when this bit: the afterChange hook busts the tag, the very next request
+ * re-queries on a cold connection, and any hiccup blanked the public listing
+ * ("my vicariate disappeared after I saved it").
+ *
+ * Now the failure is caught OUTSIDE the cache: unstable_cache stores nothing
+ * when the function throws, so an error empties one response, not the cache —
+ * the next request retries immediately. A second same-request attempt heals
+ * one-off blips before even that.
+ */
+export async function getVicariatesList(locale?: string): Promise<VicariateItem[]> {
+  try {
+    return await cachedVicariatesList(locale)
   } catch {
-    return []
+    try {
+      return await cachedVicariatesList(locale)
+    } catch {
+      return []
+    }
   }
 }
-// 60s TTL (vs the 300s default): the vicariate list drives the parishes filter
-// buttons, and a stale EMPTY cache here hides every button. A shorter window
-// means any transient empty result self-heals within a minute instead of five.
-// Admin edits still bust it immediately via the 'vicariates' tag.
-export const getVicariatesList = cachedQuery(_getVicariatesList, 'getVicariatesList', ['vicariates'], 60)
 
 export async function getVicariateBySlug(
   slug: string,

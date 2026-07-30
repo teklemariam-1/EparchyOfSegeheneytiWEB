@@ -32,14 +32,21 @@ interface EventTimeProps {
   /** ISO instant of the event's start. */
   iso: string
   locale: string
-  /** Translated: the eparchy-anchored label, e.g. "{time} Asmara". */
-  anchorLabel: (time: string) => string
+  /**
+   * Translated TEMPLATES with a literal `{time}` placeholder, e.g.
+   * "{time} Asmara". Client components can only receive serializable props —
+   * the previous function props ((time) => string) crashed every event detail
+   * page with "Functions cannot be passed directly to Client Components".
+   */
+  anchorTemplate: string
   /** Translated: the reader's own time, e.g. "{time} your time". */
-  viewerLabel: (time: string) => string
+  viewerTemplate: string
   className?: string
 }
 
-export function EventTime({ iso, locale, anchorLabel, viewerLabel, className }: EventTimeProps) {
+const fill = (template: string, time: string) => template.replace('{time}', time)
+
+export function EventTime({ iso, locale, anchorTemplate, viewerTemplate, className }: EventTimeProps) {
   const [localTime, setLocalTime] = useState<string | null>(null)
 
   useEffect(() => {
@@ -57,8 +64,8 @@ export function EventTime({ iso, locale, anchorLabel, viewerLabel, className }: 
     <span className={className}>
       {/* `dateTime` carries the unambiguous instant for machines and for
           copy-paste into a calendar, whatever the visible text says. */}
-      <time dateTime={iso}>{anchorLabel(anchor)}</time>
-      {localTime ? <> · {viewerLabel(localTime)}</> : null}
+      <time dateTime={iso}>{fill(anchorTemplate, anchor)}</time>
+      {localTime ? <> · {fill(viewerTemplate, localTime)}</> : null}
     </span>
   )
 }
