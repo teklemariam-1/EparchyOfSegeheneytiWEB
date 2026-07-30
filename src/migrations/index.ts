@@ -44,6 +44,7 @@ import * as migration_20260729_154500_mass_time_leading_zero_meridiem from './20
 import * as migration_20260730_050054_newsletter_sends from './20260730_050054_newsletter_sends';
 import * as migration_20260730_060939_translation_fields from './20260730_060939_translation_fields';
 import * as migration_20260730_120000_navigation_seed from './20260730_120000_navigation_seed';
+import * as migration_20260730_132149_banner_theme_colors from './20260730_132149_banner_theme_colors';
 
 export const migrations = [
   {
@@ -274,6 +275,11 @@ export const migrations = [
   {
     up: migration_20260730_120000_navigation_seed.up,
     down: migration_20260730_120000_navigation_seed.down,
-    name: '20260730_120000_navigation_seed'
+    name: '20260730_120000_navigation_seed',
+  },
+  {
+    up: migration_20260730_132149_banner_theme_colors.up,
+    down: migration_20260730_132149_banner_theme_colors.down,
+    name: '20260730_132149_banner_theme_colors'
   },
 ];

@@ -4721,21 +4721,37 @@ export interface BannerSetting {
   /**
    * The active theme. In Scheduled mode this is the fallback used on dates not covered by any schedule entry.
    */
-  theme?: ('default' | 'advent' | 'christmas' | 'lent' | 'holy-week' | 'easter' | 'pentecost' | 'custom') | null;
+  theme?:
+    | (
+        | 'default'
+        | 'advent'
+        | 'christmas'
+        | 'lent'
+        | 'holy-week'
+        | 'easter'
+        | 'pentecost'
+        | 'marian-blue'
+        | 'sky-blue'
+        | 'forest-green'
+        | 'royal-gold'
+        | 'charcoal'
+        | 'custom'
+      )
+    | null;
   /**
    * Only used when the theme is set to "Custom colours…".
    */
   custom?: {
     /**
-     * Banner background colour. Hex value, e.g. #4b2e83
+     * Banner background colour. Hex (e.g. #1e3a8a) or a colour name: blue, green, gold, purple, red, navy, teal…
      */
     background?: string | null;
     /**
-     * Subtitle text colour — pick a light tint that reads on the background.
+     * Subtitle text colour — pick a light tint that reads on the background. Hex or colour name.
      */
     subtitleColor?: string | null;
     /**
-     * Colour of the short underline bar beneath the page title.
+     * Colour of the short underline bar beneath the page title. Hex or colour name.
      */
     accentColor?: string | null;
     /**
@@ -4769,7 +4785,20 @@ export interface BannerSetting {
          * For your own reference, e.g. "Advent 2026".
          */
         label?: string | null;
-        theme: 'default' | 'advent' | 'christmas' | 'lent' | 'holy-week' | 'easter' | 'pentecost' | 'custom';
+        theme:
+          | 'default'
+          | 'advent'
+          | 'christmas'
+          | 'lent'
+          | 'holy-week'
+          | 'easter'
+          | 'pentecost'
+          | 'marian-blue'
+          | 'sky-blue'
+          | 'forest-green'
+          | 'royal-gold'
+          | 'charcoal'
+          | 'custom';
         startDate: string;
         /**
          * Inclusive — the theme still shows on this day.

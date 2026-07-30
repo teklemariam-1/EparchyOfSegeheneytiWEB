@@ -1,7 +1,18 @@
 import type { GlobalConfig } from 'payload'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { can } from '../../lib/permissions/access'
-import { BANNER_THEME_OPTIONS } from '../../lib/banner-themes'
+import { BANNER_THEME_OPTIONS, parseColor } from '../../lib/banner-themes'
+
+/**
+ * Accept a hex value or a known colour name; reject anything else LOUDLY.
+ * Unrecognized input used to be silently swapped for brand maroon at render
+ * time, so "blue" saved fine and painted red — the setting looked broken.
+ */
+const validateColor = (value: unknown): true | string => {
+  if (value == null || value === '') return true
+  if (typeof value === 'string' && parseColor(value)) return true
+  return 'Enter a hex colour like #1e3a8a, or a colour name: blue, green, gold, purple, red, navy, teal…'
+}
 
 export const BannerSettings: GlobalConfig = {
   slug: 'banner-settings',
@@ -54,17 +65,28 @@ export const BannerSettings: GlobalConfig = {
         {
           name: 'background',
           type: 'text',
-          admin: { description: 'Banner background colour. Hex value, e.g. #4b2e83' },
+          validate: validateColor,
+          admin: {
+            description:
+              'Banner background colour. Hex (e.g. #1e3a8a) or a colour name: blue, green, gold, purple, red, navy, teal…',
+          },
         },
         {
           name: 'subtitleColor',
           type: 'text',
-          admin: { description: 'Subtitle text colour — pick a light tint that reads on the background.' },
+          validate: validateColor,
+          admin: {
+            description:
+              'Subtitle text colour — pick a light tint that reads on the background. Hex or colour name.',
+          },
         },
         {
           name: 'accentColor',
           type: 'text',
-          admin: { description: 'Colour of the short underline bar beneath the page title.' },
+          validate: validateColor,
+          admin: {
+            description: 'Colour of the short underline bar beneath the page title. Hex or colour name.',
+          },
         },
         {
           name: 'patternOpacity',

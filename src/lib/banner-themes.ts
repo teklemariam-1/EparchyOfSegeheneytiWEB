@@ -15,6 +15,11 @@ export type BannerThemeKey =
   | 'holy-week'
   | 'easter'
   | 'pentecost'
+  | 'marian-blue'
+  | 'sky-blue'
+  | 'forest-green'
+  | 'royal-gold'
+  | 'charcoal'
   | 'custom'
 
 export interface BannerThemeColors {
@@ -73,17 +78,57 @@ export const BANNER_THEMES: Record<Exclude<BannerThemeKey, 'custom'>, BannerThem
     accent: '#fbbf24',
     patternOpacity: 0.06,
   },
+  // Plain colour themes, named by the colour they actually render — chosen
+  // after "blue" in the custom field silently fell back to brand maroon and
+  // read as the picker lying about its colours.
+  'marian-blue': {
+    background: '#1e3a8a',
+    subtitle: '#bfdbfe',
+    accent: '#fbbf24',
+    patternOpacity: 0.05,
+  },
+  'sky-blue': {
+    background: '#0369a1',
+    subtitle: '#bae6fd',
+    accent: '#fde68a',
+    patternOpacity: 0.05,
+  },
+  'forest-green': {
+    background: '#166534',
+    subtitle: '#bbf7d0',
+    accent: '#fbbf24',
+    patternOpacity: 0.05,
+  },
+  'royal-gold': {
+    background: '#92400e',
+    subtitle: '#fde68a',
+    accent: '#fffbeb',
+    patternOpacity: 0.06,
+  },
+  charcoal: {
+    background: '#1f2937',
+    subtitle: '#d1d5db',
+    accent: '#fbbf24',
+    patternOpacity: 0.05,
+  },
 }
 
-/** Options for the admin select fields — single source of truth for keys + labels. */
+/** Options for the admin select fields — single source of truth for keys + labels.
+ *  Each label ends with the exact hex it renders, so the picker cannot promise
+ *  one colour and paint another. */
 export const BANNER_THEME_OPTIONS: Array<{ label: string; value: BannerThemeKey }> = [
-  { label: 'Default — Brand Red (Ordinary Time)', value: 'default' },
-  { label: 'Advent — Royal Purple', value: 'advent' },
-  { label: 'Christmas — Evergreen & Gold', value: 'christmas' },
-  { label: 'Lent — Somber Violet', value: 'lent' },
-  { label: 'Holy Week — Deep Crimson', value: 'holy-week' },
-  { label: 'Easter — Radiant Gold', value: 'easter' },
-  { label: 'Pentecost — Fire Red', value: 'pentecost' },
+  { label: 'Default — Brand Red (Ordinary Time) · #911e1e', value: 'default' },
+  { label: 'Advent — Royal Purple · #4b2e83', value: 'advent' },
+  { label: 'Christmas — Evergreen & Gold · #14532d', value: 'christmas' },
+  { label: 'Lent — Somber Violet · #3d2b52', value: 'lent' },
+  { label: 'Holy Week — Deep Crimson · #5c0f1d', value: 'holy-week' },
+  { label: 'Easter — Radiant Gold · #b45309', value: 'easter' },
+  { label: 'Pentecost — Fire Red · #b91c1c', value: 'pentecost' },
+  { label: 'Marian Blue — Deep Blue · #1e3a8a', value: 'marian-blue' },
+  { label: 'Sky Blue — Bright Blue · #0369a1', value: 'sky-blue' },
+  { label: 'Forest Green · #166534', value: 'forest-green' },
+  { label: 'Royal Gold — Warm Amber · #92400e', value: 'royal-gold' },
+  { label: 'Charcoal — Slate Grey · #1f2937', value: 'charcoal' },
   { label: 'Custom colours…', value: 'custom' },
 ]
 
@@ -123,8 +168,43 @@ export interface BannerSettingsData {
 
 const HEX_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
 
-function safeHex(value: string | null | undefined, fallback: string): string {
-  return value && HEX_RE.test(value.trim()) ? value.trim() : fallback
+/**
+ * Colour NAMES admins actually type. "blue" used to fail the hex check and
+ * silently fall back to brand maroon — the picker appeared to lie ("I chose
+ * blue and got another colour"). Names now resolve to the colour they say.
+ */
+export const NAMED_COLORS: Record<string, string> = {
+  blue: '#1e3a8a',
+  lightblue: '#0369a1',
+  skyblue: '#0369a1',
+  navy: '#1e293b',
+  red: '#b91c1c',
+  maroon: '#911e1e',
+  green: '#166534',
+  purple: '#4b2e83',
+  violet: '#6d28d9',
+  gold: '#b45309',
+  yellow: '#ca8a04',
+  orange: '#c2410c',
+  brown: '#78350f',
+  black: '#111111',
+  grey: '#1f2937',
+  gray: '#1f2937',
+  white: '#ffffff',
+  pink: '#be185d',
+  teal: '#0f766e',
+}
+
+/** Resolve a hex value or a known colour name; null when unrecognized. */
+export function parseColor(value: string | null | undefined): string | null {
+  if (!value) return null
+  const v = value.trim().toLowerCase()
+  if (HEX_RE.test(v)) return v
+  return NAMED_COLORS[v.replace(/[\s-]/g, '')] ?? null
+}
+
+function safeColor(value: string | null | undefined, fallback: string): string {
+  return parseColor(value) ?? fallback
 }
 
 function themeFromKey(key: BannerThemeKey | null | undefined, settings: BannerSettingsData): BannerThemeColors {
@@ -132,9 +212,9 @@ function themeFromKey(key: BannerThemeKey | null | undefined, settings: BannerSe
     const base = BANNER_THEMES.default
     const c = settings.custom ?? {}
     return {
-      background: safeHex(c.background, base.background),
-      subtitle: safeHex(c.subtitleColor, base.subtitle),
-      accent: safeHex(c.accentColor, base.accent),
+      background: safeColor(c.background, base.background),
+      subtitle: safeColor(c.subtitleColor, base.subtitle),
+      accent: safeColor(c.accentColor, base.accent),
       patternOpacity:
         typeof c.patternOpacity === 'number'
           ? Math.min(Math.max(c.patternOpacity, 0), 100) / 100

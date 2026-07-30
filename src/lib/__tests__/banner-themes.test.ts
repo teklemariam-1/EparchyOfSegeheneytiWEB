@@ -93,6 +93,24 @@ describe('resolveBannerTheme', () => {
     expect(result).toEqual(plain(BANNER_THEMES.default))
   })
 
+  it('resolves colour NAMES in custom fields to the colour they name', () => {
+    // Regression: "blue" used to fail the hex check and silently render brand
+    // maroon — the admin picked blue and got another colour.
+    const result = resolveBannerTheme({
+      mode: 'manual',
+      theme: 'custom',
+      custom: { background: 'blue', subtitleColor: 'White', accentColor: 'GOLD' },
+    })
+    expect(result.background).toBe('#1e3a8a')
+    expect(result.subtitle).toBe('#ffffff')
+    expect(result.accent).toBe('#b45309')
+  })
+
+  it('offers blue presets that actually render blue', () => {
+    expect(resolveBannerTheme({ mode: 'manual', theme: 'marian-blue' }).background).toBe('#1e3a8a')
+    expect(resolveBannerTheme({ mode: 'manual', theme: 'sky-blue' }).background).toBe('#0369a1')
+  })
+
   it('replaces the design with the uploaded image: pattern hidden, tint only if requested', () => {
     const result = resolveBannerTheme({
       mode: 'manual',
