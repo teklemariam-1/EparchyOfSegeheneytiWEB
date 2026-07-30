@@ -84,6 +84,16 @@ export const News: CollectionConfig = {
       },
     },
     {
+      // "Send to subscribers" — the send itself is idempotent per article
+      // (see lib/newsletter/send), the button is just the trigger.
+      name: 'sendNewsletter',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/components/admin/news/SendNewsletterButton#SendNewsletterButton' },
+      },
+    },
+    {
       name: 'publishedAt',
       type: 'date',
       index: true,

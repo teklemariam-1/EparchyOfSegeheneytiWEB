@@ -99,6 +99,7 @@ export interface Config {
     'contact-submissions': ContactSubmission;
     'sacramental-requests': SacramentalRequest;
     'mass-intentions': MassIntention;
+    'newsletter-sends': NewsletterSend;
     donations: Donation;
     'stripe-events': StripeEvent;
     'audit-log': AuditLog;
@@ -142,6 +143,7 @@ export interface Config {
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'sacramental-requests': SacramentalRequestsSelect<false> | SacramentalRequestsSelect<true>;
     'mass-intentions': MassIntentionsSelect<false> | MassIntentionsSelect<true>;
+    'newsletter-sends': NewsletterSendsSelect<false> | NewsletterSendsSelect<true>;
     donations: DonationsSelect<false> | DonationsSelect<true>;
     'stripe-events': StripeEventsSelect<false> | StripeEventsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
@@ -2603,6 +2605,35 @@ export interface MassIntention {
   createdAt: string;
 }
 /**
+ * Log of newsletters sent to subscribers. Written automatically — one row per send.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-sends".
+ */
+export interface NewsletterSend {
+  id: number;
+  /**
+   * The article that was sent.
+   */
+  news: number | News;
+  subject: string;
+  sentAt: string;
+  /**
+   * Who pressed send.
+   */
+  sentBy?: (number | null) | User;
+  /**
+   * Successfully handed to the mail transport.
+   */
+  recipientCount: number;
+  /**
+   * Recipients whose send raised an error. Details are in the server log.
+   */
+  failureCount?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Donations and pledges received through the website.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2917,6 +2948,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'mass-intentions';
         value: number | MassIntention;
+      } | null)
+    | ({
+        relationTo: 'newsletter-sends';
+        value: number | NewsletterSend;
       } | null)
     | ({
         relationTo: 'donations';
@@ -4058,6 +4093,20 @@ export interface MassIntentionsSelect<T extends boolean = true> {
   requesterPhone?: T;
   staffNotes?: T;
   submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-sends_select".
+ */
+export interface NewsletterSendsSelect<T extends boolean = true> {
+  news?: T;
+  subject?: T;
+  sentAt?: T;
+  sentBy?: T;
+  recipientCount?: T;
+  failureCount?: T;
   updatedAt?: T;
   createdAt?: T;
 }
