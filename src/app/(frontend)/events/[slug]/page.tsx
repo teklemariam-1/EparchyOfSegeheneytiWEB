@@ -10,13 +10,14 @@ import { Badge } from '@/components/ui/Badge'
 import { formatDate, formatDateRange } from '@/lib/formatters/date'
 import { dateParts } from '@/lib/formatters/eventTime'
 import { EventTime } from '@/features/events/EventTime'
-import { LiturgyVideo } from '@/features/events/LiturgyVideo'
+import { VideoEmbed } from '@/components/shared/VideoEmbed'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 import { RichText } from '@/components/shared/RichText'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { eventSchema } from '@/lib/seo/structuredData'
 import { getLocale, getTranslations } from 'next-intl/server'
-import { getEventBySlug,  getEventsList } from '@/lib/payload/queries'
+import { getEventBySlug, getEventsList, getMostViewedEvents } from '@/lib/payload/queries'
+import { EventSidebar } from '@/features/events/EventSidebar'
 import { AddToCalendar } from '@/features/calendar-sync/AddToCalendar'
 
 // This page resolves the active locale from the NEXT_LOCALE cookie, so it can
@@ -45,16 +46,18 @@ export default async function EventDetailPage({ params }: Props) {
   const locale = await getLocale()
   const t = await getTranslations('events')
   const tCal = await getTranslations('calendar')
-  const [ev, { docs: upcoming }] = await Promise.all([
+  const [ev, { docs: upcoming }, { docs: past }, mostRead] = await Promise.all([
     getEventBySlug(slug, locale),
-    getEventsList({ upcoming: true, limit: 4, locale }),
+    getEventsList({ upcoming: true, limit: 5, locale }),
+    getEventsList({ past: true, limit: 5, locale }),
+    getMostViewedEvents(5, locale),
   ])
 
   if (!ev) notFound()
 
   const typeLabel = ev.eventType
     ? ev.eventType.charAt(0).toUpperCase() + ev.eventType.slice(1).replace(/-/g, ' ')
-    : 'Event'
+    : t('eventFallback')
   const startParts = dateParts(ev.startDate, locale)
   const dateLabel = ev.endDate ? formatDateRange(ev.startDate, ev.endDate) : formatDate(ev.startDate)
   const ventue = ev.location?.venue ?? ev.location?.city ?? ''
@@ -75,7 +78,7 @@ export default async function EventDetailPage({ params }: Props) {
       />
       <PageHeader
         title={ev.title}
-        breadcrumbs={[{ label: 'Events', href: '/events' }, { label: ev.title }]}
+        breadcrumbs={[{ label: t('breadcrumb'), href: '/events' }, { label: ev.title }]}
       />
 
       <Section className="bg-white">
@@ -180,7 +183,7 @@ export default async function EventDetailPage({ params }: Props) {
               {/* The stream or recording, above the text: someone who came to
                   watch should not have to scroll past the description to find
                   it. Renders nothing at all when there is no usable link. */}
-              <LiturgyVideo
+              <VideoEmbed
                 url={ev.videoUrl}
                 title={ev.title}
                 fallbackLabel={t('watchOnProvider')}
@@ -220,44 +223,33 @@ export default async function EventDetailPage({ params }: Props) {
             </article>
 
             {/* Sidebar */}
-            <aside className="space-y-6">
-              {/* Upcoming events */}
-              {upcoming.filter((u) => u.slug !== slug).length > 0 && (
-                <div className="card p-5">
-                  <h3 className="font-serif text-sm font-semibold text-charcoal-900 mb-3 uppercase tracking-wide">
-                    More Events
-                  </h3>
-                  <ul className="divide-y divide-charcoal-100">
-                    {upcoming
-                      .filter((u) => u.slug !== slug)
-                      .slice(0, 3)
-                      .map((u) => (
-                        <li key={u.slug} className="py-3">
-                          <Link href={`/events/${u.slug}`} className="text-sm font-medium text-charcoal-700 hover:text-maroon-700 transition-colors line-clamp-2">
-                            {u.title}
-                          </Link>
-                          <p className="text-xs text-charcoal-400 mt-0.5">
-                            {formatDate(u.startDate, { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </p>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Ge'ez calendar CTA */}
-              <div className="rounded-xl bg-maroon-50 border border-maroon-100 p-5">
-                <h3 className="font-serif text-sm font-semibold text-charcoal-900 mb-2">
-                  Ge&apos;ez Calendar
-                </h3>
-                <p className="text-xs text-charcoal-600 mb-3 leading-relaxed">
-                  Explore feasts and fasts in the traditional Ge&apos;ez liturgical calendar.
-                </p>
-                <Link href="/geez-calendar" className="text-xs font-semibold text-maroon-700 hover:text-maroon-900 transition-colors">
-                  Open Calendar →
-                </Link>
-              </div>
-            </aside>
+            {/* Three lists rather than one "More Events": a reader on an
+                event page is either looking ahead, looking back at something
+                they missed, or browsing what others read. The current event is
+                filtered out of all three. */}
+            <EventSidebar
+              locale={locale}
+              sections={[
+                {
+                  title: t('sidebarUpcoming'),
+                  items: upcoming.filter((e) => e.slug !== slug).slice(0, 4),
+                },
+                {
+                  title: t('sidebarPast'),
+                  items: past.filter((e) => e.slug !== slug).slice(0, 4),
+                },
+                {
+                  title: t('sidebarMostRead'),
+                  items: mostRead.filter((e) => e.slug !== slug).slice(0, 4),
+                  showViews: true,
+                },
+              ]}
+              geezCalendar={{
+                title: t('geezCalendarTitle'),
+                body: t('geezCalendarBody'),
+                link: t('geezCalendarLink'),
+              }}
+            />
           </div>
         </Container>
       </Section>

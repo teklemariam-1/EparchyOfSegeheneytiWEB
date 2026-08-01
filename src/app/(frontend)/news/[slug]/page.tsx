@@ -13,9 +13,10 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import { articleSchema } from '@/lib/seo/structuredData'
 import { ReadingProgress } from '@/components/shared/ReadingProgress'
 import { ShareButtons } from '@/components/shared/ShareButtons'
+import { VideoEmbed } from '@/components/shared/VideoEmbed'
 import { readingTimeFromLexical } from '@/lib/reading-time'
 import { ArticleSidebar, type SidebarSection } from '@/features/articles/ArticleSidebar'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import {
   getNewsBySlug,
   getNewsList,
@@ -71,6 +72,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function NewsDetailPage({ params }: Props) {
   const { slug } = await params
   const locale = await getLocale()
+  const tc = await getTranslations('common')
   const article = await getNewsBySlug(slug, locale)
   if (!article) notFound()
 
@@ -190,8 +192,19 @@ export default async function NewsDetailPage({ params }: Props) {
                 <ShareButtons title={article.title} />
               </div>
 
+              {/* The video, when there is one, takes the place of the featured
+                  image at the top: a reader who came for the recording should
+                  not have to scroll past a still of the same event to reach it.
+                  Renders nothing when the link is absent or unplayable. */}
+              <VideoEmbed
+                url={article.videoUrl}
+                title={article.title}
+                fallbackLabel={tc('watchOnProvider')}
+                className="mb-8"
+              />
+
               {/* Featured image, shown uncropped at the uploaded aspect ratio. */}
-              {article.featuredImage?.url ? (
+              {article.videoUrl ? null : article.featuredImage?.url ? (
                 <div className="mb-8 overflow-hidden rounded-xl bg-parchment-100">
                   <Image
                     src={article.featuredImage.url}

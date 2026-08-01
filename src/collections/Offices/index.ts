@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { videoUrlField } from '../fields/videoUrl'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { crud, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
@@ -153,6 +154,12 @@ export const Offices: CollectionConfig = {
         { name: 'image', type: 'upload', relationTo: 'media' },
         { name: 'excerpt', type: 'textarea', localized: true },
         { name: 'body', type: 'richText', localized: true },
+        videoUrlField({
+          admin: {
+            description:
+              'Optional. A YouTube or Facebook link plays above this update — youth and children’s activities are usually filmed rather than written up.',
+          },
+        }),
       ],
     },
     // ── Events: office-specific, self-contained ────────────────────────────

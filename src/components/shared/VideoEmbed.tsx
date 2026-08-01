@@ -2,30 +2,34 @@ import { parseVideoUrl } from '@/lib/video/embed'
 import { cn } from '@/lib/utils'
 
 /**
- * The player for a liturgy that was streamed.
+ * An embedded video player for any post that has a stream or recording.
+ *
+ * Started life as the liturgy player on event pages and moved here unchanged
+ * when news and office updates gained video: nothing in it was ever specific to
+ * liturgies, and a news article rendering a component called LiturgyVideo would
+ * mislead the next person to read the file.
  *
  * A Server Component: the embed URL is derived from a stored value with no
  * browser API involved, so there is nothing to hydrate. The iframe itself is
  * inert markup.
  *
  * An unrecognised URL renders NOTHING rather than an empty frame. That is the
- * deliberate choice: a visitor who came to watch Fasika is better served by an
- * event page with no player than by a black rectangle that never loads, and the
- * admin refuses the bad URL at paste time anyway (see the field validation on
- * the Events collection).
+ * deliberate choice: a visitor who came to watch Fasika is better served by a
+ * page with no player than by a black rectangle that never loads, and the admin
+ * refuses the bad URL at paste time anyway (see `videoUrlField`).
  */
 
-interface LiturgyVideoProps {
+interface VideoEmbedProps {
   /** The URL as an editor pasted it. */
   url: string | null | undefined
-  /** Accessible title — the event's own name, already translated by the caller. */
+  /** Accessible title — the post’s own name, already translated by the caller. */
   title: string
   /** Translated "Watch on YouTube"-style fallback label. */
   fallbackLabel: string
   className?: string
 }
 
-export function LiturgyVideo({ url, title, fallbackLabel, className }: LiturgyVideoProps) {
+export function VideoEmbed({ url, title, fallbackLabel, className }: VideoEmbedProps) {
   const video = parseVideoUrl(url)
   if (!video) return null
 

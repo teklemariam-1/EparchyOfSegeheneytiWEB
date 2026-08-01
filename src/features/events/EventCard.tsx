@@ -25,11 +25,20 @@ export interface EventCardData {
   location?: string
   imageUrl?: string
   isPast?: boolean
+  isFeatured?: boolean
 }
 
 interface EventCardProps {
   event: EventCardData
   className?: string
+  /**
+   * `feature` is the wide card at the top of the listing: same information,
+   * more room. A separate component would have meant a second copy of the
+   * Asmara-zone date logic, which is exactly the thing that must not drift.
+   */
+  variant?: 'default' | 'feature'
+  /** Translated "Featured" label. Only rendered in the feature variant. */
+  featuredLabel?: string
 }
 
 /**
@@ -38,7 +47,7 @@ interface EventCardProps {
  * it, and the details below. Past events render dimmed and desaturated so the
  * archive section reads as history at a glance.
  */
-export function EventCard({ event, className }: EventCardProps) {
+export function EventCard({ event, className, variant = 'default', featuredLabel }: EventCardProps) {
   // Resolved in the eparchy's timezone, not the renderer's. `new Date(...)` plus
   // getDate() returned the day in whichever zone the code ran in — UTC on the
   // server, the reader's zone in the browser — so a 01:00 Asmara liturgy showed
@@ -48,6 +57,7 @@ export function EventCard({ event, className }: EventCardProps) {
   const month = parts?.month ?? ''
   const day = parts?.day ?? ''
   const year = parts?.year ?? ''
+  const feature = variant === 'feature'
 
   return (
     <article
@@ -55,19 +65,28 @@ export function EventCard({ event, className }: EventCardProps) {
         // `relative` contains the title's `after:absolute after:inset-0`
         // stretched link to this card; without it the overlay escapes and can
         // sit over other controls (see ParishCard for the same fix).
-        'card group relative flex flex-col overflow-hidden p-0 transition-shadow hover:shadow-md',
+        'card group relative overflow-hidden p-0 transition-shadow hover:shadow-md',
+        feature
+          ? 'flex flex-col md:flex-row md:items-stretch ring-1 ring-gold-300/70'
+          : 'flex flex-col',
         className,
       )}
     >
       {/* Featured image (or fallback wash) with the date badge anchored on it */}
-      <div className={cn('relative aspect-[16/9] w-full overflow-hidden', event.isPast && 'grayscale-[0.4]')}>
+      <div
+        className={cn(
+          'relative w-full overflow-hidden',
+          feature ? 'aspect-[16/9] md:aspect-auto md:w-1/2 md:min-h-[20rem]' : 'aspect-[16/9]',
+          event.isPast && 'grayscale-[0.4]',
+        )}
+      >
         {event.imageUrl ? (
           <Image
             src={event.imageUrl}
             alt=""
             aria-hidden="true"
             fill
-            sizes="(min-width: 640px) 50vw, 100vw"
+            sizes={feature ? '(min-width: 768px) 50vw, 100vw' : '(min-width: 640px) 50vw, 100vw'}
             className={cn(
               'object-cover transition-transform duration-300 group-hover:scale-[1.03]',
               event.isPast && 'opacity-80',
@@ -98,20 +117,43 @@ export function EventCard({ event, className }: EventCardProps) {
       </div>
 
       {/* Content */}
-      <div className={cn('flex flex-1 flex-col p-4', event.isPast && 'opacity-80')}>
+      <div
+        className={cn(
+          'flex flex-1 flex-col',
+          feature ? 'justify-center p-6 md:p-8' : 'p-4',
+          event.isPast && 'opacity-80',
+        )}
+      >
         <div className="mb-1.5 flex flex-wrap items-center gap-2">
           <Badge variant={TYPE_VARIANTS[event.eventType] ?? 'neutral'} size="sm">
             {event.eventType.charAt(0).toUpperCase() + event.eventType.slice(1).replace(/-/g, ' ')}
           </Badge>
+          {feature && featuredLabel && (
+            <span className="rounded-full bg-gold-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-maroon-800">
+              {featuredLabel}
+            </span>
+          )}
         </div>
 
-        <h3 className="font-serif font-semibold text-charcoal-900 leading-snug text-base mb-1 group-hover:text-maroon-700 transition-colors">
+        <h3
+          className={cn(
+            'event-card-title mb-1 font-serif font-semibold leading-snug text-charcoal-900 transition-colors group-hover:text-maroon-700',
+            feature ? 'text-xl md:text-2xl' : 'text-base',
+          )}
+        >
           <Link href={`/events/${event.slug}`} className="after:absolute after:inset-0">
             {event.title}
           </Link>
         </h3>
 
-        <p className="text-xs text-charcoal-500 line-clamp-2">{event.excerpt}</p>
+        <p
+          className={cn(
+            'text-charcoal-500',
+            feature ? 'line-clamp-3 text-sm leading-relaxed' : 'line-clamp-2 text-xs',
+          )}
+        >
+          {event.excerpt}
+        </p>
 
         {event.location && (
           <div className="mt-2 flex items-center gap-1 text-xs text-charcoal-400">

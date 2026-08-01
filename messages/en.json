@@ -63,7 +63,8 @@
     "shareEmail": "Share by email",
     "sharePrint": "Print",
     "shareCopyLink": "Copy link",
-    "shareCopied": "Copied!"
+    "shareCopied": "Copied!",
+    "watchOnProvider": "Watch on the original site"
   },
   "a11y": {
     "skipToMain": "Skip to main content",
@@ -128,7 +129,27 @@
     "watchOnProvider": "Watch on the original site",
     "watchThisLiturgy": "Watch this liturgy",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "sidebarUpcoming": "Upcoming events",
+    "sidebarPast": "Past events",
+    "sidebarMostRead": "Most read events",
+    "geezCalendarTitle": "Ge'ez Calendar",
+    "geezCalendarBody": "Explore feasts and fasts in the traditional Ge'ez liturgical calendar.",
+    "geezCalendarLink": "Open calendar",
+    "browseAll": "Browse all events",
+    "browseUpcoming": "All upcoming events",
+    "featured": "Featured",
+    "moreEvents": "More events",
+    "eventFallback": "Event",
+    "breadcrumb": "Events",
+    "noEventsFiltered": "No upcoming events of this type — try another filter.",
+    "noEventsSoon": "Check back soon for the next Eparchy events.",
+    "allFilter": "All",
+    "eyebrow": "Mark your calendar",
+    "allEvents": "All events",
+    "homeEmptyTitle": "No upcoming events at this time.",
+    "homeEmptyBody": "Scheduled events will appear here.",
+    "defaultHeading": "Upcoming Events"
   },
   "parishes": {
     "title": "Parishes",
@@ -225,7 +246,11 @@
       "clergy": "Clergy",
       "offices": "Offices",
       "vicariates": "Vicariates"
-    }
+    },
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "Page {page} of {total}",
+    "pagination": "Search results pages"
   },
   "media": {
     "title": "Media",

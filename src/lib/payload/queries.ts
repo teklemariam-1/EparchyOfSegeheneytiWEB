@@ -81,6 +81,7 @@ export interface GalleryItem {
 
 export interface NewsDetail extends NewsListItem {
   content?: unknown
+  videoUrl?: string | null
   author?: string | null
   sourceUrl?: string
   sourceName?: string
@@ -388,6 +389,7 @@ export async function getNewsBySlug(slug: string, locale?: string): Promise<News
       featuredImage: imgOf(d.featuredImage),
       tags: Array.isArray(d.tags) ? d.tags.map((t: any) => t?.tag ?? t).filter(Boolean) : [],
       content: d.body,
+      videoUrl: d.videoUrl ?? null,
       author: d.author?.firstName ? `${d.author.firstName} ${d.author.lastName ?? ''}`.trim() : null,
       sourceUrl: d.sourceUrl ?? undefined,
       sourceName: d.sourceName ?? undefined,
@@ -432,6 +434,8 @@ export interface EventListItem {
   excerpt?: string
   /** Pasted stream/recording link. Parsed at render time; see lib/video/embed. */
   videoUrl?: string | null
+  /** Pinned to the top of the listing with the wide card. */
+  isFeatured?: boolean
 }
 
 export interface EventDetail extends EventListItem {
@@ -447,7 +451,10 @@ async function _getUpcomingEvents(limit = 5, locale?: string): Promise<EventList
     const result = await payload.find({
       collection: 'events',
       where: { startDate: { greater_than: new Date().toISOString() }, _status: { equals: 'published' } },
-      sort: 'startDate',
+      // Same ordering as the events listing, so the home block and the page
+      // agree about which event leads. Array form: Payload drops all but the
+      // first field of a comma-separated sort string.
+      sort: ['-isFeatured', 'startDate', 'id'],
       limit,
       depth: 1,
       ...(locale ? { locale } : {}),
@@ -532,7 +539,16 @@ async function _getEventsList(opts: {
     const result = await payload.find({
       collection: 'events',
       where,
-      sort: upcoming ? 'startDate' : '-startDate',
+      // Featured first, then the date. MUST be an array: Payload silently drops
+      // all but the first field of a comma-separated sort string, which would
+      // quietly lose the pin.
+      //
+      // Upcoming counts UP (soonest first) and past counts DOWN (most recent
+      // first) — both mean "nearest to today", which is what a reader wants
+      // from either list.
+      sort: upcoming
+        ? ['-isFeatured', 'startDate', 'id']
+        : ['-isFeatured', '-startDate', '-id'],
       limit,
       page,
       depth: 1,
@@ -599,6 +615,7 @@ function mapEvent(d: any): EventListItem {
     featuredImage: imgOf(d.featuredImage),
     excerpt: d.excerpt,
     videoUrl: d.videoUrl ?? null,
+    isFeatured: d.isFeatured === true,
   }
 }
 
@@ -1215,6 +1232,12 @@ export interface ViewedItem {
   slug: string
   title: string
   publishedAt?: string
+  /**
+   * Events date by when they HAPPEN, not when they were published, and this
+   * helper serves both kinds of collection — so it carries whichever the
+   * document actually has.
+   */
+  startDate?: string
   featuredImage?: CMSImage | null
   views: number
 }
@@ -1265,6 +1288,7 @@ async function _getMostViewed(
           slug,
           title: d.title,
           publishedAt: d.publishedAt,
+          startDate: d.startDate,
           featuredImage: imgOf(d.featuredImage),
           views,
         }
@@ -1284,6 +1308,13 @@ export const getMostViewedPopeMessages = cachedQuery(_getMostViewedPopeMessages,
 const _getMostViewedBishopMessages = (limit?: number, locale?: string) =>
   _getMostViewed('bishop-messages', '/bishop-messages', limit, locale)
 export const getMostViewedBishopMessages = cachedQuery(_getMostViewedBishopMessages, 'getMostViewedBishopMessages', ['bishop-messages'])
+
+// Events reuse the same view counter as everything else — the generic helper
+// above already keys on collection and path prefix, so "most read events" is a
+// binding rather than a feature.
+const _getMostViewedEvents = (limit?: number, locale?: string) =>
+  _getMostViewed('events', '/events', limit, locale)
+export const getMostViewedEvents = cachedQuery(_getMostViewedEvents, 'getMostViewedEvents', ['events'])
 
 export interface AdjacentArticle {
   slug: string
@@ -1417,14 +1448,33 @@ export interface HeaderGlobal {
     message?: string
     link?: string
   }
-  utilityLinks?: Array<{ label: string; url: string }>
+  logo?: CMSImage | null
+  logoAlt?: string
+  utilityLinks?: Array<{ label: string; url: string; icon?: string }>
+  /**
+   * Every action defaults to ON when unset, so a header global saved before
+   * these fields existed keeps showing what it showed yesterday. A deploy must
+   * not silently remove the donate button.
+   */
+  actions?: {
+    showSearch?: boolean
+    showDonate?: boolean
+    showSettings?: boolean
+  }
 }
 
 async function _getHeaderGlobal(): Promise<HeaderGlobal> {
   try {
     const payload = await getPayload()
-    const data = await payload.findGlobal({ slug: 'header' } as any)
-    return data as unknown as HeaderGlobal
+    const data = (await payload.findGlobal({ slug: 'header' } as any)) as any
+    return {
+      ...data,
+      // `logo` arrives as a populated media doc; the header wants a plain URL.
+      logo: imgOf(data?.logo),
+      utilityLinks: Array.isArray(data?.utilityLinks)
+        ? data.utilityLinks.filter((l: any) => l?.label && l?.url)
+        : [],
+    } as HeaderGlobal
   } catch {
     return {}
   }
@@ -2213,8 +2263,23 @@ export const getAppsList = cachedQuery(_getAppsList, 'getAppsList', ['apps'])
 // search page and several callers import the type from this module.
 export type { SearchResult, SearchType } from '../search/registry'
 
-/** Per category, so one prolific collection cannot crowd out the rest. */
-const SEARCH_LIMIT_PER_CATEGORY = 10
+/**
+ * Per category, so one prolific collection cannot crowd out the rest.
+ *
+ * This is the size of the CANDIDATE POOL, not a page. Ranking happens in this
+ * process after the per-category queries return, which means paging cannot be
+ * pushed down into SQL: an offset applied per category would let a result on
+ * page 2 of one collection outrank one on page 1 of another, and the same
+ * document could appear on two pages as the mix shifted. So the pool is fetched
+ * once, ranked once, and sliced — the order is then identical on every page by
+ * construction.
+ *
+ * The cost of that correctness is a ceiling: matches beyond the pool are not
+ * reachable by paging. Thirty per category over ten categories is far more than
+ * anyone pages through, and a reader who needs more is better served by a
+ * narrower query than by page 14.
+ */
+const SEARCH_POOL_PER_CATEGORY = 30
 
 /**
  * SQL already proved this row matches; the ranker just could not see WHERE,
@@ -2228,14 +2293,15 @@ async function searchOneLocale(
   categories: SearchCategory[],
   variants: string[],
   term: string,
-  locale?: string,
+  locale: string | undefined,
+  perCategory: number,
 ): Promise<SearchResultType[]> {
   const jobs = categories.map(async (category) => {
     try {
       const res = await payload.find({
         collection: category.collection,
         where: buildSearchWhere(category, variants),
-        limit: SEARCH_LIMIT_PER_CATEGORY,
+        limit: perCategory,
         depth: 0,
         ...(locale ? { locale } : {}),
       } as any)
@@ -2285,6 +2351,11 @@ export async function globalSearch(
   q: string,
   scope?: string,
   locale?: string,
+  /**
+   * The typeahead shows eight suggestions and should not pay for a pool sized
+   * for a results page it is not rendering — it fires per keystroke.
+   */
+  opts: { perCategory?: number } = {},
 ): Promise<SearchResultType[]> {
   try {
     const term = (q ?? '').trim()
@@ -2297,11 +2368,12 @@ export async function globalSearch(
         ? SEARCH_CATEGORIES
         : [categoryByKey(scope)].filter(Boolean) as SearchCategory[]
 
-    let results = await searchOneLocale(payload, categories, variants, term, locale)
+    const perCategory = opts.perCategory ?? SEARCH_POOL_PER_CATEGORY
+    let results = await searchOneLocale(payload, categories, variants, term, locale, perCategory)
 
     if (results.length === 0 && locale) {
       const other = locale === 'ti' ? 'en' : 'ti'
-      results = await searchOneLocale(payload, categories, variants, term, other)
+      results = await searchOneLocale(payload, categories, variants, term, other, perCategory)
     }
 
     return rankResults(results)
@@ -2374,6 +2446,7 @@ export interface OfficeUpdate {
   image?: CMSImage | null
   excerpt?: string
   body?: unknown
+  videoUrl?: string | null
 }
 export interface OfficeEvent {
   title: string
@@ -2488,6 +2561,7 @@ export async function getOfficeBySlug(slug: string, locale?: string): Promise<Of
         image: imgOf(u?.image),
         excerpt: u?.excerpt ?? undefined,
         body: u?.body,
+        videoUrl: u?.videoUrl ?? null,
       }))
       .filter((u: OfficeUpdate) => u.title)
       .sort((a: OfficeUpdate, b: OfficeUpdate) => (b.date ?? '').localeCompare(a.date ?? ''))

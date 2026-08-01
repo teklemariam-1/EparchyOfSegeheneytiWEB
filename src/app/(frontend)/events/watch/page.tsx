@@ -7,7 +7,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { getEventsList } from '@/lib/payload/queries'
-import { LiturgyVideo } from '@/features/events/LiturgyVideo'
+import { VideoEmbed } from '@/components/shared/VideoEmbed'
 import { dateParts } from '@/lib/formatters/eventTime'
 
 export const dynamic = 'force-dynamic'
@@ -70,7 +70,7 @@ export default async function WatchPage({
                 const parts = dateParts(ev.startDate, locale)
                 return (
                   <article key={ev.slug} className="flex flex-col">
-                    <LiturgyVideo
+                    <VideoEmbed
                       url={ev.videoUrl}
                       title={ev.title}
                       fallbackLabel={t('watchOnProvider')}

@@ -5,8 +5,9 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { RichText } from '@/components/shared/RichText'
+import { VideoEmbed } from '@/components/shared/VideoEmbed'
 import { buildMetadata } from '@/lib/seo/buildMetadata'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getOfficeBySlug } from '@/lib/payload/queries'
 
 // Locale comes from the NEXT_LOCALE cookie — cannot be statically generated.
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function OfficePage({ params }: Props) {
   const { slug } = await params
   const locale = await getLocale()
+  const tc = await getTranslations('common')
   const office = await getOfficeBySlug(slug, locale)
   if (!office) notFound()
 
@@ -102,7 +104,16 @@ export default async function OfficePage({ params }: Props) {
                   <div className="space-y-8">
                     {office.updates.map((u, i) => (
                       <article key={i} className="border-b border-charcoal-100 pb-8 last:border-0">
-                        {u.image?.url && (
+                        {/* Video first when present: a youth or children's
+                            activity is usually filmed, and the still is then a
+                            duplicate of the same occasion. */}
+                        <VideoEmbed
+                          url={u.videoUrl}
+                          title={u.title}
+                          fallbackLabel={tc('watchOnProvider')}
+                          className="mb-3"
+                        />
+                        {!u.videoUrl && u.image?.url && (
                           <div className="mb-3 rounded-lg overflow-hidden bg-parchment-100">
                             <Image
                               src={u.image.url}

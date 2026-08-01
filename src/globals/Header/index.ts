@@ -6,7 +6,8 @@ export const Header: GlobalConfig = {
   slug: 'header',
   admin: {
     group: 'Navigation',
-    description: 'Site header: logo, announcement banner, and utility links.',
+    description:
+      'Everything in the site header: logo, the small top bar, the announcement banner, and which action buttons appear.',
   },
   access: { read: () => true, update: can('globals.header.edit') },
   hooks: {
@@ -73,10 +74,68 @@ export const Header: GlobalConfig = {
       type: 'array',
       label: 'Utility Links (top bar)',
       maxRows: 3,
+      admin: {
+        description:
+          'A slim bar above the main navigation — a phone number, an office address, a link to give. Leave empty and the bar does not appear at all.',
+      },
       fields: [
         { name: 'label', type: 'text', required: true, localized: true },
         { name: 'url', type: 'text', required: true },
-        { name: 'icon', type: 'text', admin: { description: 'Optional icon name (e.g. phone, mail).' } },
+        {
+          name: 'icon',
+          type: 'select',
+          defaultValue: 'none',
+          options: [
+            { label: 'None', value: 'none' },
+            { label: 'Phone', value: 'phone' },
+            { label: 'Email', value: 'mail' },
+            { label: 'Location', value: 'location' },
+            { label: 'Clock', value: 'clock' },
+          ],
+          // Was a free-text field inviting any icon name, which quietly rendered
+          // nothing when the name did not exist. A closed list can only be right.
+          admin: { description: 'Optional icon shown before the label.' },
+        },
+      ],
+    },
+    {
+      name: 'actions',
+      type: 'group',
+      label: 'Header buttons',
+      admin: {
+        description:
+          'Which action buttons appear in the header. All are on by default. The search box collapses to an icon on phones; the donate button is desktop-only by design.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'showSearch',
+              type: 'checkbox',
+              defaultValue: true,
+              label: 'Search box',
+              admin: { width: '33%' },
+            },
+            {
+              name: 'showDonate',
+              type: 'checkbox',
+              defaultValue: true,
+              label: 'Donate button',
+              admin: {
+                width: '33%',
+                description: 'Also requires donations to be enabled in Donation Settings.',
+              },
+            },
+            {
+              name: 'showSettings',
+              type: 'checkbox',
+              defaultValue: true,
+              label: 'Settings (text size, language)',
+              admin: { width: '33%' },
+            },
+          ],
+        },
       ],
     },
   ],

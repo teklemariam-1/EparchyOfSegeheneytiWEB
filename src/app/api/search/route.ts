@@ -81,7 +81,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const found = await globalSearch(q, scope, locale)
+    // A small pool: this renders eight rows and runs per keystroke.
+    const found = await globalSearch(q, scope, locale, { perCategory: 5 })
 
     const results = found.slice(0, MAX_SUGGESTIONS).map((item) => ({
       title: item.title,

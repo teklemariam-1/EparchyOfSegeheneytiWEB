@@ -907,6 +907,10 @@ export interface News {
       }[]
     | null;
   /**
+   * Optional. A YouTube or Facebook link plays above the article text — for a report on a liturgy, an interview, or a homily.
+   */
+  videoUrl?: string | null;
+  /**
    * Short summary shown in news listings and social previews (max 160 chars).
    */
   excerpt?: string | null;
@@ -1008,6 +1012,10 @@ export interface Event {
    * Mark this event as cancelled.
    */
   isCancelled?: boolean | null;
+  /**
+   * Give this event the large card at the top of the events page.
+   */
+  isFeatured?: boolean | null;
   eventType?: string | null;
   featuredImage?: (number | null) | Media;
   excerpt?: string | null;
@@ -1239,6 +1247,10 @@ export interface Office {
           };
           [k: string]: unknown;
         } | null;
+        /**
+         * Optional. A YouTube or Facebook link plays above this update — youth and children’s activities are usually filmed rather than written up.
+         */
+        videoUrl?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -3263,6 +3275,7 @@ export interface NewsSelect<T extends boolean = true> {
         caption?: T;
         id?: T;
       };
+  videoUrl?: T;
   excerpt?: T;
   body?: T;
   author?: T;
@@ -3311,6 +3324,7 @@ export interface EventsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   isCancelled?: T;
+  isFeatured?: T;
   eventType?: T;
   featuredImage?: T;
   excerpt?: T;
@@ -3415,6 +3429,7 @@ export interface OfficesSelect<T extends boolean = true> {
         image?: T;
         excerpt?: T;
         body?: T;
+        videoUrl?: T;
         id?: T;
       };
   events?:
@@ -4502,7 +4517,7 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
- * Site header: logo, announcement banner, and utility links.
+ * Everything in the site header: logo, the small top bar, the announcement banner, and which action buttons appear.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
@@ -4529,17 +4544,31 @@ export interface Header {
     link?: string | null;
     style?: ('info' | 'warning' | 'urgent') | null;
   };
+  /**
+   * A slim bar above the main navigation — a phone number, an office address, a link to give. Leave empty and the bar does not appear at all.
+   */
   utilityLinks?:
     | {
         label: string;
         url: string;
         /**
-         * Optional icon name (e.g. phone, mail).
+         * Optional icon shown before the label.
          */
-        icon?: string | null;
+        icon?: ('none' | 'phone' | 'mail' | 'location' | 'clock') | null;
         id?: string | null;
       }[]
     | null;
+  /**
+   * Which action buttons appear in the header. All are on by default. The search box collapses to an icon on phones; the donate button is desktop-only by design.
+   */
+  actions?: {
+    showSearch?: boolean | null;
+    /**
+     * Also requires donations to be enabled in Donation Settings.
+     */
+    showDonate?: boolean | null;
+    showSettings?: boolean | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -5193,6 +5222,13 @@ export interface HeaderSelect<T extends boolean = true> {
         url?: T;
         icon?: T;
         id?: T;
+      };
+  actions?:
+    | T
+    | {
+        showSearch?: T;
+        showDonate?: T;
+        showSettings?: T;
       };
   updatedAt?: T;
   createdAt?: T;

@@ -48,6 +48,7 @@ import * as migration_20260730_132149_banner_theme_colors from './20260730_13214
 import * as migration_20260730_154412_office_structure from './20260730_154412_office_structure';
 import * as migration_20260730_162448_priest_profiles from './20260730_162448_priest_profiles';
 import * as migration_20260731_090000_search_trigram_indexes from './20260731_090000_search_trigram_indexes';
+import * as migration_20260801_054251_events_video_header_controls from './20260801_054251_events_video_header_controls';
 
 export const migrations = [
   {
@@ -293,11 +294,16 @@ export const migrations = [
   {
     up: migration_20260730_162448_priest_profiles.up,
     down: migration_20260730_162448_priest_profiles.down,
-    name: '20260730_162448_priest_profiles'
+    name: '20260730_162448_priest_profiles',
   },
   {
     up: migration_20260731_090000_search_trigram_indexes.up,
     down: migration_20260731_090000_search_trigram_indexes.down,
-    name: '20260731_090000_search_trigram_indexes'
+    name: '20260731_090000_search_trigram_indexes',
+  },
+  {
+    up: migration_20260801_054251_events_video_header_controls.up,
+    down: migration_20260801_054251_events_video_header_controls.down,
+    name: '20260801_054251_events_video_header_controls'
   },
 ];

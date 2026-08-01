@@ -1,6 +1,8 @@
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
+import { EventCard, type EventCardData } from '@/features/events/EventCard'
 import type { EventListItem, HomepageGlobal } from '@/lib/payload/queries'
 
 interface Props {
@@ -8,115 +10,111 @@ interface Props {
   events: EventListItem[]
 }
 
-function EmptyEventsState() {
-  return (
-    <div className="py-16 flex flex-col items-center justify-center text-center">
-      <div className="h-16 w-16 rounded-full bg-gold-50 flex items-center justify-center mb-4">
-        <svg className="h-8 w-8 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-        </svg>
-      </div>
-      <p className="text-charcoal-500 text-base">No upcoming events at this time.</p>
-      <p className="text-charcoal-400 text-sm mt-1">All scheduled events will appear here.</p>
-    </div>
-  )
-}
-
-export function UpcomingEventsSection({ config, events }: Props) {
+/**
+ * "Upcoming Events" on the home page.
+ *
+ * Rebuilt on the shared EventCard rather than keeping its own markup. The old
+ * block was a text list — no featured image at all — and it carried three
+ * problems that the card had already solved:
+ *
+ *  - It formatted dates with `new Date(...).getDate()` and a hardcoded `'en'`
+ *    locale, so the day shown was the SERVER's day rather than Asmara's, and a
+ *    Tigrinya reader got English month names. `dateParts` inside the card pins
+ *    the eparchy's timezone, which is also what the ICS feed uses.
+ *  - Every string was an English literal, so neither heading nor "All Day" ever
+ *    translated.
+ *  - No image, on the one page where the eparchy is showing its face.
+ *
+ * The lead event gets the wide card when staff have pinned one, matching the
+ * events page so the two read as the same site.
+ */
+export async function UpcomingEventsSection({ config, events }: Props) {
   if (config?.enabled === false) return null
 
-  const heading = config?.heading ?? 'Upcoming Events'
+  const t = await getTranslations('events')
+  const heading = config?.heading ?? t('defaultHeading')
+
+  const toCard = (event: EventListItem): EventCardData => ({
+    slug: event.slug,
+    title: event.title,
+    excerpt: event.excerpt ?? '',
+    eventType: event.eventType ?? 'community',
+    startDate: event.startDate,
+    endDate: event.endDate,
+    location: event.location?.venue ?? event.location?.city,
+    imageUrl: event.featuredImage?.url,
+    isFeatured: event.isFeatured,
+  })
+
+  const cards = events.map(toCard)
+  const hasLead = cards[0]?.isFeatured === true
+  const leadCard = hasLead ? cards[0] : null
+  // Three across reads as a row; without the lead there is room for one more.
+  const gridCards = hasLead ? cards.slice(1, 4) : cards.slice(0, 3)
 
   return (
     <Section className="bg-parchment" aria-labelledby="events-section-title">
       <Container>
-        <div className="flex items-end justify-between mb-10">
+        <div className="mb-10 flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-gold-600 uppercase tracking-widest mb-1">
-              Mark Your Calendar
+            <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-gold-600">
+              {t('eyebrow')}
             </p>
             <h2
               id="events-section-title"
-              className="text-3xl md:text-4xl font-serif font-bold text-maroon-900"
+              className="font-serif text-3xl font-bold text-maroon-900 md:text-4xl"
             >
               {heading}
             </h2>
             <div className="divider-gold mt-3" />
           </div>
-          <Link href="/events" className="btn-ghost hidden sm:inline-flex">
-            All Events →
+          <Link href="/events" className="btn-ghost hidden shrink-0 sm:inline-flex">
+            {t('allEvents')} →
           </Link>
         </div>
 
-        {!events.length ? (
-          <EmptyEventsState />
+        {!cards.length ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gold-50">
+              <svg
+                className="h-8 w-8 text-gold-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                />
+              </svg>
+            </div>
+            <p className="text-base text-charcoal-500">{t('homeEmptyTitle')}</p>
+            <p className="mt-1 text-sm text-charcoal-400">{t('homeEmptyBody')}</p>
+          </div>
         ) : (
           <>
-          <div className="space-y-4">
-          {events.map((event) => {
-            const eventDate = new Date(event.startDate)
-            const day = eventDate.getDate()
-            const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(eventDate)
-            const time = event.isAllDay
-              ? 'All Day'
-              : new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-digit' }).format(eventDate)
-            const venue = event.location?.venue ?? event.location?.city ?? ''
+            {leadCard && (
+              <div className="mb-6">
+                <EventCard event={leadCard} variant="feature" featuredLabel={t('featured')} />
+              </div>
+            )}
 
-            return (
-              <Link
-                key={event.id}
-                href={`/events/${event.slug}`}
-                className="group flex items-start gap-5 p-5 bg-white rounded-xl shadow-card hover:shadow-card-hover border border-charcoal-100 transition-all"
-              >
-                {/* Date badge */}
-                <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-maroon-800 text-white">
-                  <span className="text-xl font-bold leading-none">{day}</span>
-                  <span className="text-xs font-medium text-maroon-200 uppercase">{month}</span>
-                </div>
+            {gridCards.length > 0 && (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {gridCards.map((event) => (
+                  <EventCard key={event.slug} event={event} />
+                ))}
+              </div>
+            )}
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-charcoal-900 font-serif group-hover:text-maroon-800 transition-colors truncate">
-                    {event.title}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-charcoal-500">
-                    <span className="flex items-center gap-1">
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0z" />
-                      </svg>
-                      {time}
-                    </span>
-                    {venue && (
-                      <span className="flex items-center gap-1">
-                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0z" />
-                        </svg>
-                        {venue}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <svg
-                  className="h-5 w-5 text-charcoal-300 group-hover:text-maroon-600 transition-colors shrink-0 mt-0.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
+            <div className="mt-8 text-center sm:hidden">
+              <Link href="/events" className="btn-secondary">
+                {t('allEvents')}
               </Link>
-            )
-          })}
-        </div>
-
-          <div className="mt-8 text-center sm:hidden">
-            <Link href="/events" className="btn-secondary">
-              All Events
-            </Link>
-          </div>
+            </div>
           </>
         )}
       </Container>

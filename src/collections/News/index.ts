@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { videoUrlField } from '../fields/videoUrl'
 import { safeRevalidatePath, safeRevalidateTag } from '../../lib/payload/revalidate'
 import { isPublishedOrAuthenticated } from '../../lib/permissions/readAccess'
 import { can, requirePublishPermission, hideUnless } from '../../lib/permissions/access'
@@ -147,6 +148,12 @@ export const News: CollectionConfig = {
         { name: 'caption', type: 'text', localized: true },
       ],
     },
+    videoUrlField({
+      admin: {
+        description:
+          'Optional. A YouTube or Facebook link plays above the article text — for a report on a liturgy, an interview, or a homily.',
+      },
+    }),
     {
       name: 'excerpt',
       type: 'textarea',

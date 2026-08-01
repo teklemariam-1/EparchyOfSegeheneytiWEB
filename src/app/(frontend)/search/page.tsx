@@ -12,6 +12,9 @@ import { formatShortDate } from '@/lib/formatters/date'
 
 export const dynamic = 'force-dynamic'
 
+/** Enough to fill a screen without making the reader page through singles. */
+const RESULTS_PER_PAGE = 20
+
 export const metadata: Metadata = buildMetadata({
   title: 'Search',
   description: 'Search across all content on the Catholic Eparchy of Segheneyti website.',
@@ -34,20 +37,28 @@ export const metadata: Metadata = buildMetadata({
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; scope?: string }>
+  searchParams: Promise<{ q?: string; scope?: string; page?: string }>
 }) {
-  const { q = '', scope = 'all' } = await searchParams
+  const { q = '', scope = 'all', page: pageParam } = await searchParams
   const trimmed = q.trim()
   const hasQuery = trimmed.length >= 2
   const locale = await getLocale()
   const t = await getTranslations('search')
 
-  const results = hasQuery ? await globalSearch(trimmed, scope, locale) : []
+  const allResults = hasQuery ? await globalSearch(trimmed, scope, locale) : []
+
+  // Page the ranked pool rather than the query. Everything is already in the
+  // order it will always be in, so slicing cannot reorder or duplicate a result
+  // between pages — see the note on SEARCH_POOL_PER_CATEGORY.
+  const totalPages = Math.max(1, Math.ceil(allResults.length / RESULTS_PER_PAGE))
+  const requested = Number.parseInt(pageParam ?? '1', 10)
+  const page = Number.isFinite(requested) ? Math.min(Math.max(1, requested), totalPages) : 1
+  const results = allResults.slice((page - 1) * RESULTS_PER_PAGE, page * RESULTS_PER_PAGE)
 
   // Anonymous search analytics: the term, and whether it found anything.
   // Fire-and-forget — it must never delay results.
   if (hasQuery) {
-    void recordSearchTerm(trimmed, results.length > 0)
+    void recordSearchTerm(trimmed, allResults.length > 0)
   }
 
   // Group for display without letting the grouping become the ranking: results
@@ -66,10 +77,19 @@ export default async function SearchPage({
     }
   }
 
+  // Deliberately drops `page`: changing category changes the result set, and
+  // page 5 of the old one is meaningless in the new one.
   const scopeHref = (value: string) =>
     trimmed
       ? `/search?q=${encodeURIComponent(trimmed)}&scope=${value}`
       : `/search?scope=${value}`
+
+  const pageHref = (value: number) => {
+    const params = new URLSearchParams({ q: trimmed })
+    if (scope !== 'all') params.set('scope', scope)
+    if (value > 1) params.set('page', String(value))
+    return `/search?${params.toString()}`
+  }
 
   const chips = [{ key: 'all' }, ...SEARCH_CATEGORIES.map((c) => ({ key: c.key }))]
 
@@ -143,7 +163,9 @@ export default async function SearchPage({
             results.length > 0 ? (
               <div>
                 <p className="mb-6 text-sm text-charcoal-500">
-                  {results.length === 1 ? t('resultCountOne') : `${results.length} ${t('results')}`}{' '}
+                  {allResults.length === 1
+                    ? t('resultCountOne')
+                    : `${allResults.length} ${t('results')}`}{' '}
                   <span className="font-semibold text-charcoal-900">“{trimmed}”</span>
                   {scope !== 'all' && (
                     <>
@@ -195,6 +217,42 @@ export default async function SearchPage({
                     </section>
                   ))}
                 </div>
+
+                {/* Plain links, so paging works with JavaScript disabled. */}
+                {totalPages > 1 && (
+                  <nav
+                    aria-label={t('pagination')}
+                    className="mt-10 flex items-center justify-between border-t border-charcoal-100 pt-6"
+                  >
+                    {page > 1 ? (
+                      <Link
+                        href={pageHref(page - 1)}
+                        rel="prev"
+                        className="rounded-lg border border-charcoal-200 px-4 py-2 text-sm font-medium text-charcoal-700 transition-colors hover:border-maroon-300 hover:text-maroon-800"
+                      >
+                        ← {t('previousPage')}
+                      </Link>
+                    ) : (
+                      <span />
+                    )}
+
+                    <span className="text-sm text-charcoal-500">
+                      {t('pageOf', { page, total: totalPages })}
+                    </span>
+
+                    {page < totalPages ? (
+                      <Link
+                        href={pageHref(page + 1)}
+                        rel="next"
+                        className="rounded-lg border border-charcoal-200 px-4 py-2 text-sm font-medium text-charcoal-700 transition-colors hover:border-maroon-300 hover:text-maroon-800"
+                      >
+                        {t('nextPage')} →
+                      </Link>
+                    ) : (
+                      <span />
+                    )}
+                  </nav>
+                )}
               </div>
             ) : (
               <div className="rounded-2xl border-2 border-dashed border-charcoal-200 p-10 text-center">

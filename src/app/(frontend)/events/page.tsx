@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
@@ -41,6 +42,7 @@ function toCard(ev: Awaited<ReturnType<typeof getEventsList>>['docs'][number], i
     location: ev.location?.venue ?? ev.location?.city,
     imageUrl: ev.featuredImage?.url,
     isPast,
+    isFeatured: ev.isFeatured === true,
   }
 }
 
@@ -62,13 +64,20 @@ export default async function EventsPage({
 
   // Filter buttons come from the admin-managed Event Types collection.
   const filterOptions = [
-    { value: 'all', label: 'All' },
+    { value: 'all', label: t('allFilter') },
     ...(managedTypes.length ? managedTypes : DEFAULT_TYPES),
   ]
   const isFiltered = Boolean(type && type !== 'all')
 
   const upcomingCards = upcoming.map((ev) => toCard(ev, false))
   const pastCards = past.map((ev) => toCard(ev, true))
+
+  // The pin gets the wide card; the rest keep the grid. Sliced rather than
+  // fetched separately — the query already sorted it to position 0, and taking
+  // it out of the same array is what stops it rendering in both places.
+  const hasLead = upcomingCards[0]?.isFeatured === true
+  const leadCard = hasLead ? upcomingCards[0] : null
+  const gridCards = hasLead ? upcomingCards.slice(1) : upcomingCards
 
   return (
     <>
@@ -97,19 +106,24 @@ export default async function EventsPage({
           </div>
 
           {upcomingCards.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {upcomingCards.map((ev) => (
-                <EventCard key={ev.slug} event={ev} />
-              ))}
-            </div>
+            <>
+              {leadCard && (
+                <div className="mb-6">
+                  <EventCard event={leadCard} variant="feature" featuredLabel={t('featured')} />
+                </div>
+              )}
+              {gridCards.length > 0 && (
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {gridCards.map((ev) => (
+                    <EventCard key={ev.slug} event={ev} />
+                  ))}
+                </div>
+              )}
+            </>
           ) : (
             <EmptyState
-              title="No upcoming events"
-              description={
-                isFiltered
-                  ? 'No upcoming events of this type — try another filter.'
-                  : 'Check back soon for the next Eparchy events.'
-              }
+              title={t('noEvents')}
+              description={isFiltered ? t('noEventsFiltered') : t('noEventsSoon')}
             />
           )}
         </Container>
@@ -119,9 +133,17 @@ export default async function EventsPage({
       {pastCards.length > 0 && (
         <Section className="bg-parchment-50">
           <Container>
-            <h2 className="text-xl font-serif font-semibold text-charcoal-900 mb-6">
-              {t('sectionPast')}
-            </h2>
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <h2 className="font-serif text-xl font-semibold text-charcoal-900">
+                {t('sectionPast')}
+              </h2>
+              <Link
+                href="/events?type=all"
+                className="shrink-0 text-sm font-semibold text-maroon-700 transition-colors hover:text-maroon-900"
+              >
+                {t('browseAll')} →
+              </Link>
+            </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {pastCards.map((ev) => (
                 <EventCard key={ev.slug} event={ev} />
