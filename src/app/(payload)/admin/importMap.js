@@ -40,6 +40,8 @@ import { default as default_d500ae2ad98a0a33d640ae0ac1a3417c } from '@/component
 import { default as default_b80a86fce1072afc84cd6a430a965697 } from '@/components/admin/AdminLogo'
 import { CalendarImportNavLink as CalendarImportNavLink_be3345247c2e9fbd329edd1ebd59c072 } from '@/components/admin/calendar/CalendarImportNavLink'
 import { DashboardNavLink as DashboardNavLink_3987d42d9edba53cc710fb1f6cc541b5 } from '@/components/admin/DashboardNavLink'
+import { SacramentalRequestsBadge as SacramentalRequestsBadge_04a4885527f7b8801102ac67c6276cf9 } from '@/components/admin/InboxBadge'
+import { MassIntentionsBadge as MassIntentionsBadge_04a4885527f7b8801102ac67c6276cf9 } from '@/components/admin/InboxBadge'
 import { ContactInboxBadge as ContactInboxBadge_dbe690299ab502af40613bcc9c944d81 } from '@/components/admin/ContactInboxBadge'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { default as default_805d8044a9399a3bb874e2f235b204e8 } from '@/components/admin/AdminDashboard'
@@ -89,6 +91,8 @@ export const importMap = {
   "@/components/admin/AdminLogo#default": default_b80a86fce1072afc84cd6a430a965697,
   "@/components/admin/calendar/CalendarImportNavLink#CalendarImportNavLink": CalendarImportNavLink_be3345247c2e9fbd329edd1ebd59c072,
   "@/components/admin/DashboardNavLink#DashboardNavLink": DashboardNavLink_3987d42d9edba53cc710fb1f6cc541b5,
+  "@/components/admin/InboxBadge#SacramentalRequestsBadge": SacramentalRequestsBadge_04a4885527f7b8801102ac67c6276cf9,
+  "@/components/admin/InboxBadge#MassIntentionsBadge": MassIntentionsBadge_04a4885527f7b8801102ac67c6276cf9,
   "@/components/admin/ContactInboxBadge#ContactInboxBadge": ContactInboxBadge_dbe690299ab502af40613bcc9c944d81,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@/components/admin/AdminDashboard#default": default_805d8044a9399a3bb874e2f235b204e8,

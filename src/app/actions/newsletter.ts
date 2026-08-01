@@ -2,7 +2,7 @@
 
 import { randomBytes } from 'crypto'
 import { getPayload } from '@/lib/payload/client'
-import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
+import { guardFormSubmission, reportSuspicious, type FormRejectionKey } from '@/lib/security/formGuard'
 
 export interface NewsletterState {
   ok: boolean
@@ -35,6 +35,7 @@ export async function subscribeToNewsletter(
 ): Promise<NewsletterState> {
   // Honeypot — a hidden field bots fill and humans never see.
   if (String(formData.get('company') ?? '').trim()) {
+    reportSuspicious('newsletter', 'honeypot')
     return { ok: true, message: 'Please check your inbox to confirm your subscription.' }
   }
 

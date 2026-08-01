@@ -1,7 +1,7 @@
 'use server'
 
 import { getPayload } from '@/lib/payload/client'
-import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
+import { guardFormSubmission, reportSuspicious, type FormRejectionKey } from '@/lib/security/formGuard'
 
 export interface MassIntentionState {
   ok: boolean
@@ -46,6 +46,7 @@ export async function submitMassIntention(
 ): Promise<MassIntentionState> {
   // Honeypot: silent fake success, so a bot learns nothing.
   if (sanitize(formData.get('company'))) {
+    reportSuspicious('mass-intention', 'honeypot')
     return { ok: true, message: SUCCESS_MESSAGE }
   }
 

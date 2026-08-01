@@ -1,7 +1,7 @@
 'use server'
 
 import { getPayload } from '@/lib/payload/client'
-import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
+import { guardFormSubmission, reportSuspicious, type FormRejectionKey } from '@/lib/security/formGuard'
 import { buildStatement, renderStatementHtml, type DonationRow } from '@/lib/donations/statement'
 
 export interface GivingStatementState {
@@ -38,7 +38,10 @@ export async function requestGivingStatement(
   }
 
   // Honeypot — silent fake success, so a bot learns nothing.
-  if (String(formData.get('company') ?? '').trim()) return generic
+  if (String(formData.get('company') ?? '').trim()) {
+    reportSuspicious('giving-statement', 'honeypot')
+    return generic
+  }
 
   const guard = await guardFormSubmission({
     action: 'giving-statement',

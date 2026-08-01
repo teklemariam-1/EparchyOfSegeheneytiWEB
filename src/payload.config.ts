@@ -131,9 +131,14 @@ export default buildConfig({
           path: '@/components/admin/AdminIcon',
         },
       },
-      // Dashboard shortcut + unread contact-message badge above the nav links.
+      // Dashboard shortcut, then one badge per collection that receives public
+      // submissions. Ordered by how long someone is left waiting: a sacramental
+      // request and a Mass intention are a person expecting a reply from the
+      // chancery, a contact message is usually a question.
       beforeNavLinks: [
         '@/components/admin/DashboardNavLink#DashboardNavLink',
+        '@/components/admin/InboxBadge#SacramentalRequestsBadge',
+        '@/components/admin/InboxBadge#MassIntentionsBadge',
         '@/components/admin/ContactInboxBadge#ContactInboxBadge',
       ],
       // Ge'ez New-Year import wizard, below the collection nav.

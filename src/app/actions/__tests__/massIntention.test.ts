@@ -15,6 +15,8 @@ vi.mock('@/lib/payload/client', () => ({
 }))
 vi.mock('@/lib/security/formGuard', () => ({
   guardFormSubmission: (...args: unknown[]) => guardFormSubmission(...args),
+  // A silent accept now leaves a server-side trace; the mock only has to exist.
+  reportSuspicious: () => {},
 }))
 
 const { submitMassIntention } = await import('../massIntention')

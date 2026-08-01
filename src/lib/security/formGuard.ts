@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { headers } from 'next/headers'
 import { clientIp, hashIp } from './clientId'
 import { consume } from './rateLimit'
@@ -55,14 +56,46 @@ export interface FormGuardOptions {
  * through is lower than the cost of silencing real people. The auth endpoints
  * make the opposite trade (see ./authGuard).
  */
+/**
+ * Record a submission that looked automated.
+ *
+ * A silent accept is by definition indistinguishable from success at the
+ * browser, so without this it is unobservable: nobody can tell the difference
+ * between "no one submitted" and "we threw it away". Sentry is already wired,
+ * and the console line survives in the Vercel runtime log.
+ *
+ * Deliberately records no content and no address — only which form and why.
+ */
+export function reportSuspicious(action: string, reason: 'honeypot' | 'too-fast'): void {
+  console.warn(`[form-guard] ${action}: submission flagged as ${reason}`)
+  Sentry.captureMessage(`form-guard: ${action} ${reason}`, {
+    level: 'warning',
+    tags: { form: action, reason },
+  })
+}
+
 export async function guardFormSubmission(options: FormGuardOptions): Promise<FormOutcome> {
   const { action, limit, windowSeconds, formData } = options
 
   // ── Timing ────────────────────────────────────────────────────────────────
   const verdict = verifyFormToken(formData.get('formToken'))
   if (verdict === 'too-fast') {
-    // Silent: a bot told "too fast" simply adds a delay and retries.
-    return { ok: false, silent: true }
+    // NOT rejected any more, and this is a deliberate reversal.
+    //
+    // It used to return a silent fake success, which meant a submission that
+    // tripped the 1500ms threshold was discarded while the visitor was told
+    // "we have received your request". For a contact form that costs a
+    // message; for a sacramental request or a Mass intention it means someone
+    // asked for a Mass for their dead and nobody ever knew.
+    //
+    // The threshold is measured from when /api/form-token RESPONDS, not from
+    // when the page loaded, so a slow token fetch shortens the apparent fill
+    // time for a real person — the false positive is not hypothetical.
+    //
+    // Timing is now a signal we record rather than a verdict we act on. The
+    // rate limit and Turnstile below still gate abuse, and both are bounded,
+    // whereas losing a real request silently is not recoverable.
+    reportSuspicious(action, 'too-fast')
   }
   if (verdict === 'expired') {
     return {

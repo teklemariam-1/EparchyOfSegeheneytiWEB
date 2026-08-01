@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { getPayload } from '@/lib/payload/client'
-import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
+import { guardFormSubmission, reportSuspicious, type FormRejectionKey } from '@/lib/security/formGuard'
 import { resolveDonationConfig, type PaymentMethod } from '@/lib/donations/settings'
 import { parseDonation, errorMessageKey } from '@/lib/donations/submission'
 import { reserveReference } from '@/lib/donations/reference'
@@ -59,6 +59,7 @@ export async function submitDonation(
 ): Promise<DonateFormState> {
   // Honeypot — silently accept without persisting.
   if (String(formData.get('company') ?? '').trim()) {
+    reportSuspicious('donate', 'honeypot')
     return { ok: true, message: 'Thank you for your generosity.' }
   }
 

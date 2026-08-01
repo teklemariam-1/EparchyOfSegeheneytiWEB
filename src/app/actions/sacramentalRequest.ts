@@ -1,7 +1,7 @@
 'use server'
 
 import { getPayload } from '@/lib/payload/client'
-import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
+import { guardFormSubmission, reportSuspicious, type FormRejectionKey } from '@/lib/security/formGuard'
 
 export interface SacramentalRequestState {
   ok: boolean
@@ -60,6 +60,7 @@ export async function submitSacramentalRequest(
 ): Promise<SacramentalRequestState> {
   // Honeypot: silently accept so an automated sender learns nothing.
   if (sanitize(formData.get('company'))) {
+    reportSuspicious('sacramental-request', 'honeypot')
     return { ok: true, message: SUCCESS_MESSAGE }
   }
 

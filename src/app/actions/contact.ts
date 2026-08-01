@@ -1,7 +1,7 @@
 'use server'
 
 import { getPayload } from '@/lib/payload/client'
-import { guardFormSubmission, type FormRejectionKey } from '@/lib/security/formGuard'
+import { guardFormSubmission, reportSuspicious, type FormRejectionKey } from '@/lib/security/formGuard'
 
 export interface ContactFormState {
   ok: boolean
@@ -28,6 +28,7 @@ export async function submitContactForm(
   // accept (so the bot believes it succeeded) but do not persist anything.
   const honeypot = sanitize(formData.get('company'))
   if (honeypot) {
+    reportSuspicious('contact', 'honeypot')
     return { ok: true, message: SUCCESS_MESSAGE }
   }
 
