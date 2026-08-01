@@ -136,6 +136,16 @@ export const Header: GlobalConfig = {
             },
           ],
         },
+        {
+          name: 'showLanguage',
+          type: 'checkbox',
+          defaultValue: true,
+          label: 'Language switcher',
+          admin: {
+            description:
+              'The English / ትግርኛ toggle. Switching it off does not strip anyone of the choice — the settings page still offers it — but this is the only one-tap route to it, so leave it on unless there is a reason.',
+          },
+        },
       ],
     },
   ],

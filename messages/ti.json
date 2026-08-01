@@ -64,7 +64,9 @@
     "sharePrint": "ሕተም",
     "shareCopyLink": "መላግቦ ቅዳሕ",
     "shareCopied": "ተቐዲሑ!",
-    "watchOnProvider": "ኣብቲ በዓል ቤት መርበብ ተመልከት"
+    "watchOnProvider": "ኣብቲ በዓል ቤት መርበብ ተመልከት",
+    "settings": "ቅንብራት",
+    "siteTagline": "ካቶሊካዊት ሃገረ ስብከት · ኤርትራ"
   },
   "a11y": {
     "skipToMain": "ናብ ቀንዲ ትሕዝቶ ስዓር",
@@ -74,7 +76,8 @@
     "mobileNavigation": "ናይ ሞባይል ምምሕዳር",
     "logoAlt": "ሎጎ ኤጳርቅና ሠገነይቲ",
     "socialLinks": "ናይ ማሕበራዊ ሚዲያ መላገቢ",
-    "breadcrumb": "ዓወደ-ርእሲ"
+    "breadcrumb": "ዓወደ-ርእሲ",
+    "siteFooterName": "ካቶሊካዊት ሃገረ ስብከት ሠገነይቲ · ኤርትራ"
   },
   "home": {
     "heroTitle": "ካቶሊካዊ ኤጳርቅና ሠገነይቲ",

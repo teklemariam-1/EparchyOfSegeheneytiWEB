@@ -1460,6 +1460,7 @@ export interface HeaderGlobal {
     showSearch?: boolean
     showDonate?: boolean
     showSettings?: boolean
+    showLanguage?: boolean
   }
 }
 

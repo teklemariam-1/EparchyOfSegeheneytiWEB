@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import { useTranslations } from 'next-intl'
 import type { MobileNavItem } from '@/lib/navigation/resolveNav'
 
@@ -10,7 +11,16 @@ import type { MobileNavItem } from '@/lib/navigation/resolveNav'
  * in SiteHeader and passed down, so this client component stays free of
  * Payload imports.
  */
-export function MobileMenu({ items }: { items: MobileNavItem[] }) {
+export function MobileMenu({
+  items,
+  locale,
+  showLanguage = true,
+}: {
+  items: MobileNavItem[]
+  locale: string
+  /** Mirrors the header switch, so one setting governs both places. */
+  showLanguage?: boolean
+}) {
   const ta = useTranslations('a11y')
 
   const [open, setOpen] = useState(false)
@@ -126,10 +136,19 @@ export function MobileMenu({ items }: { items: MobileNavItem[] }) {
               ))}
             </nav>
 
-            <div className="border-t border-charcoal-100 px-4 py-4">
-              <p className="text-xs text-charcoal-400 text-center">
-                Catholic Eparchy of Segheneyti · Eritrea
-              </p>
+            <div className="space-y-3 border-t border-charcoal-100 px-4 py-4">
+              {/* The language toggle lives here on phones. In the header it is
+                  `hidden sm:` — there is no room beside the logo and the menu
+                  button — which left the only one-tap route to Tigrinya on a
+                  desktop, for an audience that is largely reading on a phone.
+                  Two taps through the settings page is not the same thing. */}
+              {showLanguage && (
+                <LanguageSwitcher
+                  currentLocale={locale}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-charcoal-200 px-4 py-2.5 text-sm font-medium text-charcoal-700 transition-colors hover:border-maroon-300 hover:text-maroon-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-maroon-700"
+                />
+              )}
+              <p className="text-center text-xs text-charcoal-400">{ta('siteFooterName')}</p>
             </div>
           </div>
         </>

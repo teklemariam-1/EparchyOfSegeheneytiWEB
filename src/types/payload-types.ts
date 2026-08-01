@@ -4568,6 +4568,10 @@ export interface Header {
      */
     showDonate?: boolean | null;
     showSettings?: boolean | null;
+    /**
+     * The English / ትግርኛ toggle. Switching it off does not strip anyone of the choice — the settings page still offers it — but this is the only one-tap route to it, so leave it on unless there is a reason.
+     */
+    showLanguage?: boolean | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -5229,6 +5233,7 @@ export interface HeaderSelect<T extends boolean = true> {
         showSearch?: T;
         showDonate?: T;
         showSettings?: T;
+        showLanguage?: T;
       };
   updatedAt?: T;
   createdAt?: T;

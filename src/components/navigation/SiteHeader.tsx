@@ -11,14 +11,18 @@ import { getHeaderGlobal, getSiteSettings, getNavigationGlobal } from '@/lib/pay
 import { resolveMobileNav } from '@/lib/navigation/resolveNav'
 
 export async function SiteHeader() {
-  const [header, settings, locale, tc, tn] = await Promise.all([
+  // Locale first, and NOT in the Promise.all: `tagline` is a localized field,
+  // so getSiteSettings has to be told which language to return or it serves the
+  // default one to everybody. Reading the locale is a cookie lookup, so the
+  // serialization costs nothing worth parallelising.
+  const locale = await getLocale()
+  const [header, settings, tc, tn, ts] = await Promise.all([
     getHeaderGlobal(),
-    getSiteSettings(),
-    getLocale(),
+    getSiteSettings(locale),
     getTranslations('common'),
     getTranslations('nav'),
+    getTranslations('search'),
   ])
-  const ts = await getTranslations('search')
 
   // Admin-managed navigation (falls back to the built-in structure when the
   // global is empty). MobileMenu is a client component, so the resolved list
@@ -39,6 +43,7 @@ export async function SiteHeader() {
     search: header.actions?.showSearch !== false,
     donate: header.actions?.showDonate !== false,
     settings: header.actions?.showSettings !== false,
+    language: header.actions?.showLanguage !== false,
   }
   const utilityLinks = header.utilityLinks ?? []
 
@@ -99,7 +104,14 @@ export async function SiteHeader() {
               <p className="text-sm font-bold text-maroon-900 leading-tight font-serif">
                 {settings.siteName ?? 'Eparchy of Segheneyti'}
               </p>
-              <p className="text-xs text-charcoal-500 leading-tight">Catholic Diocese · Eritrea</p>
+              {/* SiteSettings.tagline is localized and was, until now, read by
+                  nothing — the header printed an English literal instead, so a
+                  Tigrinya reader saw English under the eparchy's own name and an
+                  admin editing the tagline saw no change. Falls back to the old
+                  text so an empty field does not blank the line. */}
+              <p className="text-xs leading-tight text-charcoal-500">
+                {settings.tagline || tc('siteTagline')}
+              </p>
             </div>
           </Link>
 
@@ -131,13 +143,13 @@ export async function SiteHeader() {
             )}
 
             {/* Language switcher */}
-            <LanguageSwitcher currentLocale={locale} />
+            {show.language && <LanguageSwitcher currentLocale={locale} />}
 
             {/* Settings */}
             {show.settings && (
             <Link
               href="/settings"
-              aria-label="Settings"
+              aria-label={tc('settings')}
               className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-charcoal-500 hover:bg-charcoal-50 hover:text-maroon-800 transition-colors focus-visible:ring-2 focus-visible:ring-maroon-700"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
@@ -148,7 +160,7 @@ export async function SiteHeader() {
             )}
 
             {/* Mobile menu toggle */}
-            <MobileMenu items={mobileItems} />
+            <MobileMenu items={mobileItems} locale={locale} showLanguage={show.language} />
           </div>
         </div>
       </div>

@@ -64,7 +64,9 @@
     "sharePrint": "Print",
     "shareCopyLink": "Copy link",
     "shareCopied": "Copied!",
-    "watchOnProvider": "Watch on the original site"
+    "watchOnProvider": "Watch on the original site",
+    "settings": "Settings",
+    "siteTagline": "Catholic Diocese · Eritrea"
   },
   "a11y": {
     "skipToMain": "Skip to main content",
@@ -74,7 +76,8 @@
     "mobileNavigation": "Mobile navigation",
     "logoAlt": "Eparchy of Segheneyti logo",
     "socialLinks": "Social media links",
-    "breadcrumb": "Breadcrumb"
+    "breadcrumb": "Breadcrumb",
+    "siteFooterName": "Catholic Eparchy of Segheneyti · Eritrea"
   },
   "home": {
     "heroTitle": "Catholic Eparchy of Segheneyti",

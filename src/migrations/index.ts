@@ -49,6 +49,7 @@ import * as migration_20260730_154412_office_structure from './20260730_154412_o
 import * as migration_20260730_162448_priest_profiles from './20260730_162448_priest_profiles';
 import * as migration_20260731_090000_search_trigram_indexes from './20260731_090000_search_trigram_indexes';
 import * as migration_20260801_054251_events_video_header_controls from './20260801_054251_events_video_header_controls';
+import * as migration_20260801_134506_header_language_toggle from './20260801_134506_header_language_toggle';
 
 export const migrations = [
   {
@@ -304,6 +305,11 @@ export const migrations = [
   {
     up: migration_20260801_054251_events_video_header_controls.up,
     down: migration_20260801_054251_events_video_header_controls.down,
-    name: '20260801_054251_events_video_header_controls'
+    name: '20260801_054251_events_video_header_controls',
+  },
+  {
+    up: migration_20260801_134506_header_language_toggle.up,
+    down: migration_20260801_134506_header_language_toggle.down,
+    name: '20260801_134506_header_language_toggle'
   },
 ];
