@@ -44,7 +44,7 @@ const SEED: SeedItem[] = [
   { en: 'Vicariates', ti: 'ቪካርያታት', url: '/vicariates' },
   { en: 'Parishes', ti: 'ሰበካት', url: '/parishes' },
   { en: 'News', ti: 'ዜናታት', url: '/news' },
-  { en: 'Events', ti: 'ኣጋጣሚታት', url: '/events' },
+  { en: 'Events', ti: 'ንጥፈታት', url: '/events' },
   {
     en: 'Ministries',
     ti: 'ኣገልግሎታት',

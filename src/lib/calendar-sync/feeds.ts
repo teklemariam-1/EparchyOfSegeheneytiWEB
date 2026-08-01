@@ -75,10 +75,10 @@ export const FEEDS: FeedDef[] = [
   },
   {
     id: 'events',
-    title: { en: 'Eparchy Events', ti: 'ናይ ኤጳርቅና ኣጋጣሚታት' },
+    title: { en: 'Eparchy Events', ti: 'ናይ ኤጳርቅና ንጥፈታት' },
     description: {
       en: 'Eparchy-wide and parish events. Filter to one parish with ?parish=<slug>.',
-      ti: 'ኣጋጣሚታት ኤጳርቅናን ቁምስናታትን። ንሓደ ቁምስና ብ ?parish=<slug> ኣጻርዩ።',
+      ti: 'ንጥፈታት ኤጳርቅናን ቁምስናታትን። ንሓደ ቁምስና ብ ?parish=<slug> ኣጻርዩ።',
     },
     supportsParish: true,
     build: async ({ parish }) =>

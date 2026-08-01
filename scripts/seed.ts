@@ -406,13 +406,13 @@ async function main() {
     user: SEED_USER as any,
     data: {
       _status: 'published',
-      fullName: 'ኣቡነ መኮንን ተስፋይ',
+      fullName: 'ኣቡነ ፍቕረማርያም ሓጎስ',
       formalTitle: 'ጳጳስ ካቶሊካዊት ሃገረ ስብከት ሠገነይቲ',
       motto: 'ብፍቕሪ ንሓድሕድኩም ተገልገሉ',
       placeOfBirth: 'ዓዲ ቀይሕ፣ ኤርትራ',
       appointingAuthorityName: 'ር.ሊ.ጳ ፍራንቸስኮስ',
       biographySummary:
-        'ኣቡነ መኮንን ተስፋይ ካብ 2024 ጀሚሮም ንሃገረ ስብከት ሠገነይቲ የገልግሉ ኣለዉ። ኣብ 1998 ካህን ኮይኖም ተሸሙ፣ ኣብ ዓቢ ሰሚናርዮ ቅዱስ መጽሓፍ መሃሩ፣ ቅድሚ ናብ ጵጵስና ምስያሞም ድማ ጸሓፊ ሃገረ ስብከት ኮይኖም ኣገልጊሎም።',
+        'ኣቡነ ፍቕረማርያም ሓጎስ ካብ 2024 ጀሚሮም ንሃገረ ስብከት ሠገነይቲ የገልግሉ ኣለዉ። ኣብ 1998 ካህን ኮይኖም ተሸሙ፣ ኣብ ዓቢ ሰሚናርዮ ቅዱስ መጽሓፍ መሃሩ፣ ቅድሚ ናብ ጵጵስና ምስያሞም ድማ ጸሓፊ ሃገረ ስብከት ኮይኖም ኣገልጊሎም።',
       milestones: localizeRows(bishopMilestones, bishopMilestonesTi, bishopRows.milestones),
       honors: localizeRows(bishopHonors, bishopHonorsTi, bishopRows.honors),
       education: localizeRows(bishopEducation, bishopEducationTi, bishopRows.education),
@@ -542,7 +542,7 @@ async function main() {
       },
       bishopMessage: { sectionHeading: 'ቃል ካብ ጳጳስ' },
       latestNews: { sectionHeading: 'ዝቐረቡ ዜናታት' },
-      upcomingEvents: { sectionHeading: 'ዝቐርቡ ኣጋጣሚታት' },
+      upcomingEvents: { sectionHeading: 'ዝቐርቡ ንጥፈታት' },
       quickLinks: { sectionHeading: 'ቅልጡፍ መላግቦታት' },
     } as any,
   })
