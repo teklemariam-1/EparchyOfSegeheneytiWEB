@@ -202,7 +202,30 @@
     "noResults": "ዝርከብ ውጽኢት የለን ን",
     "results": "ውጽኢታት ን",
     "allContent": "ኩሉ ትሕዝቶ",
-    "searchScope": "ናይ ድሌት ሸፈን"
+    "searchScope": "ናይ ድሌት ሸፈን",
+    "submit": "ድለ",
+    "srLabel": "ኣብ መርበብ ሓበሬታ ሃገረ ስብከት ድለ",
+    "resultCountOne": "1 ውጽኢት ንዓ",
+    "inCategory": "ኣብ",
+    "noResultsHint": "ካልእ ቃል ፈትን፡ ኣጻሕፋኡ ኣረጋግጽ፡ ወይ ኣብ ኩሉ ምድብ ድለ።",
+    "emptyTitle": "ኣብ ኩሉ መርበብ ሓበሬታ ሃገረ ስብከት ድለ",
+    "emptyBody": "ንምድላይ እንተወሓደ ክልተ ፊደላት ጽሓፍ — ዜና፡ መደባት፡ ኣብያተ ክርስትያን፡ ኣገልግሎታት፡ ካህናት ከምኡውን ካልእ።",
+    "openSearch": "መድለዪ ክፈት",
+    "closeSearch": "መድለዪ ዕጾ",
+    "suggestions": "ምርጫታት",
+    "category": {
+      "all": "ኩሉ",
+      "news": "ዜና",
+      "events": "መደባት",
+      "bishop-messages": "መልእኽቲ ጳጳስ",
+      "pope-messages": "መልእኽቲ ር.ሊ.ጳ",
+      "parishes": "ኣብያተ ክርስትያን",
+      "ministries": "ኣገልግሎታት",
+      "publications": "ሕታማት",
+      "clergy": "ካህናት",
+      "offices": "ቤት ጽሕፈታት",
+      "vicariates": "ወከልቲ ሃገረ ስብከት"
+    }
   },
   "media": {
     "title": "ሚዲያ",

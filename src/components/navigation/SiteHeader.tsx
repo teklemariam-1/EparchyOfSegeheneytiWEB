@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { MainNav } from './MainNav'
 import { MobileMenu } from './MobileMenu'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { HeaderSearch } from './HeaderSearch'
 import { AnnouncementBanner } from './AnnouncementBanner'
 import { DonateCTA } from '@/features/donate/DonateCTA'
 import { getHeaderGlobal, getSiteSettings, getNavigationGlobal } from '@/lib/payload/queries'
@@ -17,6 +18,7 @@ export async function SiteHeader() {
     getTranslations('common'),
     getTranslations('nav'),
   ])
+  const ts = await getTranslations('search')
 
   // Admin-managed navigation (falls back to the built-in structure when the
   // global is empty). MobileMenu is a client component, so the resolved list
@@ -74,6 +76,18 @@ export async function SiteHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            {/* Search — a real GET form; the dropdown is layered on top of it */}
+            <HeaderSearch
+              locale={locale}
+              labels={{
+                placeholder: ts('placeholder'),
+                srLabel: ts('srLabel'),
+                open: ts('openSearch'),
+                close: ts('closeSearch'),
+                suggestions: ts('suggestions'),
+              }}
+            />
+
             {/* Donate CTA — renders nothing when donations are disabled */}
             <div className="hidden sm:block">
               <DonateCTA locale={locale} />

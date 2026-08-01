@@ -10,6 +10,15 @@ import { sql } from '@payloadcms/db-postgres'
 import { getPayload } from './client'
 import { cachedQuery } from './cache'
 import type { BannerSettingsData } from '../banner-themes'
+import {
+  SEARCH_CATEGORIES,
+  buildSearchWhere,
+  categoryByKey,
+  type SearchCategory,
+  type SearchResult as SearchResultType,
+} from '../search/registry'
+import { geezVariants } from '../search/geez'
+import { rankResults, scoreResult } from '../search/rank'
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -2199,114 +2208,103 @@ export const getAppsList = cachedQuery(_getAppsList, 'getAppsList', ['apps'])
 
 // ─── Global search ─────────────────────────────────────────────────────────────
 
-export interface SearchResult {
-  type: 'news' | 'event' | 'parish' | 'ministry' | 'publication' | 'bishop-message' | 'pope-message'
-  slug: string
-  title: string
-  excerpt?: string
-  category?: string
-  date?: string
+// Search now lives in src/lib/search — the registry of what is searchable,
+// the Ge'ez spelling folder, and the ranker. Re-exported here because the
+// search page and several callers import the type from this module.
+export type { SearchResult, SearchType } from '../search/registry'
+
+/** Per category, so one prolific collection cannot crowd out the rest. */
+const SEARCH_LIMIT_PER_CATEGORY = 10
+
+/**
+ * SQL already proved this row matches; the ranker just could not see WHERE,
+ * because the matched field is not one the card displays. Without a floor such
+ * a result would score zero and sort below everything.
+ */
+const MATCHED_ELSEWHERE_SCORE = 10
+
+async function searchOneLocale(
+  payload: any,
+  categories: SearchCategory[],
+  variants: string[],
+  term: string,
+  locale?: string,
+): Promise<SearchResultType[]> {
+  const jobs = categories.map(async (category) => {
+    try {
+      const res = await payload.find({
+        collection: category.collection,
+        where: buildSearchWhere(category, variants),
+        limit: SEARCH_LIMIT_PER_CATEGORY,
+        depth: 0,
+        ...(locale ? { locale } : {}),
+      } as any)
+
+      return (res.docs as any[])
+        .map((doc) => {
+          const base = category.toResult(doc)
+          if (!base.slug || !base.title) return null
+          const score = scoreResult(base, term, { dated: Boolean(category.dateField) })
+          return {
+            ...base,
+            type: category.type,
+            score: score > 0 ? score : MATCHED_ELSEWHERE_SCORE,
+          } as SearchResultType
+        })
+        .filter(Boolean) as SearchResultType[]
+    } catch {
+      // One broken collection must not empty the whole result page.
+      return []
+    }
+  })
+
+  return (await Promise.all(jobs)).flat()
 }
 
+/**
+ * Search everything the site publishes.
+ *
+ * THREE things this does that the previous version did not:
+ *
+ * 1. It searches the reader's language. Translated text lives in `*_locales`
+ *    tables, and the old query passed no locale, so it always searched English
+ *    — a visitor reading Tigrinya searched Tigrinya and matched English rows.
+ *    If the active locale finds nothing, the other is tried once: proper nouns
+ *    are routinely typed in the other script, and returning nothing when we
+ *    hold the answer is worse than a second query.
+ *
+ * 2. It tolerates Ge'ez spelling variation, so ሠገነይቲ and ሰገነይቲ find each other.
+ *
+ * 3. It ranks. Results used to arrive grouped by whichever collection was
+ *    queried first, which is not a relevance signal.
+ *
+ * What is searched, and what may never be searched, is declared in the registry
+ * — including the rule that a priest's withheld sections are not reachable.
+ */
 export async function globalSearch(
   q: string,
   scope?: string,
-): Promise<SearchResult[]> {
+  locale?: string,
+): Promise<SearchResultType[]> {
   try {
-  if (!q || q.trim().length < 2) return []
-  const payload = await getPayload()
-  const term = q.trim()
-  // Each enabled collection is searched concurrently; results are flattened in
-  // call order so output ordering stays deterministic (news, events, …).
-  const jobs: Promise<SearchResult[]>[] = []
+    const term = (q ?? '').trim()
+    if (term.length < 2) return []
 
-  const run = (
-    collection: string,
-    type: SearchResult['type'],
-    titleFields: string[],
-    extraFields: string[],
-    toResult: (d: any) => SearchResult,
-    // Only draft-enabled collections have a `_status` field. Applying the
-    // published filter to a non-draft collection matches nothing, which is why
-    // parishes/ministries/publications previously returned zero results.
-    hasDrafts = false,
-  ): Promise<SearchResult[]> => {
-    const exec = async (): Promise<SearchResult[]> => {
-      try {
-        const whereOr = [
-          ...titleFields.map((f) => ({ [f]: { like: term } })),
-          ...extraFields.map((f) => ({ [f]: { like: term } })),
-        ]
-        const andClauses: any[] = [{ or: whereOr }]
-        if (hasDrafts) {
-          andClauses.unshift({ _status: { equals: 'published' } })
-        }
-        const res = await payload.find({
-          collection,
-          where: { and: andClauses },
-          limit: 10,
-          depth: 0,
-        } as any)
-        return (res.docs as any[]).map(toResult)
-      } catch {
-        return [] // non-fatal per collection
-      }
+    const payload = await getPayload()
+    const variants = geezVariants(term)
+    const categories =
+      !scope || scope === 'all'
+        ? SEARCH_CATEGORIES
+        : [categoryByKey(scope)].filter(Boolean) as SearchCategory[]
+
+    let results = await searchOneLocale(payload, categories, variants, term, locale)
+
+    if (results.length === 0 && locale) {
+      const other = locale === 'ti' ? 'en' : 'ti'
+      results = await searchOneLocale(payload, categories, variants, term, other)
     }
-    const p = exec()
-    jobs.push(p)
-    return p
-  }
 
-  const all = !scope || scope === 'all'
-
-  if (all || scope === 'news') {
-    run(
-      'news', 'news', ['title'], ['excerpt'],
-      (d) => ({ type: 'news', slug: d.slug, title: d.title, excerpt: d.excerpt, category: d.category, date: d.publishedAt }),
-      true,
-    )
-  }
-  if (all || scope === 'events') {
-    run(
-      'events', 'event', ['title'], ['description', 'location'],
-      (d) => ({ type: 'event', slug: d.slug, title: d.title, excerpt: d.description, date: d.startDate }),
-      true,
-    )
-  }
-  if (all || scope === 'bishop-messages') {
-    run(
-      'bishop-messages', 'bishop-message', ['title'], ['excerpt'],
-      (d) => ({ type: 'bishop-message', slug: d.slug, title: d.title, excerpt: d.excerpt, date: d.publishedAt }),
-      true,
-    )
-  }
-  if (all || scope === 'pope-messages') {
-    run(
-      'pope-messages', 'pope-message', ['title'], ['excerpt'],
-      (d) => ({ type: 'pope-message', slug: d.slug, title: d.title, excerpt: d.excerpt, date: d.publishedAt }),
-      true,
-    )
-  }
-  if (all || scope === 'parishes') {
-    run(
-      'parishes', 'parish', ['name'], ['region'],
-      (d) => ({ type: 'parish', slug: d.slug, title: d.name ?? d.title, excerpt: d.region ? `${d.region}` : undefined }),
-    )
-  }
-  if (all || scope === 'ministries') {
-    run(
-      'ministries', 'ministry', ['name'], [],
-      (d) => ({ type: 'ministry', slug: d.slug, title: d.name ?? d.title }),
-    )
-  }
-  if (all || scope === 'publications') {
-    run(
-      'publications', 'publication', ['title'], ['excerpt'],
-      (d) => ({ type: 'publication', slug: d.slug, title: d.title, excerpt: d.excerpt }),
-    )
-  }
-
-  return (await Promise.all(jobs)).flat()
+    return rankResults(results)
   } catch (err) {
     logQueryError('globalSearch', err)
     return []

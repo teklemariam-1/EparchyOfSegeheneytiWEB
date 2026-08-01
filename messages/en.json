@@ -198,11 +198,34 @@
   "search": {
     "title": "Search",
     "subtitle": "Find news, events, parishes, publications, and more across the Eparchy.",
-    "placeholder": "Search for news, events, parishes…",
+    "placeholder": "Search news, events, parishes…",
     "noResults": "No results found for",
     "results": "results for",
     "allContent": "All Content",
-    "searchScope": "Search scope"
+    "searchScope": "Search scope",
+    "submit": "Search",
+    "srLabel": "Search the Eparchy website",
+    "resultCountOne": "1 result for",
+    "inCategory": "in",
+    "noResultsHint": "Try a different word, check the spelling, or search all categories.",
+    "emptyTitle": "Search the whole Eparchy website",
+    "emptyBody": "Type at least two characters to search news, events, parishes, ministries, clergy and more.",
+    "openSearch": "Open search",
+    "closeSearch": "Close search",
+    "suggestions": "Suggestions",
+    "category": {
+      "all": "All",
+      "news": "News",
+      "events": "Events",
+      "bishop-messages": "Bishop's Messages",
+      "pope-messages": "Pope's Messages",
+      "parishes": "Parishes",
+      "ministries": "Ministries",
+      "publications": "Publications",
+      "clergy": "Clergy",
+      "offices": "Offices",
+      "vicariates": "Vicariates"
+    }
   },
   "media": {
     "title": "Media",

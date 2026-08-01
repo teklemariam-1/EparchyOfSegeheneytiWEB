@@ -47,6 +47,7 @@ import * as migration_20260730_120000_navigation_seed from './20260730_120000_na
 import * as migration_20260730_132149_banner_theme_colors from './20260730_132149_banner_theme_colors';
 import * as migration_20260730_154412_office_structure from './20260730_154412_office_structure';
 import * as migration_20260730_162448_priest_profiles from './20260730_162448_priest_profiles';
+import * as migration_20260731_090000_search_trigram_indexes from './20260731_090000_search_trigram_indexes';
 
 export const migrations = [
   {
@@ -293,5 +294,10 @@ export const migrations = [
     up: migration_20260730_162448_priest_profiles.up,
     down: migration_20260730_162448_priest_profiles.down,
     name: '20260730_162448_priest_profiles'
+  },
+  {
+    up: migration_20260731_090000_search_trigram_indexes.up,
+    down: migration_20260731_090000_search_trigram_indexes.down,
+    name: '20260731_090000_search_trigram_indexes'
   },
 ];
