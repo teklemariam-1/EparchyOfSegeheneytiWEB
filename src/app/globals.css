@@ -197,6 +197,53 @@
     background: transparent !important;
     padding-block: 0.75rem !important;
   }
+
+  /* ── Printable clergy obituary (ታሪኽ ሕይወት ካህን) ──────────────────────────
+     Same rationale as the bishop biography above: the chancery hands these out
+     at memorials, so the detail page prints as the formal document. Share/copy
+     controls carry `print:hidden` in the markup; here the parchment panel goes
+     black-on-white serif, the timeline loses its decorative rail, sections
+     never break across pages, and the portrait sits modest at the top. */
+  .obituary-article {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #000 !important;
+    font-family: Georgia, 'Noto Serif Ethiopic', serif;
+  }
+
+  .obituary-article h1,
+  .obituary-article h2,
+  .obituary-article p,
+  .obituary-article li,
+  .obituary-article blockquote {
+    color: #000 !important;
+  }
+
+  .obituary-article section,
+  .obituary-article blockquote,
+  .obituary-article header {
+    break-inside: avoid;
+  }
+
+  .obituary-portrait {
+    height: 8rem !important;
+    width: 8rem !important;
+  }
+
+  .obituary-article ol {
+    border-inline-start: none !important;
+    padding-inline-start: 0 !important;
+  }
+
+  .obituary-timeline-row {
+    break-inside: avoid;
+  }
+
+  .obituary-timeline-row > span[aria-hidden='true'] {
+    display: none !important;
+  }
 }
 
 @layer components {

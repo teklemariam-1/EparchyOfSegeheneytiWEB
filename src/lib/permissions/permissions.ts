@@ -37,6 +37,11 @@ export const PERMISSIONS = [
   'apps.create', 'apps.update', 'apps.delete', 'apps.publish',
   'offices.create', 'offices.update', 'offices.delete', 'offices.publish',
   'events.create', 'events.update', 'events.delete', 'events.publish', 'events.manage-own',
+  // Clergy obituaries (ታሪኽ ሕይወት ካህን) are chancery documents about the dead.
+  // `.delete` is deliberately absent from every preset: super-admin holds the
+  // whole catalog by short-circuit, so removing a published life story is
+  // super-admin-only until explicitly granted.
+  'clergy-obituaries.create', 'clergy-obituaries.update', 'clergy-obituaries.delete', 'clergy-obituaries.publish',
 
   // ── Content (no drafts) ──────────────────────────────────────────────────
   'publications.create', 'publications.update', 'publications.delete',
@@ -137,6 +142,9 @@ const CHANCERY: Permission[] = [
   'apps.create', 'apps.update', 'apps.delete', 'apps.publish',
   'offices.create', 'offices.update', 'offices.delete', 'offices.publish',
   'events.create', 'events.update', 'events.delete', 'events.publish',
+  // Not `.delete`: a published life story of a deceased priest is a formal
+  // chancery record — removing one is super-admin-only.
+  'clergy-obituaries.create', 'clergy-obituaries.update', 'clergy-obituaries.publish',
   'publications.create', 'publications.update', 'publications.delete',
   'magazines.create', 'magazines.update', 'magazines.delete',
   'archives.create', 'archives.update', // archives.delete was super-admin-only

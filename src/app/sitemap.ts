@@ -9,6 +9,7 @@ import {
   getAllOfficeSlugs,
 } from '@/lib/payload/queries'
 import { getAllBishopSlugs } from '@/lib/bishops/queries'
+import { getAllObituarySlugs } from '@/lib/obituary/queries'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim()
 
@@ -35,6 +36,7 @@ const STATIC_ROUTES: Array<{
   // /eparchs 404s until there are two Eparchs to list, so it is deliberately
   // absent here — advertising a URL that returns 404 is a crawl error, not a
   // discovery aid. Individual profiles below are live from the first record.
+  { url: '/obituaries', changeFrequency: 'monthly', priority: 0.6 },
   { url: '/contact', changeFrequency: 'monthly', priority: 0.7 },
   { url: '/search', changeFrequency: 'monthly', priority: 0.4 },
   { url: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
@@ -55,6 +57,7 @@ const DETAIL_GROUPS: Array<{
   { prefix: '/bishop-messages', load: getAllBishopMessageSlugs, changeFrequency: 'monthly', priority: 0.7 },
   { prefix: '/pope-messages', load: getAllPopeMessageSlugs, changeFrequency: 'monthly', priority: 0.6 },
   { prefix: '/eparchs', load: getAllBishopSlugs, changeFrequency: 'monthly', priority: 0.7 },
+  { prefix: '/obituaries', load: getAllObituarySlugs, changeFrequency: 'monthly', priority: 0.6 },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

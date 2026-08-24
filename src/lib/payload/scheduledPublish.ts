@@ -34,6 +34,7 @@ export const SCHEDULABLE_COLLECTIONS: { slug: string; publishPermission: Permiss
   { slug: 'offices', publishPermission: 'offices.publish' },
   { slug: 'events', publishPermission: 'events.publish' },
   { slug: 'bishops', publishPermission: 'bishops.publish' },
+  { slug: 'clergy-obituaries', publishPermission: 'clergy-obituaries.publish' },
 ]
 
 /**

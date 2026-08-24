@@ -30,7 +30,8 @@
     "apps": "Apps & Downloads",
     "vicariates": "Vicariates",
     "donate": "Donate",
-    "clergy": "Our Clergy"
+    "clergy": "Our Clergy",
+    "clergyObituaries": "Clergy obituaries"
   },
   "common": {
     "readMore": "Read More",
@@ -699,6 +700,14 @@
       "thanksgiving": "Thanksgiving",
       "special": "A special intention"
     }
+  },
+  "obituaries": {
+    "title": "Clergy obituaries",
+    "subtitle": "The life stories of the priests of the eparchy who have gone to their rest.",
+    "copyFullText": "Copy full text",
+    "copied": "Copied",
+    "emptyTitle": "Nothing published yet",
+    "emptyDescription": "No clergy life story has been published yet."
   },
   "clergy": {
     "title": "Our Clergy",

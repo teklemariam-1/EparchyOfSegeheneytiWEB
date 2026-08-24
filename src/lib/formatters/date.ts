@@ -122,6 +122,32 @@ export function geezToGregorian(
   return result
 }
 
+/**
+ * Approximate Gregorian → Ge'ez conversion — the inverse of `geezToGregorian`,
+ * built on the same ~11 September anchor and 30-day months, so the two agree
+ * with each other even where both drift a day or two from the true calendar.
+ * Display/hint purposes only, same caveat as above.
+ */
+export function gregorianToGeezApprox(
+  isoDate: string,
+): { year: number; monthIndex: number; day: number } | null {
+  const time = Date.parse(`${isoDate.slice(0, 10)}T00:00:00Z`)
+  if (Number.isNaN(time)) return null
+
+  const gregorianYear = new Date(time).getUTCFullYear()
+  let anchorYear = gregorianYear
+  let anchor = Date.parse(`${anchorYear}-09-11T00:00:00Z`)
+  if (time < anchor) {
+    anchorYear -= 1
+    anchor = Date.parse(`${anchorYear}-09-11T00:00:00Z`)
+  }
+
+  const days = Math.round((time - anchor) / 86_400_000)
+  const monthIndex = Math.min(Math.floor(days / 30), 12) // 0=Meskerem … 12=Paguemen
+  const day = monthIndex === 12 ? days - 12 * 30 + 1 : (days % 30) + 1
+  return { year: anchorYear - 7, monthIndex, day }
+}
+
 /** Format a Ge'ez date as a human-readable string */
 export function formatGeezDate(
   geezYear: number,

@@ -30,7 +30,8 @@
     "apps": "መተግበሪታት",
     "vicariates": "ቪካርያታት",
     "donate": "ወፈያ",
-    "clergy": "ካህናትና"
+    "clergy": "ካህናትና",
+    "clergyObituaries": "ዜና ዕረፍቲ ካህናት"
   },
   "common": {
     "readMore": "ዝያዳ ኣንብብ",
@@ -699,6 +700,14 @@
       "thanksgiving": "ንምስጋና",
       "special": "ፍሉይ ሕሊና"
     }
+  },
+  "obituaries": {
+    "title": "ዜና ዕረፍቲ ካህናት",
+    "subtitle": "ታሪኽ ሕይወት እቶም ብ\"ሠናይ ገድሊ\" ዝተጋደሉ ኣቦታትና ካህናት።",
+    "copyFullText": "ምሉእ ጽሑፍ ቅዳሕ",
+    "copied": "ተቐዲሑ",
+    "emptyTitle": "ገና ዝተሓትመ የለን",
+    "emptyDescription": "ክሳብ ሕጂ ዝተሓትመ ታሪኽ ሕይወት የለን።"
   },
   "clergy": {
     "title": "ካህናትና",

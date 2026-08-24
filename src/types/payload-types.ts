@@ -84,6 +84,7 @@ export interface Config {
     priests: Priest;
     'pope-messages': PopeMessage;
     bishops: Bishop;
+    'clergy-obituaries': ClergyObituary;
     'bishop-messages': BishopMessage;
     publications: Publication;
     magazines: Magazine;
@@ -128,6 +129,7 @@ export interface Config {
     priests: PriestsSelect<false> | PriestsSelect<true>;
     'pope-messages': PopeMessagesSelect<false> | PopeMessagesSelect<true>;
     bishops: BishopsSelect<false> | BishopsSelect<true>;
+    'clergy-obituaries': ClergyObituariesSelect<false> | ClergyObituariesSelect<true>;
     'bishop-messages': BishopMessagesSelect<false> | BishopMessagesSelect<true>;
     publications: PublicationsSelect<false> | PublicationsSelect<true>;
     magazines: MagazinesSelect<false> | MagazinesSelect<true>;
@@ -269,6 +271,10 @@ export interface User {
         | 'events.delete'
         | 'events.publish'
         | 'events.manage-own'
+        | 'clergy-obituaries.create'
+        | 'clergy-obituaries.update'
+        | 'clergy-obituaries.delete'
+        | 'clergy-obituaries.publish'
         | 'publications.create'
         | 'publications.update'
         | 'publications.delete'
@@ -386,6 +392,10 @@ export interface User {
         | 'events.delete'
         | 'events.publish'
         | 'events.manage-own'
+        | 'clergy-obituaries.create'
+        | 'clergy-obituaries.update'
+        | 'clergy-obituaries.delete'
+        | 'clergy-obituaries.publish'
         | 'publications.create'
         | 'publications.update'
         | 'publications.delete'
@@ -2151,6 +2161,287 @@ export interface BishopMessage {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * ታሪኽ ሕይወት ዝዓረፉ ካህናት፣ ብቐዋሚ ሥርዓተ-ጽሑፍ። / The formal life stories of deceased priests, in the fixed liturgical structure.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clergy-obituaries".
+ */
+export interface ClergyObituary {
+  id: number;
+  /**
+   * Publish this draft automatically at (or soon after) this time — the check runs on a schedule, not to the minute. Requires the same permission as publishing now. Cleared once published.
+   */
+  publishAt?: string | null;
+  honorific: 'ቀሺ' | 'ኣባ' | 'መልኣከ ሰላም' | 'ሊቀ ካህናት' | 'other';
+  honorificOther?: string | null;
+  /**
+   * ንኣብነት፦ ዑቕባገብርኤል ቀሺ ወልደማርያም
+   */
+  fullName: string;
+  photo: number | Media;
+  birthDate: string;
+  /**
+   * ንኣብነት፦ ዓዲጣል
+   */
+  birthPlace: string;
+  /**
+   * ምስ መዓርጎም ይጻሓፍ፣ ንኣብነት፦ ቀሺ ወልደማርያም ተኽለ
+   */
+  fatherName: string;
+  /**
+   * ንኣብነት፦ ወ/ሮ ግደይ ገብረንጉስ
+   */
+  motherName: string;
+  /**
+   * ነቲ ዝዓረፈ ካህን ካብ መዝገብ ካህናት ምረጹ፣ ጥርሑ ዝተረፈ ስም፡ ስእሊ፡ ዕለተ ልደትን ዕለተ ክህነትን ካብኡ ባዕሉ ይመልእ። / Pick the deceased priest from the clergy register — empty name, photo, birth and ordination dates are filled in from it.
+   */
+  relatedPriest?: (number | null) | Priest;
+  deathDate: string;
+  /**
+   * ባዕሉ ይሕሰብ፣ ምቕያር ይከኣል
+   */
+  ageAtDeath?: number | null;
+  placeOfDeath?: string | null;
+  openingParagraph: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  isMarried?: boolean | null;
+  marriage?: {
+    marriageDate?: string | null;
+    /**
+     * ንኣብነት፦ ወ/ሮ ግደይ ካሕሳይ
+     */
+    spouseName?: string | null;
+    /**
+     * ምስ ተመልከተ፡ ቅድሚ ስማ «ነፍስሄርት» ይጻሓፍ። / When ticked, «ነፍስሄርት» is written before her name.
+     */
+    spouseDeceased?: boolean | null;
+    children?:
+      | {
+          name: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  diaconate?: {
+    date?: string | null;
+    bishop?: string | null;
+    place?: string | null;
+  };
+  ordination: {
+    date: string;
+    /**
+     * ምሉእ መዓርጎም ይጻሓፍ፣ ንኣብነት፦ ኣቡነ ማርቆስ ጳጳስ ኦርቶዶክስ ቤተክርስትያን
+     */
+    bishop: string;
+    place?: string | null;
+    church: 'catholic' | 'orthodox' | 'other';
+  };
+  fullCommunion?: {
+    year?: number | null;
+    /**
+     * ንኣብነት፦ ብጹዕ ኣቡነ ኣብርሃ ፍራንሱዋ
+     */
+    authorizingBishop?: string | null;
+  };
+  religiousOrder?: string | null;
+  /**
+   * በብግዜኡ ዝነበሩዎ ኣገልግሎታት፣ ብዕለት መሰርዒ (sortDate) ይሰርዑ። / Assignments in chronological order, sorted by the sort date.
+   */
+  assignments: {
+    /**
+     * ንምስራዕ ጥራይ፣ ዓመት ጥራይ ዝፍለጥ እንተኾይኑ 1 ጥሪ ናይታ ዓመት ይመረጽ።
+     */
+    sortDate: string;
+    /**
+     * ንኣብነት፦ «ካብ 1978-1979»፡ «ብ15 የካቲት 1979»፡ «ብ2010ፈ»
+     */
+    periodDisplay: string;
+    role?: ('ምክትል ቆሞስ' | 'ቆሞስ' | 'ኣገልጋሊ' | 'ንዕረፍቲ' | 'other') | null;
+    roleOther?: string | null;
+    /**
+     * ንኣብነት፦ ደብረ መድሓኔ ዓለም
+     */
+    parishName: string;
+    /**
+     * ንኣብነት፦ በራቒት ንእሽቶ
+     */
+    place?: string | null;
+    /**
+     * ኣማራጺ፣ እታ ቁምስና ኣብ መዝገብ እንተላ ተኣሳስሩ። / Optional link when the parish exists in the register.
+     */
+    parish?: (number | null) | Parish;
+    /**
+     * ዝተሃንጻ ኣብያተ ክርስትያን፡ መንበሪ ቆሞስ፡ ሕድሳት — ነፍሲ ወከፍ ከም ምሉእ ምሉእ ሓሳብ። / Churches built, rectories, renovations — each as a complete sentence.
+     */
+    achievements?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * እቲ ልሙድ ኣገባብ ዘይሰማማዕ እንተኾይኑ፡ ነዛ መስርዕ እዚ ጥራይ ይሕተም። / When set, replaces the standard generated sentence for this row.
+     */
+    sentenceOverride?: string | null;
+    id?: string | null;
+  }[];
+  retirementYear?: number | null;
+  retirementPlace?: string | null;
+  retirementDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  characterVerse?: {
+    reference?: string | null;
+    text?: string | null;
+  };
+  characterSummary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * ንኣብነት፦ ብሓቂ ለዋህ ኣቦ፡ ቦቕባቕ ኣቦ፡ ምልክት ሕያውነትን ትሕትናን፡ ምስ ኩሉ ብሰላም ዝነብሩ
+   */
+  virtues: {
+    text: string;
+    id?: string | null;
+  }[];
+  scriptureReflections?:
+    | {
+        reference: string;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  hopeStatement?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  funeralDate: string;
+  presidingBishop: string;
+  funeralDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * ንኣብነት፦ ደብረ መድሓኔ ዓለም
+   */
+  burialChurch: string;
+  /**
+   * ንኣብነት፦ ዓዲቀይሕ
+   */
+  burialTown: string;
+  openingVerse?: {
+    reference?: string | null;
+    text?: string | null;
+  };
+  ordinationHymn?: {
+    geez?: string | null;
+    tigrinya?: string | null;
+  };
+  acknowledgements?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  condolencePrayer?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  mourningClosed?: boolean | null;
+  mourningClosedText?: string | null;
+  /**
+   * Auto-generated from a transliteration of the full name plus the death year. Stable once saved.
+   */
+  slug: string;
+  publishedAt?: string | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * Eparchy magazine issues (e.g. Tesfanet, Qal Hiwet).
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3007,6 +3298,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'bishops';
         value: number | Bishop;
+      } | null)
+    | ({
+        relationTo: 'clergy-obituaries';
+        value: number | ClergyObituary;
       } | null)
     | ({
         relationTo: 'bishop-messages';
@@ -3884,6 +4179,137 @@ export interface BishopsSelect<T extends boolean = true> {
         note?: T;
         id?: T;
       };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clergy-obituaries_select".
+ */
+export interface ClergyObituariesSelect<T extends boolean = true> {
+  publishAt?: T;
+  honorific?: T;
+  honorificOther?: T;
+  fullName?: T;
+  photo?: T;
+  birthDate?: T;
+  birthPlace?: T;
+  fatherName?: T;
+  motherName?: T;
+  relatedPriest?: T;
+  deathDate?: T;
+  ageAtDeath?: T;
+  placeOfDeath?: T;
+  openingParagraph?: T;
+  isMarried?: T;
+  marriage?:
+    | T
+    | {
+        marriageDate?: T;
+        spouseName?: T;
+        spouseDeceased?: T;
+        children?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+      };
+  diaconate?:
+    | T
+    | {
+        date?: T;
+        bishop?: T;
+        place?: T;
+      };
+  ordination?:
+    | T
+    | {
+        date?: T;
+        bishop?: T;
+        place?: T;
+        church?: T;
+      };
+  fullCommunion?:
+    | T
+    | {
+        year?: T;
+        authorizingBishop?: T;
+      };
+  religiousOrder?: T;
+  assignments?:
+    | T
+    | {
+        sortDate?: T;
+        periodDisplay?: T;
+        role?: T;
+        roleOther?: T;
+        parishName?: T;
+        place?: T;
+        parish?: T;
+        achievements?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        sentenceOverride?: T;
+        id?: T;
+      };
+  retirementYear?: T;
+  retirementPlace?: T;
+  retirementDescription?: T;
+  characterVerse?:
+    | T
+    | {
+        reference?: T;
+        text?: T;
+      };
+  characterSummary?: T;
+  virtues?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  scriptureReflections?:
+    | T
+    | {
+        reference?: T;
+        text?: T;
+        id?: T;
+      };
+  hopeStatement?: T;
+  funeralDate?: T;
+  presidingBishop?: T;
+  funeralDescription?: T;
+  burialChurch?: T;
+  burialTown?: T;
+  openingVerse?:
+    | T
+    | {
+        reference?: T;
+        text?: T;
+      };
+  ordinationHymn?:
+    | T
+    | {
+        geez?: T;
+        tigrinya?: T;
+      };
+  acknowledgements?: T;
+  condolencePrayer?: T;
+  mourningClosed?: T;
+  mourningClosedText?: T;
+  slug?: T;
+  publishedAt?: T;
   seo?:
     | T
     | {

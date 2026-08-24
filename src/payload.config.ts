@@ -30,6 +30,7 @@ import { VisitorStats } from './collections/VisitorStats/index'
 import { PopeMessages } from './collections/PopeMessages/index'
 import { BishopMessages } from './collections/BishopMessages/index'
 import { Bishops } from './collections/Bishops/index'
+import { ClergyObituaries } from './collections/ClergyObituaries/index'
 import { Publications } from './collections/Publications/index'
 import { Magazines } from './collections/Magazines/index'
 import { Archives } from './collections/Archives/index'
@@ -187,6 +188,7 @@ export default buildConfig({
     Priests,
     PopeMessages,
     Bishops,
+    ClergyObituaries,
     BishopMessages,
     Publications,
     Magazines,

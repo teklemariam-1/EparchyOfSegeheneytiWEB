@@ -50,6 +50,7 @@ import * as migration_20260730_162448_priest_profiles from './20260730_162448_pr
 import * as migration_20260731_090000_search_trigram_indexes from './20260731_090000_search_trigram_indexes';
 import * as migration_20260801_054251_events_video_header_controls from './20260801_054251_events_video_header_controls';
 import * as migration_20260801_134506_header_language_toggle from './20260801_134506_header_language_toggle';
+import * as migration_20260824_142158_clergy_obituaries from './20260824_142158_clergy_obituaries';
 
 export const migrations = [
   {
@@ -310,6 +311,11 @@ export const migrations = [
   {
     up: migration_20260801_134506_header_language_toggle.up,
     down: migration_20260801_134506_header_language_toggle.down,
-    name: '20260801_134506_header_language_toggle'
+    name: '20260801_134506_header_language_toggle',
+  },
+  {
+    up: migration_20260824_142158_clergy_obituaries.up,
+    down: migration_20260824_142158_clergy_obituaries.down,
+    name: '20260824_142158_clergy_obituaries'
   },
 ];
