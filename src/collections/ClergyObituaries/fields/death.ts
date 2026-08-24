@@ -7,8 +7,12 @@ import { lexicalFromText } from '../../../lib/payload/lexical'
  * (see components/admin/obituaries/SeasonHint) names the liturgical season of
  * the death date but never writes into the text — the editor does.
  */
+// «ሠናይ ገድሊ» carries guillemets, not ASCII quotes: a `"` inside a prefilled
+// richText default ends up unescaped inside the migration's jsonb DEFAULT
+// literal (Payload codegen does not re-escape it), which is invalid JSON and
+// broke `payload migrate` in CI.
 export const OPENING_PARAGRAPH_DEFAULT =
-  'ሎሚ ኣብ ⟨ዘመነ/ወቕቲ⟩፡ … ነዞም ኣብዛ ምድሪ’ዚኣ ብ"ሠናይ ገድሊ" ዝተጋደሉ፡ ልኡኽ እግዚኣብሔር ዝኾኑ፡ ኣቦና ⟨መዓርግን ስምን⟩ ካብዛ ታህዋኽን ሸበድበድን ዝመልኣ ምድሪ፡ ኣብ መበል ⟨ዕድመ⟩ ዕድመኦም ነፋንዎም ኣሎና።'
+  'ሎሚ ኣብ ⟨ዘመነ/ወቕቲ⟩፡ … ነዞም ኣብዛ ምድሪ’ዚኣ ብ«ሠናይ ገድሊ» ዝተጋደሉ፡ ልኡኽ እግዚኣብሔር ዝኾኑ፡ ኣቦና ⟨መዓርግን ስምን⟩ ካብዛ ታህዋኽን ሸበድበድን ዝመልኣ ምድሪ፡ ኣብ መበል ⟨ዕድመ⟩ ዕድመኦም ነፋንዎም ኣሎና።'
 
 export const deathTab: Field[] = [
   {

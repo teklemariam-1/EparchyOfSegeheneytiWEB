@@ -18871,7 +18871,7 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false,
-          "default": "'{\"root\":{\"type\":\"root\",\"format\":\"\",\"indent\":0,\"version\":1,\"direction\":null,\"children\":[{\"type\":\"paragraph\",\"format\":\"\",\"indent\":0,\"version\":1,\"direction\":null,\"children\":[{\"type\":\"text\",\"text\":\"ሎሚ ኣብ ⟨ዘመነ/ወቕቲ⟩፡ … ነዞም ኣብዛ ምድሪ’ዚኣ ብ\\\"ሠናይ ገድሊ\\\" ዝተጋደሉ፡ ልኡኽ እግዚኣብሔር ዝኾኑ፡ ኣቦና ⟨መዓርግን ስምን⟩ ካብዛ ታህዋኽን ሸበድበድን ዝመልኣ ምድሪ፡ ኣብ መበል ⟨ዕድመ⟩ ዕድመኦም ነፋንዎም ኣሎና።\",\"format\":0,\"style\":\"\",\"mode\":\"normal\",\"detail\":0,\"version\":1}]}]}}'::jsonb"
+          "default": "'{\"root\":{\"type\":\"root\",\"format\":\"\",\"indent\":0,\"version\":1,\"direction\":null,\"children\":[{\"type\":\"paragraph\",\"format\":\"\",\"indent\":0,\"version\":1,\"direction\":null,\"children\":[{\"type\":\"text\",\"text\":\"ሎሚ ኣብ ⟨ዘመነ/ወቕቲ⟩፡ … ነዞም ኣብዛ ምድሪ’ዚኣ ብ«ሠናይ ገድሊ» ዝተጋደሉ፡ ልኡኽ እግዚኣብሔር ዝኾኑ፡ ኣቦና ⟨መዓርግን ስምን⟩ ካብዛ ታህዋኽን ሸበድበድን ዝመልኣ ምድሪ፡ ኣብ መበል ⟨ዕድመ⟩ ዕድመኦም ነፋንዎም ኣሎና።\",\"format\":0,\"style\":\"\",\"mode\":\"normal\",\"detail\":0,\"version\":1}]}]}}'::jsonb"
         },
         "retirement_description": {
           "name": "retirement_description",
@@ -20161,7 +20161,7 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false,
-          "default": "'{\"root\":{\"type\":\"root\",\"format\":\"\",\"indent\":0,\"version\":1,\"direction\":null,\"children\":[{\"type\":\"paragraph\",\"format\":\"\",\"indent\":0,\"version\":1,\"direction\":null,\"children\":[{\"type\":\"text\",\"text\":\"ሎሚ ኣብ ⟨ዘመነ/ወቕቲ⟩፡ … ነዞም ኣብዛ ምድሪ’ዚኣ ብ\\\"ሠናይ ገድሊ\\\" ዝተጋደሉ፡ ልኡኽ እግዚኣብሔር ዝኾኑ፡ ኣቦና ⟨መዓርግን ስምን⟩ ካብዛ ታህዋኽን ሸበድበድን ዝመልኣ ምድሪ፡ ኣብ መበል ⟨ዕድመ⟩ ዕድመኦም ነፋንዎም ኣሎና።\",\"format\":0,\"style\":\"\",\"mode\":\"normal\",\"detail\":0,\"version\":1}]}]}}'::jsonb"
+          "default": "'{\"root\":{\"type\":\"root\",\"format\":\"\",\"indent\":0,\"version\":1,\"direction\":null,\"children\":[{\"type\":\"paragraph\",\"format\":\"\",\"indent\":0,\"version\":1,\"direction\":null,\"children\":[{\"type\":\"text\",\"text\":\"ሎሚ ኣብ ⟨ዘመነ/ወቕቲ⟩፡ … ነዞም ኣብዛ ምድሪ’ዚኣ ብ«ሠናይ ገድሊ» ዝተጋደሉ፡ ልኡኽ እግዚኣብሔር ዝኾኑ፡ ኣቦና ⟨መዓርግን ስምን⟩ ካብዛ ታህዋኽን ሸበድበድን ዝመልኣ ምድሪ፡ ኣብ መበል ⟨ዕድመ⟩ ዕድመኦም ነፋንዎም ኣሎና።\",\"format\":0,\"style\":\"\",\"mode\":\"normal\",\"detail\":0,\"version\":1}]}]}}'::jsonb"
         },
         "version_retirement_description": {
           "name": "version_retirement_description",
@@ -34722,6 +34722,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "913ce5ea-d804-4ebf-bd42-5a834b5e0fec",
+  "id": "5ee46afe-d28f-4c44-86e4-b88b0766ad58",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
